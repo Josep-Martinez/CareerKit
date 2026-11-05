@@ -26,7 +26,8 @@ button, input, textarea, select { color: inherit; }
 .nav-link { color: #626c63; transition: background-color .18s ease, color .18s ease; }
 .nav-link.active { color: #315c47; background: #e9eee8; }
 .nav-dot { background: #477556; }
-.linkedin-mark { display: block; width: 17px; height: 17px; border-radius: 4px; }
+.section-icon-svg { display: block; width: 19px; height: 19px; }
+.nav-link.active .section-icon-svg { stroke-width: 1.9; }
 .privacy-card { background: #f1f2e9; border-color: #e6e7db; }
 .privacy-icon { color: #477556; }
 .connect-button { background: #315c47; transition: background-color .18s ease, transform .18s ease; }
@@ -63,6 +64,7 @@ button, input, textarea, select { color: inherit; }
 .activity-card { padding: 15px 17px; }
 .activity-icon.purple { background: #e9eee8; color: #315c47; }
 .activity-icon.green { background: #eff0e4; color: #657346; }
+.activity-icon .section-icon-svg { width: 17px; height: 17px; }
 .activity-card span { color: #68736b; font-size: 11px; }
 .activity-card strong { font-size: 14px; }
 .activity-card small { color: #737a70; font-size: 11px; }
@@ -153,6 +155,8 @@ button, input, textarea, select { color: inherit; }
   .nav-link { color: #59655c; }
   .nav-link.active { color: #315c47; background: #e9eee8; }
   .nav-link { font-size: 10px; }
+  .nav-icon { width: 22px; font-size: 0; }
+  .nav-icon .section-icon-svg { width: 20px; height: 20px; }
 }
 
 @media (max-width: 480px) {
