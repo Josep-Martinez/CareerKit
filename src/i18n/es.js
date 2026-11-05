@@ -4,7 +4,7 @@ export const NAV = [
   ['linkedin', 'LinkedIn', '↗'],
   ['cv', 'CV', '▤'],
   ['vacancies', 'Vacantes', '◎'],
-  ['prompts', 'Buzón de prompts', '▣'],
+  ['prompts', 'Buzón', '▣'],
 ]
 
 export const STRINGS = {
@@ -111,7 +111,7 @@ export const STRINGS = {
     editHint: 'Añade cada cambio como un punto concreto. Mantén la base coherente con Perfil y LinkedIn; aquí se anotan los ajustes de esta oferta.',
   },
   promptInbox: {
-    title: 'Buzón de prompts',
+    title: 'Buzón',
     eyebrow: 'HERRAMIENTAS PARA TU ASISTENTE',
     subtitle: 'Elige una tarea, copia el texto y pégalo en tu asistente local. La app no envía prompts ni ejecuta agentes.',
     usageTitle: 'Cómo usarlo',
@@ -187,6 +187,6 @@ export const TITLES = {
   linkedin: 'LinkedIn',
   cv: 'CV base',
   vacancies: 'Vacantes',
-  prompts: 'Buzón de prompts',
+  prompts: 'Buzón',
   priorities: 'Prioridades',
 }

@@ -14,6 +14,7 @@ export default function App() {
   const [fallbackOpen, setFallbackOpen] = useState(false)
   const [fallbackSavedModule, setFallbackSavedModule] = useState(null)
   const [folderDialog, setFolderDialog] = useState(null)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [vacancyId, setVacancyId] = useState(null)
   const [confirmDisconnect, setConfirmDisconnect] = useState(false)
   const [cvPromptPending, setCvPromptPending] = useState(false)
@@ -74,6 +75,13 @@ export default function App() {
     return () => { cancelled = true; clearInterval(timer) }
   }, [store.folder, store.revision, store.states])
 
+  useEffect(() => {
+    if (!mobileNavOpen) return undefined
+    const closeOnEscape = (event) => { if (event.key === 'Escape') setMobileNavOpen(false) }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [mobileNavOpen])
+
   async function connect() {
     const result = await store.connect()
     if (result.fallback) setFallbackOpen(true)
@@ -121,14 +129,15 @@ export default function App() {
   const activeVacancy = store.data.vacancies.items.find((v) => v.id === vacancyId)
 
   return <div className="app-shell">
-    <aside className="sidebar">
-      <div className="brand"><div className="brand-mark">C</div><div><strong>CareerKit</strong><span>Tu espacio profesional</span></div></div>
+    <aside className={`sidebar ${mobileNavOpen ? 'is-open' : ''}`}>
+      <div className="brand"><div className="brand-mark">C</div><div><strong>CareerKit</strong><span>Tu espacio profesional</span></div><button className="sidebar-close" onClick={() => setMobileNavOpen(false)} aria-label="Ocultar menú">×</button></div>
       <div className="side-label">ESPACIO</div>
-      <nav aria-label="Secciones principales">{NAV.map(([key, label]) => <button key={key} className={`nav-link ${page === key ? 'active' : ''}`} onClick={() => { setPage(key); setVacancyId(null) }}><span className="nav-icon"><SectionIcon name={key}/></span>{label}{key === 'prompts' && cvPromptPending && <span className="nav-badge" aria-label={s.promptInbox.pendingTag}>1</span>}{page === key && <span className="nav-dot" />}</button>)}</nav>
-      <div className="sidebar-bottom"><div className="privacy-card"><span className="privacy-icon">♧</span><div><strong>Datos en tu dispositivo</strong><p>La app no envía información a ningún servidor.</p></div></div><button className="connect-button" onClick={connect}><span>↗</span>{store.folder ? 'Carpeta conectada' : s.connect}</button><p className="side-note">Permisos de lectura y escritura solicitados al conectar.</p></div>
+      <nav id="primary-nav" aria-label="Secciones principales">{NAV.map(([key, label]) => <button key={key} className={`nav-link ${page === key ? 'active' : ''}`} onClick={() => { setPage(key); setVacancyId(null); setMobileNavOpen(false) }}><span className="nav-icon"><SectionIcon name={key}/></span>{label}{key === 'prompts' && cvPromptPending && <span className="nav-badge" aria-label={s.promptInbox.pendingTag}>1</span>}{page === key && <span className="nav-dot" />}</button>)}</nav>
+      <div className="sidebar-bottom"><div className="privacy-card"><span className="privacy-icon">♧</span><div><strong>Datos en tu dispositivo</strong><p>La app no envía información a ningún servidor.</p></div></div><button className="connect-button" onClick={() => { setMobileNavOpen(false); connect() }}><span>↗</span>{store.folder ? 'Carpeta conectada' : s.connect}</button><p className="side-note">Permisos de lectura y escritura solicitados al conectar.</p></div>
     </aside>
+    <button className={`nav-backdrop ${mobileNavOpen ? 'is-visible' : ''}`} onClick={() => setMobileNavOpen(false)} aria-label="Ocultar menú" tabIndex={mobileNavOpen ? 0 : -1}/>
     <main className="main-area">
-      <header className="topbar"><div className="breadcrumbs">CareerKit <span>/</span> {page === 'home' ? 'Inicio' : TITLES[page]}</div><div className="top-actions"><span className={`connection ${store.folder ? 'is-connected' : ''}`}><i />{store.folder ? 'Datos conectados' : 'Solo vista previa'}</span><button className="avatar">C</button></div></header>
+      <header className="topbar"><button className="mobile-menu-toggle" aria-controls="primary-nav" aria-expanded={mobileNavOpen} aria-label={mobileNavOpen ? 'Ocultar secciones' : 'Mostrar secciones'} onClick={() => setMobileNavOpen((open) => !open)}><span/><span/><span/></button><div className="breadcrumbs">CareerKit <span>/</span> {page === 'home' ? 'Inicio' : TITLES[page]}</div><div className="top-actions"><span className={`connection ${store.folder ? 'is-connected' : ''}`}><i />{store.folder ? 'Datos conectados' : 'Solo vista previa'}</span><button className="avatar">C</button></div></header>
       <section className="page-content">
         {notice && <div className="toast" role="status"><span>{notice}</span>{noticeAction === 'cv-prompt' && <button className="toast-action" onClick={openCvPrompt}>{s.promptInbox.openButton}</button>}<button onClick={() => showNotice('')} aria-label="Cerrar aviso">×</button></div>}
         {!store.folder && <section className="connection-banner" aria-labelledby="connection-banner-title"><div><span className="eyebrow">{s.dataConnection.bannerEyebrow}</span><h2 id="connection-banner-title">{s.dataConnection.bannerTitle}</h2><p>{window.showDirectoryPicker ? s.dataConnection.bannerBody : s.dataConnection.bannerFallback}</p></div><div className="connection-banner-actions"><button className="button primary" onClick={connect}>{s.connect}</button><button className="text-button" onClick={openSetupPrompt}>{s.dataConnection.promptsButton}</button></div></section>}
