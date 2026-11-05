@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://careerkit.invalid/schemas/linkedin.schema.json",
+  "title": "CareerKit LinkedIn snapshot and audit notes",
+  "type": "object", "required": ["schemaVersion", "published", "audits"],
+  "properties": {
+    "schemaVersion": { "const": 1 }, "lastUpdated": { "type": "string" },
+    "published": { "type": "object", "required": ["headline", "about", "experience", "education", "skills", "certifications", "projects", "featured"], "properties": { "headline": { "type": "string" }, "about": { "type": "string" }, "experience": { "type": "array" }, "education": { "type": "array" }, "skills": { "type": "array" }, "certifications": { "type": "array" }, "projects": { "type": "array" }, "featured": { "type": "array" } }, "additionalProperties": true },
+    "audits": { "type": "array", "items": { "type": "object", "required": ["id", "section", "priority", "problem", "reasonEvidence", "recommendation", "proposedText", "date", "status"], "properties": { "id": { "type": "string" }, "section": { "type": "string" }, "priority": { "enum": ["alta", "media", "baja"] }, "problem": { "type": "string" }, "reasonEvidence": { "type": "string" }, "recommendation": { "type": "string" }, "proposedText": { "type": "string" }, "date": { "type": "string" }, "status": { "enum": ["pendiente", "aplicada", "descartada"] } }, "additionalProperties": true } }
+  }, "additionalProperties": true
+}

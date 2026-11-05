@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://careerkit.invalid/schemas/profile.schema.json",
+  "title": "CareerKit profile",
+  "type": "object",
+  "required": ["schemaVersion", "professionalProfile", "objectives", "skills", "experience", "education", "certifications", "languages", "projects", "evidence", "learnings"],
+  "properties": {
+    "schemaVersion": { "const": 1 }, "professionalProfile": { "type": "string" },
+    "objectives": { "type": "object", "required": ["shortTerm", "mediumTerm", "longTerm"], "properties": { "shortTerm": { "type": "string" }, "mediumTerm": { "type": "string" }, "longTerm": { "type": "string" } }, "additionalProperties": true },
+    "skills": { "$ref": "#/$defs/entries" }, "experience": { "$ref": "#/$defs/entries" }, "education": { "$ref": "#/$defs/entries" }, "certifications": { "$ref": "#/$defs/entries" }, "languages": { "$ref": "#/$defs/entries" }, "projects": { "$ref": "#/$defs/entries" }, "evidence": { "$ref": "#/$defs/entries" }, "learnings": { "$ref": "#/$defs/entries" }
+  }, "additionalProperties": true,
+  "$defs": { "entries": { "type": "array", "items": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string", "minLength": 1 }, "title": { "type": "string" }, "name": { "type": "string" }, "organization": { "type": "string" }, "dates": { "type": "string" }, "actions": { "type": "string" }, "results": { "type": "string" }, "confirmed": { "type": "boolean" }, "cvEvidence": { "type": "boolean" }, "onLinkedIn": { "type": "boolean" }, "internal": { "type": "boolean" }, "evidenceIds": { "type": "array", "items": { "type": "string" } } }, "additionalProperties": true } } }
+}
