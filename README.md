@@ -4,12 +4,14 @@ Aplicación web estática, local-first y en español para organizar perfil profe
 
 ## Empezar
 
-Requisitos: Node.js y npm.
+Requisitos: Node.js y pnpm.
 
 ```sh
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
+
+Abre `http://localhost:5173/`. El servidor local debe seguir activo mientras usas la app; para detenerlo, pulsa Ctrl+C en la terminal. No hace falta desplegar ni publicar el proyecto. Este flujo local también permite que un agente que tenga abierto el repositorio trabaje con los mismos JSON de `private-data/`.
 
 La primera apertura está vacía. No se incluyen ejemplos personales. Para crear los datos privados:
 
@@ -42,16 +44,16 @@ Los elementos del perfil y las vacantes usan IDs estables (`id`, UUID recomendad
 
 Consulta `schemas/agent-format.md` para convenciones completas. No copies los datos privados al repositorio.
 
-## GitHub Pages
+## Publicación opcional en GitHub Pages
 
 El build es estático y no contiene recursos de terceros por CDN. Para el repositorio de proyecto `CareerKit`:
 
 ```sh
-GITHUB_PAGES=true npm run build
-npm run check:publish
+GITHUB_PAGES=true pnpm build
+pnpm check:publish
 ```
 
-Publica el contenido de `dist/` con GitHub Pages. `vite.config.js` usa `/CareerKit/` al definir `GITHUB_PAGES=true`; ajusta `base` si el nombre del repositorio cambia. La comprobación falla si `private-data/` está versionado, aparece en `dist/` o encuentra patrones habituales de datos personales en el contenido publicado. Revisa manualmente archivos versionados y el build antes de publicar: la comprobación automatizada es una barrera adicional, no sustituye la revisión humana. No publiques hasta elegir el repositorio destino y solicitarlo.
+Si algún día decides publicarla, usa el contenido de `dist/` con GitHub Pages. `vite.config.js` usa `/CareerKit/` al definir `GITHUB_PAGES=true`; ajusta `base` si el nombre del repositorio cambia. La comprobación falla si `private-data/` está versionado, aparece en `dist/` o encuentra patrones habituales de datos personales en el contenido publicado. Revisa manualmente archivos versionados y el build antes de publicar: la comprobación automatizada es una barrera adicional, no sustituye la revisión humana. No publiques hasta elegir el repositorio destino y solicitarlo.
 
 ## Privacidad
 

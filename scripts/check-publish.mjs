@@ -31,7 +31,7 @@ const personalPatterns = [
   /linkedin\.com\/in\/[\w-]+/i,
 ]
 function looksPersonal(text) {
-  const phoneMatches = [...text.matchAll(/\+?\d[\d\s().-]{7,}\d/g)].filter((match) => (match[0].match(/[ ()-]/g) || []).length >= 2)
+  const phoneMatches = [...text.matchAll(/(?:\+\d{1,3}[ -]?)?(?:\(\d{2,4}\)|\d{2,4})[ -](?:\d{2,4}[ -]){1,3}\d{2,4}/g)]
   return personalPatterns.some((pattern) => pattern.test(text)) || phoneMatches.length > 0
 }
 const versionedTextFiles = tracked.filter((file) => /\.(html|js|jsx|css|json|md|txt|svg|yml|yaml)$/i.test(file) && existsSync(file))

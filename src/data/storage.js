@@ -7,7 +7,7 @@ const isStringList = (value) => Array.isArray(value) && value.every((item) => ty
 const optionalStrings = (value, fields) => fields.every((field) => value[field] === undefined || typeof value[field] === 'string')
 const validators = {
   profile: (d) => typeof d.professionalProfile === 'string' && d.objectives && ['shortTerm','mediumTerm','longTerm'].every((key) => typeof d.objectives[key] === 'string') && entryLists.every((key) => Array.isArray(d[key]) && d[key].every((item) => item && typeof item === 'object' && typeof item.id === 'string')),
-  linkedin: (d) => d.published && typeof d.published.headline === 'string' && typeof d.published.about === 'string' && ['experience','education','skills','certifications','projects','featured'].every((key) => isStringList(d.published[key])) && optionalStrings(d, ['lastUpdated']) && Array.isArray(d.audits) && d.audits.every((item) => item && typeof item.id === 'string' && typeof item.section === 'string' && ['alta','media','baja'].includes(item.priority) && optionalStrings(item, ['problem','reasonEvidence','recommendation','proposedText','date']) && typeof item.problem === 'string' && typeof item.reasonEvidence === 'string' && typeof item.recommendation === 'string' && typeof item.proposedText === 'string' && typeof item.date === 'string' && ['pendiente','aplicada','descartada'].includes(item.status)),
+  linkedin: (d) => d.published && typeof d.published.headline === 'string' && typeof d.published.about === 'string' && ['experience','education','skills','certifications','projects','featured'].every((key) => isStringList(d.published[key])) && optionalStrings(d, ['lastUpdated']) && Array.isArray(d.audits) && d.audits.every((item) => item && typeof item.id === 'string' && typeof item.section === 'string' && ['alta','media','baja'].includes(item.priority) && optionalStrings(item, ['problem','reasonEvidence','recommendation','proposedText','date']) && typeof item.problem === 'string' && typeof item.reasonEvidence === 'string' && typeof item.recommendation === 'string' && typeof item.proposedText === 'string' && typeof item.date === 'string' && ['pendiente','aplicada','descartada'].includes(item.status) && (item.action === undefined || ['corregir','anadir','aclarar'].includes(item.action)) && (item.profileEvidenceIds === undefined || isStringList(item.profileEvidenceIds))),
   cv: (d) => typeof d.masterText === 'string' && typeof d.lastUpdated === 'string' && typeof d.lastReviewed === 'string',
   vacancies: (d) => Array.isArray(d.items) && d.items.every((item) => item && typeof item.id === 'string' && optionalStrings(item, ['role','company','location','modality','link','source','searchedAt','verifiedAt','description','salary','level','jobType','assessment','gaps','blockers']) && (item.matchingEvidenceIds === undefined || isStringList(item.matchingEvidenceIds)) && (item.salaryVerified === undefined || typeof item.salaryVerified === 'boolean') && (item.featured === undefined || typeof item.featured === 'boolean') && (item.preference === undefined || Number.isInteger(item.preference))),
   priorities: (d) => Array.isArray(d.items) && d.items.every((item) => item && typeof item.id === 'string' && typeof item.title === 'string' && ['alta','media','baja'].includes(item.level) && typeof item.reason === 'string' && typeof item.date === 'string' && ['profile','linkedin','cv','vacancies'].includes(item.section) && (item.order === undefined || Number.isInteger(item.order))),
@@ -98,7 +98,7 @@ export function useStorageState() {
 function findUnknown(name, data) {
   const known = {
     profile: ['schemaVersion','professionalProfile','objectives','skills','experience','education','certifications','languages','projects','evidence','learnings'],
-    linkedin: ['schemaVersion','published','audits'], cv: ['schemaVersion','masterText','lastUpdated','lastReviewed'],
+      linkedin: ['schemaVersion','published','lastUpdated','audits'], cv: ['schemaVersion','masterText','lastUpdated','lastReviewed'],
     vacancies: ['schemaVersion','items'], priorities: ['schemaVersion','items'],
   }[name]
   const unknown = Object.keys(data).filter((key) => !known.includes(key))
@@ -110,7 +110,7 @@ function findUnknown(name, data) {
     },
     linkedin: {
       published: ['headline','about','experience','education','skills','certifications','projects','featured'],
-      audit: ['id','section','priority','problem','reasonEvidence','recommendation','proposedText','date','status'],
+      audit: ['id','section','action','priority','problem','reasonEvidence','profileEvidenceIds','recommendation','proposedText','date','status'],
     },
     vacancies: {
       item: ['id','role','company','location','modality','link','source','searchedAt','verifiedAt','description','salary','salaryVerified','level','jobType','assessment','matchingEvidenceIds','gaps','blockers','preference','featured'],
