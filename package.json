@@ -6,9 +6,12 @@
   "packageManager": "pnpm@12.15.0",
   "scripts": {
     "dev": "vite",
+    "local": "vite --host 127.0.0.1",
     "build": "vite build",
+    "pages:prepare": "node scripts/prepare-github-pages.mjs",
     "preview": "vite preview",
-    "check:publish": "node scripts/check-publish.mjs"
+    "check:publish": "node scripts/check-publish.mjs",
+    "data:init": "node scripts/initialize-private-data.mjs"
   },
   "dependencies": { "@vitejs/plugin-react": "latest", "vite": "latest", "react": "latest", "react-dom": "latest" },
   "devDependencies": {}
