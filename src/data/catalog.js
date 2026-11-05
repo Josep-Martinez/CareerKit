@@ -10,7 +10,7 @@ export const EMPTY = {
       english: { masterText: '', lastUpdated: '', lastReviewed: '' },
     },
   },
-  vacancies: { schemaVersion: 1, items: [] },
+  vacancies: { schemaVersion: 2, items: [] },
   priorities: { schemaVersion: 1, items: [] },
 }
 

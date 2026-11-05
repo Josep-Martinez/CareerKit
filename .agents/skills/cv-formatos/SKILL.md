@@ -5,7 +5,7 @@ description: Use when preparing either of CareerKit's two CV layouts or maintain
 
 # Formatos de CV de CareerKit
 
-Usa esta guía con [cv-optimizer](../cv-optimizer/SKILL.md). «Formato español» identifica la maquetación de dos columnas y su versión se redacta en español; «formato inglés» identifica la maquetación de una columna y su versión se redacta en inglés. El país del puesto y sus convenciones son una decisión aparte. Si el usuario pide ambas versiones, prepara cada una por separado y conserva sus textos independientes en `cv.json`.
+Usa esta guía con [cv-optimizer](../cv-optimizer/SKILL.md). «Formato español» identifica la maquetación de dos columnas y su versión se redacta en español; «formato inglés» identifica la maquetación de una columna y su versión se redacta en inglés. El país del puesto y sus convenciones son una decisión aparte. Conserva las dos bases generales en `cv.json` y actualízalas solo cuando el usuario lo pida.
 
 ## Formato español · dos columnas
 
@@ -22,6 +22,10 @@ Usa esta guía con [cv-optimizer](../cv-optimizer/SKILL.md). «Formato español�
 - Do not add a photo by default. If requested, consider local market and submission-channel guidance before recommending one.
 
 ## Shared decisions
+
+- Para preparar o actualizar las bases generales, contrasta `profile.json` con la copia publicada en `linkedin.json`. Conserva en el CV los hechos confirmados y aptos para CV; mantén literal la copia de LinkedIn y no la edites al actualizar el CV. Si las fuentes discrepan sobre un hecho, señala la diferencia y pide confirmación antes de reflejarlo.
+- La aplicación muestra el CV base como consulta. El agente local prepara o actualiza `cv.json` cuando el usuario lo solicita y puede acceder a los ficheros; no afirmes que se guardó si no tienes acceso local.
+- La adaptación específica de una oferta se anota en `vacancies.json` dentro de `cvAdvice`: elige la versión recomendada, explica el motivo y registra por separado los cambios sugeridos para cada idioma. No reescribas el CV base al guardar esas indicaciones.
 
 - Order skills by the selected vacancy's actual tasks and requirements; keep only the strongest relevant skills. Do not copy long keyword lists into the CV.
 - When choosing a subtitle, examine tasks in several current vacancies if the user asks to explore roles. Identify recurring work and suitable role names, then compare them with confirmed evidence. A title match alone is not enough, and no match guarantees an interview or offer.

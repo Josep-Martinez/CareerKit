@@ -2,6 +2,55 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://careerkit.invalid/schemas/vacancies.schema.json",
   "title": "CareerKit vacancies",
-  "type": "object", "required": ["schemaVersion", "items"],
-  "properties": { "schemaVersion": { "const": 1 }, "items": { "type": "array", "items": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string", "minLength": 1 }, "role": { "type": "string" }, "company": { "type": "string" }, "location": { "type": "string" }, "modality": { "type": "string" }, "link": { "type": "string" }, "source": { "type": "string" }, "searchedAt": { "type": "string" }, "verifiedAt": { "type": "string" }, "description": { "type": "string" }, "salary": { "type": "string" }, "salaryVerified": { "type": "boolean" }, "level": { "type": "string" }, "jobType": { "type": "string" }, "assessment": { "type": "string" }, "matchingEvidenceIds": { "type": "array", "items": { "type": "string" } }, "gaps": { "type": "string" }, "blockers": { "type": "string" }, "preference": { "type": "integer" }, "featured": { "type": "boolean" } }, "additionalProperties": true } } }, "additionalProperties": true
+  "type": "object",
+  "required": ["schemaVersion", "items"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "role": { "type": "string" },
+          "company": { "type": "string" },
+          "location": { "type": "string" },
+          "modality": { "type": "string" },
+          "link": { "type": "string" },
+          "source": { "type": "string" },
+          "searchedAt": { "type": "string" },
+          "verifiedAt": { "type": "string" },
+          "description": { "type": "string" },
+          "salary": { "type": "string" },
+          "salaryVerified": { "type": "boolean" },
+          "level": { "type": "string" },
+          "jobType": { "type": "string" },
+          "assessment": { "type": "string" },
+          "matchingEvidenceIds": { "type": "array", "items": { "type": "string" } },
+          "gaps": { "type": "string" },
+          "blockers": { "type": "string" },
+          "preference": { "type": "integer" },
+          "featured": { "type": "boolean" },
+          "cvAdvice": { "$ref": "#/$defs/cvAdvice" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "cvAdvice": {
+      "type": "object",
+      "required": ["recommendedVersion", "reason", "assessedAt", "spanishAdjustments", "englishAdjustments"],
+      "properties": {
+        "recommendedVersion": { "enum": ["spanish", "english", "both", "pending"] },
+        "reason": { "type": "string" },
+        "assessedAt": { "type": "string" },
+        "spanishAdjustments": { "type": "array", "items": { "type": "string" } },
+        "englishAdjustments": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    }
+  }
 }

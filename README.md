@@ -1,6 +1,6 @@
 # CareerKit
 
-Aplicación web estática, local-first y en español para organizar perfil profesional, aprendizajes, LinkedIn, CV, vacantes y prioridades. No incluye cuentas, backend, sincronización, telemetría, analítica ni conexión a modelos. No busca ofertas ni genera recomendaciones.
+Aplicación web estática, local-first y en español para organizar perfil profesional, aprendizajes, LinkedIn, CV, vacantes y prioridades. No incluye cuentas, backend, sincronización, telemetría, analítica ni conexión a modelos. No busca ofertas ni genera recomendaciones automáticamente; un agente local puede guardar una valoración cuando se lo pidas.
 
 ## Abrir CareerKit por primera vez
 
@@ -23,7 +23,7 @@ Los datos permanecen en esos archivos locales. La web necesita permiso para leer
 
 ### Si el navegador no permite conectar una carpeta
 
-La app ofrece abrir o editar un JSON individual y descargar la versión actualizada. Después, sustituye manualmente el fichero correspondiente dentro de `private-data/` y vuelve a conectar o recargarlo. Este modo no sincroniza el archivo mientras editas, no vigila cambios externos y no resuelve conflictos automáticamente. No es una función de exportación general; es una alternativa de guardado para navegadores sin acceso directo.
+La app ofrece abrir o editar un JSON individual y descargar la versión actualizada. Después, sustituye manualmente el fichero correspondiente dentro de `private-data/` y vuelve a conectar o recargarlo. El CV base solo se muestra en modo de consulta; para actualizarlo, pide al agente local que revise Perfil y LinkedIn. Este modo no sincroniza el archivo mientras editas, no vigila cambios externos y no resuelve conflictos automáticamente. No es una función de exportación general; es una alternativa de guardado para navegadores sin acceso directo.
 
 Para desconectar, usa **Desconectar carpeta**. Puedes borrar los datos cargados de la sesión solo mediante la segunda acción confirmada. Esto no borra ficheros locales.
 
@@ -42,7 +42,29 @@ Los elementos del perfil y las vacantes usan IDs estables (`id`, UUID recomendad
 5. Escribe de forma atómica cuando sea posible, preserva UTF-8 y el formato JSON legible. Informa de los archivos efectivamente guardados.
 6. Añade prioridades solo cuando el usuario lo solicite. La app no hace auditorías ni búsquedas automáticas.
 
-El CV maestro guarda dos versiones independientes en `cv.json`: español y inglés. La sección CV permite alternar entre ellas y mantiene sus fechas por separado. El formato español usa dos columnas; el inglés, una columna, y su texto debe estar en inglés. Si conectas un archivo CV antiguo, CareerKit conserva su contenido sin asignarle un idioma y solo lo actualiza cuando guardas después de elegir dónde corresponde.
+### Actualizar la base general del CV
+
+La página de CV muestra dos bases de consulta: formato español y formato inglés. No se editan desde el formulario. Primero actualiza los datos confirmados de **Perfil y aprendizajes** y la copia fiel de **LinkedIn**; después pide al agente local que revise ambas fuentes y actualice `private-data/cv.json`. Si el agente no puede leer esa carpeta, debe decírtelo y no afirmar que guardó cambios.
+
+Puedes pedirlo con este texto:
+
+> Revisa `private-data/profile.json`, `private-data/linkedin.json` y `private-data/cv.json`. Actualiza las dos bases generales del CV a partir de la información confirmada y marcada como evidencia para CV. Mantén la versión española en español y con el formato de dos columnas; la versión inglesa debe estar completamente en inglés y usar una columna. Comprueba que los hechos compartidos coinciden con la copia publicada de LinkedIn. Si hay contradicciones, pregúntame antes de resolverlas. No modifiques LinkedIn. Guarda en `cv.json` solo si tienes acceso local a `private-data/` y confirma qué fichero guardaste.
+
+### Valorar una vacante y preparar los cambios de CV
+
+Al abrir una vacante verás, debajo de su descripción y valoración, qué versión se recomienda y qué convendría adaptar en cada CV. La app no calcula esos cambios. Los guarda el agente local en `vacancies.json` cuando se lo pidas; también puedes anotarlos manualmente desde el formulario de la vacante. Los cambios específicos se mantienen separados de las bases generales.
+
+Puedes pedirlo con este texto:
+
+> Revisa `private-data/vacancies.json` y localiza la vacante que te indique. Contrástala con las evidencias confirmadas de `private-data/profile.json` y con las bases de `private-data/cv.json`. Recomienda el formato español, el inglés o ambos y explica por qué. Añade puntos concretos que habría que adaptar en cada versión dentro de `cvAdvice.spanishAdjustments` y `cvAdvice.englishAdjustments`. Deja clara cualquier carencia demostrable y no inventes experiencia ni fechas. No reescribas las bases del CV. Guarda solo si tienes acceso local a `private-data/` y confirma qué fichero guardaste.
+
+### Buzón de prompts
+
+La sección **Buzón de prompts**, después de Vacantes, reúne textos listos para copiar y explica cuándo usar cada uno: actualizar el CV base, valorar una vacante, auditar LinkedIn, investigar ofertas y añadir prioridades. Los prompts se copian al portapapeles para que tú los pegues en Codex, Claude Code u otro asistente local; CareerKit no los envía ni ejecuta.
+
+Al guardar cambios en Perfil o LinkedIn, el buzón muestra el indicador **1** y un aviso con el prompt «Actualizar la base general del CV». El aviso se mantiene hasta copiar ese prompt. Si el navegador descarga el JSON individual, sustituye primero el archivo dentro de `private-data/` antes de pedir al agente que actualice el CV.
+
+`cv.json` guarda dos versiones independientes de la base general: español e inglés, junto con fechas de revisión y actualización por separado. La sección CV es de consulta; el agente local actualiza esas bases cuando se lo pides, a partir de la información confirmada de Perfil y de la copia publicada en LinkedIn. El formato español usa dos columnas; el inglés, una columna, y su texto debe estar en inglés. Si conectas un archivo CV antiguo, CareerKit conserva su contenido sin asignarle idioma hasta que confirmes cómo tratarlo.
 
 El repositorio incluye guías para adaptar CV en `.agents/skills/`: `cv-optimizer`, `cv-formatos`, `cv-espana` y `cv-europa`. `AGENTS.md` indica cuándo leerlas y cómo usar los datos pertinentes de CareerKit. Son instrucciones para asistentes de programación; la web no las ejecuta ni conecta un modelo. Si tu asistente no las carga automáticamente, pídele que lea `AGENTS.md` y la guía correspondiente. No copies los datos privados al repositorio ni guardes ahí CVs adaptados.
 
