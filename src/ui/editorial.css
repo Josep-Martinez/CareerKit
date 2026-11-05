@@ -243,3 +243,43 @@ button, input, textarea, select { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+.connection-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  margin: 0 0 22px;
+  padding: 18px 20px;
+  border: 1px solid #d8e1d6;
+  border-left: 4px solid #55775e;
+  border-radius: 4px 12px 4px 12px;
+  background: #f1f5ef;
+}
+.connection-banner h2 { margin: 5px 0; color: #294b3b; font-family: Georgia, "Times New Roman", serif; font-size: 20px; font-weight: 500; }
+.connection-banner p { max-width: 680px; margin: 0; color: #647168; font-size: 11px; line-height: 1.6; }
+.connection-banner-actions { display: flex; flex: 0 0 auto; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
+.connection-banner .button.primary { background: #365b45; }
+.connection-banner .text-button { color: #365b45; }
+.save-state.state-warning { color: #8a6a35; }
+.folder-data-modal { max-height: min(88vh, 780px); overflow-y: auto; border-top: 4px solid #6d8064; }
+.folder-data-modal > p { max-width: 680px; }
+.folder-file-list { margin: 12px 0; padding: 12px 14px; border: 1px solid #e3e5db; border-radius: 5px 9px 5px 9px; background: #f8f8f3; color: #4f594e; font-size: 11px; }
+.folder-file-list > b { color: #385440; }
+.folder-file-list ul { display: grid; gap: 8px; margin: 9px 0 0; padding-left: 18px; }
+.folder-file-list li { padding-left: 2px; line-height: 1.45; }
+.folder-file-list li small, .folder-file-list li span { display: block; margin-top: 3px; color: #73786f; font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+.folder-inline-note { margin: 10px 0; padding: 10px 12px; border: 1px solid #e6ddc6; border-radius: 6px; background: #fbf7ec; color: #6d5d3e; font-size: 11px; line-height: 1.5; }
+.folder-prompt-field { margin-top: 14px; }
+.folder-prompt-field textarea { min-height: 120px; color: #485249; font-size: 10px; line-height: 1.55; }
+
+@media (max-width: 780px) {
+  .connection-banner { align-items: flex-start; flex-direction: column; }
+  .connection-banner-actions { justify-content: flex-start; }
+}
+@media (max-width: 480px) {
+  .connection-banner { padding: 15px; }
+  .connection-banner h2 { font-size: 18px; }
+  .connection-banner-actions { width: 100%; align-items: flex-start; flex-direction: column; }
+  .folder-data-modal .modal-actions { display: grid; grid-template-columns: 1fr; }
+}

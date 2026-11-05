@@ -19,6 +19,8 @@ La app queda en la dirección local que indique el servidor, normalmente `http:/
 
 La primera apertura está vacía. No se incluyen ejemplos personales. `pnpm data:init` prepara `private-data/` y copia `profile.json`, `linkedin.json`, `cv.json`, `vacancies.json` y `priorities.json` desde las plantillas vacías, solo cuando cada archivo aún no existe. Conserva los archivos existentes sin leerlos ni sobrescribirlos. `private-data/` está ignorada por Git y no forma parte del build.
 
+Si todavía no has conectado una carpeta, verás una franja que explica cómo conectar tus archivos y abrir el prompt de preparación. Al seleccionar una carpeta sin los JSON, CareerKit muestra una ventana que permite crear solo las plantillas que faltan, tras tu confirmación. Si los JSON existen y tienen el formato correcto pero están vacíos, aparece una ventana que te lleva a **Perfil y aprendizajes** para empezar a rellenarlos. Si un archivo está vacío, mal formado o no coincide con su plantilla, CareerKit lo deja intacto, señala el nombre y te indica cuál archivo de `templates/` revisar. Los demás módulos siguen disponibles. También puedes pedir al asistente local que prepare la carpeta con el prompt del buzón.
+
 Los datos permanecen en esos archivos locales. La web necesita permiso para leerlos y guardarlos. Si el asistente de programación tiene este repositorio abierto localmente, puede editar los mismos JSON; si no tiene acceso a la carpeta, debe pedirte acceso o decirte que no pudo guardar. El permiso del navegador puede tener que concederse de nuevo en otra sesión.
 
 ### Si el navegador no permite conectar una carpeta
@@ -29,15 +31,15 @@ Para desconectar, usa **Desconectar carpeta**. Puedes borrar los datos cargados 
 
 ## Módulos y formato
 
-Cada JSON tiene su propio `schemaVersion` y se valida aisladamente. Los esquemas están en `schemas/`, las plantillas genéricas vacías en `templates/`. Se permiten propiedades adicionales para permitir evolución; si la app encuentra campos superiores desconocidos, los conserva en memoria y avisa. Un JSON inválido o incompatible queda intacto y afecta solo a su sección.
+Cada JSON tiene su propio `schemaVersion` y se valida aisladamente. Los esquemas están en `schemas/`, las plantillas genéricas vacías en `templates/`. Se permiten propiedades adicionales para permitir evolución; si la app encuentra campos desconocidos, los conserva y avisa. Un JSON inválido o incompatible queda intacto, se indica el archivo que debes comparar con `templates/<módulo>.json` y afecta solo a su sección. Antes de guardar se comprueba que el fichero no haya cambiado fuera de la app.
 
 Los elementos del perfil y las vacantes usan IDs estables (`id`, UUID recomendado). `vacancies.items[].matchingEvidenceIds` referencia IDs de `profile.json`. No reutilices un ID para otra evidencia. Las prioridades tienen `id`, título, nivel, motivo, fecha y sección relacionada. Las añade el asistente de programación si el usuario se lo pide; la app no las genera.
 
 ### Instrucciones para asistentes de programación locales
 
-1. Confirma que tienes acceso local a `private-data/`; si no existe, puedes ejecutar `pnpm data:init` para crear solo las plantillas vacías. Si no tienes acceso al repositorio local, pide al usuario que lo abra o deja claro que no guardaste cambios.
-2. Lee únicamente el módulo que el usuario haya pedido revisar y los módulos relacionados necesarios. No busques datos fuera de esta carpeta para rellenar la app.
-3. Valida el JSON contra el esquema de `schemas/` correspondiente y conserva todas las propiedades desconocidas. No reemplaces un fichero mal formado ni inventes datos, fechas, valoraciones o verificaciones.
+1. El agente local puede leer y editar los JSON de `private-data/` cuando la tarea que solicita el usuario lo requiera. Si no tiene acceso local, pide al usuario que abra el proyecto o deja claro que no guardaste cambios.
+2. Trabaja con los datos que el usuario haya guardado en CareerKit. No busques datos en otros proyectos, documentos, PDFs, cuentas de LinkedIn ni navegadores para completar la aplicación, salvo que el usuario lo pida expresamente.
+3. Valida el JSON contra el esquema de `schemas/` correspondiente y conserva todas las propiedades desconocidas. Si un archivo está mal formado, compáralo con `templates/<módulo>.json`, explica el problema y espera instrucciones antes de repararlo. No inventes datos, fechas, valoraciones o verificaciones.
 4. Mantén IDs estables. Para relacionar evidencia con vacantes, referencia `profile.json` mediante `matchingEvidenceIds`.
 5. Escribe de forma atómica cuando sea posible, preserva UTF-8 y el formato JSON legible. Informa de los archivos efectivamente guardados.
 6. Añade prioridades solo cuando el usuario lo solicite. La app no hace auditorías ni búsquedas automáticas.
@@ -74,7 +76,7 @@ Consulta `schemas/agent-format.md` para convenciones completas. Las skills usan 
 
 No hace falta publicar la app para usarla en tu ordenador. Si algún día quieres que esté disponible en GitHub Pages, abre este proyecto en tu asistente y copia el prompt siguiente, sustituyendo el texto entre corchetes por la dirección exacta del repositorio. Esa petición autoriza al asistente a publicarla en ese repositorio:
 
-> Publica CareerKit en GitHub Pages en este repositorio: [pega aquí la dirección exacta]. Antes de publicar, comprueba que `private-data/` no está incluido en el repositorio ni en la web generada, y revisa el código y la web generada para detectar datos personales. No leas el contenido de `private-data/`. Si encuentras un dato personal o no puedes comprobarlo, detente y avísame sin publicar. Prepara la web con pnpm, ajusta la dirección para que funcione en este repositorio y publícala en GitHub Pages. Si no tienes acceso o permisos, explícame qué falta. Al terminar, dame el enlace publicado y confirma si quedó disponible.
+> Publica CareerKit en GitHub Pages en este repositorio: [pega aquí la dirección exacta]. Antes de publicar, comprueba que ningún archivo de `private-data/` está incluido en Git o en la web generada, y revisa los archivos versionados y el build para detectar datos personales. Puedes leer `private-data/` si lo necesitas para verificar que no se ha copiado información personal; no copies ningún dato personal a archivos versionados ni al build. Si encuentras datos personales en el contenido que se publicaría o no puedes comprobarlo, detente y avísame sin publicar. Prepara la web con pnpm, ajusta la dirección para que funcione en este repositorio y publícala en GitHub Pages. Si no tienes acceso o permisos, explícame qué falta. Al terminar, dame el enlace publicado y confirma si quedó disponible.
 
 El asistente debe confirmar que el repositorio de destino coincide con la dirección que indicaste. La comprobación automática detecta algunos patrones habituales, pero no puede reconocer todos los datos personales; si hay dudas, debe detenerse y preguntarte antes de publicar.
 

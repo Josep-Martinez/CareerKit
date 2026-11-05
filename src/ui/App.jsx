@@ -13,6 +13,7 @@ export default function App() {
   const [noticeAction, setNoticeAction] = useState(null)
   const [fallbackOpen, setFallbackOpen] = useState(false)
   const [fallbackSavedModule, setFallbackSavedModule] = useState(null)
+  const [folderDialog, setFolderDialog] = useState(null)
   const [vacancyId, setVacancyId] = useState(null)
   const [confirmDisconnect, setConfirmDisconnect] = useState(false)
   const [cvPromptPending, setCvPromptPending] = useState(false)
@@ -30,6 +31,7 @@ export default function App() {
 
   async function reload(module) {
     const result = await store.reload(module)
+    if (result.error && store.folder) setFolderDialog(await store.recheck())
     if (result.ok && ['profile', 'linkedin'].includes(module)) {
       remindCvPrompt(s.promptInbox.sourceReloaded)
     }
@@ -75,12 +77,41 @@ export default function App() {
   async function connect() {
     const result = await store.connect()
     if (result.fallback) setFallbackOpen(true)
-    else if (result.connected) showNotice('Carpeta conectada. Revisa el estado de cada archivo en su sección.')
-    else if (result.error) showNotice(result.error)
+    else if (result.connected) {
+      const needsHelp = result.missing.length || result.invalid.length || result.emptyData
+      setFolderDialog(needsHelp ? result : null)
+      showNotice(needsHelp ? '' : s.dataConnection.connectedReady)
+    } else if (result.error) showNotice(s.dataConnection.connectFailed)
+  }
+  async function prepareMissing() {
+    const result = await store.prepareMissing(folderDialog?.missing || [])
+    if (result.error) {
+      const scan = await store.recheck()
+      setFolderDialog({ ...scan, preparationError: true })
+      return
+    }
+    setFolderDialog(result.missing.length || result.invalid.length || result.emptyData ? result : null)
+    if (result.created.length) showNotice(s.dataConnection.prepared)
+  }
+  async function recheckFolder() {
+    const result = await store.recheck()
+    if (result.error) {
+      setFolderDialog((previous) => ({ ...previous, recheckError: true }))
+      return
+    }
+    setFolderDialog(result.missing.length || result.invalid.length || result.emptyData ? result : null)
+    if (!result.missing.length && !result.invalid.length && !result.emptyData) showNotice(s.dataConnection.loadedSuccessfully)
+  }
+  function openSetupPrompt() {
+    setFolderDialog(null)
+    setPage('prompts')
+    setVacancyId(null)
+    showNotice('')
   }
   async function save(module, value) {
     const result = await store.save(module, value)
     if (result.conflict) showNotice(`${module}.json cambió fuera de la aplicación. Recárgalo antes de volver a guardar.`)
+    else if (result.needsReview) setFolderDialog(await store.recheck())
     else if (result.fallback) { setFallbackSavedModule(module); showNotice('Cambios preparados. Usa «Guardar JSON individual» para guardar este módulo en tu dispositivo.'); setFallbackOpen(true) }
     else if (result.saved && ['profile', 'linkedin'].includes(module)) { setFallbackSavedModule(null); remindCvPrompt(module === 'profile' ? s.promptInbox.sourceSavedProfile : s.promptInbox.sourceSavedLinkedin) }
     else if (result.saved) { setFallbackSavedModule(null); showNotice(`${module}.json guardado.`) }
@@ -100,6 +131,7 @@ export default function App() {
       <header className="topbar"><div className="breadcrumbs">CareerKit <span>/</span> {page === 'home' ? 'Inicio' : TITLES[page]}</div><div className="top-actions"><span className={`connection ${store.folder ? 'is-connected' : ''}`}><i />{store.folder ? 'Datos conectados' : 'Solo vista previa'}</span><button className="avatar">C</button></div></header>
       <section className="page-content">
         {notice && <div className="toast" role="status"><span>{notice}</span>{noticeAction === 'cv-prompt' && <button className="toast-action" onClick={openCvPrompt}>{s.promptInbox.openButton}</button>}<button onClick={() => showNotice('')} aria-label="Cerrar aviso">×</button></div>}
+        {!store.folder && <section className="connection-banner" aria-labelledby="connection-banner-title"><div><span className="eyebrow">{s.dataConnection.bannerEyebrow}</span><h2 id="connection-banner-title">{s.dataConnection.bannerTitle}</h2><p>{window.showDirectoryPicker ? s.dataConnection.bannerBody : s.dataConnection.bannerFallback}</p></div><div className="connection-banner-actions"><button className="button primary" onClick={connect}>{s.connect}</button><button className="text-button" onClick={openSetupPrompt}>{s.dataConnection.promptsButton}</button></div></section>}
         {page === 'home' && <Home data={store.data} onNavigate={setPage} onVacancy={(v) => { setVacancyId(v.id); setPage('vacancies') }} />}
         {page === 'profile' && <ProfileEditor value={store.data.profile} state={store.states.profile} warning={store.warnings.profile} onSave={(v) => save('profile', v)} onReload={() => reload('profile')} />}
         {page === 'linkedin' && <LinkedInEditor value={store.data.linkedin} profile={store.data.profile} state={store.states.linkedin} warning={store.warnings.linkedin} onSave={(v) => save('linkedin', v)} onReload={() => reload('linkedin')} />}
@@ -110,6 +142,7 @@ export default function App() {
       </section>
     </main>
     {fallbackOpen && <FallbackDialog module={currentModule || 'profile'} data={store.data[currentModule || 'profile']} onClose={() => { setFallbackOpen(false); setFallbackSavedModule(null) }} onDownload={handleFallbackDownload} />}
+    {folderDialog && <FolderDataDialog scan={folderDialog} onClose={() => setFolderDialog(null)} onPrepare={prepareMissing} onRecheck={recheckFolder} onStartProfile={() => { setFolderDialog(null); setPage('profile'); setVacancyId(null) }} onOpenPrompts={openSetupPrompt} />}
     {confirmDisconnect && <div className="modal-backdrop"><div className="modal"><button className="modal-close" onClick={() => setConfirmDisconnect(false)}>×</button><span className="eyebrow">Privacidad</span><h2>Desconectar carpeta</h2><p>La web dejará de leer y guardar los JSON. Puedes borrar también los datos cargados en esta sesión.</p><div className="modal-actions"><button className="button secondary" onClick={() => setConfirmDisconnect(false)}>Cancelar</button><button className="button secondary" onClick={() => { store.disconnect(false); setConfirmDisconnect(false); setNotice('Carpeta desconectada.') }}>Desconectar</button><button className="button danger" onClick={() => { store.disconnect(true); setConfirmDisconnect(false); setNotice('Carpeta desconectada y datos de sesión borrados.') }}>Desconectar y borrar datos de sesión</button></div></div></div>}
   </div>
 }
@@ -124,6 +157,61 @@ function SectionIcon({ name }) {
   return <svg {...common}><rect x="3.5" y="7.5" width="17" height="12.5" rx="2"/><path d="M8.5 7.5V5h7v2.5M3.5 12h17M10 12v2h4v-2"/></svg>
 }
 function PageHeading({ eyebrow, title, subtitle, action }) { return <div className="page-heading"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{subtitle}</p></div>{action}</div> }
+function FolderDataDialog({ scan, onClose, onPrepare, onRecheck, onStartProfile, onOpenPrompts }) {
+  const copy = s.dataConnection
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState('')
+  const missing = scan.missing || []
+  const invalid = scan.invalid || []
+  const hasMissing = missing.length > 0
+  const hasInvalid = invalid.length > 0
+  const isEmpty = Boolean(scan.emptyData && !hasMissing && !hasInvalid)
+  const title = hasMissing
+    ? missing.length === Object.keys(EMPTY).length ? copy.emptyFolderTitle : copy.missingTitle
+    : hasInvalid ? copy.invalidTitle : copy.emptyTitle
+  const prompt = [
+    copy.prompt,
+    hasMissing ? `${copy.missingLabel}: ${missing.map((name) => `${name}.json`).join(', ')}.` : '',
+    hasInvalid ? `${copy.invalidLabel}: ${invalid.map(({ name }) => `${name}.json (compara con templates/${name}.json)`).join(', ')}.` : '',
+  ].filter(Boolean).join('\n\n')
+
+  async function copyInstructions() {
+    try {
+      await navigator.clipboard.writeText(prompt)
+      setMessage(copy.copied)
+    } catch {
+      setMessage(copy.copyFailed)
+    }
+  }
+
+  async function run(action) {
+    setBusy(true)
+    setMessage('')
+    try { await action() }
+    finally { setBusy(false) }
+  }
+
+  return <div className="modal-backdrop"><section className="modal folder-data-modal" role="dialog" aria-modal="true" aria-labelledby="folder-data-title">
+    <button className="modal-close" onClick={onClose} aria-label={copy.close}>×</button>
+    <span className="eyebrow">{s.connected}</span>
+    <h2 id="folder-data-title">{title}</h2>
+    <p>{hasMissing ? copy.missingBody : hasInvalid ? copy.invalidBody : copy.emptyBody}</p>
+    {hasMissing && <div className="folder-file-list"><b>{copy.missingLabel}</b><ul>{missing.map((name) => <li key={name}>{name}.json</li>)}</ul></div>}
+    {hasInvalid && <div className="folder-file-list"><b>{copy.invalidLabel}</b><ul>{invalid.map(({ name, message: detail }) => <li key={name}><strong>{name}.json</strong><small>{detail}</small><span>{copy.templateHint} templates/{name}.json</span></li>)}</ul></div>}
+    {scan.preparationError && <div className="folder-inline-note" role="status">{copy.prepareError}</div>}
+    {scan.recheckError && <div className="folder-inline-note" role="status">{copy.recheckError}</div>}
+    {message && <div className="folder-inline-note" role="status">{message}</div>}
+    {(hasInvalid || hasMissing) && <label className="field folder-prompt-field"><span>{copy.assistantPromptLabel}</span><textarea readOnly rows={5} value={prompt} onFocus={(event) => event.target.select()} aria-label={copy.assistantPromptLabel}/></label>}
+    <div className="modal-actions">
+      {hasMissing && <button className="button primary" disabled={busy} onClick={() => run(onPrepare)}>{busy ? copy.preparing : copy.prepareButton}</button>}
+      {isEmpty && <button className="button primary" onClick={onStartProfile}>{copy.startProfile}</button>}
+      {(hasInvalid || hasMissing) && <button className="button secondary" disabled={busy} onClick={copyInstructions}>{copy.copyInstructions}</button>}
+      {(hasInvalid || hasMissing) && <button className="button secondary" disabled={busy} onClick={() => run(onRecheck)}>{copy.recheckButton}</button>}
+      {isEmpty && <button className="button secondary" onClick={onOpenPrompts}>{copy.openPrompts}</button>}
+      <button className="button secondary" onClick={onClose}>{copy.close}</button>
+    </div>
+  </section></div>
+}
 function Home({ data, onNavigate, onVacancy }) {
   const vacancies = [...data.vacancies.items].filter((item) => item.featured).sort((a, b) => (a.preference || 999) - (b.preference || 999)).slice(0, 3)
   const priorities = [...data.priorities.items].sort((a, b) => (a.order || 999) - (b.order || 999) || ({ alta: 0, media: 1, baja: 2 }[a.level] ?? 3) - ({ alta: 0, media: 1, baja: 2 }[b.level] ?? 3))
@@ -148,7 +236,7 @@ function Home({ data, onNavigate, onVacancy }) {
   </>
 }
 function EmptyState({ text, action, onClick }) { return <div className="empty-state"><div className="empty-symbol">◇</div><p>{text}</p>{action && <button className="text-button" onClick={onClick}>{action} →</button>}</div> }
-function Status({ state, warning, onReload }) { return <>{state && <div className={`save-state ${state.includes('Error') || state.includes('externo') ? 'state-error' : ''}`} role="status"><span>●</span> {state}{state?.includes('externo') && <button onClick={onReload}>Recargar archivo</button>}</div>}{warning && <div className="warning-box">{warning}{state === 'Error' && <button onClick={onReload}>Volver a intentar</button>}{state === 'Cambio externo' && <button onClick={onReload}>Recargar archivo</button>}</div>}</> }
+function Status({ state, warning, onReload }) { return <>{state && <div className={`save-state ${state.includes('Error') || state.includes('externo') ? 'state-error' : ''} ${state.includes('plantilla') ? 'state-warning' : ''}`} role="status"><span>●</span> {state}{state?.includes('externo') && <button onClick={onReload}>Recargar archivo</button>}</div>}{warning && <div className="warning-box">{warning}{state === 'Error' && <button onClick={onReload}>Volver a intentar</button>}{state === 'Cambio externo' && <button onClick={onReload}>Recargar archivo</button>}{state?.includes('plantilla') && <button onClick={onReload}>Volver a comprobar</button>}</div>}</> }
 function useDraft(value) { const [draft, setDraft] = useState(value); useEffect(() => setDraft(value), [value]); return [draft, setDraft] }
 function TextField({ label, value, onChange, placeholder, rows, hint, lang }) { return <label className="field"><span>{label}</span>{rows ? <textarea lang={lang} rows={rows} value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder || ''}/> : <input lang={lang} value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder || ''}/ >}{hint && <small>{hint}</small>}</label> }
 function CardTitle({ title, description, onAdd }) { return <div className="card-title"><div><h3>{title}</h3>{description && <p>{description}</p>}</div>{onAdd && <button className="button secondary small" onClick={onAdd}>＋ Añadir</button>}</div> }
@@ -406,8 +494,13 @@ function FallbackDialog({ module, data, onClose, onDownload }) {
   useEffect(() => setJson(JSON.stringify(data, null, 2)), [data, module])
   function download() {
     try {
-      const normalized = normalizeModule(module, JSON.parse(json)).data
-      if (!validateModule(module, normalized)) throw new Error('El contenido no cumple el esquema del módulo.')
+      let source
+      try { source = JSON.parse(json) }
+      catch { throw new Error(`${module}.json no contiene JSON válido. Revisa templates/${module}.json.`) }
+      let normalized
+      try { normalized = normalizeModule(module, source).data }
+      catch { throw new Error(`${module}.json no coincide con templates/${module}.json y no se ha descargado.`) }
+      if (!validateModule(module, normalized)) throw new Error(`${module}.json no coincide con el formato de templates/${module}.json y no se ha descargado.`)
       const blob = new Blob([JSON.stringify(normalized, null, 2) + '\n'], { type: 'application/json' })
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
