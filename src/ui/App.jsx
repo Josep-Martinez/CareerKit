@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { EMPTY } from '../data/catalog.js'
 import { NAV, STRINGS as s, TITLES } from '../i18n/es.js'
-import { useStorageState, validateModule } from '../data/storage.js'
+import { normalizeModule, useStorageState, validateModule } from '../data/storage.js'
 
 const id = () => crypto.randomUUID()
 const pretty = (value) => value || s.noData
@@ -90,7 +90,19 @@ function Home({ data, onNavigate, onVacancy }) {
   return <><PageHeading eyebrow="TU ESPACIO PROFESIONAL" title="Inicio" subtitle="Una vista clara de lo que estás construyendo." />
     <div className="welcome-card"><div className="welcome-copy"><span className="welcome-label">TU ESPACIO DE TRABAJO</span><h2>Una historia profesional,<br/>bien ordenada.</h2><p>Reúne tu experiencia, materiales y oportunidades en un espacio privado que controlas tú.</p><button className="button light" onClick={() => onNavigate('profile')}>Abrir mi perfil <span>→</span></button></div><div className="welcome-art"><div className="folio-sheet"><span>CAREER NOTES <i>01</i></span><b>Trayectoria<br/>con intención.</b><div className="folio-rule"/><small>PERFIL · APRENDIZAJES · PRÓXIMOS PASOS</small></div><div className="folio-stamp">CK<br/><i>EST. LOCAL</i></div></div></div>
     <div className="section-title-row"><div><span className="eyebrow">A TENER EN CUENTA</span><h2>Tu actividad</h2></div><span className="muted">Fechas registradas</span></div>
-    <div className="activity-grid"><div className="activity-card"><div className="activity-icon purple"><SectionIcon name="cv"/></div><div><span>CV · última revisión</span><strong>{pretty(data.cv.lastReviewed)}</strong><small>Actualizado: {pretty(data.cv.lastUpdated)}</small></div><button onClick={() => onNavigate('cv')} aria-label="Abrir CV">↗</button></div><div className="activity-card"><div className="activity-icon green"><SectionIcon name="linkedin"/></div><div><span>LinkedIn · última auditoría</span><strong>{pretty(data.linkedin.audits.at(-1)?.date)}</strong><small>Actualizado: {pretty(data.linkedin.lastUpdated)}</small></div><button onClick={() => onNavigate('linkedin')} aria-label="Abrir LinkedIn">↗</button></div></div>
+    <div className="activity-grid">
+      <div className="activity-card cv-activity-card">
+        <div className="activity-icon purple"><SectionIcon name="cv"/></div>
+        <div className="cv-activity-copy">
+          <span>{s.cvDates}</span>
+          <small><b>{s.cvEditor.spanishShort}</b> · {s.cvEditor.homeReview}: {pretty(data.cv.versions.spanish.lastReviewed)} · {s.cvEditor.homeUpdated}: {pretty(data.cv.versions.spanish.lastUpdated)}</small>
+          <small><b>{s.cvEditor.englishShort}</b> · {s.cvEditor.homeReview}: {pretty(data.cv.versions.english.lastReviewed)} · {s.cvEditor.homeUpdated}: {pretty(data.cv.versions.english.lastUpdated)}</small>
+          {data.cv.previousVersion && <small>{s.cvEditor.legacyShort} · {s.cvEditor.homeReview}: {pretty(data.cv.previousVersion.lastReviewed)} · {s.cvEditor.homeUpdated}: {pretty(data.cv.previousVersion.lastUpdated)}</small>}
+        </div>
+        <button onClick={() => onNavigate('cv')} aria-label={s.cvEditor.openCV}>↗</button>
+      </div>
+      <div className="activity-card"><div className="activity-icon green"><SectionIcon name="linkedin"/></div><div><span>LinkedIn · última auditoría</span><strong>{pretty(data.linkedin.audits.at(-1)?.date)}</strong><small>Actualizado: {pretty(data.linkedin.lastUpdated)}</small></div><button onClick={() => onNavigate('linkedin')} aria-label="Abrir LinkedIn">↗</button></div>
+    </div>
     <div className="dashboard-grid"><section className="panel"><div className="panel-heading"><div><span className="eyebrow">ORDEN DE PREFERENCIA</span><h2>Vacantes destacadas</h2></div><button className="arrow-link" onClick={() => onNavigate('vacancies')}>Ver todas <span>→</span></button></div>{vacancies.length ? vacancies.map((v, i) => <button className="vacancy-row" key={v.id} onClick={() => onVacancy(v)}><span className="rank">{String(i + 1).padStart(2, '0')}</span><span className="vacancy-logo">{(v.company || '·').slice(0, 1).toUpperCase()}</span><span className="vacancy-main"><b>{v.role || 'Puesto sin título'}</b><small>{v.company || 'Empresa sin registrar'} · {v.location || 'Ubicación sin registrar'}</small></span><span className="mode-tag">{v.modality || 'Sin modalidad'}</span><span className="row-arrow">↗</span></button>) : <EmptyState text="Todavía no has guardado vacantes." action="Añade una vacante" onClick={() => onNavigate('vacancies')} />}</section>
     <section className="panel priorities-panel"><div className="panel-heading"><div><span className="eyebrow">SIGUIENTES PASOS</span><h2>Prioridades</h2></div><span className="tiny-icon">✳</span></div>{priorities.length ? priorities.map((p) => <button className="priority-row" key={p.id} onClick={() => onNavigate(p.section || 'profile')}><span className={`priority-dot ${p.level || 'media'}`} /><span><b>{p.title || 'Prioridad sin título'}</b><small>{p.reason || 'Sin motivo registrado'}</small><small>{pretty(p.date)}</small></span><span className="row-arrow">↗</span></button>) : <div className="agent-note"><span>✳</span><div><b>Sin prioridades todavía</b><p>Un agente puede añadir aquí prioridades cuando le pidas revisar tu perfil o una oferta.</p></div></div>}</section></div>
   </>
@@ -98,7 +110,7 @@ function Home({ data, onNavigate, onVacancy }) {
 function EmptyState({ text, action, onClick }) { return <div className="empty-state"><div className="empty-symbol">◇</div><p>{text}</p>{action && <button className="text-button" onClick={onClick}>{action} →</button>}</div> }
 function Status({ state, warning, onReload }) { return <>{state && <div className={`save-state ${state.includes('Error') || state.includes('externo') ? 'state-error' : ''}`} role="status"><span>●</span> {state}{state?.includes('externo') && <button onClick={onReload}>Recargar archivo</button>}</div>}{warning && <div className="warning-box">{warning}{state === 'Error' && <button onClick={onReload}>Volver a intentar</button>}{state === 'Cambio externo' && <button onClick={onReload}>Recargar archivo</button>}</div>}</> }
 function useDraft(value) { const [draft, setDraft] = useState(value); useEffect(() => setDraft(value), [value]); return [draft, setDraft] }
-function TextField({ label, value, onChange, placeholder, rows, hint }) { return <label className="field"><span>{label}</span>{rows ? <textarea rows={rows} value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder || ''}/> : <input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder || ''}/ >}{hint && <small>{hint}</small>}</label> }
+function TextField({ label, value, onChange, placeholder, rows, hint, lang }) { return <label className="field"><span>{label}</span>{rows ? <textarea lang={lang} rows={rows} value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder || ''}/> : <input lang={lang} value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder || ''}/ >}{hint && <small>{hint}</small>}</label> }
 function CardTitle({ title, description, onAdd }) { return <div className="card-title"><div><h3>{title}</h3>{description && <p>{description}</p>}</div>{onAdd && <button className="button secondary small" onClick={onAdd}>＋ Añadir</button>}</div> }
 function ProfileEditor({ value, state, warning, onSave, onReload }) {
   const [draft, setDraft] = useDraft(value)
@@ -154,7 +166,71 @@ function AuditCard({ item, evidence, onChange, onDelete }) {
     return <div className="audit-evidence-group" key={key}><b>{categoryLabels[key]}</b>{group.map((entry) => <Check key={entry.id} label={`${entry.title || entry.name || 'Sin título'} · ${entry.id}`} checked={selectedIds.includes(entry.id)} onChange={(checked) => onChange({ profileEvidenceIds: checked ? [...selectedIds, entry.id] : selectedIds.filter((value) => value !== entry.id) })}/>)}</div>
   })}{!evidence.length && <p className="quiet-empty">Añade primero evidencias o aprendizajes en Perfil.</p>}<TextField label="Otros IDs de perfil/aprendizajes" value={selectedIds.filter((value) => !evidence.some((entry) => entry.id === value)).join(', ')} onChange={(v) => { const known = selectedIds.filter((value) => evidence.some((entry) => entry.id === value)); const extra = v.split(',').map((value) => value.trim()).filter(Boolean); onChange({ profileEvidenceIds: [...known, ...extra] }) }} hint="Los IDs deben existir en profile.json."/></fieldset><TextField label="Qué corregir o añadir" rows={2} value={item.recommendation} onChange={(v) => onChange({ recommendation: v })}/><TextField label="Texto propuesto (opcional)" rows={3} value={item.proposedText} onChange={(v) => onChange({ proposedText: v })}/><div className="form-two"><TextField label="Fecha de auditoría" value={item.date} onChange={(v) => onChange({ date: v })}/><label className="field"><span>Estado</span><select value={item.status || 'pendiente'} onChange={(e) => onChange({ status: e.target.value })}><option value="pendiente">Pendiente</option><option value="aplicada">Aplicada</option><option value="descartada">Descartada</option></select></label></div></div>
 }
-function CVEditor({ value, state, warning, onSave, onReload }) { const [draft, setDraft] = useDraft(value); return <><PageHeading eyebrow="DOCUMENTO PRINCIPAL" title="CV maestro" subtitle="Tu versión completa, con historial de revisión y actualización."/><Status state={state} warning={warning} onReload={onReload}/><div className="cv-layout"><section className="panel form-panel"><CardTitle title="Texto del CV maestro" description="Mantén aquí el texto completo del documento."/><TextField label="Contenido" rows={22} value={draft.masterText} onChange={(v) => setDraft({ ...draft, masterText: v })} placeholder="Escribe o pega aquí el contenido completo de tu CV…"/><div className="form-two"><TextField label="Última actualización" value={draft.lastUpdated} onChange={(v) => setDraft({ ...draft, lastUpdated: v })} hint="Fecha manual; déjala vacía si no está registrada."/><TextField label="Última revisión" value={draft.lastReviewed} onChange={(v) => setDraft({ ...draft, lastReviewed: v })}/></div><button className="button primary save-button" onClick={() => onSave(draft)}>Guardar CV maestro</button></section><aside className="tip-card cv-tip"><span className="tip-icon">▤</span><h3>Una base, muchas posibilidades</h3><p>El CV maestro recoge tu trayectoria completa. Un agente externo puede preparar una adaptación cuando se lo pidas.</p><span className="privacy-tag">La app no genera CV automáticamente</span></aside></div></> }
+function CVEditor({ value, state, warning, onSave, onReload }) {
+  const [draft, setDraft] = useDraft(value)
+  const [activeVersion, setActiveVersion] = useState('spanish')
+  const copy = s.cvEditor
+  const spanish = activeVersion === 'spanish'
+  const current = draft.versions[activeVersion]
+  const targetVersion = (name) => draft.versions[name]
+  const hasContent = (version) => Boolean(version.masterText || version.lastUpdated || version.lastReviewed)
+  const guide = spanish ? copy.spanishGuide : copy.englishGuide
+  const guideTitle = spanish ? copy.spanishGuideTitle : copy.englishGuideTitle
+
+  function updateVersion(field, nextValue) {
+    setDraft({ ...draft, versions: { ...draft.versions, [activeVersion]: { ...current, [field]: nextValue } } })
+  }
+
+  function assignPrevious(target) {
+    const existing = targetVersion(target)
+    if (!draft.previousVersion || hasContent(existing)) return
+    const next = {
+      ...draft,
+      versions: { ...draft.versions, [target]: { ...draft.previousVersion } },
+    }
+    delete next.previousVersion
+    setDraft(next)
+    setActiveVersion(target)
+  }
+
+  return <>
+    <PageHeading eyebrow="DOCUMENTO PRINCIPAL" title={copy.title} subtitle={copy.subtitle}/>
+    <Status state={state} warning={warning} onReload={onReload}/>
+    <div className="cv-version-switch" role="group" aria-label={copy.versionGroup}>
+      <button type="button" className={spanish ? 'selected' : ''} aria-pressed={spanish} onClick={() => setActiveVersion('spanish')}>
+        <span>{copy.spanishTab}</span>
+      </button>
+      <button type="button" className={!spanish ? 'selected' : ''} aria-pressed={!spanish} onClick={() => setActiveVersion('english')}>
+        <span>{copy.englishTab}</span>
+      </button>
+    </div>
+    {draft.previousVersion && <section className="cv-legacy-notice" aria-labelledby="cv-legacy-title">
+      <div><h2 id="cv-legacy-title">{copy.legacyTitle}</h2><p>{copy.legacyText}</p></div>
+      <pre className="cv-legacy-content">{draft.previousVersion.masterText || copy.noLegacyText}</pre>
+      <div className="cv-legacy-actions">
+        <button className="button secondary small" disabled={hasContent(targetVersion('spanish'))} onClick={() => assignPrevious('spanish')}>{copy.legacySpanish}</button>
+        <button className="button secondary small" disabled={hasContent(targetVersion('english'))} onClick={() => assignPrevious('english')}>{copy.legacyEnglish}</button>
+      </div>
+      {(hasContent(targetVersion('spanish')) || hasContent(targetVersion('english'))) && <small>{copy.legacyOccupied}</small>}
+    </section>}
+    <div className="cv-layout">
+      <section className="panel form-panel">
+        <div className={`cv-format-guide ${spanish ? 'spanish' : 'english'}`}>
+          <span className="eyebrow">{guideTitle}</span>
+          <p>{guide}</p>
+          {spanish && <small>{copy.photoNote}</small>}
+        </div>
+        <TextField label={spanish ? copy.contentSpanish : copy.contentEnglish} lang={spanish ? 'es' : 'en'} rows={22} value={current.masterText} onChange={(v) => updateVersion('masterText', v)} placeholder={spanish ? copy.placeholderSpanish : copy.placeholderEnglish}/>
+        <div className="form-two">
+          <TextField label={copy.lastUpdated} value={current.lastUpdated} onChange={(v) => updateVersion('lastUpdated', v)} hint={copy.dateHint}/>
+          <TextField label={copy.lastReviewed} value={current.lastReviewed} onChange={(v) => updateVersion('lastReviewed', v)} hint={copy.dateHint}/>
+        </div>
+        <button className="button primary save-button" onClick={() => onSave(draft)}>{spanish ? copy.saveSpanish : copy.saveEnglish}</button>
+      </section>
+      <aside className="tip-card cv-tip"><span className="tip-icon">▤</span><h3>{copy.tipTitle}</h3><p>{copy.tipBody}</p><span className="privacy-tag">La app no genera CV automáticamente</span></aside>
+    </div>
+  </>
+}
 function Vacancies({ value, state, warning, onSave, onReload, onSelect }) {
   const [draft, setDraft] = useDraft(value)
   const [selected, setSelected] = useState(null)
@@ -166,4 +242,29 @@ function Vacancies({ value, state, warning, onSave, onReload, onSelect }) {
     {detail ? <section className="panel form-panel vacancy-form"><div className="panel-heading"><div><span className="eyebrow">DETALLE DE LA OFERTA</span><h2>{detail.role || 'Nueva vacante'}</h2></div><button className="icon-button" aria-label="Eliminar vacante" onClick={() => { setDraft({ ...draft, items: draft.items.filter((v) => v.id !== detail.id) }); setSelected(null) }}>×</button></div><div className="form-two"><TextField label="Puesto" value={detail.role} onChange={(v) => patch(detail.id, { role: v })}/><TextField label="Empresa" value={detail.company} onChange={(v) => patch(detail.id, { company: v })}/></div><div className="form-two"><TextField label="Ubicación" value={detail.location} onChange={(v) => patch(detail.id, { location: v })}/><TextField label="Modalidad" value={detail.modality} onChange={(v) => patch(detail.id, { modality: v })}/></div><div className="form-two"><TextField label="Enlace" value={detail.link} onChange={(v) => patch(detail.id, { link: v })}/><TextField label="Fuente" value={detail.source} onChange={(v) => patch(detail.id, { source: v })}/></div><div className="form-two"><TextField label="Fecha de búsqueda" value={detail.searchedAt} onChange={(v) => patch(detail.id, { searchedAt: v })}/><TextField label="Fecha de verificación" value={detail.verifiedAt} onChange={(v) => patch(detail.id, { verifiedAt: v })}/></div><TextField label="Descripción completa" rows={7} value={detail.description} onChange={(v) => patch(detail.id, { description: v })}/><div className="form-two"><TextField label="Salario o banda" value={detail.salary} onChange={(v) => patch(detail.id, { salary: v })}/><Check label="Salario verificado" checked={detail.salaryVerified} onChange={(v) => patch(detail.id, { salaryVerified: v })}/></div><div className="form-two"><TextField label="Nivel" value={detail.level} onChange={(v) => patch(detail.id, { level: v })}/><TextField label="Tipo de puesto" value={detail.jobType} onChange={(v) => patch(detail.id, { jobType: v })}/></div><TextField label="Valoración del agente" rows={3} value={detail.assessment} onChange={(v) => patch(detail.id, { assessment: v })}/><TextField label="Evidencias de encaje (IDs estables del perfil)" value={detail.matchingEvidenceIds.join(', ')} onChange={(v) => patch(detail.id, { matchingEvidenceIds: v.split(',').map((x) => x.trim()).filter(Boolean) })}/><TextField label="Carencias demostrables" rows={2} value={detail.gaps} onChange={(v) => patch(detail.id, { gaps: v })}/><TextField label="Posibles bloqueos" rows={2} value={detail.blockers} onChange={(v) => patch(detail.id, { blockers: v })}/><div className="form-two"><TextField label="Orden de preferencia" value={detail.preference} onChange={(v) => patch(detail.id, { preference: Number(v) })}/><Check label="Destacar en Inicio" checked={detail.featured} onChange={(v) => patch(detail.id, { featured: v })}/></div><button className="button secondary" onClick={() => onSave(draft)}>Guardar cambios</button></section> : <aside className="vacancy-aside"><div className="tip-card"><span className="tip-icon">◎</span><h3>Tu lista, a tu ritmo</h3><p>Las ofertas no se buscan automáticamente. Añade una cuando la hayas investigado.</p></div><div className="legend-card"><h3>Relación con el perfil</h3><p>Relaciona cada valoración con evidencias mediante sus identificadores estables.</p></div></aside>}</div></>
 }
 function VacancyDetail({ value, onBack }) { return <><button className="back-link" onClick={onBack}>← Volver a vacantes</button><PageHeading eyebrow="DETALLE DE LA OFERTA" title={value.role || 'Vacante'} subtitle={`${value.company || 'Empresa sin registrar'} · ${value.location || 'Ubicación sin registrar'}`}/><div className="detail-grid"><section className="panel detail-panel"><div className="detail-tags"><span>{value.modality || 'Modalidad sin registrar'}</span><span>Preferencia {value.preference || '—'}</span></div><h2>Descripción</h2><p className="preline">{value.description || 'Sin registrar'}</p><h2>Valoración</h2><p className="preline">{value.assessment || 'Sin registrar'}</p><h2>Evidencias de encaje</h2><p>{value.matchingEvidenceIds?.join(', ') || 'Sin registrar'}</p><h2>Carencias y bloqueos</h2><p className="preline">{[value.gaps, value.blockers].filter(Boolean).join('\n') || 'Sin registrar'}</p></section><aside className="legend-card"><h3>Datos de la oferta</h3><dl><dt>Salario</dt><dd>{value.salary ? `${value.salary} · ${value.salaryVerified ? 'verificado' : 'sin verificar'}` : 'Sin registrar'}</dd><dt>Nivel</dt><dd>{pretty(value.level)}</dd><dt>Tipo</dt><dd>{pretty(value.jobType)}</dd><dt>Fuente</dt><dd>{pretty(value.source)}</dd><dt>Verificada</dt><dd>{pretty(value.verifiedAt)}</dd></dl>{value.link && <a className="button secondary" href={value.link} target="_blank" rel="noreferrer">Abrir fuente ↗</a>}</aside></div></> }
-function FallbackDialog({ module, data, onClose }) { const [json, setJson] = useState(JSON.stringify(data, null, 2)); useEffect(() => setJson(JSON.stringify(data, null, 2)), [data, module]); return <div className="modal-backdrop"><div className="modal fallback-modal"><button className="modal-close" onClick={onClose}>×</button><span className="eyebrow">ACCESO AL ALMACENAMIENTO</span><h2>Guardar un JSON individual</h2><p>Este navegador no ofrece conexión directa a carpetas. Puedes abrir <b>{module}.json</b>, cargarlo y descargar una versión editada. Sustituye el fichero manualmente en tu carpeta privada.</p><label className="button secondary file-button">Abrir {module}.json<input type="file" accept="application/json,.json" onChange={(e) => { const f=e.target.files?.[0]; if (f) { const reader = new FileReader(); reader.onload = () => setJson(String(reader.result)); reader.readAsText(f) } }}/></label><textarea className="json-editor" aria-label="Contenido del archivo JSON" value={json} onChange={(e) => setJson(e.target.value)} spellCheck="false"/><div className="modal-actions"><button className="button secondary" onClick={onClose}>Cerrar</button><button className="button primary" onClick={() => { try { const parsed=JSON.parse(json); if (!validateModule(module, parsed)) throw new Error('El contenido no cumple el esquema del módulo.'); const blob=new Blob([JSON.stringify(parsed,null,2)+'\n'],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${module}.json`; a.click(); URL.revokeObjectURL(a.href) } catch { alert('El contenido no es JSON válido para este módulo; no se ha descargado.') } }}>Descargar {module}.json actualizado</button></div><small className="limit-note">El modo manual no detecta cambios externos ni sincroniza el fichero con esta página.</small></div></div> }
+function FallbackDialog({ module, data, onClose }) {
+  const [json, setJson] = useState(JSON.stringify(data, null, 2))
+  useEffect(() => setJson(JSON.stringify(data, null, 2)), [data, module])
+  function download() {
+    try {
+      const normalized = normalizeModule(module, JSON.parse(json)).data
+      if (!validateModule(module, normalized)) throw new Error('El contenido no cumple el esquema del módulo.')
+      const blob = new Blob([JSON.stringify(normalized, null, 2) + '\n'], { type: 'application/json' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = `${module}.json`
+      link.click()
+      URL.revokeObjectURL(link.href)
+    } catch (error) {
+      alert(`${error.message || 'El contenido no es JSON válido para este módulo.'} No se ha descargado.`)
+    }
+  }
+  return <div className="modal-backdrop"><div className="modal fallback-modal">
+    <button className="modal-close" onClick={onClose}>×</button><span className="eyebrow">ACCESO AL ALMACENAMIENTO</span><h2>Guardar un JSON individual</h2>
+    <p>Este navegador no ofrece conexión directa a carpetas. Puedes abrir <b>{module}.json</b>, cargarlo y descargar una versión editada. Sustituye el fichero manualmente en tu carpeta privada.</p>
+    <label className="button secondary file-button">Abrir {module}.json<input type="file" accept="application/json,.json" onChange={(event) => { const file = event.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onload = () => setJson(String(reader.result)); reader.readAsText(file) } }}/></label>
+    <textarea className="json-editor" aria-label="Contenido del archivo JSON" value={json} onChange={(event) => setJson(event.target.value)} spellCheck="false"/>
+    <div className="modal-actions"><button className="button secondary" onClick={onClose}>Cerrar</button><button className="button primary" onClick={download}>Descargar {module}.json actualizado</button></div>
+    <small className="limit-note">El modo manual no detecta cambios externos ni sincroniza el fichero con esta página.</small>
+  </div></div>
+}

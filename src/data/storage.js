@@ -3,16 +3,36 @@ import { EMPTY, FILES } from './catalog.js'
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
 const entryLists = ['skills', 'experience', 'education', 'certifications', 'languages', 'projects', 'evidence', 'learnings']
+const schemaVersions = { profile: 1, linkedin: 1, cv: 2, vacancies: 1, priorities: 1 }
 const isStringList = (value) => Array.isArray(value) && value.every((item) => typeof item === 'string')
 const optionalStrings = (value, fields) => fields.every((field) => value[field] === undefined || typeof value[field] === 'string')
+const validCVVersion = (value) => value && typeof value === 'object' && typeof value.masterText === 'string' && typeof value.lastUpdated === 'string' && typeof value.lastReviewed === 'string'
+const validLegacyCV = (value) => value && value.schemaVersion === 1 && typeof value.masterText === 'string' && typeof value.lastUpdated === 'string' && typeof value.lastReviewed === 'string'
 const validators = {
   profile: (d) => typeof d.professionalProfile === 'string' && d.objectives && ['shortTerm','mediumTerm','longTerm'].every((key) => typeof d.objectives[key] === 'string') && entryLists.every((key) => Array.isArray(d[key]) && d[key].every((item) => item && typeof item === 'object' && typeof item.id === 'string')),
   linkedin: (d) => d.published && typeof d.published.headline === 'string' && typeof d.published.about === 'string' && ['experience','education','skills','certifications','projects','featured'].every((key) => isStringList(d.published[key])) && optionalStrings(d, ['lastUpdated']) && Array.isArray(d.audits) && d.audits.every((item) => item && typeof item.id === 'string' && typeof item.section === 'string' && ['alta','media','baja'].includes(item.priority) && optionalStrings(item, ['problem','reasonEvidence','recommendation','proposedText','date']) && typeof item.problem === 'string' && typeof item.reasonEvidence === 'string' && typeof item.recommendation === 'string' && typeof item.proposedText === 'string' && typeof item.date === 'string' && ['pendiente','aplicada','descartada'].includes(item.status) && (item.action === undefined || ['corregir','anadir','aclarar'].includes(item.action)) && (item.profileEvidenceIds === undefined || isStringList(item.profileEvidenceIds))),
-  cv: (d) => typeof d.masterText === 'string' && typeof d.lastUpdated === 'string' && typeof d.lastReviewed === 'string',
+  cv: (d) => d.versions && validCVVersion(d.versions.spanish) && validCVVersion(d.versions.english) && (d.previousVersion === undefined || validCVVersion(d.previousVersion)),
   vacancies: (d) => Array.isArray(d.items) && d.items.every((item) => item && typeof item.id === 'string' && optionalStrings(item, ['role','company','location','modality','link','source','searchedAt','verifiedAt','description','salary','level','jobType','assessment','gaps','blockers']) && (item.matchingEvidenceIds === undefined || isStringList(item.matchingEvidenceIds)) && (item.salaryVerified === undefined || typeof item.salaryVerified === 'boolean') && (item.featured === undefined || typeof item.featured === 'boolean') && (item.preference === undefined || Number.isInteger(item.preference))),
   priorities: (d) => Array.isArray(d.items) && d.items.every((item) => item && typeof item.id === 'string' && typeof item.title === 'string' && ['alta','media','baja'].includes(item.level) && typeof item.reason === 'string' && typeof item.date === 'string' && ['profile','linkedin','cv','vacancies'].includes(item.section) && (item.order === undefined || Number.isInteger(item.order))),
 }
-export const validateModule = (name, value) => Boolean(value && typeof value === 'object' && value.schemaVersion === 1 && validators[name]?.(value))
+export const validateModule = (name, value) => Boolean(value && typeof value === 'object' && value.schemaVersion === schemaVersions[name] && validators[name]?.(value))
+
+export function normalizeModule(name, value) {
+  if (name !== 'cv' || value?.schemaVersion !== 1 || !validLegacyCV(value)) return { data: value, migrated: false }
+  const conflicts = ['versions', 'previousVersion'].filter((key) => Object.hasOwn(value, key))
+  if (conflicts.length) throw new Error(`cv.json contiene campos que pueden entrar en conflicto con la nueva estructura (${conflicts.join(', ')}). No se ha modificado.`)
+  const { masterText, lastUpdated, lastReviewed, ...unknownFields } = value
+  const data = {
+    ...unknownFields,
+    schemaVersion: 2,
+    versions: {
+      spanish: { masterText: '', lastUpdated: '', lastReviewed: '' },
+      english: { masterText: '', lastUpdated: '', lastReviewed: '' },
+    },
+  }
+  if (masterText || lastUpdated || lastReviewed) data.previousVersion = { masterText, lastUpdated, lastReviewed }
+  return { data, migrated: true }
+}
 
 export function useStorageState() {
   const [folder, setFolder] = useState(null)
@@ -25,13 +45,20 @@ export function useStorageState() {
     const fileHandle = await handle.getFileHandle(`${name}.json`)
     const file = await fileHandle.getFile()
     const raw = await file.text()
-    const parsed = JSON.parse(raw)
-    if (!validateModule(name, parsed)) throw new Error(`${name}.json no cumple el esquema v1.`)
+    const normalized = normalizeModule(name, JSON.parse(raw))
+    const parsed = normalized.data
+    if (!validateModule(name, parsed)) throw new Error(`${name}.json no cumple el esquema v${schemaVersions[name]}.`)
     const unknown = findUnknown(name, parsed)
     setData((prev) => ({ ...prev, [name]: parsed }))
     setRevision((prev) => ({ ...prev, [name]: raw }))
-    setStates((prev) => ({ ...prev, [name]: 'Cargado' }))
-    setWarnings((prev) => ({ ...prev, [name]: unknown.length ? `Campos no reconocidos preservados: ${unknown.join(', ')}` : '' }))
+    setStates((prev) => ({ ...prev, [name]: normalized.migrated ? 'Migración pendiente' : 'Cargado' }))
+    const migrationWarning = normalized.migrated
+      ? parsed.previousVersion
+        ? 'Se conservó el CV anterior sin asignarle idioma. Elige Español o Inglés para incorporarlo; el archivo original no cambia hasta que guardes.'
+        : 'El archivo anterior se preparó para las dos versiones y solo se actualizará cuando guardes.'
+      : ''
+    const unknownWarning = unknown.length ? `Campos no reconocidos preservados: ${unknown.join(', ')}` : ''
+    setWarnings((prev) => ({ ...prev, [name]: [migrationWarning, unknownWarning].filter(Boolean).join(' ') }))
   }
 
   async function connect() {
@@ -53,7 +80,7 @@ export function useStorageState() {
   }
 
   async function save(name, next) {
-    const safe = { ...next, schemaVersion: 1 }
+    const safe = { ...next, schemaVersion: schemaVersions[name] }
     if (!validateModule(name, safe)) return { error: 'El contenido no cumple el esquema del módulo.' }
     setData((prev) => ({ ...prev, [name]: safe }))
     if (!folder) { setStates((prev) => ({ ...prev, [name]: 'Pendiente de guardar' })); return { fallback: true } }
@@ -71,6 +98,8 @@ export function useStorageState() {
       await writable.close()
       setRevision((prev) => ({ ...prev, [name]: raw }))
       setStates((prev) => ({ ...prev, [name]: 'Guardado' }))
+      const unknown = findUnknown(name, safe)
+      setWarnings((prev) => ({ ...prev, [name]: unknown.length ? `Campos no reconocidos preservados: ${unknown.join(', ')}` : '' }))
       return { saved: true }
     } catch (error) {
       setStates((prev) => ({ ...prev, [name]: 'Error' }))
@@ -98,7 +127,7 @@ export function useStorageState() {
 function findUnknown(name, data) {
   const known = {
     profile: ['schemaVersion','professionalProfile','objectives','skills','experience','education','certifications','languages','projects','evidence','learnings'],
-      linkedin: ['schemaVersion','published','lastUpdated','audits'], cv: ['schemaVersion','masterText','lastUpdated','lastReviewed'],
+      linkedin: ['schemaVersion','published','lastUpdated','audits'], cv: ['schemaVersion','versions','previousVersion'],
     vacancies: ['schemaVersion','items'], priorities: ['schemaVersion','items'],
   }[name]
   const unknown = Object.keys(data).filter((key) => !known.includes(key))
@@ -116,6 +145,7 @@ function findUnknown(name, data) {
       item: ['id','role','company','location','modality','link','source','searchedAt','verifiedAt','description','salary','salaryVerified','level','jobType','assessment','matchingEvidenceIds','gaps','blockers','preference','featured'],
     },
     priorities: { item: ['id','title','level','reason','date','section','order'] },
+    cv: { version: ['masterText','lastUpdated','lastReviewed'] },
   }[name]
   const inspect = (value, allowed, path) => {
     if (!value || typeof value !== 'object' || Array.isArray(value) || !allowed) return
@@ -128,6 +158,12 @@ function findUnknown(name, data) {
   if (name === 'linkedin') {
     inspect(data.published, rules.published, 'published')
     ;(data.audits || []).forEach((item, index) => inspect(item, rules.audit, `audits[${index}]`))
+  }
+  if (name === 'cv') {
+    inspect(data.versions, ['spanish','english'], 'versions')
+    inspect(data.versions?.spanish, rules.cv.version, 'versions.spanish')
+    inspect(data.versions?.english, rules.cv.version, 'versions.english')
+    inspect(data.previousVersion, rules.cv.version, 'previousVersion')
   }
   if (name === 'vacancies') (data.items || []).forEach((item, index) => inspect(item, rules.item, `items[${index}]`))
   if (name === 'priorities') (data.items || []).forEach((item, index) => inspect(item, rules.item, `items[${index}]`))

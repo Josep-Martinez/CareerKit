@@ -1,6 +1,15 @@
 {
-  "schemaVersion": 1,
-  "masterText": "",
-  "lastUpdated": "",
-  "lastReviewed": ""
+  "schemaVersion": 2,
+  "versions": {
+    "spanish": {
+      "masterText": "",
+      "lastUpdated": "",
+      "lastReviewed": ""
+    },
+    "english": {
+      "masterText": "",
+      "lastUpdated": "",
+      "lastReviewed": ""
+    }
+  }
 }

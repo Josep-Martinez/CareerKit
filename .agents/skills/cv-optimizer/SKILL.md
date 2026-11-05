@@ -19,14 +19,15 @@ Prepare clear, relevant CV content from the user's confirmed experience and stat
 
 ## Tailoring a CV
 
-1. Identify the target role, vacancy, country or market, language, and intended use (application portal or direct review). Use any relevant regional guide in this folder.
+1. Identify the target role, vacancy, country or market, language, and intended use (application portal or direct review). Read [cv-formatos](../cv-formatos/SKILL.md) and the relevant regional guide. The layout name and destination market are separate choices; the English version is written in English.
 2. Map the vacancy's key requirements to concrete facts in the master CV and confirmed profile evidence. Mark each as supported, partly supported, or unsupported; do not invent a match score.
-3. Ask only for missing facts that materially affect a claim, up to five concise questions. If the user wants a draft now, proceed with supported facts and make important gaps visible.
-4. Write in the user's preferred language or the vacancy's language. Prefer specific actions, objects, and demonstrated results over generic adjectives. Preserve names, dates, units, scope, and exact metrics; never round, sharpen, or create them. Use a simple, readable layout for portal submissions without promising ATS results.
-5. Return the draft with a short evidence and gap summary. Keep internal notes, pending facts, and unsupported claims out of the finished CV.
+3. When asked to identify suitable roles or choose a subtitle, compare tasks and recurring requirements across several current vacancies, not only job titles. Use confirmed evidence and the user's objectives to suggest role names; show gaps and do not imply that any employer will hire the user. Add offers to CareerKit only when explicitly requested and local access is available.
+4. Ask only for missing facts that materially affect a claim, up to five concise questions. If the user wants a draft now, proceed with supported facts and make important gaps visible.
+5. Write in the requested language and layout. The Spanish version follows the two-column layout; the English version follows the one-column layout and must be in English. Make the subtitle specific to the role's tasks and employer. Keep the opening summary to 3–6 lines, lead with a confirmed differentiator, and include teamwork, learning, or communication only when supported by evidence. Preserve names, dates, units, scope, and exact metrics; never round, sharpen, or create them. Prioritize a concise list of hard skills against the vacancy. Use a simple, readable layout for portal submissions without promising ATS results.
+6. Keep personal projects in a clearly separate section near experience; never present them as employment. Order academic experience from most specific to most general when that supports the target role. Return the draft with a short evidence and gap summary; keep internal notes, pending facts, and unsupported claims out of the finished CV.
 
 ## Files and actions
 
 - Do not change the master CV, LinkedIn copy, or vacancy record while preparing a tailored CV unless the user explicitly asks for that change.
-- By default, provide the tailored draft in the conversation. If the user asks for a file, confirm the local destination and keep personal content outside tracked repository files and public build output. Do not overwrite files silently.
+- By default, provide the tailored draft in the conversation. If the user asks for a file, confirm the local destination and preferred filename; a role-and-user-name pattern may be used only with values the user supplied. Keep personal content outside tracked repository files and public build output. Do not overwrite files silently.
 - Do not submit applications, contact employers, or send CV contents to external services.

@@ -42,7 +42,9 @@ Los elementos del perfil y las vacantes usan IDs estables (`id`, UUID recomendad
 5. Escribe de forma atómica cuando sea posible, preserva UTF-8 y el formato JSON legible. Informa de los archivos efectivamente guardados.
 6. Añade prioridades solo cuando el usuario lo solicite. La app no hace auditorías ni búsquedas automáticas.
 
-El repositorio incluye guías generales para adaptar CV en `.agents/skills/`: `cv-optimizer`, `cv-espana` y `cv-europa`. `AGENTS.md` indica cuándo leerlas y cómo usar los datos pertinentes de CareerKit. Son instrucciones para asistentes de programación; la web no las ejecuta ni conecta un modelo. Si tu asistente no las carga automáticamente, pídele que lea `AGENTS.md` y la guía correspondiente. No copies los datos privados al repositorio ni guardes ahí CVs adaptados.
+El CV maestro guarda dos versiones independientes en `cv.json`: español y inglés. La sección CV permite alternar entre ellas y mantiene sus fechas por separado. El formato español usa dos columnas; el inglés, una columna, y su texto debe estar en inglés. Si conectas un archivo CV antiguo, CareerKit conserva su contenido sin asignarle un idioma y solo lo actualiza cuando guardas después de elegir dónde corresponde.
+
+El repositorio incluye guías para adaptar CV en `.agents/skills/`: `cv-optimizer`, `cv-formatos`, `cv-espana` y `cv-europa`. `AGENTS.md` indica cuándo leerlas y cómo usar los datos pertinentes de CareerKit. Son instrucciones para asistentes de programación; la web no las ejecuta ni conecta un modelo. Si tu asistente no las carga automáticamente, pídele que lea `AGENTS.md` y la guía correspondiente. No copies los datos privados al repositorio ni guardes ahí CVs adaptados.
 
 Consulta `schemas/agent-format.md` para convenciones completas. Las skills usan los objetivos y evidencias pertinentes que el usuario haya añadido a CareerKit; nunca completan huecos con datos de otros proyectos.
 
