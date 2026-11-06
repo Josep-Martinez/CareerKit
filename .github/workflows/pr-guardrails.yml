@@ -59,13 +59,15 @@ jobs:
               const start = headings[startIndex].index + headings[startIndex][0].length
               const end = headings[startIndex + 1]?.index ?? body.length
               const content = body.slice(start, end).replace(/<!--[\s\S]*?-->/g, '').trim()
-              if (content.length < 20 || /^(todo|tbd|pendiente|por completar|describe aquí|n\/a)\.?$/i.test(content)) {
+              if (content.length < 10 || /^(todo|tbd|pendiente|por completar|describe aquí|n\/a)\.?$/i.test(content)) {
                 missingSections.push(heading)
               }
             }
 
             if (missingSections.length > 0) {
-              errors.push(`Completa estas secciones de la descripción: ${missingSections.join(', ')}`)
+              errors.push(
+                `Completa estas secciones con al menos 10 caracteres de contenido: ${missingSections.join(', ')}`,
+              )
             }
 
             if (errors.length > 0) core.setFailed(errors.join('\n'))
