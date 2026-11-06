@@ -17,16 +17,22 @@ export const STRINGS = {
   dataConnection: {
     bannerEyebrow: 'TUS ARCHIVOS LOCALES',
     bannerTitle: 'Conecta tu carpeta para ver y guardar tus datos',
-    bannerBody: 'Sin una carpeta conectada, la app no puede leer tus archivos ni guardar en ellos. Conecta la carpeta local para cargar tus datos y conservar allí los cambios que confirmes.',
-    bannerFallback: 'Este navegador no conecta carpetas directamente. Puedes abrir y guardar los JSON de uno en uno desde cada sección.',
+    bannerBody:
+      'Sin una carpeta conectada, la app no puede leer tus archivos ni guardar en ellos. Conecta la carpeta local para cargar tus datos y conservar allí los cambios que confirmes.',
+    bannerFallback:
+      'Este navegador no conecta carpetas directamente. Puedes abrir y guardar los JSON de uno en uno desde cada sección.',
     promptsButton: 'Ver prompt de preparación',
     missingTitle: 'Aún faltan archivos de datos',
     emptyFolderTitle: 'La carpeta seleccionada está vacía',
-    missingBody: 'Prepara los JSON que faltan con el formato de las plantillas vacías. Después podrás completar los formularios en la app y guardar ahí tus datos.',
-    emptyTitle: 'La carpeta está conectada, pero aún no has rellenado los datos',
-    emptyBody: 'Los archivos tienen el formato correcto. Completa los formularios —por ejemplo, Perfil y aprendizajes— y guarda cada sección para que tus datos aparezcan aquí.',
+    missingBody:
+      'Prepara los JSON que faltan con el formato de las plantillas vacías. Después podrás completar los formularios en la app y guardar ahí tus datos.',
+    emptyTitle:
+      'La carpeta está conectada, pero aún no has rellenado los datos',
+    emptyBody:
+      'Los archivos tienen el formato correcto. Completa los formularios —por ejemplo, Perfil y aprendizajes— y guarda cada sección para que tus datos aparezcan aquí.',
     invalidTitle: 'Hay archivos que necesitan una revisión',
-    invalidBody: 'No pudimos interpretar estos archivos con seguridad. Se han dejado intactos. Compara cada uno con su plantilla antes de volver a cargarlo.',
+    invalidBody:
+      'No pudimos interpretar estos archivos con seguridad. Se han dejado intactos. Compara cada uno con su plantilla antes de volver a cargarlo.',
     missingLabel: 'Archivos que faltan',
     invalidLabel: 'Archivos para revisar',
     templateHint: 'Plantilla de referencia:',
@@ -35,9 +41,11 @@ export const STRINGS = {
     prepared: 'Plantillas listas. Ahora puedes completar tus datos en la app.',
     connectedReady: 'Carpeta conectada. Tus datos están listos.',
     loadedSuccessfully: 'Datos cargados correctamente.',
-    prepareError: 'No se pudieron preparar todos los archivos. Revisa los permisos de lectura y escritura y vuelve a comprobar la carpeta.',
+    prepareError:
+      'No se pudieron preparar todos los archivos. Revisa los permisos de lectura y escritura y vuelve a comprobar la carpeta.',
     recheckButton: 'Volver a comprobar',
-    recheckError: 'No se pudo volver a leer la carpeta. Comprueba el permiso y selecciona de nuevo la carpeta.',
+    recheckError:
+      'No se pudo volver a leer la carpeta. Comprueba el permiso y selecciona de nuevo la carpeta.',
     startProfile: 'Empezar por Perfil',
     openPrompts: 'Abrir buzón de prompts',
     close: 'Cerrar',
@@ -45,8 +53,10 @@ export const STRINGS = {
     copied: 'Instrucciones copiadas. Pégalas en tu asistente local.',
     copyFailed: 'No se pudieron copiar. Selecciona el texto y cópialo.',
     assistantPromptLabel: 'Instrucciones para tu asistente local',
-    connectFailed: 'No se pudo conectar la carpeta. Vuelve a seleccionarla y concede permiso para leer y guardar sus archivos.',
-    prompt: 'En la carpeta local private-data de este proyecto, prepara solo los archivos ausentes indicados. Usa como base las plantillas vacías correspondientes de templates/. No sobrescribas ningún archivo existente ni elimines campos desconocidos. Para cualquier archivo que no sea JSON válido o no coincida con su plantilla, no lo reemplaces: compara su estructura, indica el nombre y los campos que no coinciden, y espera instrucciones antes de repararlo. Guarda datos personales únicamente en private-data/ y no los incluyas en archivos versionados, capturas ni en la publicación de GitHub. Si no tienes acceso local a la carpeta, pídeme que abra el proyecto y no afirmes que has guardado nada.',
+    connectFailed:
+      'No se pudo conectar la carpeta. Vuelve a seleccionarla y concede permiso para leer y guardar sus archivos.',
+    prompt:
+      'En la carpeta local private-data de este proyecto, prepara solo los archivos ausentes indicados. Usa como base las plantillas vacías correspondientes de templates/. No sobrescribas ningún archivo existente ni elimines campos desconocidos. Para cualquier archivo que no sea JSON válido o no coincida con su plantilla, no lo reemplaces: compara su estructura, indica el nombre y los campos que no coinciden, y espera instrucciones antes de repararlo. Guarda datos personales únicamente en private-data/ y no los incluyas en archivos versionados, capturas ni en la publicación de GitHub. Si no tienes acceso local a la carpeta, pídeme que abra el proyecto y no afirmes que has guardado nada.',
   },
   noData: 'Sin registrar',
   save: 'Guardar cambios',
@@ -58,9 +68,39 @@ export const STRINGS = {
   priorities: 'Prioridades',
   featured: 'Vacantes destacadas',
   cvDates: 'CV',
+  homeSetup: {
+    urgentLabel: 'URGENTE · COMPLETA TU BASE',
+    pendingLabel: 'SIGUIENTE PASO',
+    urgentTitle: 'Tu espacio necesita tu historia profesional',
+    urgentBodyBoth:
+      'Añade la información de tu trayectoria en Perfil y copia en LinkedIn lo que tienes publicado. Cuando esas dos bases estén listas, el Buzón te guía para preparar los CV en español e inglés.',
+    urgentBodyProfile:
+      'Añade la información de tu trayectoria en Perfil. Después podrás contrastarla con tu copia publicada en LinkedIn y preparar los CV desde el Buzón.',
+    urgentBodyLinkedin:
+      'Añade la copia fiel de lo que tienes publicado en LinkedIn. Después podrás contrastarla con tu Perfil y preparar los CV desde el Buzón.',
+    cvTitle: 'El CV base está pendiente de preparar',
+    cvBody:
+      'Tu Perfil y LinkedIn ya tienen contenido. Abre el Buzón y usa el prompt para preparar las dos versiones del CV.',
+    profileAction: 'Completar Perfil',
+    linkedinAction: 'Completar LinkedIn',
+    promptsAction: 'Abrir Buzón',
+  },
+  profileEmpty: {
+    eyebrow: 'PRIMEROS PASOS',
+    title: 'Aquí empieza tu historia profesional',
+    body: 'Rellena el perfil, los objetivos y las experiencias que quieras conservar. Puedes añadirlas poco a poco y marcar qué está confirmado.',
+    action: 'Empezar a completar el perfil',
+  },
+  linkedinEmpty: {
+    eyebrow: 'COPIA AÚN SIN CONTENIDO',
+    title: 'Añade aquí lo que tienes publicado',
+    body: 'Transcribe tu perfil tal como aparece actualmente. La vista previa se completará con lo que introduzcas; la app no importa ni reescribe el contenido.',
+    action: 'Rellenar la copia de LinkedIn',
+  },
   cvEditor: {
     title: 'CV base',
-    subtitle: 'Una base general en español y otra en inglés, construidas a partir de Perfil y LinkedIn.',
+    subtitle:
+      'Una base general en español y otra en inglés, construidas a partir de Perfil y LinkedIn.',
     versionGroup: 'Versión del CV',
     spanishTab: 'Español · dos columnas',
     englishTab: 'Inglés · una columna',
@@ -68,12 +108,16 @@ export const STRINGS = {
     englishShort: 'Inglés',
     legacyShort: 'Versión anterior · idioma pendiente',
     spanishGuideTitle: 'Formato español · dos columnas',
-    spanishGuide: 'Columna lateral para fotografía aportada por ti (opcional), contacto, hard skills priorizadas e idiomas. Columna principal para nombre, subtítulo adaptado a la empresa, introducción breve, experiencia, proyectos claramente separados y formación de la más específica a la más general.',
+    spanishGuide:
+      'Columna lateral para fotografía aportada por ti (opcional), contacto, hard skills priorizadas e idiomas. Columna principal para nombre, subtítulo adaptado a la empresa, introducción breve, experiencia, proyectos claramente separados y formación de la más específica a la más general.',
     englishGuideTitle: 'Formato inglés · una columna',
-    englishGuide: 'Usa una sola columna y redacta el contenido en inglés: nombre, subtítulo adaptado al puesto, perfil de 3–6 líneas, contacto en una línea, experiencia profesional, proyectos seleccionados, experiencia académica, hard skills priorizadas e idiomas.',
+    englishGuide:
+      'Usa una sola columna y redacta el contenido en inglés: nombre, subtítulo adaptado al puesto, perfil de 3–6 líneas, contacto en una línea, experiencia profesional, proyectos seleccionados, experiencia académica, hard skills priorizadas e idiomas.',
     baseTitle: 'Base de los dos CV',
-    baseGuidance: 'El agente local prepara y actualiza estos textos cuando se lo pidas, usando la información confirmada de Perfil y los hechos de la copia publicada en LinkedIn. La app no sincroniza ni genera el contenido.',
-    baseHint: 'Si hay diferencias entre módulos, acláralas antes de adaptar una oferta.',
+    baseGuidance:
+      'El agente local prepara y actualiza estos textos cuando se lo pidas, usando la información confirmada de Perfil y los hechos de la copia publicada en LinkedIn. La app no sincroniza ni genera el contenido.',
+    baseHint:
+      'Si hay diferencias entre módulos, acláralas antes de adaptar una oferta.',
     lastUpdated: 'Última actualización',
     lastReviewed: 'Última revisión',
     openCV: 'Abrir CV',
@@ -82,18 +126,32 @@ export const STRINGS = {
     legacyTitle: 'CV anterior pendiente de asignar',
     noLegacyText: 'Sin texto anterior',
     tipTitle: 'Dos versiones, una trayectoria',
-    tipBody: 'Actualiza Perfil y la copia de LinkedIn. Cuando quieras revisar la base, pide al agente local que prepare ambas versiones a partir de esos datos confirmados.',
-    photoNote: 'La app guarda texto, no fotografías. Añade una foto al documento final solo si tú la proporcionas y la quieres incluir.',
-    legacyReadOnly: 'Se conserva el texto original sin asignarle idioma. Pide al agente local que lo revise y lo incorpore solo cuando confirmes a qué versión pertenece.',
-    noBase: 'Sin base registrada. Actualiza Perfil y LinkedIn y pide al agente local que prepare esta versión.',
+    tipBody:
+      'Actualiza Perfil y la copia de LinkedIn. Cuando quieras revisar la base, pide al agente local que prepare ambas versiones a partir de esos datos confirmados.',
+    photoNote:
+      'La app guarda texto, no fotografías. Añade una foto al documento final solo si tú la proporcionas y la quieres incluir.',
+    legacyReadOnly:
+      'Se conserva el texto original sin asignarle idioma. Pide al agente local que lo revise y lo incorpore solo cuando confirmes a qué versión pertenece.',
+    noBase:
+      'Sin base registrada. Actualiza Perfil y LinkedIn y pide al agente local que prepare esta versión.',
     noManualEdit: 'Vista de consulta · actualización mediante agente local',
-    fallbackReadOnly: 'La base del CV se muestra para consulta. Pide al agente local que la actualice a partir de Perfil y LinkedIn; este modo no permite guardar cambios del CV.',
+    fallbackReadOnly:
+      'La base del CV se muestra para consulta. Pide al agente local que la actualice a partir de Perfil y LinkedIn; este modo no permite guardar cambios del CV.',
     fallbackTitle: 'Consultar el JSON del CV',
-    fallbackLimitNote: 'Este modo no sincroniza el archivo con la página. Después de que el agente local actualice el CV, vuelve a conectar la carpeta o abre de nuevo el JSON.',
+    fallbackLimitNote:
+      'Este modo no sincroniza el archivo con la página. Después de que el agente local actualice el CV, vuelve a conectar la carpeta o abre de nuevo el JSON.',
+    emptyEyebrow: 'BASE TODAVÍA SIN CONTENIDO',
+    emptyTitle: 'Esta versión aún no está preparada',
+    emptyBodyWithoutSources:
+      'Completa primero la información confirmada de Perfil y la copia publicada de LinkedIn. Después abre el Buzón y pide preparar la base general en español y en inglés a partir de esos datos.',
+    emptyBodyWithSources:
+      'Perfil y LinkedIn ya contienen información. Abre el Buzón y usa el prompt para preparar esta base en español y en inglés. La aplicación no genera el CV automáticamente.',
+    emptyPromptAction: 'Ver el prompt del CV',
   },
   vacancyCvAdvice: {
     title: 'Qué adaptar en los CV',
-    description: 'Guarda aquí la valoración del agente o la que introduzcas manualmente. La app no recomienda una versión automáticamente.',
+    description:
+      'Guarda aquí la valoración del agente o la que introduzcas manualmente. La app no recomienda una versión automáticamente.',
     recommendedVersion: 'Mejor versión para esta vacante',
     spanish: 'Formato español · dos columnas',
     english: 'Formato inglés · una columna',
@@ -107,79 +165,97 @@ export const STRINGS = {
     noAssessment: 'Todavía no hay una recomendación guardada para esta oferta.',
     noAdjustments: 'Sin cambios registrados.',
     assessmentDate: 'Valorado',
-    profileBasis: 'Contrasta la oferta con evidencias confirmadas del Perfil y con los datos compartidos con LinkedIn.',
-    editHint: 'Añade cada cambio como un punto concreto. Mantén la base coherente con Perfil y LinkedIn; aquí se anotan los ajustes de esta oferta.',
+    profileBasis:
+      'Contrasta la oferta con evidencias confirmadas del Perfil y con los datos compartidos con LinkedIn.',
+    editHint:
+      'Añade cada cambio como un punto concreto. Mantén la base coherente con Perfil y LinkedIn; aquí se anotan los ajustes de esta oferta.',
   },
   promptInbox: {
     title: 'Buzón',
     eyebrow: 'HERRAMIENTAS PARA TU ASISTENTE',
-    subtitle: 'Elige una tarea, copia el texto y pégalo en tu asistente local. La app no envía prompts ni ejecuta agentes.',
+    subtitle:
+      'Elige una tarea, copia el texto y pégalo en tu asistente local. La app no envía prompts ni ejecuta agentes.',
     usageTitle: 'Cómo usarlo',
-    usageBody: 'Abre este proyecto con Codex, Claude Code u otro asistente que pueda acceder a los archivos locales. Comprueba que puede leer private-data antes de pedirle que guarde cambios.',
+    usageBody:
+      'Abre este proyecto con Codex, Claude Code u otro asistente que pueda acceder a los archivos locales. Comprueba que puede leer private-data antes de pedirle que guarde cambios.',
     pendingTitle: 'Tienes 1 prompt pendiente',
-    pendingBody: 'Has guardado cambios en Perfil o LinkedIn. Usa «Actualizar la base general del CV» para que las dos versiones reflejen la información reciente.',
+    pendingBody:
+      'Has guardado cambios en Perfil o LinkedIn. Usa «Actualizar la base general del CV» para que las dos versiones reflejen la información reciente.',
     openButton: 'Abrir el buzón',
     pendingTag: 'Pendiente · 1',
     copyButton: 'Copiar prompt',
     copied: 'Prompt copiado. Pégalo en tu asistente local.',
-    copyFailed: 'No se pudo copiar automáticamente. Selecciona el texto del prompt y cópialo.',
+    copyFailed:
+      'No se pudo copiar automáticamente. Selecciona el texto del prompt y cópialo.',
     confirmManualCopy: 'Ya he copiado el prompt',
-    promptCopiedNotice: 'Prompt copiado. Pégalo en tu asistente local cuando quieras.',
-    sourceSavedProfile: 'Perfil guardado. Prompt pendiente: «Actualizar la base general del CV desde Perfil y LinkedIn».',
-    sourceSavedLinkedin: 'LinkedIn guardado. Prompt pendiente: «Actualizar la base general del CV desde Perfil y LinkedIn».',
-    sourceReloaded: 'Cambios externos recargados. Revisa el prompt pendiente para actualizar las bases del CV.',
-    sourceChanged: 'Un archivo de Perfil o LinkedIn cambió fuera de la app. Recárgalo y usa el prompt para actualizar las bases del CV.',
-    fallbackSaved: 'JSON descargado. Sustitúyelo en private-data antes de usar el prompt de actualización del CV.',
-    downloadPrepared: 'JSON descargado para guardar manualmente en tu carpeta local.',
+    promptCopiedNotice:
+      'Prompt copiado. Pégalo en tu asistente local cuando quieras.',
+    sourceSavedProfile:
+      'Perfil guardado. Prompt pendiente: «Actualizar la base general del CV desde Perfil y LinkedIn».',
+    sourceSavedLinkedin:
+      'LinkedIn guardado. Prompt pendiente: «Actualizar la base general del CV desde Perfil y LinkedIn».',
+    sourceReloaded:
+      'Cambios externos recargados. Revisa el prompt pendiente para actualizar las bases del CV.',
+    sourceChanged:
+      'Un archivo de Perfil o LinkedIn cambió fuera de la app. Recárgalo y usa el prompt para actualizar las bases del CV.',
+    fallbackSaved:
+      'JSON descargado. Sustitúyelo en private-data antes de usar el prompt de actualización del CV.',
+    downloadPrepared:
+      'JSON descargado para guardar manualmente en tu carpeta local.',
     vacancyReference: 'Vacante (puesto, empresa o identificador)',
-    vacancyReferenceHint: 'El prompt incluirá esta referencia para que el agente encuentre la oferta correcta.',
-    vacancyPromptPlaceholder: '[indica el puesto, la empresa o el identificador]',
+    vacancyReferenceHint:
+      'El prompt incluirá esta referencia para que el agente encuentre la oferta correcta.',
+    vacancyPromptPlaceholder:
+      '[indica el puesto, la empresa o el identificador]',
     promptLabel: 'Prompt',
     copyMissingVacancy: 'Indica primero qué vacante quieres revisar.',
-    noNetwork: 'Los prompts son textos para el agente. Investigar ofertas requiere que el agente tenga acceso a una herramienta de búsqueda.',
+    noNetwork:
+      'Los prompts son textos para el agente. Investigar ofertas requiere que el agente tenga acceso a una herramienta de búsqueda.',
     prompts: [
       {
         id: 'prepare-data',
         title: 'Preparar la carpeta de datos',
         use: 'Úsalo si todavía no existe private-data/ o faltan archivos JSON. Crea solo los que no existan y conserva los datos que ya haya.',
-        text: 'En la raíz local de este proyecto, crea private-data/ si todavía no existe. Copia desde templates/ a private-data/ solo los JSON que falten: profile.json, linkedin.json, cv.json, vacancies.json y priorities.json. No sobrescribas archivos existentes. No leas datos de otros proyectos ni rellenes información personal por tu cuenta. Al terminar, indica qué archivos creaste y cuáles ya existían. Mantén todos los datos personales dentro de private-data/; no los añadas a archivos versionados ni a la publicación de GitHub. Si no tienes acceso local a esta carpeta, pídeme que abra el proyecto y no afirmes que has guardado cambios.'
+        text: 'En la raíz local de este proyecto, crea private-data/ si todavía no existe. Copia desde templates/ a private-data/ solo los JSON que falten: profile.json, linkedin.json, cv.json, vacancies.json y priorities.json. No sobrescribas archivos existentes. No leas datos de otros proyectos ni rellenes información personal por tu cuenta. Al terminar, indica qué archivos creaste y cuáles ya existían. Mantén todos los datos personales dentro de private-data/; no los añadas a archivos versionados ni a la publicación de GitHub. Si no tienes acceso local a esta carpeta, pídeme que abra el proyecto y no afirmes que has guardado cambios.',
       },
       {
         id: 'refresh-cv',
         title: 'Actualizar la base general del CV',
         use: 'Úsalo después de cambiar Perfil o LinkedIn, o cuando quieras revisar la coherencia de las dos bases.',
-        text: 'Revisa private-data/profile.json, private-data/linkedin.json y private-data/cv.json. Valida cada JSON con su esquema. Actualiza las dos bases generales del CV con información confirmada del Perfil y hechos compartidos con la copia publicada de LinkedIn. Respeta cvEvidence, internal y los identificadores estables. Mantén la versión española en español y con formato de dos columnas; la inglesa debe estar completamente en inglés y usar una columna. No modifiques el contenido publicado en LinkedIn. Si encuentras contradicciones o datos pendientes de confirmar, pregúntame antes de reflejarlos. Guarda cv.json solo si tienes acceso local a esos archivos. Si no puedes acceder o guardar, dímelo claramente y no afirmes que lo hiciste.'
+        text: 'Revisa private-data/profile.json, private-data/linkedin.json y private-data/cv.json. Valida cada JSON con su esquema. Actualiza las dos bases generales del CV con información confirmada del Perfil y hechos compartidos con la copia publicada de LinkedIn. Respeta cvEvidence, internal y los identificadores estables. Mantén la versión española en español y con formato de dos columnas; la inglesa debe estar completamente en inglés y usar una columna. No modifiques el contenido publicado en LinkedIn. Si encuentras contradicciones o datos pendientes de confirmar, pregúntame antes de reflejarlos. Guarda cv.json solo si tienes acceso local a esos archivos. Si no puedes acceder o guardar, dímelo claramente y no afirmes que lo hiciste.',
       },
       {
         id: 'assess-vacancy',
         title: 'Valorar una vacante y adaptar los CV',
         use: 'Úsalo al revisar una oferta. El agente recomienda qué versión conviene y anota qué ajustar en cada una, sin reescribir las bases.',
         requiresVacancy: true,
-        text: 'Revisa private-data/vacancies.json y localiza esta vacante: {{vacancy}}. Contrástala con las evidencias confirmadas de private-data/profile.json y las dos bases de private-data/cv.json. En la vacante, guarda cvAdvice con recommendedVersion (spanish, english, both o pending), el motivo, assessedAt solo si conoces la fecha y listas de cambios concretos en spanishAdjustments y englishAdjustments. Indica carencias demostrables sin inventar experiencia, resultados ni fechas. No reescribas las bases generales. Valida los JSON y conserva los campos desconocidos. Guarda solo si tienes acceso local a private-data; si no, explica qué archivo o acceso falta.'
+        text: 'Revisa private-data/vacancies.json y localiza esta vacante: {{vacancy}}. Contrástala con las evidencias confirmadas de private-data/profile.json y las dos bases de private-data/cv.json. En la vacante, guarda cvAdvice con recommendedVersion (spanish, english, both o pending), el motivo, assessedAt solo si conoces la fecha y listas de cambios concretos en spanishAdjustments y englishAdjustments. Indica carencias demostrables sin inventar experiencia, resultados ni fechas. No reescribas las bases generales. Valida los JSON y conserva los campos desconocidos. Guarda solo si tienes acceso local a private-data; si no, explica qué archivo o acceso falta.',
       },
       {
         id: 'audit-linkedin',
         title: 'Auditar LinkedIn con Perfil y aprendizajes',
         use: 'Úsalo cuando quieras detectar incoherencias o mejoras concretas en el contenido publicado.',
-        text: 'Compara private-data/linkedin.json con la información confirmada y apta para CV de private-data/profile.json, incluidos aprendizajes y evidencias que no aparecen en LinkedIn. Añade anotaciones de auditoría ligadas a la sección correspondiente, con acción, prioridad, problema observado, motivo y evidencia, IDs de evidencias relacionadas, recomendación, texto propuesto si procede, fecha solo si se conoce y estado pendiente. No cambies published: la copia debe seguir reflejando fielmente el perfil publicado. Valida ambos JSON, conserva campos desconocidos y guarda linkedin.json solo si tienes acceso local. Si no puedes acceder o guardar, dímelo.'
+        text: 'Compara private-data/linkedin.json con la información confirmada y apta para CV de private-data/profile.json, incluidos aprendizajes y evidencias que no aparecen en LinkedIn. Añade anotaciones de auditoría ligadas a la sección correspondiente, con acción, prioridad, problema observado, motivo y evidencia, IDs de evidencias relacionadas, recomendación, texto propuesto si procede, fecha solo si se conoce y estado pendiente. No cambies published: la copia debe seguir reflejando fielmente el perfil publicado. Valida ambos JSON, conserva campos desconocidos y guarda linkedin.json solo si tienes acceso local. Si no puedes acceder o guardar, dímelo.',
       },
       {
         id: 'research-vacancies',
         title: 'Investigar vacantes actuales',
         use: 'Úsalo cuando quieras buscar ofertas por tareas y responsabilidades. Requiere que el asistente pueda consultar fuentes actuales.',
-        text: 'Investiga vacantes actuales relacionadas con mis objetivos y evidencias confirmadas en CareerKit. Compara tareas y requisitos, no solo nombres de puesto. Para cada oferta que te pida guardar, registra puesto, empresa, ubicación, modalidad, enlace y fuente, fecha de búsqueda y verificación, descripción completa, salario indicando si está verificado, nivel y tipo de puesto cuando consten, valoración basada en evidencias, carencias, posibles bloqueos e identificadores estables de evidencias relacionadas. No inventes datos, no automatices candidaturas ni contactos y no digas que guardaste ofertas si no tienes acceso local a private-data/vacancies.json. Si no puedes consultar ofertas actuales, dilo con claridad.'
+        text: 'Investiga vacantes actuales relacionadas con mis objetivos y evidencias confirmadas en CareerKit. Compara tareas y requisitos, no solo nombres de puesto. Para cada oferta que te pida guardar, registra puesto, empresa, ubicación, modalidad, enlace y fuente, fecha de búsqueda y verificación, descripción completa, salario indicando si está verificado, nivel y tipo de puesto cuando consten, valoración basada en evidencias, carencias, posibles bloqueos e identificadores estables de evidencias relacionadas. No inventes datos, no automatices candidaturas ni contactos y no digas que guardaste ofertas si no tienes acceso local a private-data/vacancies.json. Si no puedes consultar ofertas actuales, dilo con claridad.',
       },
       {
         id: 'review-priorities',
         title: 'Revisar el perfil y añadir prioridades',
         use: 'Úsalo después de pedir una revisión del perfil o de una oferta para convertir los hallazgos en siguientes pasos visibles en Inicio.',
-        text: 'Revisa la información pertinente de private-data/profile.json y, si te indico una oferta, esa vacante y sus evidencias relacionadas. Sugiere prioridades concretas basadas en hechos confirmados: título, nivel (alta, media o baja), motivo, fecha solo si se conoce, sección relacionada y orden. Actualiza private-data/priorities.json únicamente como resultado de esta petición. Conserva IDs existentes, valida el esquema y no inventes tareas ni fechas. Si no tienes acceso local, pídeme que abra el proyecto y no afirmes que guardaste cambios.'
+        text: 'Revisa la información pertinente de private-data/profile.json y, si te indico una oferta, esa vacante y sus evidencias relacionadas. Sugiere prioridades concretas basadas en hechos confirmados: título, nivel (alta, media o baja), motivo, fecha solo si se conoce, sección relacionada y orden. Actualiza private-data/priorities.json únicamente como resultado de esta petición. Conserva IDs existentes, valida el esquema y no inventes tareas ni fechas. Si no tienes acceso local, pídeme que abra el proyecto y no afirmes que guardaste cambios.',
       },
     ],
   },
   linkedinDates: 'LinkedIn',
-  conflict: 'El archivo cambió fuera de la aplicación. Recárgalo antes de guardar para conservar los cambios externos.',
-  invalid: 'No se pudo leer este JSON. El archivo original se conserva sin cambios.',
+  conflict:
+    'El archivo cambió fuera de la aplicación. Recárgalo antes de guardar para conservar los cambios externos.',
+  invalid:
+    'No se pudo leer este JSON. El archivo original se conserva sin cambios.',
 }
 
 export const TITLES = {

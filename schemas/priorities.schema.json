@@ -2,6 +2,27 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://careerkit.invalid/schemas/priorities.schema.json",
   "title": "CareerKit agent priorities",
-  "type": "object", "required": ["schemaVersion", "items"],
-  "properties": { "schemaVersion": { "const": 1 }, "items": { "type": "array", "items": { "type": "object", "required": ["id", "title", "level", "reason", "date", "section"], "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "level": { "enum": ["alta", "media", "baja"] }, "reason": { "type": "string" }, "date": { "type": "string" }, "section": { "enum": ["profile", "linkedin", "cv", "vacancies"] }, "order": { "type": "integer" } }, "additionalProperties": true } } }, "additionalProperties": true
+  "type": "object",
+  "required": ["schemaVersion", "items"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "level", "reason", "date", "section"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "level": { "enum": ["alta", "media", "baja"] },
+          "reason": { "type": "string" },
+          "date": { "type": "string" },
+          "section": { "enum": ["profile", "linkedin", "cv", "vacancies"] },
+          "order": { "type": "integer" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
 }

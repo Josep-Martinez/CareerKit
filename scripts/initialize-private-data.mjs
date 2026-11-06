@@ -21,4 +21,6 @@ for (const module of modules) {
     console.log(`Creado desde plantilla vacía: private-data/${module}.json`)
   }
 }
-console.log('Preparación local completa. private-data/ está ignorado por Git y no se incluye en el build.')
+console.log(
+  'Preparación local completa. private-data/ está ignorado por Git y no se incluye en el build.',
+)
