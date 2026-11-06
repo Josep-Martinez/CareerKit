@@ -1,5 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { EMPTY, FILES } from './catalog.js'
+import {
+  forgetDirectoryHandle,
+  loadDirectoryHandle,
+  rememberDirectoryHandle,
+} from './folder-handle-store.js'
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
 const entryLists = [
@@ -299,6 +304,10 @@ export function normalizeModule(name, value) {
 
 export function useStorageState() {
   const [folder, setFolder] = useState(null)
+  const [rememberedFolder, setRememberedFolder] = useState(null)
+  const [rememberFailed, setRememberFailed] = useState(false)
+  const [restoreStatus, setRestoreStatus] = useState('checking')
+  const [restoreResult, setRestoreResult] = useState(null)
   const [data, setData] = useState(() =>
     Object.fromEntries(FILES.map((name) => [name, clone(EMPTY[name])])),
   )
@@ -393,27 +402,113 @@ export function useStorageState() {
     }
   }
 
-  async function connect() {
+  useEffect(() => {
+    let active = true
+    async function restoreFolder() {
+      try {
+        const handle = await loadDirectoryHandle()
+        if (!active) return
+        if (!handle) {
+          setRestoreStatus('no-saved-folder')
+          return
+        }
+        setRememberedFolder(handle)
+        const permission =
+          typeof handle.queryPermission === 'function'
+            ? await handle.queryPermission({ mode: 'readwrite' })
+            : 'granted'
+        if (!active) return
+        if (permission !== 'granted') {
+          setRestoreStatus('needs-permission')
+          return
+        }
+
+        setData(
+          Object.fromEntries(FILES.map((name) => [name, clone(EMPTY[name])])),
+        )
+        setStates({})
+        setWarnings({})
+        setRevision({})
+        const result = await scanFolder(handle)
+        if (!active) return
+        setFolder(handle)
+        setRestoreResult(result)
+        setRestoreStatus('restored')
+      } catch {
+        if (!active) return
+        setRestoreStatus('storage-error')
+      }
+    }
+    restoreFolder()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  async function connect({ selectAnother = false } = {}) {
+    if (!selectAnother && rememberedFolder) {
+      return {
+        ...(await connectHandle(rememberedFolder, { requestPermission: true })),
+        reconnected: true,
+      }
+    }
     if (!window.showDirectoryPicker) return { fallback: true }
     try {
       const handle = await window.showDirectoryPicker({
         mode: 'readwrite',
         id: 'careerkit-private-data',
       })
-      const permission = await handle.requestPermission({ mode: 'readwrite' })
-      if (permission !== 'granted')
-        throw new Error('No se concedió permiso de lectura y escritura.')
-      setFolder(handle)
+      return connectHandle(handle, { requestPermission: true })
+    } catch (error) {
+      if (error.name === 'AbortError') return { cancelled: true }
+      return { error: error.message }
+    }
+  }
+
+  async function connectHandle(handle, { requestPermission: mayRequest }) {
+    try {
+      const permission =
+        mayRequest && typeof handle.requestPermission === 'function'
+          ? await handle.requestPermission({ mode: 'readwrite' })
+          : typeof handle.queryPermission === 'function'
+            ? await handle.queryPermission({ mode: 'readwrite' })
+            : 'granted'
+      if (permission !== 'granted') {
+        setRestoreStatus('needs-permission')
+        return { permissionDenied: true }
+      }
+
+      let persistenceError = false
+      try {
+        await rememberDirectoryHandle(handle)
+      } catch {
+        persistenceError = true
+        try {
+          await forgetDirectoryHandle()
+        } catch {
+          // The status message below tells the user the old selection may remain.
+        }
+      }
+      setRememberedFolder(persistenceError ? null : handle)
+      setRememberFailed(persistenceError)
       setData(
         Object.fromEntries(FILES.map((name) => [name, clone(EMPTY[name])])),
       )
       setStates({})
       setWarnings({})
       setRevision({})
-      return { connected: true, ...(await scanFolder(handle)) }
+      const result = await scanFolder(handle)
+      setFolder(handle)
+      setRestoreResult(null)
+      setRestoreStatus('connected')
+      return {
+        connected: true,
+        persistenceError,
+        ...result,
+      }
     } catch (error) {
-      if (error.name === 'AbortError') return { cancelled: true }
-      return { error: error.message }
+      if (error?.name === 'AbortError') return { cancelled: true }
+      return { error: error?.message || 'No se pudo abrir la carpeta.' }
     }
   }
 
@@ -532,8 +627,18 @@ export function useStorageState() {
     }
   }
 
-  function disconnect(clear) {
+  async function disconnect(clear) {
+    let persistenceCleared = true
+    try {
+      await forgetDirectoryHandle()
+    } catch {
+      persistenceCleared = false
+    }
+    setRememberedFolder(null)
+    setRememberFailed(!persistenceCleared)
     setFolder(null)
+    setRestoreResult(null)
+    setRestoreStatus('no-saved-folder')
     if (clear) {
       setData(
         Object.fromEntries(FILES.map((name) => [name, clone(EMPTY[name])])),
@@ -542,10 +647,15 @@ export function useStorageState() {
       setWarnings({})
       setRevision({})
     }
+    return { persistenceCleared }
   }
 
   return {
     folder,
+    restoreStatus,
+    restoreResult,
+    hasRememberedFolder: Boolean(rememberedFolder),
+    rememberFailed,
     data,
     states,
     warnings,
