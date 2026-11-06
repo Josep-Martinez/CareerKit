@@ -31,12 +31,22 @@ function templateMessage(name, detail) {
   return `${name}.json ${detail} Revisa templates/${name}.json y conserva el formato y schemaVersion de la plantilla. El archivo original no se ha modificado.`
 }
 
-function hasModuleContent(name, value) {
+const hasMeaningfulValue = (entry) => {
+  if (typeof entry === 'string') return Boolean(entry.trim())
+  if (typeof entry === 'boolean') return entry
+  if (typeof entry === 'number') return Number.isFinite(entry)
+  if (Array.isArray(entry)) return entry.some(hasMeaningfulValue)
+  if (isRecord(entry)) return Object.entries(entry).some(([key, item]) => key !== 'id' && hasMeaningfulValue(item))
+  return false
+}
+
+export function hasModuleContent(name, value) {
   let hasContent
-  if (name === 'profile') hasContent = Boolean(value.professionalProfile.trim() || ['shortTerm','mediumTerm','longTerm'].some((key) => value.objectives[key].trim()) || entryLists.some((key) => value[key].length))
-  else if (name === 'linkedin') hasContent = Boolean(value.published.headline.trim() || value.published.about.trim() || ['experience','education','skills','certifications','projects','featured'].some((key) => value.published[key].length) || value.lastUpdated?.trim() || value.audits.length)
+  if (name === 'profile') hasContent = Boolean(value.professionalProfile.trim() || ['shortTerm','mediumTerm','longTerm'].some((key) => value.objectives[key].trim()) || entryLists.some((key) => hasMeaningfulValue(value[key])))
+  else if (name === 'linkedin') hasContent = Boolean(value.published.headline.trim() || value.published.about.trim() || ['experience','education','skills','certifications','projects','featured'].some((key) => hasMeaningfulValue(value.published[key])) || value.lastUpdated?.trim() || value.audits.some((audit) => ['problem','reasonEvidence','recommendation','proposedText','date','profileEvidenceIds'].some((key) => hasMeaningfulValue(audit[key]))))
   else if (name === 'cv') hasContent = Boolean(['spanish','english'].some((key) => value.versions[key].masterText.trim() || value.versions[key].lastUpdated.trim() || value.versions[key].lastReviewed.trim()) || value.previousVersion?.masterText?.trim())
-  else hasContent = value.items.length > 0
+  else if (name === 'vacancies') hasContent = value.items.some((item) => ['role','company','location','modality','link','source','searchedAt','verifiedAt','description','salary','level','jobType','assessment','gaps','blockers','matchingEvidenceIds'].some((key) => hasMeaningfulValue(item[key])) || item.featured === true || Number.isInteger(item.preference))
+  else hasContent = value.items.some((item) => ['title','reason','date'].some((key) => hasMeaningfulValue(item[key])))
   return Boolean(hasContent || findUnknown(name, value).length)
 }
 
