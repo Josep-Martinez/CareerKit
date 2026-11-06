@@ -1,0 +1,90 @@
+INICIO:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/ui/pages/HomePage.jsx'
+          - 'src/ui/App.jsx'
+          - 'src/main.jsx'
+          - 'index.html'
+          - 'src/ui/utils.js'
+          - 'src/data/catalog.js'
+          - 'src/data/storage.js'
+          - 'schemas/priorities.schema.json'
+          - 'schemas/agent-format.md'
+          - 'templates/priorities.json'
+          - 'src/i18n/es.js'
+          - 'src/ui/components/**'
+          - 'src/ui/*.css'
+
+PERFIL:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/ui/pages/ProfilePage.jsx'
+          - 'src/ui/App.jsx'
+          - 'src/main.jsx'
+          - 'schemas/profile.schema.json'
+          - 'templates/profile.json'
+          - 'src/data/storage.js'
+          - 'src/data/catalog.js'
+          - 'src/ui/utils.js'
+          - 'schemas/agent-format.md'
+          - 'src/i18n/es.js'
+          - 'src/ui/components/**'
+          - 'src/ui/*.css'
+
+CV:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/ui/pages/CVPage.jsx'
+          - 'src/ui/App.jsx'
+          - 'src/main.jsx'
+          - 'schemas/cv.schema.json'
+          - 'templates/cv.json'
+          - 'src/data/storage.js'
+          - 'src/data/catalog.js'
+          - 'src/ui/utils.js'
+          - 'schemas/agent-format.md'
+          - 'src/i18n/es.js'
+          - 'src/ui/components/**'
+          - 'src/ui/*.css'
+
+LINKEDIN:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/ui/pages/LinkedInPage.jsx'
+          - 'src/ui/App.jsx'
+          - 'src/main.jsx'
+          - 'schemas/linkedin.schema.json'
+          - 'templates/linkedin.json'
+          - 'src/data/storage.js'
+          - 'src/data/catalog.js'
+          - 'src/ui/utils.js'
+          - 'schemas/agent-format.md'
+          - 'src/i18n/es.js'
+          - 'src/ui/components/**'
+          - 'src/ui/*.css'
+
+VACANTES:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/ui/pages/VacanciesPage.jsx'
+          - 'src/ui/App.jsx'
+          - 'src/main.jsx'
+          - 'schemas/vacancies.schema.json'
+          - 'templates/vacancies.json'
+          - 'src/data/storage.js'
+          - 'src/data/catalog.js'
+          - 'src/ui/utils.js'
+          - 'schemas/agent-format.md'
+          - 'src/i18n/es.js'
+          - 'src/ui/components/**'
+          - 'src/ui/*.css'
+
+BUZÓN:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/ui/pages/PromptInboxPage.jsx'
+          - 'src/ui/App.jsx'
+          - 'src/main.jsx'
+          - 'src/i18n/es.js'
+          - 'src/ui/components/**'
+          - 'src/ui/*.css'

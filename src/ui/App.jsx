@@ -53,7 +53,8 @@ export default function App() {
   function handleFallbackDownload(module) {
     if (fallbackSavedModule !== module) return
     setFallbackSavedModule(null)
-    if (['profile', 'linkedin'].includes(module)) remindCvPrompt(s.promptInbox.fallbackSaved)
+    if (['profile', 'linkedin'].includes(module))
+      remindCvPrompt(s.promptInbox.fallbackSaved)
     else showNotice(s.promptInbox.downloadPrepared)
   }
 
@@ -67,23 +68,37 @@ export default function App() {
           const handle = await store.folder.getFileHandle(`${key}.json`)
           const file = await handle.getFile()
           const txt = await file.text()
-          if (txt !== store.revision[key] && store.revision[key] !== undefined) {
+          if (
+            txt !== store.revision[key] &&
+            store.revision[key] !== undefined
+          ) {
             if (store.states[key] !== 'Cambio externo') {
               store.setStates((prev) => ({ ...prev, [key]: 'Cambio externo' }))
-              store.setWarnings((prev) => ({ ...prev, [key]: `${key}.json cambió fuera de la aplicación. Recárgalo para cargar la versión externa antes de guardar.` }))
-              if (['profile', 'linkedin'].includes(key)) remindCvPrompt(s.promptInbox.sourceChanged)
+              store.setWarnings((prev) => ({
+                ...prev,
+                [key]: `${key}.json cambió fuera de la aplicación. Recárgalo para cargar la versión externa antes de guardar.`,
+              }))
+              if (['profile', 'linkedin'].includes(key))
+                remindCvPrompt(s.promptInbox.sourceChanged)
             }
           }
-        } catch { /* missing files are surfaced on initial connection */ }
+        } catch {
+          /* missing files are surfaced on initial connection */
+        }
       }
     }
     const timer = setInterval(checks, 2200)
-    return () => { cancelled = true; clearInterval(timer) }
+    return () => {
+      cancelled = true
+      clearInterval(timer)
+    }
   }, [store.folder, store.revision, store.states])
 
   useEffect(() => {
     if (!mobileNavOpen) return undefined
-    const closeOnEscape = (event) => { if (event.key === 'Escape') setMobileNavOpen(false) }
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setMobileNavOpen(false)
+    }
     window.addEventListener('keydown', closeOnEscape)
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [mobileNavOpen])
@@ -92,7 +107,8 @@ export default function App() {
     const result = await store.connect()
     if (result.fallback) setFallbackOpen(true)
     else if (result.connected) {
-      const needsHelp = result.missing.length || result.invalid.length || result.emptyData
+      const needsHelp =
+        result.missing.length || result.invalid.length || result.emptyData
       setFolderDialog(needsHelp ? result : null)
       showNotice(needsHelp ? '' : s.dataConnection.connectedReady)
     } else if (result.error) showNotice(s.dataConnection.connectFailed)
@@ -104,7 +120,11 @@ export default function App() {
       setFolderDialog({ ...scan, preparationError: true })
       return
     }
-    setFolderDialog(result.missing.length || result.invalid.length || result.emptyData ? result : null)
+    setFolderDialog(
+      result.missing.length || result.invalid.length || result.emptyData
+        ? result
+        : null,
+    )
     if (result.created.length) showNotice(s.dataConnection.prepared)
   }
   async function recheckFolder() {
@@ -113,8 +133,13 @@ export default function App() {
       setFolderDialog((previous) => ({ ...previous, recheckError: true }))
       return
     }
-    setFolderDialog(result.missing.length || result.invalid.length || result.emptyData ? result : null)
-    if (!result.missing.length && !result.invalid.length && !result.emptyData) showNotice(s.dataConnection.loadedSuccessfully)
+    setFolderDialog(
+      result.missing.length || result.invalid.length || result.emptyData
+        ? result
+        : null,
+    )
+    if (!result.missing.length && !result.invalid.length && !result.emptyData)
+      showNotice(s.dataConnection.loadedSuccessfully)
   }
   function openSetupPrompt() {
     setFolderDialog(null)
@@ -124,40 +149,352 @@ export default function App() {
   }
   async function save(module, value) {
     const result = await store.save(module, value)
-    if (result.conflict) showNotice(`${module}.json cambió fuera de la aplicación. Recárgalo antes de volver a guardar.`)
+    if (result.conflict)
+      showNotice(
+        `${module}.json cambió fuera de la aplicación. Recárgalo antes de volver a guardar.`,
+      )
     else if (result.needsReview) setFolderDialog(await store.recheck())
-    else if (result.fallback) { setFallbackSavedModule(module); showNotice('Cambios preparados. Usa «Guardar JSON individual» para guardar este módulo en tu dispositivo.'); setFallbackOpen(true) }
-    else if (result.saved && ['profile', 'linkedin'].includes(module)) { setFallbackSavedModule(null); remindCvPrompt(module === 'profile' ? s.promptInbox.sourceSavedProfile : s.promptInbox.sourceSavedLinkedin) }
-    else if (result.saved) { setFallbackSavedModule(null); showNotice(`${module}.json guardado.`) }
-    else if (result.error) showNotice(result.error)
+    else if (result.fallback) {
+      setFallbackSavedModule(module)
+      showNotice(
+        'Cambios preparados. Usa «Guardar JSON individual» para guardar este módulo en tu dispositivo.',
+      )
+      setFallbackOpen(true)
+    } else if (result.saved && ['profile', 'linkedin'].includes(module)) {
+      setFallbackSavedModule(null)
+      remindCvPrompt(
+        module === 'profile'
+          ? s.promptInbox.sourceSavedProfile
+          : s.promptInbox.sourceSavedLinkedin,
+      )
+    } else if (result.saved) {
+      setFallbackSavedModule(null)
+      showNotice(`${module}.json guardado.`)
+    } else if (result.error) showNotice(result.error)
   }
-  function openCvPrompt() { setPage('prompts'); setVacancyId(null); showNotice('') }
-  const activeVacancy = store.data.vacancies.items.find((v) => v.id === vacancyId)
+  function openCvPrompt() {
+    setPage('prompts')
+    setVacancyId(null)
+    showNotice('')
+  }
+  const activeVacancy = store.data.vacancies.items.find(
+    (v) => v.id === vacancyId,
+  )
 
-  return <div className="app-shell">
-    <aside className={`sidebar ${mobileNavOpen ? 'is-open' : ''}`}>
-      <div className="brand"><div className="brand-mark">C</div><div><strong>CareerKit</strong><span>Tu espacio profesional</span></div><button className="sidebar-close" onClick={() => setMobileNavOpen(false)} aria-label="Ocultar menú">×</button></div>
-      <div className="side-label">ESPACIO</div>
-      <nav id="primary-nav" aria-label="Secciones principales">{NAV.map(([key, label]) => <button key={key} className={`nav-link ${page === key ? 'active' : ''}`} onClick={() => { setPage(key); setVacancyId(null); setMobileNavOpen(false) }}><span className="nav-icon"><SectionIcon name={key}/></span>{label}{key === 'prompts' && cvPromptPending && <span className="nav-badge" aria-label={s.promptInbox.pendingTag}>1</span>}{page === key && <span className="nav-dot" />}</button>)}</nav>
-      <div className="sidebar-bottom"><div className="privacy-card"><span className="privacy-icon">♧</span><div><strong>Datos en tu dispositivo</strong><p>La app no envía información a ningún servidor.</p></div></div><button className="connect-button" onClick={() => { setMobileNavOpen(false); connect() }}><span>↗</span>{store.folder ? 'Carpeta conectada' : s.connect}</button><p className="side-note">Permisos de lectura y escritura solicitados al conectar.</p></div>
-    </aside>
-    <button className={`nav-backdrop ${mobileNavOpen ? 'is-visible' : ''}`} onClick={() => setMobileNavOpen(false)} aria-label="Ocultar menú" tabIndex={mobileNavOpen ? 0 : -1}/>
-    <main className="main-area">
-      <header className="topbar"><button className="mobile-menu-toggle" aria-controls="primary-nav" aria-expanded={mobileNavOpen} aria-label={mobileNavOpen ? 'Ocultar secciones' : 'Mostrar secciones'} onClick={() => setMobileNavOpen((open) => !open)}><span/><span/><span/></button><div className="breadcrumbs">CareerKit <span>/</span> {page === 'home' ? 'Inicio' : TITLES[page]}</div><div className="top-actions"><span className={`connection ${store.folder ? 'is-connected' : ''}`}><i />{store.folder ? 'Datos conectados' : 'Solo vista previa'}</span><button className="avatar">C</button></div></header>
-      <section className="page-content">
-        {notice && <div className="toast" role="status"><span>{notice}</span>{noticeAction === 'cv-prompt' && <button className="toast-action" onClick={openCvPrompt}>{s.promptInbox.openButton}</button>}<button onClick={() => showNotice('')} aria-label="Cerrar aviso">×</button></div>}
-        {!store.folder && <section className="connection-banner" aria-labelledby="connection-banner-title"><div><span className="eyebrow">{s.dataConnection.bannerEyebrow}</span><h2 id="connection-banner-title">{s.dataConnection.bannerTitle}</h2><p>{window.showDirectoryPicker ? s.dataConnection.bannerBody : s.dataConnection.bannerFallback}</p></div><div className="connection-banner-actions"><button className="button primary" onClick={connect}>{s.connect}</button><button className="text-button" onClick={openSetupPrompt}>{s.dataConnection.promptsButton}</button></div></section>}
-        {page === 'home' && <HomePage data={store.data} connected={Boolean(store.folder)} states={store.states} onNavigate={setPage} onVacancy={(v) => { setVacancyId(v.id); setPage('vacancies') }} />}
-        {page === 'profile' && <ProfilePage value={store.data.profile} connected={Boolean(store.folder)} isEmpty={isKnownEmpty('profile', store.data.profile, store.states.profile)} state={store.states.profile} warning={store.warnings.profile} onSave={(v) => save('profile', v)} onReload={() => reload('profile')} />}
-        {page === 'linkedin' && <LinkedInPage value={store.data.linkedin} profile={store.data.profile} connected={Boolean(store.folder)} isEmpty={isKnownEmpty('linkedin', store.data.linkedin, store.states.linkedin)} state={store.states.linkedin} warning={store.warnings.linkedin} onSave={(v) => save('linkedin', v)} onReload={() => reload('linkedin')} />}
-        {page === 'cv' && <CVPage value={store.data.cv} connected={Boolean(store.folder)} isEmpty={isKnownEmpty('cv', store.data.cv, store.states.cv)} profileReady={isKnownPopulated('profile', store.data.profile, store.states.profile)} linkedinReady={isKnownPopulated('linkedin', store.data.linkedin, store.states.linkedin)} state={store.states.cv} warning={store.warnings.cv} onNavigate={setPage} onReload={() => reload('cv')} />}
-        {page === 'vacancies' && (activeVacancy ? <VacancyDetail value={activeVacancy} onBack={() => setVacancyId(null)} /> : <VacanciesPage value={store.data.vacancies} state={store.states.vacancies} warning={store.warnings.vacancies} onSave={(v) => save('vacancies', v)} onReload={() => reload('vacancies')} onSelect={() => {}} />)}
-        {page === 'prompts' && <PromptInboxPage pending={cvPromptPending} onCopy={handlePromptCopied} />}
-        <footer className="page-footer"><span>Privado por diseño · Sin cuentas ni sincronización</span>{store.folder && <button className="text-button" onClick={() => setConfirmDisconnect(true)}>{s.disconnect}</button>}</footer>
-      </section>
-    </main>
-    {fallbackOpen && <FallbackDialog module={currentModule || 'profile'} data={store.data[currentModule || 'profile']} onClose={() => { setFallbackOpen(false); setFallbackSavedModule(null) }} onDownload={handleFallbackDownload} />}
-    {folderDialog && <FolderDataDialog scan={folderDialog} onClose={() => setFolderDialog(null)} onPrepare={prepareMissing} onRecheck={recheckFolder} onStartProfile={() => { setFolderDialog(null); setPage('profile'); setVacancyId(null) }} onOpenPrompts={openSetupPrompt} />}
-    {confirmDisconnect && <div className="modal-backdrop"><div className="modal"><button className="modal-close" onClick={() => setConfirmDisconnect(false)}>×</button><span className="eyebrow">Privacidad</span><h2>Desconectar carpeta</h2><p>La web dejará de leer y guardar los JSON. Puedes borrar también los datos cargados en esta sesión.</p><div className="modal-actions"><button className="button secondary" onClick={() => setConfirmDisconnect(false)}>Cancelar</button><button className="button secondary" onClick={() => { store.disconnect(false); setConfirmDisconnect(false); setNotice('Carpeta desconectada.') }}>Desconectar</button><button className="button danger" onClick={() => { store.disconnect(true); setConfirmDisconnect(false); setNotice('Carpeta desconectada y datos de sesión borrados.') }}>Desconectar y borrar datos de sesión</button></div></div></div>}
-  </div>
+  return (
+    <div className="app-shell">
+      <aside className={`sidebar ${mobileNavOpen ? 'is-open' : ''}`}>
+        <div className="brand">
+          <div className="brand-mark">C</div>
+          <div>
+            <strong>CareerKit</strong>
+            <span>Tu espacio profesional</span>
+          </div>
+          <button
+            className="sidebar-close"
+            onClick={() => setMobileNavOpen(false)}
+            aria-label="Ocultar menú"
+          >
+            ×
+          </button>
+        </div>
+        <div className="side-label">ESPACIO</div>
+        <nav id="primary-nav" aria-label="Secciones principales">
+          {NAV.map(([key, label]) => (
+            <button
+              key={key}
+              className={`nav-link ${page === key ? 'active' : ''}`}
+              onClick={() => {
+                setPage(key)
+                setVacancyId(null)
+                setMobileNavOpen(false)
+              }}
+            >
+              <span className="nav-icon">
+                <SectionIcon name={key} />
+              </span>
+              {label}
+              {key === 'prompts' && cvPromptPending && (
+                <span
+                  className="nav-badge"
+                  aria-label={s.promptInbox.pendingTag}
+                >
+                  1
+                </span>
+              )}
+              {page === key && <span className="nav-dot" />}
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-bottom">
+          <div className="privacy-card">
+            <span className="privacy-icon">♧</span>
+            <div>
+              <strong>Datos en tu dispositivo</strong>
+              <p>La app no envía información a ningún servidor.</p>
+            </div>
+          </div>
+          <button
+            className="connect-button"
+            onClick={() => {
+              setMobileNavOpen(false)
+              connect()
+            }}
+          >
+            <span>↗</span>
+            {store.folder ? 'Carpeta conectada' : s.connect}
+          </button>
+          <p className="side-note">
+            Permisos de lectura y escritura solicitados al conectar.
+          </p>
+        </div>
+      </aside>
+      <button
+        className={`nav-backdrop ${mobileNavOpen ? 'is-visible' : ''}`}
+        onClick={() => setMobileNavOpen(false)}
+        aria-label="Ocultar menú"
+        tabIndex={mobileNavOpen ? 0 : -1}
+      />
+      <main className="main-area">
+        <header className="topbar">
+          <button
+            className="mobile-menu-toggle"
+            aria-controls="primary-nav"
+            aria-expanded={mobileNavOpen}
+            aria-label={
+              mobileNavOpen ? 'Ocultar secciones' : 'Mostrar secciones'
+            }
+            onClick={() => setMobileNavOpen((open) => !open)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+          <div className="breadcrumbs">
+            CareerKit <span>/</span> {page === 'home' ? 'Inicio' : TITLES[page]}
+          </div>
+          <div className="top-actions">
+            <span
+              className={`connection ${store.folder ? 'is-connected' : ''}`}
+            >
+              <i />
+              {store.folder ? 'Datos conectados' : 'Solo vista previa'}
+            </span>
+            <button className="avatar">C</button>
+          </div>
+        </header>
+        <section className="page-content">
+          {notice && (
+            <div className="toast" role="status">
+              <span>{notice}</span>
+              {noticeAction === 'cv-prompt' && (
+                <button className="toast-action" onClick={openCvPrompt}>
+                  {s.promptInbox.openButton}
+                </button>
+              )}
+              <button onClick={() => showNotice('')} aria-label="Cerrar aviso">
+                ×
+              </button>
+            </div>
+          )}
+          {!store.folder && (
+            <section
+              className="connection-banner"
+              aria-labelledby="connection-banner-title"
+            >
+              <div>
+                <span className="eyebrow">
+                  {s.dataConnection.bannerEyebrow}
+                </span>
+                <h2 id="connection-banner-title">
+                  {s.dataConnection.bannerTitle}
+                </h2>
+                <p>
+                  {window.showDirectoryPicker
+                    ? s.dataConnection.bannerBody
+                    : s.dataConnection.bannerFallback}
+                </p>
+              </div>
+              <div className="connection-banner-actions">
+                <button className="button primary" onClick={connect}>
+                  {s.connect}
+                </button>
+                <button className="text-button" onClick={openSetupPrompt}>
+                  {s.dataConnection.promptsButton}
+                </button>
+              </div>
+            </section>
+          )}
+          {page === 'home' && (
+            <HomePage
+              data={store.data}
+              connected={Boolean(store.folder)}
+              states={store.states}
+              onNavigate={setPage}
+              onVacancy={(v) => {
+                setVacancyId(v.id)
+                setPage('vacancies')
+              }}
+            />
+          )}
+          {page === 'profile' && (
+            <ProfilePage
+              value={store.data.profile}
+              connected={Boolean(store.folder)}
+              isEmpty={isKnownEmpty(
+                'profile',
+                store.data.profile,
+                store.states.profile,
+              )}
+              state={store.states.profile}
+              warning={store.warnings.profile}
+              onSave={(v) => save('profile', v)}
+              onReload={() => reload('profile')}
+            />
+          )}
+          {page === 'linkedin' && (
+            <LinkedInPage
+              value={store.data.linkedin}
+              profile={store.data.profile}
+              connected={Boolean(store.folder)}
+              isEmpty={isKnownEmpty(
+                'linkedin',
+                store.data.linkedin,
+                store.states.linkedin,
+              )}
+              state={store.states.linkedin}
+              warning={store.warnings.linkedin}
+              onSave={(v) => save('linkedin', v)}
+              onReload={() => reload('linkedin')}
+            />
+          )}
+          {page === 'cv' && (
+            <CVPage
+              value={store.data.cv}
+              connected={Boolean(store.folder)}
+              isEmpty={isKnownEmpty('cv', store.data.cv, store.states.cv)}
+              profileReady={isKnownPopulated(
+                'profile',
+                store.data.profile,
+                store.states.profile,
+              )}
+              linkedinReady={isKnownPopulated(
+                'linkedin',
+                store.data.linkedin,
+                store.states.linkedin,
+              )}
+              state={store.states.cv}
+              warning={store.warnings.cv}
+              onNavigate={setPage}
+              onReload={() => reload('cv')}
+            />
+          )}
+          {page === 'vacancies' &&
+            (activeVacancy ? (
+              <VacancyDetail
+                value={activeVacancy}
+                onBack={() => setVacancyId(null)}
+              />
+            ) : (
+              <VacanciesPage
+                value={store.data.vacancies}
+                state={store.states.vacancies}
+                warning={store.warnings.vacancies}
+                onSave={(v) => save('vacancies', v)}
+                onReload={() => reload('vacancies')}
+                onSelect={() => {}}
+              />
+            ))}
+          {page === 'prompts' && (
+            <PromptInboxPage
+              pending={cvPromptPending}
+              onCopy={handlePromptCopied}
+            />
+          )}
+          <footer className="page-footer">
+            <span>Privado por diseño · Sin cuentas ni sincronización</span>
+            {store.folder && (
+              <button
+                className="text-button"
+                onClick={() => setConfirmDisconnect(true)}
+              >
+                {s.disconnect}
+              </button>
+            )}
+          </footer>
+        </section>
+      </main>
+      {fallbackOpen && (
+        <FallbackDialog
+          module={currentModule || 'profile'}
+          data={store.data[currentModule || 'profile']}
+          onClose={() => {
+            setFallbackOpen(false)
+            setFallbackSavedModule(null)
+          }}
+          onDownload={handleFallbackDownload}
+        />
+      )}
+      {folderDialog && (
+        <FolderDataDialog
+          scan={folderDialog}
+          onClose={() => setFolderDialog(null)}
+          onPrepare={prepareMissing}
+          onRecheck={recheckFolder}
+          onStartProfile={() => {
+            setFolderDialog(null)
+            setPage('profile')
+            setVacancyId(null)
+          }}
+          onOpenPrompts={openSetupPrompt}
+        />
+      )}
+      {confirmDisconnect && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <button
+              className="modal-close"
+              onClick={() => setConfirmDisconnect(false)}
+            >
+              ×
+            </button>
+            <span className="eyebrow">Privacidad</span>
+            <h2>Desconectar carpeta</h2>
+            <p>
+              La web dejará de leer y guardar los JSON. Puedes borrar también
+              los datos cargados en esta sesión.
+            </p>
+            <div className="modal-actions">
+              <button
+                className="button secondary"
+                onClick={() => setConfirmDisconnect(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="button secondary"
+                onClick={() => {
+                  store.disconnect(false)
+                  setConfirmDisconnect(false)
+                  setNotice('Carpeta desconectada.')
+                }}
+              >
+                Desconectar
+              </button>
+              <button
+                className="button danger"
+                onClick={() => {
+                  store.disconnect(true)
+                  setConfirmDisconnect(false)
+                  setNotice('Carpeta desconectada y datos de sesión borrados.')
+                }}
+              >
+                Desconectar y borrar datos de sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }

@@ -4,4 +4,8 @@ import App from './ui/App.jsx'
 import './ui/styles.css'
 import './ui/editorial.css'
 
-createRoot(document.getElementById('root')).render(<React.StrictMode><App /></React.StrictMode>)
+createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)

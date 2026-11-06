@@ -27,7 +27,10 @@
           "level": { "type": "string" },
           "jobType": { "type": "string" },
           "assessment": { "type": "string" },
-          "matchingEvidenceIds": { "type": "array", "items": { "type": "string" } },
+          "matchingEvidenceIds": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
           "gaps": { "type": "string" },
           "blockers": { "type": "string" },
           "preference": { "type": "integer" },
@@ -42,12 +45,23 @@
   "$defs": {
     "cvAdvice": {
       "type": "object",
-      "required": ["recommendedVersion", "reason", "assessedAt", "spanishAdjustments", "englishAdjustments"],
+      "required": [
+        "recommendedVersion",
+        "reason",
+        "assessedAt",
+        "spanishAdjustments",
+        "englishAdjustments"
+      ],
       "properties": {
-        "recommendedVersion": { "enum": ["spanish", "english", "both", "pending"] },
+        "recommendedVersion": {
+          "enum": ["spanish", "english", "both", "pending"]
+        },
         "reason": { "type": "string" },
         "assessedAt": { "type": "string" },
-        "spanishAdjustments": { "type": "array", "items": { "type": "string" } },
+        "spanishAdjustments": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "englishAdjustments": { "type": "array", "items": { "type": "string" } }
       },
       "additionalProperties": true

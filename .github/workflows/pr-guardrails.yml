@@ -1,0 +1,107 @@
+name: Pull request guardrails
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  policy:
+    name: Validate PR policy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Validate author, changed paths, and description
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const ownerLogin = 'Josep-Martinez'
+            const pullRequest = context.payload.pull_request
+
+            if (pullRequest.user.login === ownerLogin) {
+              core.info('Owner PR: description and protected-path policy are bypassed.')
+              return
+            }
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullRequest.number,
+              per_page: 100,
+            })
+            const protectedFiles = files
+              .map((file) => file.filename)
+              .filter((filename) => filename === '.github' || filename.startsWith('.github/'))
+
+            const errors = []
+            if (protectedFiles.length > 0) {
+              errors.push(`Solo Josep puede cambiar .github/: ${protectedFiles.join(', ')}`)
+            }
+
+            const body = (pullRequest.body || '').replace(/\r\n/g, '\n')
+            const requiredHeadings = [
+              '## Qué se ha modificado',
+              '## Motivo',
+              '## Cómo se ha comprobado',
+              '## Riesgos o efectos',
+            ]
+            const headings = [...body.matchAll(/^## .+$/gm)]
+            const missingSections = []
+
+            for (const heading of requiredHeadings) {
+              const startIndex = headings.findIndex((match) => match[0].trim() === heading)
+              if (startIndex === -1) {
+                missingSections.push(heading)
+                continue
+              }
+
+              const start = headings[startIndex].index + headings[startIndex][0].length
+              const end = headings[startIndex + 1]?.index ?? body.length
+              const content = body.slice(start, end).replace(/<!--[\s\S]*?-->/g, '').trim()
+              if (content.length < 20 || /^(todo|tbd|pendiente|por completar|describe aquí|n\/a)\.?$/i.test(content)) {
+                missingSections.push(heading)
+              }
+            }
+
+            if (missingSections.length > 0) {
+              errors.push(`Completa estas secciones de la descripción: ${missingSections.join(', ')}`)
+            }
+
+            if (errors.length > 0) core.setFailed(errors.join('\n'))
+            else core.info('La descripción está completa y el PR no modifica .github/.')
+
+  labels:
+    name: Apply section labels
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Add labels based on changed paths
+        uses: actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13 # v7
+        with:
+          sync-labels: true
+
+  pr-guardrails:
+    name: pr-guardrails
+    if: always()
+    needs: [policy, labels]
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Require policy validation and labeling
+        env:
+          POLICY_RESULT: ${{ needs.policy.result }}
+          LABELS_RESULT: ${{ needs.labels.result }}
+        run: |
+          if [[ "$POLICY_RESULT" != "success" && "$POLICY_RESULT" != "skipped" ]]; then
+            echo "PR policy validation ended with: $POLICY_RESULT"
+            exit 1
+          fi
+          if [[ "$LABELS_RESULT" != "success" ]]; then
+            echo "PR labeling ended with: $LABELS_RESULT"
+            exit 1
+          fi
