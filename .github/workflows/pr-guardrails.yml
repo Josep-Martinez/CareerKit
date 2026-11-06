@@ -20,25 +20,23 @@ jobs:
           script: |
             const ownerLogin = 'Josep-Martinez'
             const pullRequest = context.payload.pull_request
-
-            if (pullRequest.user.login === ownerLogin) {
-              core.info('Owner PR: description and protected-path policy are bypassed.')
-              return
-            }
-
-            const files = await github.paginate(github.rest.pulls.listFiles, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pullRequest.number,
-              per_page: 100,
-            })
-            const protectedFiles = files
-              .map((file) => file.filename)
-              .filter((filename) => filename === '.github' || filename.startsWith('.github/'))
-
+            const isOwner = pullRequest.user.login === ownerLogin
             const errors = []
-            if (protectedFiles.length > 0) {
-              errors.push(`Solo Josep puede cambiar .github/: ${protectedFiles.join(', ')}`)
+
+            if (!isOwner) {
+              const files = await github.paginate(github.rest.pulls.listFiles, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pullRequest.number,
+                per_page: 100,
+              })
+              const protectedFiles = files
+                .map((file) => file.filename)
+                .filter((filename) => filename === '.github' || filename.startsWith('.github/'))
+
+              if (protectedFiles.length > 0) {
+                errors.push(`Solo Josep puede cambiar .github/: ${protectedFiles.join(', ')}`)
+              }
             }
 
             const body = (pullRequest.body || '').replace(/\r\n/g, '\n')
@@ -71,6 +69,7 @@ jobs:
             }
 
             if (errors.length > 0) core.setFailed(errors.join('\n'))
+            else if (isOwner) core.info('La descripción está completa; el propietario puede modificar .github/.')
             else core.info('La descripción está completa y el PR no modifica .github/.')
 
   labels:

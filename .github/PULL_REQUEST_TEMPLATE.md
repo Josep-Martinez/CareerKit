@@ -1,14 +1,14 @@
 ## Qué se ha modificado
-<!-- Enumera los cambios concretos y los archivos o comportamientos afectados. -->
+<!-- Sustituye esta indicación por el cambio concreto y los archivos o comportamientos afectados. El check requiere al menos 20 caracteres de contenido. -->
 
 ## Motivo
-<!-- Explica qué necesidad resuelve y por qué se eligió este cambio. -->
+<!-- Sustituye esta indicación por la necesidad que resuelve el cambio y por qué se eligió. El check requiere al menos 20 caracteres de contenido. -->
 
 ## Cómo se ha comprobado
-<!-- Describe los pasos de verificación manual y sus resultados. Los resultados automáticos reales aparecen en los checks obligatorios del PR. -->
+<!-- Sustituye esta indicación por los pasos de verificación y sus resultados. El check requiere al menos 20 caracteres de contenido. -->
 
 ## Riesgos o efectos
-<!-- Describe posibles efectos secundarios, compatibilidad o datos afectados. Si no identificas riesgos, explica por qué. -->
+<!-- Sustituye esta indicación por los posibles efectos secundarios, compatibilidad o datos afectados. Si no identificas riesgos, explica por qué. El check requiere al menos 20 caracteres de contenido. -->
 
 ## Checks automáticos
 GitHub muestra el resultado real de cada check en este PR:
