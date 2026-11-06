@@ -285,9 +285,9 @@ function findUnknown(name, data) {
   }
   if (name === 'cv') {
     inspect(data.versions, ['spanish','english'], 'versions')
-    inspect(data.versions?.spanish, rules.cv.version, 'versions.spanish')
-    inspect(data.versions?.english, rules.cv.version, 'versions.english')
-    inspect(data.previousVersion, rules.cv.version, 'previousVersion')
+    inspect(data.versions?.spanish, rules.version, 'versions.spanish')
+    inspect(data.versions?.english, rules.version, 'versions.english')
+    inspect(data.previousVersion, rules.version, 'previousVersion')
   }
   if (name === 'vacancies') (data.items || []).forEach((item, index) => {
     inspect(item, rules.item, `items[${index}]`)
