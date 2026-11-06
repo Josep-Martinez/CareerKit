@@ -4,6 +4,7 @@ import { NAV, STRINGS as s, TITLES } from '../i18n/es.js'
 import { useStorageState } from '../data/storage.js'
 import { isKnownEmpty, isKnownPopulated } from './utils.js'
 import { SectionIcon } from './components/SectionIcon.jsx'
+import { WorkspaceGate } from './components/WorkspaceGate.jsx'
 import { FallbackDialog, FolderDataDialog } from './components/DataDialogs.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { ProfilePage } from './pages/ProfilePage.jsx'
@@ -24,6 +25,7 @@ export default function App() {
   const [vacancyId, setVacancyId] = useState(null)
   const [confirmDisconnect, setConfirmDisconnect] = useState(false)
   const [cvPromptPending, setCvPromptPending] = useState(false)
+  const [connecting, setConnecting] = useState(false)
   const currentModule = Object.hasOwn(store.data, page) ? page : null
 
   function showNotice(message, action = null) {
@@ -104,14 +106,20 @@ export default function App() {
   }, [mobileNavOpen])
 
   async function connect() {
-    const result = await store.connect()
-    if (result.fallback) setFallbackOpen(true)
-    else if (result.connected) {
-      const needsHelp =
-        result.missing.length || result.invalid.length || result.emptyData
-      setFolderDialog(needsHelp ? result : null)
-      showNotice(needsHelp ? '' : s.dataConnection.connectedReady)
-    } else if (result.error) showNotice(s.dataConnection.connectFailed)
+    setConnecting(true)
+    try {
+      const result = await store.connect()
+      if (result.fallback) showNotice(s.workspaceGate.browserUnsupported)
+      else if (result.connected) {
+        const needsHelp = result.missing.length || result.invalid.length
+        setFolderDialog(needsHelp ? result : null)
+        showNotice(
+          needsHelp || result.emptyData ? '' : s.dataConnection.connectedReady,
+        )
+      } else if (result.error) showNotice(s.dataConnection.connectFailed)
+    } finally {
+      setConnecting(false)
+    }
   }
   async function prepareMissing() {
     const result = await store.prepareMissing(folderDialog?.missing || [])
@@ -121,9 +129,7 @@ export default function App() {
       return
     }
     setFolderDialog(
-      result.missing.length || result.invalid.length || result.emptyData
-        ? result
-        : null,
+      result.missing.length || result.invalid.length ? result : null,
     )
     if (result.created.length) showNotice(s.dataConnection.prepared)
   }
@@ -134,9 +140,7 @@ export default function App() {
       return
     }
     setFolderDialog(
-      result.missing.length || result.invalid.length || result.emptyData
-        ? result
-        : null,
+      result.missing.length || result.invalid.length ? result : null,
     )
     if (!result.missing.length && !result.invalid.length && !result.emptyData)
       showNotice(s.dataConnection.loadedSuccessfully)
@@ -180,6 +184,16 @@ export default function App() {
   const activeVacancy = store.data.vacancies.items.find(
     (v) => v.id === vacancyId,
   )
+
+  if (!store.folder || connecting) {
+    return (
+      <WorkspaceGate
+        connecting={connecting}
+        notice={notice}
+        onConnect={connect}
+      />
+    )
+  }
 
   return (
     <div className="app-shell">
@@ -297,34 +311,6 @@ export default function App() {
               </button>
             </div>
           )}
-          {!store.folder && (
-            <section
-              className="connection-banner"
-              aria-labelledby="connection-banner-title"
-            >
-              <div>
-                <span className="eyebrow">
-                  {s.dataConnection.bannerEyebrow}
-                </span>
-                <h2 id="connection-banner-title">
-                  {s.dataConnection.bannerTitle}
-                </h2>
-                <p>
-                  {window.showDirectoryPicker
-                    ? s.dataConnection.bannerBody
-                    : s.dataConnection.bannerFallback}
-                </p>
-              </div>
-              <div className="connection-banner-actions">
-                <button className="button primary" onClick={connect}>
-                  {s.connect}
-                </button>
-                <button className="text-button" onClick={openSetupPrompt}>
-                  {s.dataConnection.promptsButton}
-                </button>
-              </div>
-            </section>
-          )}
           {page === 'home' && (
             <HomePage
               data={store.data}
@@ -340,12 +326,6 @@ export default function App() {
           {page === 'profile' && (
             <ProfilePage
               value={store.data.profile}
-              connected={Boolean(store.folder)}
-              isEmpty={isKnownEmpty(
-                'profile',
-                store.data.profile,
-                store.states.profile,
-              )}
               state={store.states.profile}
               warning={store.warnings.profile}
               onSave={(v) => save('profile', v)}
@@ -356,12 +336,6 @@ export default function App() {
             <LinkedInPage
               value={store.data.linkedin}
               profile={store.data.profile}
-              connected={Boolean(store.folder)}
-              isEmpty={isKnownEmpty(
-                'linkedin',
-                store.data.linkedin,
-                store.states.linkedin,
-              )}
               state={store.states.linkedin}
               warning={store.warnings.linkedin}
               onSave={(v) => save('linkedin', v)}
@@ -387,6 +361,7 @@ export default function App() {
               warning={store.warnings.cv}
               onNavigate={setPage}
               onReload={() => reload('cv')}
+              onPromptCopied={handlePromptCopied}
             />
           )}
           {page === 'vacancies' &&
