@@ -5,18 +5,9 @@ import {
   TextField,
   useDraft,
 } from '../components/FormPrimitives.jsx'
-import { STRINGS as s } from '../../i18n/es.js'
 import { id } from '../utils.js'
 
-export function ProfilePage({
-  value,
-  connected,
-  isEmpty,
-  state,
-  warning,
-  onSave,
-  onReload,
-}) {
+export function ProfilePage({ value, state, warning, onSave, onReload }) {
   const [draft, setDraft] = useDraft(value)
   const update = (key, val) => setDraft({ ...draft, [key]: val })
   const add = (key) =>
@@ -49,21 +40,6 @@ export function ProfilePage({
         subtitle="Guarda experiencias, metas y evidencias a tu manera."
       />
       <Status state={state} warning={warning} onReload={onReload} />
-      {connected && isEmpty && (
-        <section className="module-empty-card" role="status">
-          <div className="module-empty-mark" aria-hidden="true">
-            01
-          </div>
-          <div>
-            <span className="eyebrow">{s.profileEmpty.eyebrow}</span>
-            <h2>{s.profileEmpty.title}</h2>
-            <p>{s.profileEmpty.body}</p>
-            <a className="button primary" href="#profile-main-form">
-              {s.profileEmpty.action}
-            </a>
-          </div>
-        </section>
-      )}
       <div className="editor-grid">
         <section className="panel form-panel" id="profile-main-form">
           <CardTitle

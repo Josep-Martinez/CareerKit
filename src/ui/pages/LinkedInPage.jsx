@@ -32,8 +32,6 @@ const PROFILE_EVIDENCE_GROUPS = [
 export function LinkedInPage({
   value,
   profile,
-  connected,
-  isEmpty,
   state,
   warning,
   onSave,
@@ -95,24 +93,6 @@ export function LinkedInPage({
         subtitle="Conserva el contenido publicado y anota qué corregir o añadir, con su base en perfil y aprendizajes."
       />
       <Status state={state} warning={warning} onReload={onReload} />
-      {connected && isEmpty && (
-        <section
-          className="module-empty-card linkedin-empty-card"
-          role="status"
-        >
-          <div className="module-empty-mark linkedin-mark" aria-hidden="true">
-            in
-          </div>
-          <div>
-            <span className="eyebrow">{s.linkedinEmpty.eyebrow}</span>
-            <h2>{s.linkedinEmpty.title}</h2>
-            <p>{s.linkedinEmpty.body}</p>
-            <a className="button primary" href="#linkedin-content-form">
-              {s.linkedinEmpty.action}
-            </a>
-          </div>
-        </section>
-      )}
       <div className="linkedin-layout">
         <section className="panel form-panel" id="linkedin-content-form">
           <CardTitle

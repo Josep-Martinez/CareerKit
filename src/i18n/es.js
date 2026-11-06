@@ -11,6 +11,22 @@ export const STRINGS = {
   brand: 'CareerKit',
   subtitle: 'Tu espacio profesional',
   connect: 'Conectar carpeta de datos',
+  workspaceGate: {
+    priority: 'ALTA PRIORIDAD · PRIMER PASO',
+    eyebrow: 'TUS ARCHIVOS SE QUEDAN EN TU DISPOSITIVO',
+    title: 'Crea o conecta tu carpeta privada',
+    body: 'CareerKit necesita una carpeta local para mostrar y guardar información. Crea private-data/ en la raíz de este proyecto con los cinco JSON vacíos de templates/, o conecta la carpeta si ya la tienes. Al conectar, la web solicitará permiso para leer y guardar. También puedes pedirle a tu asistente local que prepare la carpeta; solo podrá editar esos archivos si tiene acceso local al proyecto.',
+    connecting: 'Conectando carpeta…',
+    showPrompt: 'Ver prompt de preparación',
+    hidePrompt: 'Ocultar prompt',
+    promptLabel: 'Prompt para tu asistente local',
+    copyPrompt: 'Copiar prompt',
+    copied: 'Prompt copiado. Pégalo en tu asistente local.',
+    copyFailed: 'No se pudo copiar. Selecciona el texto y cópialo.',
+    browserUnsupported:
+      'Este navegador no permite conectar carpetas directamente. Abre CareerKit en un navegador compatible para continuar.',
+    privacy: 'Sin cuentas, sincronización ni envío de datos a servidores.',
+  },
   disconnect: 'Desconectar carpeta',
   disconnected: 'Datos desconectados',
   connected: 'Carpeta conectada',
@@ -39,7 +55,7 @@ export const STRINGS = {
     prepareButton: 'Crear solo los archivos que faltan',
     preparing: 'Preparando plantillas vacías…',
     prepared: 'Plantillas listas. Ahora puedes completar tus datos en la app.',
-    connectedReady: 'Carpeta conectada. Tus datos están listos.',
+    connectedReady: 'Carpeta conectada. Ya puedes completar tus secciones.',
     loadedSuccessfully: 'Datos cargados correctamente.',
     prepareError:
       'No se pudieron preparar todos los archivos. Revisa los permisos de lectura y escritura y vuelve a comprobar la carpeta.',
@@ -69,33 +85,20 @@ export const STRINGS = {
   featured: 'Vacantes destacadas',
   cvDates: 'CV',
   homeSetup: {
-    urgentLabel: 'URGENTE · COMPLETA TU BASE',
-    pendingLabel: 'SIGUIENTE PASO',
+    highPriorityLabel: 'ALTA PRIORIDAD · PRIMEROS PASOS',
     urgentTitle: 'Tu espacio necesita tu historia profesional',
     urgentBodyBoth:
-      'Añade la información de tu trayectoria en Perfil y copia en LinkedIn lo que tienes publicado. Cuando esas dos bases estén listas, el Buzón te guía para preparar los CV en español e inglés.',
+      'Añade la información confirmada de tu trayectoria en Perfil y copia en LinkedIn lo que tienes publicado. Cuando ambas estén listas, el CV te mostrará el prompt para preparar las dos versiones.',
     urgentBodyProfile:
-      'Añade la información de tu trayectoria en Perfil. Después podrás contrastarla con tu copia publicada en LinkedIn y preparar los CV desde el Buzón.',
+      'Añade la información confirmada de tu trayectoria en Perfil. Después podrás contrastarla con tu copia publicada en LinkedIn y preparar los CV desde su prompt.',
     urgentBodyLinkedin:
-      'Añade la copia fiel de lo que tienes publicado en LinkedIn. Después podrás contrastarla con tu Perfil y preparar los CV desde el Buzón.',
+      'Añade la copia fiel de lo que tienes publicado en LinkedIn. Después podrás contrastarla con tu Perfil y preparar los CV desde su prompt.',
     cvTitle: 'El CV base está pendiente de preparar',
     cvBody:
-      'Tu Perfil y LinkedIn ya tienen contenido. Abre el Buzón y usa el prompt para preparar las dos versiones del CV.',
+      'Tu Perfil y LinkedIn ya tienen contenido. Abre CV y copia el prompt para que tu asistente prepare las dos versiones.',
     profileAction: 'Completar Perfil',
     linkedinAction: 'Completar LinkedIn',
-    promptsAction: 'Abrir Buzón',
-  },
-  profileEmpty: {
-    eyebrow: 'PRIMEROS PASOS',
-    title: 'Aquí empieza tu historia profesional',
-    body: 'Rellena el perfil, los objetivos y las experiencias que quieras conservar. Puedes añadirlas poco a poco y marcar qué está confirmado.',
-    action: 'Empezar a completar el perfil',
-  },
-  linkedinEmpty: {
-    eyebrow: 'COPIA AÚN SIN CONTENIDO',
-    title: 'Añade aquí lo que tienes publicado',
-    body: 'Transcribe tu perfil tal como aparece actualmente. La vista previa se completará con lo que introduzcas; la app no importa ni reescribe el contenido.',
-    action: 'Rellenar la copia de LinkedIn',
+    cvAction: 'Preparar los dos CV',
   },
   cvEditor: {
     title: 'CV base',
@@ -140,13 +143,13 @@ export const STRINGS = {
     fallbackTitle: 'Consultar el JSON del CV',
     fallbackLimitNote:
       'Este modo no sincroniza el archivo con la página. Después de que el agente local actualice el CV, vuelve a conectar la carpeta o abre de nuevo el JSON.',
-    emptyEyebrow: 'BASE TODAVÍA SIN CONTENIDO',
-    emptyTitle: 'Esta versión aún no está preparada',
+    emptyEyebrow: 'PRIMEROS PASOS DEL CV',
+    emptyTitle: 'Las dos versiones aún no están preparadas',
     emptyBodyWithoutSources:
-      'Completa primero la información confirmada de Perfil y la copia publicada de LinkedIn. Después abre el Buzón y pide preparar la base general en español y en inglés a partir de esos datos.',
+      'Completa primero la información confirmada de Perfil y la copia publicada de LinkedIn. Después copia este prompt para que tu asistente prepare la base general en español y en inglés. El prompt también le indica que espere si todavía faltan datos.',
     emptyBodyWithSources:
-      'Perfil y LinkedIn ya contienen información. Abre el Buzón y usa el prompt para preparar esta base en español y en inglés. La aplicación no genera el CV automáticamente.',
-    emptyPromptAction: 'Ver el prompt del CV',
+      'Perfil y LinkedIn ya contienen información. Copia el prompt para que tu asistente prepare las dos bases generales. La aplicación no genera el CV automáticamente.',
+    morePrompts: 'Ver más prompts en el Buzón',
   },
   vacancyCvAdvice: {
     title: 'Qué adaptar en los CV',
@@ -222,7 +225,7 @@ export const STRINGS = {
         id: 'refresh-cv',
         title: 'Actualizar la base general del CV',
         use: 'Úsalo después de cambiar Perfil o LinkedIn, o cuando quieras revisar la coherencia de las dos bases.',
-        text: 'Revisa private-data/profile.json, private-data/linkedin.json y private-data/cv.json. Valida cada JSON con su esquema. Actualiza las dos bases generales del CV con información confirmada del Perfil y hechos compartidos con la copia publicada de LinkedIn. Respeta cvEvidence, internal y los identificadores estables. Mantén la versión española en español y con formato de dos columnas; la inglesa debe estar completamente en inglés y usar una columna. No modifiques el contenido publicado en LinkedIn. Si encuentras contradicciones o datos pendientes de confirmar, pregúntame antes de reflejarlos. Guarda cv.json solo si tienes acceso local a esos archivos. Si no puedes acceder o guardar, dímelo claramente y no afirmes que lo hiciste.',
+        text: 'Revisa private-data/profile.json, private-data/linkedin.json y private-data/cv.json. Valida cada JSON con su esquema. Si Perfil o LinkedIn no contienen información confirmada suficiente, no inventes ni generes los CV: dime qué falta y espera a que lo complete. Cuando ambas fuentes estén preparadas, crea o actualiza las dos bases generales del CV con información confirmada del Perfil y hechos compartidos con la copia publicada de LinkedIn. Respeta cvEvidence, internal y los identificadores estables. Mantén la versión española en español y con formato de dos columnas; la inglesa debe estar completamente en inglés y usar una columna. No modifiques el contenido publicado en LinkedIn. Si encuentras contradicciones o datos pendientes de confirmar, pregúntame antes de reflejarlos. Guarda cv.json solo si tienes acceso local a esos archivos. Si no puedes acceder o guardar, dímelo claramente y no afirmes que lo hiciste.',
       },
       {
         id: 'assess-vacancy',

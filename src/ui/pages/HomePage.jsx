@@ -25,8 +25,9 @@ export function HomePage({ data, connected, states, onNavigate, onVacancy }) {
     connected &&
     isKnownPopulated('profile', data.profile, states.profile) &&
     isKnownPopulated('linkedin', data.linkedin, states.linkedin)
-  const urgentSetup = empty.profile || empty.linkedin
-  const pendingCV = empty.cv && !urgentSetup && sourcesReady
+  const sourceSetup = empty.profile || empty.linkedin
+  const pendingCV = empty.cv && sourcesReady
+  const highPrioritySetup = sourceSetup || pendingCV
   return (
     <>
       <PageHeading
@@ -34,6 +35,59 @@ export function HomePage({ data, connected, states, onNavigate, onVacancy }) {
         title="Inicio"
         subtitle="Una vista clara de lo que estás construyendo."
       />
+      {highPrioritySetup && (
+        <section
+          className="home-setup-card is-urgent"
+          role="alert"
+          aria-labelledby="home-setup-title"
+        >
+          <div className="home-setup-copy">
+            <span className="setup-severity">
+              {s.homeSetup.highPriorityLabel}
+            </span>
+            <h2 id="home-setup-title">
+              {sourceSetup ? s.homeSetup.urgentTitle : s.homeSetup.cvTitle}
+            </h2>
+            <p>
+              {sourceSetup
+                ? s.homeSetup[
+                    empty.profile && empty.linkedin
+                      ? 'urgentBodyBoth'
+                      : empty.profile
+                        ? 'urgentBodyProfile'
+                        : 'urgentBodyLinkedin'
+                  ]
+                : s.homeSetup.cvBody}
+            </p>
+          </div>
+          <div className="home-setup-actions">
+            {empty.profile && (
+              <button
+                className="button primary"
+                onClick={() => onNavigate('profile')}
+              >
+                {s.homeSetup.profileAction}
+              </button>
+            )}
+            {empty.linkedin && (
+              <button
+                className="button secondary"
+                onClick={() => onNavigate('linkedin')}
+              >
+                {s.homeSetup.linkedinAction}
+              </button>
+            )}
+            {pendingCV && (
+              <button
+                className="button primary"
+                onClick={() => onNavigate('cv')}
+              >
+                {s.homeSetup.cvAction}
+              </button>
+            )}
+          </div>
+        </section>
+      )}
       <div className="welcome-card">
         <div className="welcome-copy">
           <span className="welcome-label">TU ESPACIO DE TRABAJO</span>
@@ -73,59 +127,6 @@ export function HomePage({ data, connected, states, onNavigate, onVacancy }) {
           </div>
         </div>
       </div>
-      {(urgentSetup || pendingCV) && (
-        <section
-          className={`home-setup-card ${urgentSetup ? 'is-urgent' : ''}`}
-          role={urgentSetup ? 'alert' : 'status'}
-          aria-labelledby="home-setup-title"
-        >
-          <div className="home-setup-copy">
-            <span className="setup-severity">
-              {urgentSetup ? s.homeSetup.urgentLabel : s.homeSetup.pendingLabel}
-            </span>
-            <h2 id="home-setup-title">
-              {urgentSetup ? s.homeSetup.urgentTitle : s.homeSetup.cvTitle}
-            </h2>
-            <p>
-              {urgentSetup
-                ? s.homeSetup[
-                    empty.profile && empty.linkedin
-                      ? 'urgentBodyBoth'
-                      : empty.profile
-                        ? 'urgentBodyProfile'
-                        : 'urgentBodyLinkedin'
-                  ]
-                : s.homeSetup.cvBody}
-            </p>
-          </div>
-          <div className="home-setup-actions">
-            {empty.profile && (
-              <button
-                className="button primary"
-                onClick={() => onNavigate('profile')}
-              >
-                {s.homeSetup.profileAction}
-              </button>
-            )}
-            {empty.linkedin && (
-              <button
-                className="button secondary"
-                onClick={() => onNavigate('linkedin')}
-              >
-                {s.homeSetup.linkedinAction}
-              </button>
-            )}
-            {empty.cv && (
-              <button
-                className="button secondary"
-                onClick={() => onNavigate('prompts')}
-              >
-                {s.homeSetup.promptsAction}
-              </button>
-            )}
-          </div>
-        </section>
-      )}
       <div className="section-title-row">
         <div>
           <span className="eyebrow">A TENER EN CUENTA</span>
