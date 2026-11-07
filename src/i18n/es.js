@@ -11,12 +11,32 @@ export const STRINGS = {
   brand: 'CareerKit',
   subtitle: 'Tu espacio profesional',
   connect: 'Conectar carpeta de datos',
+  changeFolder: 'Cambiar carpeta de datos',
   workspaceGate: {
     priority: 'ALTA PRIORIDAD · PRIMER PASO',
     eyebrow: 'TUS ARCHIVOS SE QUEDAN EN TU DISPOSITIVO',
     title: 'Crea o conecta tu carpeta privada',
     body: 'CareerKit necesita una carpeta local para mostrar y guardar información. Crea private-data/ en la raíz de este proyecto con los cinco JSON vacíos de templates/, o conecta la carpeta si ya la tienes. Al conectar, la web solicitará permiso para leer y guardar. También puedes pedirle a tu asistente local que prepare la carpeta; solo podrá editar esos archivos si tiene acceso local al proyecto.',
+    checkingTitle: 'Buscando tu carpeta guardada',
+    checkingBody:
+      'Comprobando si este navegador ya recuerda la carpeta que conectaste anteriormente.',
+    rememberedTitle: 'CareerKit recuerda tu carpeta',
+    rememberedBody:
+      'La carpeta ya está seleccionada. El navegador necesita permiso para volver a leer y guardar sus archivos; no tendrás que buscarla otra vez.',
+    storageErrorTitle: 'Vuelve a conectar tu carpeta',
+    storageErrorBody:
+      'No se pudo recuperar el acceso guardado en este navegador. Tus archivos no se han modificado; puedes volver a elegir la carpeta.',
     connecting: 'Conectando carpeta…',
+    checking: 'Buscando carpeta…',
+    grantPermission: 'Dar permiso a carpeta guardada',
+    chooseAnother: 'Elegir otra carpeta',
+    permissionNotice:
+      'El navegador todavía no ha concedido permiso. Vuelve a intentarlo o elige la carpeta de nuevo.',
+    persistenceNotice:
+      'La carpeta está conectada durante esta sesión, pero el navegador no pudo recordar la selección. Puede que tengas que elegirla la próxima vez.',
+    disconnectPersistenceNotice:
+      'La carpeta se desconectó, pero el navegador no pudo borrar su selección guardada.',
+    restoredNotice: 'Carpeta recuperada. Tus datos ya están disponibles.',
     showPrompt: 'Ver prompt de preparación',
     hidePrompt: 'Ocultar prompt',
     promptLabel: 'Prompt para tu asistente local',
@@ -25,7 +45,8 @@ export const STRINGS = {
     copyFailed: 'No se pudo copiar. Selecciona el texto y cópialo.',
     browserUnsupported:
       'Este navegador no permite conectar carpetas directamente. Abre CareerKit en un navegador compatible para continuar.',
-    privacy: 'Sin cuentas, sincronización ni envío de datos a servidores.',
+    privacy:
+      'Cuando el navegador lo permite, recuerda la selección. Tus JSON siguen en tu carpeta y no se envían a servidores.',
   },
   disconnect: 'Desconectar carpeta',
   disconnected: 'Datos desconectados',
@@ -56,6 +77,17 @@ export const STRINGS = {
     preparing: 'Preparando plantillas vacías…',
     prepared: 'Plantillas listas. Ahora puedes completar tus datos en la app.',
     connectedReady: 'Carpeta conectada. Ya puedes completar tus secciones.',
+    reconnectedReady:
+      'Permiso renovado. La carpeta conectada se recordará en este navegador.',
+    folderRemembered:
+      'La selección se recuerda en este navegador. Si el permiso caduca, solo tendrás que renovarlo.',
+    folderNotRemembered:
+      'La web pide permiso al conectar y puede recordar la carpeta en este navegador.',
+    folderRememberFailed:
+      'El navegador no pudo recordar esta selección. Puede que tengas que conectarla otra vez al volver.',
+    disconnectedNotice: 'Carpeta desconectada.',
+    disconnectedClearedNotice:
+      'Carpeta desconectada y datos de sesión borrados.',
     loadedSuccessfully: 'Datos cargados correctamente.',
     prepareError:
       'No se pudieron preparar todos los archivos. Revisa los permisos de lectura y escritura y vuelve a comprobar la carpeta.',

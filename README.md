@@ -13,15 +13,15 @@ No hace falta escribir comandos si usas un asistente de programación que pueda 
 
 3. Cuando se abra CareerKit, pulsa **Conectar carpeta de datos**, elige `private-data/` y acepta el permiso de lectura y escritura del navegador.
 
-El asistente puede preparar y editar los archivos porque tiene abierto este repositorio local. La web no queda conectada automáticamente por el hecho de que el README esté en el proyecto: tienes que seleccionar la carpeta y aceptar el permiso de lectura y escritura en el navegador. El asistente no puede aceptar ese permiso por ti.
+El asistente puede preparar y editar los archivos porque tiene abierto este repositorio local. La primera vez, tienes que seleccionar la carpeta y aceptar el permiso de lectura y escritura en el navegador. Después, CareerKit recuerda la selección en el navegador y vuelve a abrirla al iniciar; si el navegador retira el permiso, te pedirá renovarlo sin seleccionar la carpeta otra vez. El asistente no puede aceptar ese permiso por ti.
 
-La app queda en la dirección local que indique el servidor, normalmente `http://localhost:5173/`. El servidor debe seguir activo mientras la usas; puedes pedirle al asistente que lo inicie o lo detenga. No hace falta desplegar ni publicar el proyecto.
+La app queda en `http://127.0.0.1:5173/`. Usa siempre esa misma dirección y el mismo navegador: así CareerKit puede recordar la selección de carpeta en este ordenador. El servidor debe seguir activo mientras la usas; puedes pedirle al asistente que lo inicie o lo detenga. No hace falta desplegar ni publicar el proyecto.
 
 La primera apertura está vacía. No se incluyen ejemplos personales. `pnpm data:init` prepara `private-data/` y copia `profile.json`, `linkedin.json`, `cv.json`, `vacancies.json` y `priorities.json` desde las plantillas vacías, solo cuando cada archivo aún no existe. Conserva los archivos existentes sin leerlos ni sobrescribirlos. `private-data/` está ignorada por Git y no forma parte del build.
 
 Si todavía no has conectado una carpeta, verás una franja que explica cómo conectar tus archivos y abrir el prompt de preparación. Al seleccionar una carpeta sin los JSON, CareerKit muestra una ventana que permite crear solo las plantillas que faltan, tras tu confirmación. Si los JSON existen y tienen el formato correcto pero están vacíos, aparece una ventana que te lleva a **Perfil y aprendizajes** para empezar a rellenarlos. Si un archivo está vacío, mal formado o no coincide con su plantilla, CareerKit lo deja intacto, señala el nombre y te indica cuál archivo de `templates/` revisar. Los demás módulos siguen disponibles. También puedes pedir al asistente local que prepare la carpeta con el prompt del buzón.
 
-Los datos permanecen en esos archivos locales. La web necesita permiso para leerlos y guardarlos. Si el asistente de programación tiene este repositorio abierto localmente, puede editar los mismos JSON; si no tiene acceso a la carpeta, debe pedirte acceso o decirte que no pudo guardar. El permiso del navegador puede tener que concederse de nuevo en otra sesión.
+Los datos permanecen en esos archivos locales. La web necesita permiso para leerlos y guardarlos. El navegador recuerda localmente la referencia a la carpeta, no copia ni sube los JSON. Esa referencia pertenece a este navegador y a esta dirección local; si cambias de navegador, perfil o dirección, o borras sus datos de sitio, puede que tengas que seleccionar la carpeta otra vez. Si el permiso caduca, puedes renovarlo desde CareerKit sin volver a buscarla. Si el asistente de programación tiene este repositorio abierto localmente, puede editar los mismos JSON; si no tiene acceso a la carpeta, debe pedirte acceso o decirte que no pudo guardar.
 
 ### Si el navegador no permite conectar una carpeta
 

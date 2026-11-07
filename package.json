@@ -6,7 +6,7 @@
   "packageManager": "pnpm@12.15.0",
   "scripts": {
     "dev": "vite",
-    "local": "vite --host 127.0.0.1",
+    "local": "vite",
     "build": "vite build",
     "format": "prettier --write \"src/**/*.{js,jsx,css}\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"templates/**/*.json\" \"package.json\" \"vite.config.js\" \"index.html\" \".github/**/*.{yml,yaml}\" \".prettierrc.json\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,css}\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"templates/**/*.json\" \"package.json\" \"vite.config.js\" \"index.html\" \".github/**/*.{yml,yaml}\" \".prettierrc.json\"",

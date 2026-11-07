@@ -97,6 +97,15 @@ export default function App() {
   }, [store.folder, store.revision, store.states])
 
   useEffect(() => {
+    if (store.restoreStatus !== 'restored' || !store.restoreResult) return
+    const result = store.restoreResult
+    const needsHelp = result.missing.length || result.invalid.length
+    setFolderDialog(needsHelp ? result : null)
+    if (!needsHelp && !result.emptyData)
+      showNotice(s.dataConnection.restoredNotice)
+  }, [store.restoreResult, store.restoreStatus])
+
+  useEffect(() => {
     if (!mobileNavOpen) return undefined
     const closeOnEscape = (event) => {
       if (event.key === 'Escape') setMobileNavOpen(false)
@@ -105,16 +114,24 @@ export default function App() {
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [mobileNavOpen])
 
-  async function connect() {
+  async function connect(options = {}) {
     setConnecting(true)
     try {
-      const result = await store.connect()
+      const result = await store.connect(options)
       if (result.fallback) showNotice(s.workspaceGate.browserUnsupported)
+      else if (result.permissionDenied)
+        showNotice(s.workspaceGate.permissionNotice)
       else if (result.connected) {
         const needsHelp = result.missing.length || result.invalid.length
         setFolderDialog(needsHelp ? result : null)
         showNotice(
-          needsHelp || result.emptyData ? '' : s.dataConnection.connectedReady,
+          result.persistenceError
+            ? s.workspaceGate.persistenceNotice
+            : needsHelp || result.emptyData
+              ? ''
+              : result.reconnected
+                ? s.dataConnection.reconnectedReady
+                : s.dataConnection.connectedReady,
         )
       } else if (result.error) showNotice(s.dataConnection.connectFailed)
     } finally {
@@ -185,12 +202,15 @@ export default function App() {
     (v) => v.id === vacancyId,
   )
 
-  if (!store.folder || connecting) {
+  if (!store.folder) {
     return (
       <WorkspaceGate
         connecting={connecting}
         notice={notice}
-        onConnect={connect}
+        restoreStatus={store.restoreStatus}
+        hasRememberedFolder={store.hasRememberedFolder}
+        onConnect={() => connect()}
+        onChooseFolder={() => connect({ selectAnother: true })}
       />
     )
   }
@@ -252,14 +272,18 @@ export default function App() {
             className="connect-button"
             onClick={() => {
               setMobileNavOpen(false)
-              connect()
+              connect({ selectAnother: true })
             }}
           >
             <span>↗</span>
-            {store.folder ? 'Carpeta conectada' : s.connect}
+            {store.folder ? s.changeFolder : s.connect}
           </button>
           <p className="side-note">
-            Permisos de lectura y escritura solicitados al conectar.
+            {store.rememberFailed
+              ? s.dataConnection.folderRememberFailed
+              : store.hasRememberedFolder
+                ? s.dataConnection.folderRemembered
+                : s.dataConnection.folderNotRemembered}
           </p>
         </div>
       </aside>
@@ -448,20 +472,28 @@ export default function App() {
               </button>
               <button
                 className="button secondary"
-                onClick={() => {
-                  store.disconnect(false)
+                onClick={async () => {
+                  const result = await store.disconnect(false)
                   setConfirmDisconnect(false)
-                  setNotice('Carpeta desconectada.')
+                  setNotice(
+                    result.persistenceCleared
+                      ? s.dataConnection.disconnectedNotice
+                      : s.workspaceGate.disconnectPersistenceNotice,
+                  )
                 }}
               >
                 Desconectar
               </button>
               <button
                 className="button danger"
-                onClick={() => {
-                  store.disconnect(true)
+                onClick={async () => {
+                  const result = await store.disconnect(true)
                   setConfirmDisconnect(false)
-                  setNotice('Carpeta desconectada y datos de sesión borrados.')
+                  setNotice(
+                    result.persistenceCleared
+                      ? s.dataConnection.disconnectedClearedNotice
+                      : s.workspaceGate.disconnectPersistenceNotice,
+                  )
                 }}
               >
                 Desconectar y borrar datos de sesión
