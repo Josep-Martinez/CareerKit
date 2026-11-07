@@ -1,0 +1,67 @@
+{
+  "version": "1.0",
+  "total": 100,
+  "note": "Twelve editorial criteria totaling 100 points. Score only supplied evidence, mark unavailable sections unassessed, and do not present this as an official LinkedIn score or hiring predictor.",
+  "items": [
+    {
+      "id": "headline",
+      "points": 12,
+      "full_marks": "States the user's current professional direction, relevant background, and intended audience with evidence; it does not imply an unsupported role or experience. Verify the current character limit before scoring it."
+    },
+    {
+      "id": "about_open",
+      "points": 10,
+      "full_marks": "The opening makes the user's professional direction and strongest relevant evidence clear. Avoid generic claims and third-person biography. Verify current interface behavior before asserting what is visible before 'see more'."
+    },
+    {
+      "id": "about_body",
+      "points": 10,
+      "full_marks": "Addresses the intended audience, explains relevant experience and user-confirmed motivation, includes only verified evidence, and gives a next step. Verify current character limits before scoring length."
+    },
+    {
+      "id": "featured",
+      "points": 8,
+      "full_marks": "Relevant work samples or projects, a useful professional post or document, and a clear contact route; keep items accurate and current."
+    },
+    {
+      "id": "banner",
+      "points": 6,
+      "full_marks": "If the user chooses to use a banner, it supports their positioning and is comfortable to make public; visual treatment is subjective."
+    },
+    {
+      "id": "photo",
+      "points": 6,
+      "full_marks": "A clear, current and recognizable photo that the user is comfortable using professionally; image style is subjective."
+    },
+    {
+      "id": "current_role",
+      "points": 10,
+      "full_marks": "One clear line of scope and two to three evidence-based bullets. Use numbers only when verified; distinguish duties from documented outcomes."
+    },
+    {
+      "id": "experience_depth",
+      "points": 8,
+      "full_marks": "Recent and relevant roles explain scope and transferable skills. Condense earlier experience when it does not support the target role."
+    },
+    {
+      "id": "skills",
+      "points": 6,
+      "full_marks": "Prioritized skills match the user's goals and are supported by experience or project evidence. Do not list skills whose level is unclear."
+    },
+    {
+      "id": "recommendations",
+      "points": 8,
+      "full_marks": "Recommendations, if available, provide specific examples of collaboration or outcomes. Do not treat a particular count or age as a universal requirement."
+    },
+    {
+      "id": "activity",
+      "points": 10,
+      "full_marks": "Recent activity, if present, is relevant to the target role and reflects the user's actual views. Posting frequency is not a required score criterion."
+    },
+    {
+      "id": "contact",
+      "points": 6,
+      "full_marks": "The profile offers a current, appropriate way to make professional contact. Check current LinkedIn profile fields before giving platform-specific requirements."
+    }
+  ]
+}
