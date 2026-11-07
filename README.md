@@ -62,9 +62,9 @@ Puedes pedirlo con este texto:
 
 ### Buzón de prompts
 
-La sección **Buzón de prompts**, después de Vacantes, incluye tareas para preparar los archivos, completar Perfil, leer un PDF, documento o texto que aportes para rellenar la copia de LinkedIn, actualizar las bases generales del CV, buscar y valorar ofertas, preparar un CV o una carta, estructurar historias STAR y trabajar con publicaciones, mensajes y comentarios de LinkedIn. Puedes buscar por nombre, tema o skill y abrir solo el prompt que necesitas.
+La sección **Buzón de prompts**, después de Vacantes, incluye tareas para preparar los archivos, completar Perfil, leer un PDF, documento o texto que aportes para rellenar la copia de LinkedIn, consultar el complemento de LinkedIn cuando esté disponible, actualizar las bases generales del CV, buscar y valorar ofertas, preparar un CV o una carta, estructurar historias STAR y trabajar con publicaciones, mensajes y comentarios de LinkedIn. El prompt del complemento solo funciona en un asistente que lo tenga conectado; si no muestra el texto completo o no está disponible, usa el prompt del PDF o texto. Puedes buscar por nombre, tema o skill y abrir solo el prompt que necesitas.
 
-Para rellenar LinkedIn, adjunta el PDF, documento o captura al chat de tu asistente local y copia allí el prompt. El archivo se procesa en ese asistente, no se sube a CareerKit; el prompt usa solo el material que tú le proporcionas y no accede a tu cuenta de LinkedIn.
+Para rellenar LinkedIn con un PDF, documento o captura, adjúntalo al chat de tu asistente local y copia allí el prompt correspondiente. Ese archivo se procesa en el asistente, no se sube a CareerKit, y ese prompt no accede a tu cuenta. El prompt del complemento es otra opción: busca el perfil y solo puede revisar la información que el complemento muestre explícitamente.
 
 Cada prompt incluye las rutas de las guías que el asistente debe leer. Si tu asistente no descubre las skills automáticamente, esas rutas quedan incluidas también en el texto copiado. Pega el prompt en Codex, Claude Code u otro asistente local; CareerKit no lo envía ni ejecuta. El índice de `.agents/skills/README.md` explica qué guía corresponde a cada tarea. Las guías son genéricas, están versionadas en Git y no incluyen datos personales.
 

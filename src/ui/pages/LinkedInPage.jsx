@@ -1,33 +1,29 @@
+import { useState } from 'react'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
-import {
-  ArrayText,
-  CardTitle,
-  Check,
-  TextField,
-  useDraft,
-} from '../components/FormPrimitives.jsx'
+import { Check, TextField, useDraft } from '../components/FormPrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
 import { id } from '../utils.js'
 
-const LINKEDIN_SECTIONS = [
-  ['headline', 'Titular'],
-  ['about', 'Acerca de'],
-  ['experience', 'Experiencia'],
-  ['education', 'Educación'],
-  ['skills', 'Aptitudes'],
-  ['certifications', 'Certificaciones'],
-  ['projects', 'Proyectos'],
-  ['featured', 'Destacados'],
+const copy = s.linkedinPage
+const LINKEDIN_SECTION_KEYS = [
+  'headline',
+  'about',
+  'experience',
+  'education',
+  'skills',
+  'certifications',
+  'projects',
+  'featured',
 ]
-const PROFILE_EVIDENCE_GROUPS = [
-  ['experience', 'Experiencia'],
-  ['education', 'Formación'],
-  ['skills', 'Habilidades'],
-  ['certifications', 'Certificaciones'],
-  ['languages', 'Idiomas'],
-  ['projects', 'Proyectos'],
-  ['evidence', 'Otras evidencias'],
-  ['learnings', 'Aprendizajes'],
+const PROFILE_EVIDENCE_KEYS = [
+  'experience',
+  'education',
+  'skills',
+  'certifications',
+  'languages',
+  'projects',
+  'evidence',
+  'learnings',
 ]
 export function LinkedInPage({
   value,
@@ -38,10 +34,11 @@ export function LinkedInPage({
   onReload,
 }) {
   const [draft, setDraft] = useDraft(value)
+  const [view, setView] = useState('edit')
   const pub = draft.published
   const setPub = (key, val) =>
     setDraft({ ...draft, published: { ...pub, [key]: val } })
-  const evidenceItems = PROFILE_EVIDENCE_GROUPS.flatMap(([key]) =>
+  const evidenceItems = PROFILE_EVIDENCE_KEYS.flatMap((key) =>
     (profile[key] || []).map((item) => ({ ...item, category: key })),
   )
   const addAudit = () =>
@@ -85,22 +82,73 @@ export function LinkedInPage({
     draft.audits.filter(
       (item) => item.section === section && item.status !== 'descartada',
     )
+  const hasPublishedContent = Boolean(
+    pub.name?.trim() ||
+    pub.headline.trim() ||
+    pub.about.trim() ||
+    previewKeys.some((key) => pub[key]?.some((entry) => entry.trim())),
+  )
+  const hasActiveAudits = draft.audits.some(
+    (item) => item.status !== 'descartada',
+  )
+  const initials =
+    pub.name
+      ?.trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('') || 'P'
   return (
     <>
       <PageHeading
-        eyebrow="COPIA DEL PERFIL PUBLICADO"
-        title="LinkedIn"
-        subtitle="Conserva el contenido publicado y anota qué corregir o añadir, con su base en perfil y aprendizajes."
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        subtitle={copy.subtitle}
       />
       <Status state={state} warning={warning} onReload={onReload} />
-      <div className="linkedin-layout">
-        <section className="panel form-panel" id="linkedin-content-form">
-          <CardTitle
-            title="Contenido actual"
-            description="Transcribe el contenido tal como aparece publicado."
+      <div className="linkedin-mode-row">
+        <div
+          className="linkedin-mode-switch"
+          role="group"
+          aria-label={copy.modeLabel}
+        >
+          <button
+            type="button"
+            className={view === 'edit' ? 'active' : ''}
+            aria-pressed={view === 'edit'}
+            onClick={() => setView('edit')}
+          >
+            {copy.editButton}
+          </button>
+          <button
+            type="button"
+            className={view === 'preview' ? 'active' : ''}
+            aria-pressed={view === 'preview'}
+            onClick={() => setView('preview')}
+          >
+            {copy.previewButton}
+          </button>
+        </div>
+        <span>{copy.separationNotice}</span>
+      </div>
+      {view === 'edit' ? (
+        <section
+          className="panel linkedin-edit-panel"
+          id="linkedin-content-form"
+          aria-labelledby="linkedin-edit-title"
+        >
+          <div className="linkedin-form-intro">
+            <span className="eyebrow">{copy.formEyebrow}</span>
+            <h2 id="linkedin-edit-title">{copy.formTitle}</h2>
+            <p>{copy.formDescription}</p>
+          </div>
+          <TextField
+            label={copy.nameLabel}
+            value={pub.name || ''}
+            onChange={(v) => setPub('name', v)}
           />
           <TextField
-            label="Titular"
+            label={copy.sectionLabels.headline}
             value={pub.headline}
             onChange={(v) => setPub('headline', v)}
           />
@@ -109,135 +157,215 @@ export function LinkedInPage({
             evidence={evidenceItems}
           />
           <TextField
-            label="Acerca de"
-            rows={6}
+            label={copy.sectionLabels.about}
+            rows={7}
             value={pub.about}
             onChange={(v) => setPub('about', v)}
           />
           <AuditPoints notes={auditNotes('about')} evidence={evidenceItems} />
-          {previewKeys.map((key) => (
-            <ArrayText
-              key={key}
-              title={
-                {
-                  experience: 'Experiencia',
-                  education: 'Educación',
-                  skills: 'Aptitudes',
-                  certifications: 'Certificaciones',
-                  projects: 'Proyectos',
-                  featured: 'Destacados',
-                }[key]
-              }
-              items={pub[key]}
-              onChange={(v) => setPub(key, v)}
-            />
-          ))}
+          <div className="linkedin-edit-sections">
+            {previewKeys.map((key) => (
+              <LinkedInListEditor
+                key={key}
+                title={copy.sectionLabels[key]}
+                items={pub[key]}
+                onChange={(v) => setPub(key, v)}
+              >
+                <AuditPoints notes={auditNotes(key)} evidence={evidenceItems} />
+              </LinkedInListEditor>
+            ))}
+          </div>
           <TextField
-            label="Última actualización del perfil"
+            label={copy.lastUpdatedLabel}
             value={draft.lastUpdated}
             onChange={(v) => setDraft({ ...draft, lastUpdated: v })}
-            hint="Fecha manual; déjala vacía si no está registrada."
+            hint={copy.lastUpdatedHint}
           />
-          <div className="divider" />
-          <CardTitle
-            title="Qué corregir o añadir"
-            description="Cada punto se vincula a una sección de LinkedIn y a evidencias de tu perfil o aprendizajes."
-            onAdd={addAudit}
-          />
-          {draft.audits.map((item, i) => (
-            <AuditCard
-              key={item.id || i}
-              item={item}
-              evidence={evidenceItems}
-              onChange={(part) => updateAudit(i, part)}
-              onDelete={() => removeAudit(i)}
-            />
-          ))}
-          {!draft.audits.length && (
-            <p className="quiet-empty">Sin puntos de auditoría.</p>
-          )}
+          <section
+            className="linkedin-audit-editor"
+            aria-labelledby="linkedin-audit-title"
+          >
+            <div className="linkedin-audit-heading">
+              <div>
+                <h3 id="linkedin-audit-title">{copy.auditTitle}</h3>
+                <p>{copy.auditDescription}</p>
+              </div>
+              <button
+                className="button secondary small"
+                type="button"
+                onClick={addAudit}
+              >
+                {copy.addAudit}
+              </button>
+            </div>
+            {draft.audits.map((item, i) => (
+              <AuditCard
+                key={item.id || i}
+                item={item}
+                evidence={evidenceItems}
+                onChange={(part) => updateAudit(i, part)}
+                onDelete={() => removeAudit(i)}
+              />
+            ))}
+            {!draft.audits.length && (
+              <p className="quiet-empty">{copy.emptyAudit}</p>
+            )}
+          </section>
           <button
             className="button primary save-button"
             onClick={() => onSave(draft)}
           >
-            Guardar LinkedIn y auditoría
+            {copy.save}
           </button>
         </section>
-        <aside className="linkedin-preview">
-          <div className="preview-label">
-            <span className="eyebrow">VISTA PREVIA</span>
-            <span>La copia y las sugerencias se mantienen separadas</span>
-          </div>
-          <div className="preview-card">
-            <div className="preview-cover" />
-            <div className="preview-avatar">
-              {pub.headline ? pub.headline[0].toUpperCase() : '·'}
+      ) : (
+        <section
+          className="linkedin-preview-view"
+          id="linkedin-profile-preview"
+          aria-labelledby="linkedin-preview-title"
+        >
+          <div className="linkedin-preview-heading">
+            <div>
+              <span className="eyebrow">{copy.previewEyebrow}</span>
+              <h2 id="linkedin-preview-title">{copy.previewTitle}</h2>
             </div>
-            <div className="preview-content">
-              <h3>Nombre sin registrar</h3>
-              <p>{pub.headline || 'Tu titular profesional aparecerá aquí'}</p>
-              <AuditPoints
-                notes={auditNotes('headline')}
-                evidence={evidenceItems}
-              />
-              <div className="preview-about">
-                <b>Acerca de</b>
-                <small>
-                  {pub.about ||
-                    'El texto publicado aparecerá aquí tal como lo escribas.'}
-                </small>
+            <p>{copy.previewDescription}</p>
+          </div>
+          {!hasPublishedContent && !hasActiveAudits ? (
+            <div className="linkedin-preview-empty">
+              <span className="linkedin-empty-mark" aria-hidden="true">
+                in
+              </span>
+              <h3>{copy.emptyPreviewTitle}</h3>
+              <p>{copy.emptyPreviewBody}</p>
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => setView('edit')}
+              >
+                {copy.editAction}
+              </button>
+            </div>
+          ) : (
+            <div className="linkedin-preview-card">
+              <div className="linkedin-preview-cover" aria-hidden="true" />
+              <div className="linkedin-preview-body">
+                <div className="linkedin-preview-identity">
+                  <div className="linkedin-avatar" aria-hidden="true">
+                    {initials}
+                  </div>
+                  <div>
+                    <h3>{pub.name || copy.nameFallback}</h3>
+                    {pub.headline && <p>{pub.headline}</p>}
+                  </div>
+                </div>
                 <AuditPoints
-                  notes={auditNotes('about')}
+                  notes={auditNotes('headline')}
                   evidence={evidenceItems}
                 />
-              </div>
-              <div className="preview-sections">
+                {(pub.about.trim() || auditNotes('about').length > 0) && (
+                  <PreviewSection title={copy.sectionLabels.about}>
+                    {pub.about.trim() && <p>{pub.about}</p>}
+                    <AuditPoints
+                      notes={auditNotes('about')}
+                      evidence={evidenceItems}
+                    />
+                  </PreviewSection>
+                )}
                 {previewKeys
-                  .filter((key) => pub[key]?.length || auditNotes(key).length)
+                  .filter(
+                    (key) =>
+                      pub[key]?.some((entry) => entry.trim()) ||
+                      auditNotes(key).length,
+                  )
                   .map((key) => (
-                    <div className="preview-section" key={key}>
-                      <b>
-                        {
-                          {
-                            experience: 'Experiencia',
-                            education: 'Educación',
-                            skills: 'Aptitudes',
-                            certifications: 'Certificaciones',
-                            projects: 'Proyectos',
-                            featured: 'Destacados',
-                          }[key]
-                        }
-                      </b>
-                      {(pub[key] || []).map((entry, i) => (
-                        <small key={i}>
-                          {typeof entry === 'string' ? entry : entry.title}
-                        </small>
-                      ))}
+                    <PreviewSection key={key} title={copy.sectionLabels[key]}>
+                      {!!pub[key]?.length && (
+                        <ul>
+                          {pub[key]
+                            .filter((entry) => entry.trim())
+                            .map((entry, i) => (
+                              <li key={i}>{entry}</li>
+                            ))}
+                        </ul>
+                      )}
                       <AuditPoints
                         notes={auditNotes(key)}
                         evidence={evidenceItems}
                       />
-                    </div>
+                    </PreviewSection>
                   ))}
+                {hasActiveAudits && !hasPublishedContent && (
+                  <p className="linkedin-audit-only-note">
+                    {copy.auditOnlyNote}
+                  </p>
+                )}
               </div>
             </div>
-          </div>
-        </aside>
-      </div>
+          )}
+        </section>
+      )}
     </>
+  )
+}
+
+function LinkedInListEditor({ title, items = [], onChange, children }) {
+  const update = (index, value) =>
+    onChange(
+      items.map((item, itemIndex) => (itemIndex === index ? value : item)),
+    )
+  return (
+    <section className="linkedin-list-editor">
+      <div className="linkedin-list-heading">
+        <h3>{title}</h3>
+        <button
+          className="button secondary small"
+          type="button"
+          onClick={() => onChange([...items, ''])}
+        >
+          {copy.addSection} {title.toLowerCase()}
+        </button>
+      </div>
+      {!items.length && <p className="quiet-empty">{copy.emptyList}</p>}
+      {items.map((item, index) => (
+        <div className="linkedin-list-entry" key={index}>
+          <TextField
+            label={`${title} ${index + 1}`}
+            rows={title === 'Aptitudes' ? 2 : 3}
+            value={item}
+            onChange={(value) => update(index, value)}
+          />
+          <button
+            className="button quiet linkedin-remove-entry"
+            type="button"
+            aria-label={`${copy.removeEntry} ${title.toLowerCase()} ${index + 1}`}
+            onClick={() =>
+              onChange(items.filter((_, itemIndex) => itemIndex !== index))
+            }
+          >
+            {copy.removeEntry}
+          </button>
+        </div>
+      ))}
+      {children}
+    </section>
+  )
+}
+
+function PreviewSection({ title, children }) {
+  return (
+    <section className="linkedin-preview-section">
+      <h4>{title}</h4>
+      {children}
+    </section>
   )
 }
 
 function AuditPoints({ notes, evidence }) {
   if (!notes.length) return null
-  const actionLabel = {
-    corregir: 'Corregir',
-    anadir: 'Añadir',
-    aclarar: 'Aclarar',
-  }
   return (
     <div className="preview-audit-points">
-      <span>PARA REVISAR</span>
+      <span>{copy.auditLabel}</span>
       <ul>
         {notes.map((note) => {
           const linked = evidence.filter((item) =>
@@ -250,17 +378,24 @@ function AuditPoints({ notes, evidence }) {
             : (note.profileEvidenceIds || []).join(' · ')
           return (
             <li key={note.id}>
-              <b>{actionLabel[note.action] || 'Revisar'}:</b>{' '}
-              {note.recommendation || note.problem || 'Anotación pendiente'}
+              <b>
+                {copy.auditActions[note.action] || copy.auditActions.fallback}:
+              </b>{' '}
+              {note.recommendation || note.problem || copy.auditPending}
               {note.proposedText && (
-                <small>Texto propuesto: {note.proposedText}</small>
+                <small>
+                  {copy.proposedTextPrefix}: {note.proposedText}
+                </small>
               )}
               <small>
                 {note.reasonEvidence ? `${note.reasonEvidence} · ` : ''}
                 {basis
-                  ? `Base: ${basis}`
-                  : 'Vincula una evidencia del perfil o un aprendizaje.'}{' '}
-                · Prioridad {note.priority || 'media'} · {note.status}
+                  ? `${copy.evidenceBasePrefix}: ${basis}`
+                  : copy.missingEvidenceHint}{' '}
+                · {copy.auditPriority}{' '}
+                {copy.auditCard.priorities[note.priority] ||
+                  copy.auditCard.priorities.media}{' '}
+                · {copy.auditStatuses[note.status] || note.status}
               </small>
             </li>
           )
@@ -272,15 +407,18 @@ function AuditPoints({ notes, evidence }) {
 
 function AuditCard({ item, evidence, onChange, onDelete }) {
   const selectedIds = item.profileEvidenceIds || []
-  const sectionKeys = LINKEDIN_SECTIONS.map(([key]) => key)
-  const categoryLabels = Object.fromEntries(PROFILE_EVIDENCE_GROUPS)
+  const sectionKeys = LINKEDIN_SECTION_KEYS
+  const categoryLabels = copy.evidenceLabels
+  const labels = copy.auditCard
   return (
     <div className="item-card audit-card">
       <div className="item-heading">
-        <span>Punto de auditoría · {item.date || s.noData}</span>
+        <span>
+          {labels.title} · {item.date || s.noData}
+        </span>
         <button
           className="icon-button"
-          aria-label="Eliminar punto de auditoría"
+          aria-label={labels.delete}
           onClick={onDelete}
         >
           ×
@@ -288,7 +426,7 @@ function AuditCard({ item, evidence, onChange, onDelete }) {
       </div>
       <div className="form-two">
         <label className="field">
-          <span>Sección de LinkedIn</span>
+          <span>{labels.section}</span>
           <select
             value={
               sectionKeys.includes(item.section)
@@ -300,50 +438,54 @@ function AuditCard({ item, evidence, onChange, onDelete }) {
             {!sectionKeys.includes(item.section) && item.section && (
               <option value={item.section}>{item.section}</option>
             )}
-            {LINKEDIN_SECTIONS.map(([key, label]) => (
+            {sectionKeys.map((key) => (
               <option key={key} value={key}>
-                {label}
+                {copy.sectionLabels[key]}
               </option>
             ))}
           </select>
         </label>
         <label className="field">
-          <span>Acción</span>
+          <span>{labels.action}</span>
           <select
             value={item.action || 'corregir'}
             onChange={(e) => onChange({ action: e.target.value })}
           >
-            <option value="corregir">Corregir</option>
-            <option value="anadir">Añadir</option>
-            <option value="aclarar">Aclarar</option>
+            {Object.entries(labels.actions).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
         </label>
       </div>
       <label className="field">
-        <span>Prioridad</span>
+        <span>{copy.auditPriority}</span>
         <select
           value={item.priority || 'media'}
           onChange={(e) => onChange({ priority: e.target.value })}
         >
-          <option value="alta">Alta</option>
-          <option value="media">Media</option>
-          <option value="baja">Baja</option>
+          {Object.entries(labels.priorities).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
         </select>
       </label>
       <TextField
-        label="Qué se observa"
+        label={labels.problem}
         value={item.problem}
         onChange={(v) => onChange({ problem: v })}
       />
       <TextField
-        label="Por qué, según el perfil o los aprendizajes"
+        label={labels.reasonEvidence}
         rows={2}
         value={item.reasonEvidence}
         onChange={(v) => onChange({ reasonEvidence: v })}
       />
       <fieldset className="audit-evidence">
-        <legend>Evidencias relacionadas</legend>
-        {PROFILE_EVIDENCE_GROUPS.map(([key]) => {
+        <legend>{labels.relatedEvidence}</legend>
+        {PROFILE_EVIDENCE_KEYS.map((key) => {
           const group = evidence.filter((entry) => entry.category === key)
           if (!group.length) return null
           return (
@@ -352,7 +494,7 @@ function AuditCard({ item, evidence, onChange, onDelete }) {
               {group.map((entry) => (
                 <Check
                   key={entry.id}
-                  label={`${entry.title || entry.name || 'Sin título'} · ${entry.id}`}
+                  label={`${entry.title || entry.name || labels.untitledEvidence} · ${entry.id}`}
                   checked={selectedIds.includes(entry.id)}
                   onChange={(checked) =>
                     onChange({
@@ -366,13 +508,9 @@ function AuditCard({ item, evidence, onChange, onDelete }) {
             </div>
           )
         })}
-        {!evidence.length && (
-          <p className="quiet-empty">
-            Añade primero evidencias o aprendizajes en Perfil.
-          </p>
-        )}
+        {!evidence.length && <p className="quiet-empty">{labels.noEvidence}</p>}
         <TextField
-          label="Otros IDs de perfil/aprendizajes"
+          label={labels.otherEvidenceIds}
           value={selectedIds
             .filter((value) => !evidence.some((entry) => entry.id === value))
             .join(', ')}
@@ -386,36 +524,38 @@ function AuditCard({ item, evidence, onChange, onDelete }) {
               .filter(Boolean)
             onChange({ profileEvidenceIds: [...known, ...extra] })
           }}
-          hint="Los IDs deben existir en profile.json."
+          hint={labels.evidenceIdsHint}
         />
       </fieldset>
       <TextField
-        label="Qué corregir o añadir"
+        label={labels.recommendation}
         rows={2}
         value={item.recommendation}
         onChange={(v) => onChange({ recommendation: v })}
       />
       <TextField
-        label="Texto propuesto (opcional)"
+        label={labels.proposedText}
         rows={3}
         value={item.proposedText}
         onChange={(v) => onChange({ proposedText: v })}
       />
       <div className="form-two">
         <TextField
-          label="Fecha de auditoría"
+          label={labels.date}
           value={item.date}
           onChange={(v) => onChange({ date: v })}
         />
         <label className="field">
-          <span>Estado</span>
+          <span>{labels.status}</span>
           <select
             value={item.status || 'pendiente'}
             onChange={(e) => onChange({ status: e.target.value })}
           >
-            <option value="pendiente">Pendiente</option>
-            <option value="aplicada">Aplicada</option>
-            <option value="descartada">Descartada</option>
+            {Object.entries(labels.statuses).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
         </label>
       </div>

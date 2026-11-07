@@ -114,6 +114,7 @@ const validators = {
     ),
   linkedin: (d) =>
     isRecord(d.published) &&
+    optionalStrings(d.published, ['name']) &&
     typeof d.published.headline === 'string' &&
     typeof d.published.about === 'string' &&
     [
@@ -211,6 +212,7 @@ export function hasModuleContent(name, value) {
     )
   else if (name === 'linkedin')
     hasContent = Boolean(
+      value.published.name?.trim() ||
       value.published.headline.trim() ||
       value.published.about.trim() ||
       [
@@ -770,6 +772,7 @@ function findUnknown(name, data) {
     },
     linkedin: {
       published: [
+        'name',
         'headline',
         'about',
         'experience',

@@ -20,6 +20,7 @@
         "featured"
       ],
       "properties": {
+        "name": { "type": "string" },
         "headline": { "type": "string" },
         "about": { "type": "string" },
         "experience": { "type": "array" },
