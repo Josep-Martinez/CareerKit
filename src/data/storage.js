@@ -455,8 +455,7 @@ export function useStorageState() {
       )
         return
       const handle = await detectLocalFolder()
-      if (!active || !handle) return
-      clearInterval(timer)
+      if (!active || !handle || folderRef.current) return
       const result = await scanFolder(handle)
       if (!active) return
       setFolder(handle)
@@ -469,20 +468,25 @@ export function useStorageState() {
     }
   }, [])
 
-  async function connect({ selectAnother = false } = {}) {
+  async function connect({ selectAnother = false, useLocal = false } = {}) {
     sessionStorage.removeItem('careerkit-disconnected')
-    if (!selectAnother && rememberedFolder) {
+    if (!selectAnother && !useLocal && rememberedFolder) {
       return {
         ...(await connectHandle(rememberedFolder, { requestPermission: true })),
         reconnected: true,
       }
     }
-    if (!window.showDirectoryPicker) return { fallback: true }
+    if (useLocal || !window.showDirectoryPicker) {
+      const local = await detectLocalFolder()
+      if (!local) return useLocal ? { localMissing: true } : { fallback: true }
+      return connectHandle(local, { requestPermission: false })
+    }
     try {
       const handle = await window.showDirectoryPicker({
         mode: 'readwrite',
         id: 'careerkit-private-data',
       })
+      if (handle.name !== 'private-data') return { wrongFolder: true }
       return connectHandle(handle, { requestPermission: true })
     } catch (error) {
       if (error.name === 'AbortError') return { cancelled: true }
@@ -499,13 +503,13 @@ export function useStorageState() {
             ? await handle.queryPermission({ mode: 'readwrite' })
             : 'granted'
       if (permission !== 'granted') {
-        setRestoreStatus('needs-permission')
+        if (rememberedFolder === handle) setRestoreStatus('needs-permission')
         return { permissionDenied: true }
       }
 
       let persistenceError = false
       try {
-        await rememberDirectoryHandle(handle)
+        if (!handle.local) await rememberDirectoryHandle(handle)
       } catch {
         persistenceError = true
         try {
@@ -514,7 +518,7 @@ export function useStorageState() {
           // The status message below tells the user the old selection may remain.
         }
       }
-      setRememberedFolder(persistenceError ? null : handle)
+      setRememberedFolder(persistenceError || handle.local ? null : handle)
       setRememberFailed(persistenceError)
       setData(
         Object.fromEntries(FILES.map((name) => [name, clone(EMPTY[name])])),

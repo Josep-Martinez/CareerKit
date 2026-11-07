@@ -8,6 +8,7 @@ export function WorkspaceGate({
   hasRememberedFolder,
   onConnect,
   onChooseFolder,
+  onConnectLocal,
 }) {
   const [showPrompt, setShowPrompt] = useState(false)
   const [promptMessage, setPromptMessage] = useState('')
@@ -84,6 +85,16 @@ export function WorkspaceGate({
               disabled={connecting}
             >
               {copy.chooseAnother}
+            </button>
+          )}
+          {!checking && onConnectLocal && (
+            <button
+              className="button secondary"
+              type="button"
+              onClick={onConnectLocal}
+              disabled={connecting}
+            >
+              {copy.connectLocal}
             </button>
           )}
           {!checking && (
