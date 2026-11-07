@@ -252,7 +252,7 @@ export const PROMPT_INBOX_ES = {
       ],
       text: [
         'Compara private-data/linkedin.json con datos confirmados y relevantes de private-data/profile.json, incluidos proyectos, actividades y aprendizajes. No accedas a LinkedIn. Si no tienes acceso autorizado a los JSON, pídeme la información; no inventes secciones ausentes.',
-        'Revisa cada sección aportada y prioriza los problemas que tengan evidencia concreta. Señala la sección, prioridad, problema, motivo y evidencia, IDs estables relacionados, recomendación y texto propuesto solo cuando aporte valor. Marca elementos no aportados como no evaluados. Si propones texto, prepara español e inglés con el mismo sentido, salvo que te pida un idioma.',
+        'Revisa cada sección aportada y prioriza los problemas que tengan evidencia concreta. Para cada nota, indica section y action (corregir, anadir o aclarar), prioridad, problema, motivo y evidencia, IDs estables relacionados, recomendación y texto propuesto solo cuando aporte valor. Marca elementos no aportados como no evaluados. Si propones texto, prepara español e inglés con el mismo sentido, salvo que te pida un idioma.',
         'Mantén las recomendaciones separadas de linkedin.json.published. Añade las notas de esta auditoría a linkedin.json.audits con estado pendiente y fecha solo si se conoce. Valida el archivo, conserva campos desconocidos y no apliques cambios al perfil publicado por tu cuenta.',
       ].join('\n\n'),
     },

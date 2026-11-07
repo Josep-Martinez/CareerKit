@@ -38,7 +38,7 @@ Los elementos del perfil y las vacantes usan IDs estables (`id`, UUID recomendad
 ### Instrucciones para asistentes de programación locales
 
 1. El agente local puede leer y editar los JSON de `private-data/` cuando la tarea que solicita el usuario lo requiera. Si no tiene acceso local, pide al usuario que abra el proyecto o deja claro que no guardaste cambios.
-2. Trabaja con los datos que el usuario haya guardado en CareerKit. No busques datos en otros proyectos, documentos, PDFs, cuentas de LinkedIn ni navegadores para completar la aplicación, salvo que el usuario lo pida expresamente.
+2. Trabaja únicamente con datos guardados en CareerKit o compartidos en la conversación. No busques ni copies datos de otros proyectos, documentos, PDFs, cuentas de LinkedIn o navegadores para completar la aplicación.
 3. Valida el JSON contra el esquema de `schemas/` correspondiente y conserva todas las propiedades desconocidas. Si un archivo está mal formado, compáralo con `templates/<módulo>.json`, explica el problema y espera instrucciones antes de repararlo. No inventes datos, fechas, valoraciones o verificaciones.
 4. Mantén IDs estables. Para relacionar evidencia con vacantes, referencia `profile.json` mediante `matchingEvidenceIds`.
 5. Escribe de forma atómica cuando sea posible, preserva UTF-8 y el formato JSON legible. Informa de los archivos efectivamente guardados.
