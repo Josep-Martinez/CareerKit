@@ -2065,7 +2065,89 @@ select {
   font-size: 11px;
 }
 
+.profile-main {
+  display: grid;
+  min-width: 0;
+  gap: 17px;
+}
+.profile-private-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid #dce3d8;
+  border-left: 4px solid #587760;
+  border-radius: 4px 12px 4px 12px;
+  background: #edf2eb;
+}
+.profile-private-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px 10px 10px 3px;
+  background: #dfe8de;
+  color: #315c47;
+  font-size: 21px;
+}
+.profile-private-note h2 {
+  margin: 0 0 5px;
+  color: #315344;
+  font-size: 15px;
+}
+.profile-private-note p {
+  margin: 0;
+  color: #647166;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.profile-card {
+  min-width: 0;
+}
+.profile-card-heading {
+  margin-bottom: 21px;
+}
+.profile-card-heading h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+.profile-card-heading p {
+  max-width: 760px;
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.profile-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 18px;
+}
+.profile-fields-grid > .collection {
+  min-width: 0;
+  margin-top: 0;
+  margin-bottom: 14px;
+}
+.profile-fields-grid .array-row input {
+  min-width: 0;
+}
+.profile-side-info {
+  position: sticky;
+  top: 22px;
+}
+
 @media (max-width: 760px) {
+  .profile-fields-grid {
+    grid-template-columns: 1fr;
+  }
+  .profile-side-info {
+    position: static;
+  }
   .linkedin-mode-row {
     align-items: flex-start;
     flex-direction: column;

@@ -33,7 +33,9 @@ El agente no inferirá intereses, valores, debilidades, preferencias, tono ni ob
 
 ## Estructura de la copia de LinkedIn
 
-La copia publicada añadirá `published.languages` como una lista opcional de cadenas para no invalidar JSON existentes. La plantilla nueva incluirá `languages: []`. Cada entrada de `experience`, `education`, `languages`, `skills`, `certifications`, `projects` y `featured` será una cadena que conserva el texto de un elemento publicado. El esquema y el validador comprobarán que cada lista contenga cadenas; no convertirán el texto a campos inferidos.
+La copia publicada añadirá `published.languages` como lista opcional para no invalidar JSON existentes. La plantilla nueva la incluirá vacía. Las secciones con datos compuestos usarán objetos cuyos campos conocidos valida el esquema: experiencia (cargo, empresa, modalidad, ubicación, fechas, descripción y aptitudes), formación (institución, titulación, área, fechas, nota, actividades y descripción), certificaciones (nombre, entidad, fechas, credencial, URL y descripción), proyectos (nombre, asociación, fechas, descripción y URL), idiomas (idioma, nivel y detalles) y destacados (título, descripción, URL y tipo de contenido). Aptitudes seguirá siendo una lista de textos.
+
+Para conservar JSON existentes, las listas también aceptarán entradas de texto antiguas durante la transición. El editor mostrará esas entradas sin alterarlas y permitirá seguir editándolas; las nuevas entradas se guardarán con la estructura correspondiente. Las propiedades adicionales se conservarán y se avisará si el agente encuentra campos desconocidos.
 
 Si la fuente no muestra una sección, se conserva sin cambios. Si una entrada contiene indicadores de truncamiento como «… más», no se reemplaza el texto completo existente por ese fragmento: se pide una copia expandida o confirmación explícita. Los nombres, titular y Acerca de que no aparezcan tampoco se vacían. Las secciones completas y visibles pueden prepararse por separado sin afirmar que el documento entero sea una copia actual.
 

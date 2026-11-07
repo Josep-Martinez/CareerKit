@@ -19,6 +19,9 @@
   "properties": {
     "schemaVersion": { "const": 1 },
     "professionalProfile": { "type": "string" },
+    "personalContext": { "$ref": "#/$defs/personalContext" },
+    "careerPreferences": { "$ref": "#/$defs/careerPreferences" },
+    "contentDirection": { "$ref": "#/$defs/contentDirection" },
     "objectives": {
       "type": "object",
       "required": ["shortTerm", "mediumTerm", "longTerm"],
@@ -40,6 +43,50 @@
   },
   "additionalProperties": true,
   "$defs": {
+    "stringList": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "personalContext": {
+      "type": "object",
+      "properties": {
+        "aboutMe": { "type": "string" },
+        "values": { "$ref": "#/$defs/stringList" },
+        "interests": { "$ref": "#/$defs/stringList" },
+        "motivations": { "type": "string" },
+        "thinkingStyle": { "type": "string" },
+        "learningStyle": { "type": "string" },
+        "workStyle": { "type": "string" },
+        "strengths": { "$ref": "#/$defs/stringList" },
+        "growthAreas": { "$ref": "#/$defs/stringList" },
+        "preferredEnvironment": { "type": "string" },
+        "boundaries": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "careerPreferences": {
+      "type": "object",
+      "properties": {
+        "roleFamilies": { "$ref": "#/$defs/stringList" },
+        "tasks": { "$ref": "#/$defs/stringList" },
+        "industries": { "$ref": "#/$defs/stringList" },
+        "workModes": { "$ref": "#/$defs/stringList" },
+        "location": { "type": "string" },
+        "conditions": { "type": "string" },
+        "avoid": { "$ref": "#/$defs/stringList" }
+      },
+      "additionalProperties": true
+    },
+    "contentDirection": {
+      "type": "object",
+      "properties": {
+        "themes": { "$ref": "#/$defs/stringList" },
+        "viewpoints": { "$ref": "#/$defs/stringList" },
+        "tone": { "type": "string" },
+        "avoid": { "$ref": "#/$defs/stringList" }
+      },
+      "additionalProperties": true
+    },
     "entries": {
       "type": "array",
       "items": {

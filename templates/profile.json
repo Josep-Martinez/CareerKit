@@ -1,6 +1,34 @@
 {
   "schemaVersion": 1,
   "professionalProfile": "",
+  "personalContext": {
+    "aboutMe": "",
+    "values": [],
+    "interests": [],
+    "motivations": "",
+    "thinkingStyle": "",
+    "learningStyle": "",
+    "workStyle": "",
+    "strengths": [],
+    "growthAreas": [],
+    "preferredEnvironment": "",
+    "boundaries": ""
+  },
+  "careerPreferences": {
+    "roleFamilies": [],
+    "tasks": [],
+    "industries": [],
+    "workModes": [],
+    "location": "",
+    "conditions": "",
+    "avoid": []
+  },
+  "contentDirection": {
+    "themes": [],
+    "viewpoints": [],
+    "tone": "",
+    "avoid": []
+  },
   "objectives": { "shortTerm": "", "mediumTerm": "", "longTerm": "" },
   "skills": [],
   "experience": [],

@@ -29,6 +29,81 @@ const optionalStrings = (value, fields) =>
   fields.every(
     (field) => value[field] === undefined || typeof value[field] === 'string',
   )
+const optionalContext = (value, textFields, listFields) =>
+  value === undefined ||
+  (isRecord(value) &&
+    optionalStrings(value, textFields) &&
+    listFields.every(
+      (field) => value[field] === undefined || isStringList(value[field]),
+    ))
+const linkedinEntryFields = {
+  experience: {
+    text: [
+      'id',
+      'title',
+      'company',
+      'employmentType',
+      'location',
+      'dates',
+      'description',
+    ],
+    lists: ['skills'],
+  },
+  education: {
+    text: [
+      'id',
+      'institution',
+      'degree',
+      'fieldOfStudy',
+      'dates',
+      'grade',
+      'activities',
+      'description',
+    ],
+    lists: [],
+  },
+  languages: {
+    text: ['id', 'language', 'proficiency', 'details'],
+    lists: [],
+  },
+  certifications: {
+    text: [
+      'id',
+      'name',
+      'issuer',
+      'issueDate',
+      'expirationDate',
+      'credentialId',
+      'credentialUrl',
+      'description',
+    ],
+    lists: [],
+  },
+  projects: {
+    text: ['id', 'name', 'associatedWith', 'dates', 'description', 'url'],
+    lists: [],
+  },
+  featured: {
+    text: ['id', 'title', 'description', 'url', 'mediaType'],
+    lists: [],
+  },
+}
+const validLinkedInEntry = (section, item) => {
+  if (typeof item === 'string') return true
+  const fields = linkedinEntryFields[section]
+  return Boolean(
+    fields &&
+    isRecord(item) &&
+    Object.keys(item).length > 0 &&
+    optionalStrings(item, fields.text) &&
+    fields.lists.every(
+      (field) => item[field] === undefined || isStringList(item[field]),
+    ),
+  )
+}
+const isLinkedInList = (section, value) =>
+  Array.isArray(value) &&
+  value.every((item) => validLinkedInEntry(section, item))
 const validCVVersion = (value) =>
   isRecord(value) &&
   typeof value.masterText === 'string' &&
@@ -105,6 +180,29 @@ const validVacancyItem = (item) =>
 const validators = {
   profile: (d) =>
     typeof d.professionalProfile === 'string' &&
+    optionalContext(
+      d.personalContext,
+      [
+        'aboutMe',
+        'motivations',
+        'thinkingStyle',
+        'learningStyle',
+        'workStyle',
+        'preferredEnvironment',
+        'boundaries',
+      ],
+      ['values', 'interests', 'strengths', 'growthAreas'],
+    ) &&
+    optionalContext(
+      d.careerPreferences,
+      ['location', 'conditions'],
+      ['roleFamilies', 'tasks', 'industries', 'workModes', 'avoid'],
+    ) &&
+    optionalContext(
+      d.contentDirection,
+      ['tone'],
+      ['themes', 'viewpoints', 'avoid'],
+    ) &&
     isRecord(d.objectives) &&
     ['shortTerm', 'mediumTerm', 'longTerm'].every(
       (key) => typeof d.objectives[key] === 'string',
@@ -115,16 +213,14 @@ const validators = {
   linkedin: (d) =>
     isRecord(d.published) &&
     optionalStrings(d.published, ['name']) &&
+    (d.published.languages === undefined ||
+      isLinkedInList('languages', d.published.languages)) &&
     typeof d.published.headline === 'string' &&
     typeof d.published.about === 'string' &&
-    [
-      'experience',
-      'education',
-      'skills',
-      'certifications',
-      'projects',
-      'featured',
-    ].every((key) => isStringList(d.published[key])) &&
+    ['experience', 'education', 'certifications', 'projects', 'featured'].every(
+      (key) => isLinkedInList(key, d.published[key]),
+    ) &&
+    isStringList(d.published.skills) &&
     optionalStrings(d, ['lastUpdated']) &&
     Array.isArray(d.audits) &&
     d.audits.every(
@@ -205,6 +301,9 @@ export function hasModuleContent(name, value) {
   if (name === 'profile')
     hasContent = Boolean(
       value.professionalProfile.trim() ||
+      hasMeaningfulValue(value.personalContext) ||
+      hasMeaningfulValue(value.careerPreferences) ||
+      hasMeaningfulValue(value.contentDirection) ||
       ['shortTerm', 'mediumTerm', 'longTerm'].some((key) =>
         value.objectives[key].trim(),
       ) ||
@@ -218,6 +317,7 @@ export function hasModuleContent(name, value) {
       [
         'experience',
         'education',
+        'languages',
         'skills',
         'certifications',
         'projects',
@@ -726,6 +826,9 @@ function findUnknown(name, data) {
       'schemaVersion',
       'professionalProfile',
       'objectives',
+      'personalContext',
+      'careerPreferences',
+      'contentDirection',
       'skills',
       'experience',
       'education',
@@ -745,6 +848,9 @@ function findUnknown(name, data) {
     profile: {
       root: [
         'objectives',
+        'personalContext',
+        'careerPreferences',
+        'contentDirection',
         'skills',
         'experience',
         'education',
@@ -769,6 +875,29 @@ function findUnknown(name, data) {
         'onLinkedIn',
         'internal',
       ],
+      personalContext: [
+        'aboutMe',
+        'values',
+        'interests',
+        'motivations',
+        'thinkingStyle',
+        'learningStyle',
+        'workStyle',
+        'strengths',
+        'growthAreas',
+        'preferredEnvironment',
+        'boundaries',
+      ],
+      careerPreferences: [
+        'roleFamilies',
+        'tasks',
+        'industries',
+        'workModes',
+        'location',
+        'conditions',
+        'avoid',
+      ],
+      contentDirection: ['themes', 'viewpoints', 'tone', 'avoid'],
     },
     linkedin: {
       published: [
@@ -777,6 +906,7 @@ function findUnknown(name, data) {
         'about',
         'experience',
         'education',
+        'languages',
         'skills',
         'certifications',
         'projects',
@@ -841,6 +971,13 @@ function findUnknown(name, data) {
   }
   if (name === 'profile') {
     inspect(data.objectives, rules.objectives, 'objectives')
+    inspect(data.personalContext, rules.personalContext, 'personalContext')
+    inspect(
+      data.careerPreferences,
+      rules.careerPreferences,
+      'careerPreferences',
+    )
+    inspect(data.contentDirection, rules.contentDirection, 'contentDirection')
     for (const key of entryLists)
       (data[key] || []).forEach((item, index) =>
         inspect(item, rules.entry, `${key}[${index}]`),
@@ -848,6 +985,15 @@ function findUnknown(name, data) {
   }
   if (name === 'linkedin') {
     inspect(data.published, rules.published, 'published')
+    for (const [section, fields] of Object.entries(linkedinEntryFields))
+      (data.published?.[section] || []).forEach((item, index) => {
+        if (isRecord(item))
+          inspect(
+            item,
+            [...fields.text, ...fields.lists],
+            `published.${section}[${index}]`,
+          )
+      })
     ;(data.audits || []).forEach((item, index) =>
       inspect(item, rules.audit, `audits[${index}]`),
     )

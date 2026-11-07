@@ -4,7 +4,7 @@
 
 **Goal:** Convert Perfil into a private personal and career dossier distinct from the published LinkedIn copy, and validate LinkedIn's published language and list entries without breaking existing JSON.
 
-**Architecture:** Extend `profile.json` with three optional, schema-validated context objects while preserving the current evidence collections. Add optional `published.languages` and validate every published list item as a string. Keep older LinkedIn files valid, never edit private user files, and update the UI, agent-format guide and prompts to respect that personal context is internal by default.
+**Architecture:** Extend `profile.json` with three optional, schema-validated context objects while preserving the current evidence collections. Add optional `published.languages` and structured object entries for LinkedIn sections. Keep legacy string entries valid, never edit private user files, and update the UI, agent-format guide and prompts to respect that personal context is internal by default.
 
 **Tech Stack:** React, Vite, JavaScript/JSX, JSON Schema 2020-12, pnpm.
 
@@ -14,8 +14,8 @@
 
 - `schemas/profile.schema.json`, `templates/profile.json`, `src/data/storage.js`: optional personal context, career preferences and content direction, including empty-state detection and unknown-field reporting.
 - `src/ui/pages/ProfilePage.jsx`, `src/ui/components/FormPrimitives.jsx` or a focused new `src/ui/components/StringListField.jsx`, `src/i18n/es.js`: editable, accessible sections and Spanish copy.
-- `schemas/linkedin.schema.json`, `templates/linkedin.json`, `schemas/agent-format.md`, `src/data/storage.js`: optional language section and string validation for published lists.
-- `src/ui/pages/LinkedInPage.jsx`, `src/i18n/es.js`: language editing, preview and audit section labels.
+- `schemas/linkedin.schema.json`, `templates/linkedin.json`, `schemas/agent-format.md`, `src/data/storage.js`: optional language section and validated schemas for published items.
+- `src/ui/pages/LinkedInPage.jsx`, `src/i18n/es.js`: language editing, structured item editing, preview and audit section labels.
 - `src/i18n/prompt-inbox.es.js`, `README.md`: agent use of private context and safe handling of partial LinkedIn source files.
 
 ## Task 1: Extend Profile's data contract
@@ -121,10 +121,10 @@
 - Modify `schemas/agent-format.md`
 - Modify `src/i18n/prompt-inbox.es.js`
 
-- [ ] **Step 1: Add `published.languages` as an optional string list.** Include an empty array in the template. Keep it optional in the schema/runtime validator so existing files without this field remain valid.
-- [ ] **Step 2: Define every published list item as a string.** For `experience`, `education`, `languages`, `skills`, `certifications`, `projects` and `featured`, add `items: { "type": "string" }` to the JSON Schema. Keep each item as its literal published text rather than inferring object fields.
-- [ ] **Step 3: Expose Languages in the LinkedIn editor and preview.** Add the section to edit, preview and audit selection lists; add the Spanish label and preserve the existing edit/preview switch.
-- [ ] **Step 4: Align the agent-format guide and transcription prompt.** Include `published.languages`, preserve each published item as its own string, and tell the agent that absent sections stay unchanged. If an item is visibly truncated (such as “... más”), do not replace a fuller saved version with that fragment; ask for an expanded copy or explicit confirmation first.
+- [ ] **Step 1: Add `published.languages` as an optional list.** Include an empty array in the template. Keep it optional in the schema/runtime validator so existing files without this field remain valid.
+- [ ] **Step 2: Define section-specific item objects.** Add schema definitions for experience, education, certifications, projects, languages and featured items. Validate the type of known fields, preserve unknown properties and continue accepting old string entries without changing them. Keep `skills` as strings.
+- [ ] **Step 3: Expose Languages and structured fields in the LinkedIn editor and preview.** Add Languages to edit, preview and audit selection lists; edit structured fields by section; preserve the existing edit/preview switch and render legacy string items faithfully.
+- [ ] **Step 4: Align the agent-format guide and transcription prompt.** Include `published.languages`, describe each object shape and require complete source text in the corresponding description fields. If an item is visibly truncated (such as “... más”), do not replace a fuller saved version with that fragment; ask for an expanded copy or explicit confirmation first.
 - [ ] **Step 5: Confirm old files stay valid.** Existing LinkedIn snapshots without `published.languages` must validate, retain unknown properties and open in the editor without runtime errors.
 
 ## Task 5: Final verification and PR update

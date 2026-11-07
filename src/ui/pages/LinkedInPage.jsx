@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
-import { Check, TextField, useDraft } from '../components/FormPrimitives.jsx'
+import {
+  ArrayText,
+  Check,
+  TextField,
+  useDraft,
+} from '../components/FormPrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
 import { id } from '../utils.js'
 
@@ -10,6 +15,7 @@ const LINKEDIN_SECTION_KEYS = [
   'about',
   'experience',
   'education',
+  'languages',
   'skills',
   'certifications',
   'projects',
@@ -25,6 +31,38 @@ const PROFILE_EVIDENCE_KEYS = [
   'evidence',
   'learnings',
 ]
+const LINKEDIN_OBJECT_FIELDS = {
+  experience: [
+    'title',
+    'company',
+    'employmentType',
+    'location',
+    'dates',
+    'description',
+    'skills',
+  ],
+  education: [
+    'institution',
+    'degree',
+    'fieldOfStudy',
+    'dates',
+    'grade',
+    'activities',
+    'description',
+  ],
+  languages: ['language', 'proficiency', 'details'],
+  certifications: [
+    'name',
+    'issuer',
+    'issueDate',
+    'expirationDate',
+    'credentialId',
+    'credentialUrl',
+    'description',
+  ],
+  projects: ['name', 'associatedWith', 'dates', 'description', 'url'],
+  featured: ['title', 'description', 'url', 'mediaType'],
+}
 export function LinkedInPage({
   value,
   profile,
@@ -73,6 +111,7 @@ export function LinkedInPage({
   const previewKeys = [
     'experience',
     'education',
+    'languages',
     'skills',
     'certifications',
     'projects',
@@ -86,7 +125,7 @@ export function LinkedInPage({
     pub.name?.trim() ||
     pub.headline.trim() ||
     pub.about.trim() ||
-    previewKeys.some((key) => pub[key]?.some((entry) => entry.trim())),
+    previewKeys.some((key) => pub[key]?.some(hasEntryContent)),
   )
   const hasActiveAudits = draft.audits.some(
     (item) => item.status !== 'descartada',
@@ -167,6 +206,7 @@ export function LinkedInPage({
             {previewKeys.map((key) => (
               <LinkedInListEditor
                 key={key}
+                section={key}
                 title={copy.sectionLabels[key]}
                 items={pub[key]}
                 onChange={(v) => setPub(key, v)}
@@ -275,18 +315,20 @@ export function LinkedInPage({
                 {previewKeys
                   .filter(
                     (key) =>
-                      pub[key]?.some((entry) => entry.trim()) ||
-                      auditNotes(key).length,
+                      pub[key]?.some(hasEntryContent) || auditNotes(key).length,
                   )
                   .map((key) => (
                     <PreviewSection key={key} title={copy.sectionLabels[key]}>
                       {!!pub[key]?.length && (
                         <ul>
-                          {pub[key]
-                            .filter((entry) => entry.trim())
-                            .map((entry, i) => (
-                              <li key={i}>{entry}</li>
-                            ))}
+                          {pub[key].filter(hasEntryContent).map((entry, i) => (
+                            <li key={entry.id || i}>
+                              <LinkedInEntryPreview
+                                section={key}
+                                item={entry}
+                              />
+                            </li>
+                          ))}
                         </ul>
                       )}
                       <AuditPoints
@@ -309,11 +351,20 @@ export function LinkedInPage({
   )
 }
 
-function LinkedInListEditor({ title, items = [], onChange, children }) {
+function LinkedInListEditor({
+  section,
+  title,
+  items = [],
+  onChange,
+  children,
+}) {
   const update = (index, value) =>
     onChange(
       items.map((item, itemIndex) => (itemIndex === index ? value : item)),
     )
+  const updateField = (index, field, value) =>
+    update(index, { ...items[index], [field]: value })
+  const fields = LINKEDIN_OBJECT_FIELDS[section] || []
   return (
     <section className="linkedin-list-editor">
       <div className="linkedin-list-heading">
@@ -321,7 +372,22 @@ function LinkedInListEditor({ title, items = [], onChange, children }) {
         <button
           className="button secondary small"
           type="button"
-          onClick={() => onChange([...items, ''])}
+          onClick={() =>
+            onChange([
+              ...items,
+              section === 'skills'
+                ? ''
+                : {
+                    id: id(),
+                    ...Object.fromEntries(
+                      fields.map((field) => [
+                        field,
+                        field === 'skills' ? [] : '',
+                      ]),
+                    ),
+                  },
+            ])
+          }
         >
           {copy.addSection} {title.toLowerCase()}
         </button>
@@ -329,12 +395,39 @@ function LinkedInListEditor({ title, items = [], onChange, children }) {
       {!items.length && <p className="quiet-empty">{copy.emptyList}</p>}
       {items.map((item, index) => (
         <div className="linkedin-list-entry" key={index}>
-          <TextField
-            label={`${title} ${index + 1}`}
-            rows={title === 'Aptitudes' ? 2 : 3}
-            value={item}
-            onChange={(value) => update(index, value)}
-          />
+          {typeof item === 'string' || section === 'skills' ? (
+            <TextField
+              label={`${title} ${index + 1}`}
+              rows={section === 'skills' ? 2 : 4}
+              value={typeof item === 'string' ? item : ''}
+              onChange={(value) => update(index, value)}
+            />
+          ) : (
+            <div className="linkedin-item-fields">
+              {fields.map((field) =>
+                field === 'skills' ? (
+                  <ArrayText
+                    key={field}
+                    title={copy.entryFieldLabels[field]}
+                    items={item[field] || []}
+                    onChange={(value) => updateField(index, field, value)}
+                  />
+                ) : (
+                  <TextField
+                    key={field}
+                    label={copy.entryFieldLabels[field]}
+                    rows={
+                      ['description', 'activities', 'details'].includes(field)
+                        ? 4
+                        : undefined
+                    }
+                    value={item[field]}
+                    onChange={(value) => updateField(index, field, value)}
+                  />
+                ),
+              )}
+            </div>
+          )}
           <button
             className="button quiet linkedin-remove-entry"
             type="button"
@@ -349,6 +442,52 @@ function LinkedInListEditor({ title, items = [], onChange, children }) {
       ))}
       {children}
     </section>
+  )
+}
+
+function hasEntryContent(item) {
+  if (typeof item === 'string') return Boolean(item.trim())
+  if (Array.isArray(item)) return item.some(hasEntryContent)
+  if (!item || typeof item !== 'object') return false
+  return Object.entries(item).some(
+    ([key, value]) => key !== 'id' && hasEntryContent(value),
+  )
+}
+
+function LinkedInEntryPreview({ section, item }) {
+  if (typeof item === 'string') return <span>{item}</span>
+  const titleKey = {
+    experience: 'title',
+    education: 'degree',
+    languages: 'language',
+    certifications: 'name',
+    projects: 'name',
+    featured: 'title',
+  }[section]
+  const known = new Set(LINKEDIN_OBJECT_FIELDS[section] || [])
+  const extras = Object.entries(item).filter(
+    ([key, value]) => key !== 'id' && !known.has(key) && hasEntryContent(value),
+  )
+  const fields = (LINKEDIN_OBJECT_FIELDS[section] || []).filter(
+    (key) => key !== titleKey && hasEntryContent(item[key]),
+  )
+  const renderValue = (key, value) =>
+    Array.isArray(value) ? value.join(' · ') : String(value)
+  return (
+    <div className="linkedin-preview-entry">
+      {hasEntryContent(item[titleKey]) && <h5>{item[titleKey]}</h5>}
+      {fields.map((key) => (
+        <p key={key}>
+          <b>{copy.entryFieldLabels[key]}:</b> {renderValue(key, item[key])}
+        </p>
+      ))}
+      {extras.map(([key, value]) => (
+        <p key={key}>
+          <b>{copy.entryFieldLabels[key] || key}:</b>{' '}
+          {typeof value === 'string' ? value : JSON.stringify(value)}
+        </p>
+      ))}
+    </div>
   )
 }
 

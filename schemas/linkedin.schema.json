@@ -23,12 +23,55 @@
         "name": { "type": "string" },
         "headline": { "type": "string" },
         "about": { "type": "string" },
-        "experience": { "type": "array" },
-        "education": { "type": "array" },
-        "skills": { "type": "array" },
-        "certifications": { "type": "array" },
-        "projects": { "type": "array" },
-        "featured": { "type": "array" }
+        "experience": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/experienceEntry" }
+            ]
+          }
+        },
+        "education": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/educationEntry" }
+            ]
+          }
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/languageEntry" }]
+          }
+        },
+        "skills": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "certifications": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/certificationEntry" }
+            ]
+          }
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/projectEntry" }]
+          }
+        },
+        "featured": {
+          "type": "array",
+          "items": {
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/featuredEntry" }]
+          }
+        }
       },
       "additionalProperties": true
     },
@@ -67,5 +110,88 @@
       }
     }
   },
-  "additionalProperties": true
+  "additionalProperties": true,
+  "$defs": {
+    "experienceEntry": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "company": { "type": "string" },
+        "employmentType": { "type": "string" },
+        "location": { "type": "string" },
+        "dates": { "type": "string" },
+        "description": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "educationEntry": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "id": { "type": "string" },
+        "institution": { "type": "string" },
+        "degree": { "type": "string" },
+        "fieldOfStudy": { "type": "string" },
+        "dates": { "type": "string" },
+        "grade": { "type": "string" },
+        "activities": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "languageEntry": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "id": { "type": "string" },
+        "language": { "type": "string" },
+        "proficiency": { "type": "string" },
+        "details": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "certificationEntry": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "issuer": { "type": "string" },
+        "issueDate": { "type": "string" },
+        "expirationDate": { "type": "string" },
+        "credentialId": { "type": "string" },
+        "credentialUrl": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "projectEntry": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "associatedWith": { "type": "string" },
+        "dates": { "type": "string" },
+        "description": { "type": "string" },
+        "url": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "featuredEntry": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "url": { "type": "string" },
+        "mediaType": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  }
 }
