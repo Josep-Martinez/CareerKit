@@ -28,6 +28,11 @@ export const STRINGS = {
       'No se pudo recuperar el acceso guardado en este navegador. Tus archivos no se han modificado; puedes volver a elegir la carpeta.',
     connecting: 'Conectando carpeta…',
     checking: 'Buscando carpeta…',
+    connectLocal: 'Conectar la carpeta de este proyecto',
+    localMissing:
+      'No encontramos private-data en este proyecto. Abre el prompt de preparación, pásaselo a tu asistente local y vuelve a pulsar este botón.',
+    wrongFolder:
+      'Elige la carpeta llamada private-data. Si todavía no existe, usa el prompt de preparación.',
     grantPermission: 'Dar permiso a carpeta guardada',
     chooseAnother: 'Elegir otra carpeta',
     permissionNotice:
@@ -97,14 +102,14 @@ export const STRINGS = {
     startProfile: 'Empezar por Perfil',
     openPrompts: 'Abrir buzón de prompts',
     close: 'Cerrar',
-    copyInstructions: 'Copiar instrucciones para el asistente',
+    copyInstructions: 'Copiar prompt para reparar los archivos',
     copied: 'Instrucciones copiadas. Pégalas en tu asistente local.',
     copyFailed: 'No se pudieron copiar. Selecciona el texto y cópialo.',
     assistantPromptLabel: 'Instrucciones para tu asistente local',
     connectFailed:
       'No se pudo conectar la carpeta. Vuelve a seleccionarla y concede permiso para leer y guardar sus archivos.',
     prompt:
-      'En la carpeta local private-data de este proyecto, prepara solo los archivos ausentes indicados. Usa como base las plantillas vacías correspondientes de templates/. No sobrescribas ningún archivo existente ni elimines campos desconocidos. Para cualquier archivo que no sea JSON válido o no coincida con su plantilla, no lo reemplaces: compara su estructura, indica el nombre y los campos que no coinciden, y espera instrucciones antes de repararlo. Guarda datos personales únicamente en private-data/ y no los incluyas en archivos versionados, capturas ni en la publicación de GitHub. Si no tienes acceso local a la carpeta, pídeme que abra el proyecto y no afirmes que has guardado nada.',
+      'En la carpeta local private-data de este proyecto, prepara solo los archivos ausentes indicados. Usa como base las plantillas vacías correspondientes de templates/. No sobrescribas ningún archivo existente ni elimines campos desconocidos. Para cualquier archivo que no sea JSON válido o no coincida con su plantilla, no lo reemplaces: compara su estructura con schemas/ y templates/, conserva una copia privada del original y propone una reparación que mantenga los datos y campos desconocidos. Pide mi confirmación antes de aplicar una reparación a un archivo existente. Después de validar los archivos, indícame que pulse «Volver a comprobar» en CareerKit. Guarda datos personales únicamente en private-data/ y no los incluyas en archivos versionados, capturas ni en la publicación de GitHub. Si no tienes acceso local a la carpeta, pídeme que abra el proyecto y no afirmes que has guardado nada.',
   },
   noData: 'Sin registrar',
   save: 'Guardar cambios',

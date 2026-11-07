@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { EMPTY, FILES } from './catalog.js'
+import { detectLocalFolder } from './local-folder.js'
 import {
   forgetDirectoryHandle,
   loadDirectoryHandle,
@@ -303,7 +304,12 @@ export function normalizeModule(name, value) {
 }
 
 export function useStorageState() {
-  const [folder, setFolder] = useState(null)
+  const [folder, setFolderState] = useState(null)
+  const folderRef = useRef(null)
+  function setFolder(value) {
+    folderRef.current = value
+    setFolderState(value)
+  }
   const [rememberedFolder, setRememberedFolder] = useState(null)
   const [rememberFailed, setRememberFailed] = useState(false)
   const [restoreStatus, setRestoreStatus] = useState('checking')
@@ -406,7 +412,8 @@ export function useStorageState() {
     let active = true
     async function restoreFolder() {
       try {
-        const handle = await loadDirectoryHandle()
+        const handle =
+          (await detectLocalFolder()) || (await loadDirectoryHandle())
         if (!active) return
         if (!handle) {
           setRestoreStatus('no-saved-folder')
@@ -440,24 +447,46 @@ export function useStorageState() {
       }
     }
     restoreFolder()
+    const timer = setInterval(async () => {
+      if (
+        !active ||
+        folderRef.current ||
+        sessionStorage.getItem('careerkit-disconnected')
+      )
+        return
+      const handle = await detectLocalFolder()
+      if (!active || !handle || folderRef.current) return
+      const result = await scanFolder(handle)
+      if (!active) return
+      setFolder(handle)
+      setRestoreResult(result)
+      setRestoreStatus('restored')
+    }, 3000)
     return () => {
+      clearInterval(timer)
       active = false
     }
   }, [])
 
-  async function connect({ selectAnother = false } = {}) {
-    if (!selectAnother && rememberedFolder) {
+  async function connect({ selectAnother = false, useLocal = false } = {}) {
+    sessionStorage.removeItem('careerkit-disconnected')
+    if (!selectAnother && !useLocal && rememberedFolder) {
       return {
         ...(await connectHandle(rememberedFolder, { requestPermission: true })),
         reconnected: true,
       }
     }
-    if (!window.showDirectoryPicker) return { fallback: true }
+    if (useLocal || !window.showDirectoryPicker) {
+      const local = await detectLocalFolder()
+      if (!local) return useLocal ? { localMissing: true } : { fallback: true }
+      return connectHandle(local, { requestPermission: false })
+    }
     try {
       const handle = await window.showDirectoryPicker({
         mode: 'readwrite',
         id: 'careerkit-private-data',
       })
+      if (handle.name !== 'private-data') return { wrongFolder: true }
       return connectHandle(handle, { requestPermission: true })
     } catch (error) {
       if (error.name === 'AbortError') return { cancelled: true }
@@ -474,13 +503,13 @@ export function useStorageState() {
             ? await handle.queryPermission({ mode: 'readwrite' })
             : 'granted'
       if (permission !== 'granted') {
-        setRestoreStatus('needs-permission')
+        if (rememberedFolder === handle) setRestoreStatus('needs-permission')
         return { permissionDenied: true }
       }
 
       let persistenceError = false
       try {
-        await rememberDirectoryHandle(handle)
+        if (!handle.local) await rememberDirectoryHandle(handle)
       } catch {
         persistenceError = true
         try {
@@ -489,7 +518,7 @@ export function useStorageState() {
           // The status message below tells the user the old selection may remain.
         }
       }
-      setRememberedFolder(persistenceError ? null : handle)
+      setRememberedFolder(persistenceError || handle.local ? null : handle)
       setRememberFailed(persistenceError)
       setData(
         Object.fromEntries(FILES.map((name) => [name, clone(EMPTY[name])])),
@@ -628,6 +657,7 @@ export function useStorageState() {
   }
 
   async function disconnect(clear) {
+    sessionStorage.setItem('careerkit-disconnected', 'true')
     let persistenceCleared = true
     try {
       await forgetDirectoryHandle()

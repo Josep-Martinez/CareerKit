@@ -83,3 +83,9 @@ El asistente debe confirmar que el repositorio de destino coincide con la direcc
 ## Privacidad
 
 La web solo trabaja con datos que selecciones localmente y autorices. No los envía a ningún servidor ni los sincroniza. Un asistente externo solo puede leer o modificar esos datos si tiene acceso local a los archivos. No hay cifrado con contraseña.
+
+## Conexión automática en localhost
+
+Al ejecutar `pnpm local`, el servidor local conecta `private-data/` automáticamente, incluso si los cinco JSON son plantillas vacías. Si la carpeta todavía no existe, puedes pedir a tu asistente local que la prepare; la web vuelve a comprobar su existencia cada tres segundos. Los archivos inválidos se señalan por separado y no se sustituyen.
+
+Este acceso usa un servicio exclusivo del servidor de desarrollo, limitado a `127.0.0.1` y a los cinco JSON. No forma parte de la web estática publicada. En GitHub Pages sigue siendo necesario seleccionar una carpeta mediante el navegador. Al desconectar, se suspende la conexión automática durante esa sesión de pestaña.

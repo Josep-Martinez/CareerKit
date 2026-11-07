@@ -119,6 +119,8 @@ export default function App() {
     try {
       const result = await store.connect(options)
       if (result.fallback) showNotice(s.workspaceGate.browserUnsupported)
+      else if (result.localMissing) showNotice(s.workspaceGate.localMissing)
+      else if (result.wrongFolder) showNotice(s.workspaceGate.wrongFolder)
       else if (result.permissionDenied)
         showNotice(s.workspaceGate.permissionNotice)
       else if (result.connected) {
@@ -211,6 +213,9 @@ export default function App() {
         hasRememberedFolder={store.hasRememberedFolder}
         onConnect={() => connect()}
         onChooseFolder={() => connect({ selectAnother: true })}
+        onConnectLocal={
+          import.meta.env.DEV ? () => connect({ useLocal: true }) : undefined
+        }
       />
     )
   }
