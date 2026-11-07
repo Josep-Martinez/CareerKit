@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
+import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
 import { pretty } from '../utils.js'
 
 export function CVPage({
@@ -31,10 +32,11 @@ export function CVPage({
   const refreshPrompt = s.promptInbox.prompts.find(
     (prompt) => prompt.id === 'refresh-cv',
   )
+  const refreshPromptText = buildPromptText(refreshPrompt)
 
   async function copyRefreshPrompt() {
     try {
-      await navigator.clipboard.writeText(refreshPrompt.text)
+      await navigator.clipboard.writeText(refreshPromptText)
       setPromptMessage(s.promptInbox.copied)
       onPromptCopied('refresh-cv')
     } catch {
@@ -86,7 +88,7 @@ export function CVPage({
             <textarea
               readOnly
               rows={8}
-              value={refreshPrompt.text}
+              value={refreshPromptText}
               onFocus={(event) => event.target.select()}
             />
           </label>

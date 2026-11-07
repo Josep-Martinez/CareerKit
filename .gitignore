@@ -18,3 +18,4 @@ private-*.jpg
 private-*.jpeg
 private-*.webp
 screenshots/private/
+output/playwright/

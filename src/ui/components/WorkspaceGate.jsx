@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { STRINGS as s } from '../../i18n/es.js'
+import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
 
 export function WorkspaceGate({
   connecting,
@@ -13,9 +14,10 @@ export function WorkspaceGate({
   const [showPrompt, setShowPrompt] = useState(false)
   const [promptMessage, setPromptMessage] = useState('')
   const copy = s.workspaceGate
-  const prompt = s.promptInbox.prompts.find(
+  const setupPrompt = s.promptInbox.prompts.find(
     (item) => item.id === 'prepare-data',
   )
+  const prompt = buildPromptText(setupPrompt)
   const checking = restoreStatus === 'checking'
   const permissionRequired = restoreStatus === 'needs-permission'
   const storageError = restoreStatus === 'storage-error'
@@ -43,7 +45,7 @@ export function WorkspaceGate({
 
   async function copyPrompt() {
     try {
-      await navigator.clipboard.writeText(prompt.text)
+      await navigator.clipboard.writeText(prompt)
       setPromptMessage(copy.copied)
     } catch {
       setPromptMessage(copy.copyFailed)
@@ -119,7 +121,7 @@ export function WorkspaceGate({
               <textarea
                 readOnly
                 rows={7}
-                value={prompt.text}
+                value={prompt}
                 onFocus={(event) => event.target.select()}
               />
             </label>

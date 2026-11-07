@@ -870,7 +870,27 @@ select {
 }
 .prompt-list {
   display: grid;
-  gap: 13px;
+  gap: 22px;
+}
+.prompt-search {
+  margin-bottom: 16px;
+}
+.prompt-group {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.prompt-group-title {
+  margin: 0;
+  color: #727e70;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.prompt-group-list {
+  display: grid;
+  gap: 9px;
 }
 .prompt-card {
   min-width: 0;
@@ -891,12 +911,60 @@ select {
   gap: 14px;
   margin-bottom: 13px;
 }
-.prompt-card-heading h2 {
+.prompt-details > summary {
+  cursor: pointer;
+  list-style: none;
+}
+.prompt-details > summary::-webkit-details-marker {
+  display: none;
+}
+.prompt-details > summary::after {
+  flex: 0 0 auto;
+  color: #526a58;
+  content: '+';
+  font-size: 20px;
+  line-height: 1;
+}
+.prompt-details[open] > summary::after {
+  content: '−';
+}
+.prompt-details:not([open]) > summary {
+  margin-bottom: 0;
+}
+.prompt-details > summary h3 {
   margin: 0;
   color: #294b3b;
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 18px;
   font-weight: 500;
+}
+.prompt-card-body {
+  min-width: 0;
+}
+.prompt-skills-label {
+  margin: 0 0 6px;
+  color: #5f6d60;
+  font-size: 10px;
+  font-weight: 700;
+}
+.prompt-skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 7px;
+  margin: 0 0 13px;
+  padding: 0;
+  list-style: none;
+}
+.prompt-skill-list code {
+  display: inline-block;
+  max-width: 100%;
+  padding: 4px 7px;
+  overflow-wrap: anywhere;
+  border: 1px solid #e4e5dc;
+  border-radius: 4px 7px 4px 7px;
+  background: #f8f8f2;
+  color: #526158;
+  font-size: 9px;
 }
 .prompt-use {
   max-width: 800px;
@@ -1078,6 +1146,15 @@ select {
   }
   .prompt-card-heading {
     display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .prompt-details > summary::after {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .prompt-pending-tag {
+    grid-column: 1;
+    grid-row: 2;
   }
   .prompt-pending-tag {
     justify-self: start;

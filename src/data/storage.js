@@ -56,6 +56,25 @@ const validCvAdvice = (value) =>
   typeof value.assessedAt === 'string' &&
   isStringList(value.spanishAdjustments) &&
   isStringList(value.englishAdjustments)
+const validProfileEntry = (item) =>
+  isRecord(item) &&
+  typeof item.id === 'string' &&
+  optionalStrings(item, [
+    'type',
+    'title',
+    'name',
+    'organization',
+    'dates',
+    'actions',
+    'results',
+    'situation',
+    'task',
+  ]) &&
+  (item.tags === undefined || isStringList(item.tags)) &&
+  (item.evidenceIds === undefined || isStringList(item.evidenceIds)) &&
+  ['confirmed', 'cvEvidence', 'onLinkedIn', 'internal'].every(
+    (field) => item[field] === undefined || typeof item[field] === 'boolean',
+  )
 const validVacancyItem = (item) =>
   isRecord(item) &&
   typeof item.id === 'string' &&
@@ -91,9 +110,7 @@ const validators = {
       (key) => typeof d.objectives[key] === 'string',
     ) &&
     entryLists.every(
-      (key) =>
-        Array.isArray(d[key]) &&
-        d[key].every((item) => isRecord(item) && typeof item.id === 'string'),
+      (key) => Array.isArray(d[key]) && d[key].every(validProfileEntry),
     ),
   linkedin: (d) =>
     isRecord(d.published) &&

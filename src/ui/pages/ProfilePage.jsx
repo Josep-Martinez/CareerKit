@@ -6,15 +6,17 @@ import {
   useDraft,
 } from '../components/FormPrimitives.jsx'
 import { id } from '../utils.js'
+import { STRINGS as s } from '../../i18n/es.js'
 
 export function ProfilePage({ value, state, warning, onSave, onReload }) {
   const [draft, setDraft] = useDraft(value)
   const update = (key, val) => setDraft({ ...draft, [key]: val })
-  const add = (key) =>
+  const add = (key, type) =>
     update(key, [
       ...(draft[key] || []),
       {
         id: id(),
+        ...(type ? { type } : {}),
         title: '',
         organization: '',
         dates: '',
@@ -109,10 +111,23 @@ export function ProfilePage({ value, state, warning, onSave, onReload }) {
                 }
                 onAdd={() => add(key)}
               />
+              {key === 'evidence' && (
+                <button
+                  className="button secondary small"
+                  type="button"
+                  onClick={() => add(key, 'star-story')}
+                >
+                  {s.profileEntry.addStarStory}
+                </button>
+              )}
               {(draft[key] || []).map((item, i) => (
                 <div className="item-card" key={item.id || i}>
                   <div className="item-heading">
-                    <span>Elemento {i + 1}</span>
+                    <span>
+                      {item.type === 'star-story'
+                        ? s.profileEntry.starStory
+                        : `Elemento ${i + 1}`}
+                    </span>
                     <button
                       className="icon-button"
                       aria-label="Eliminar elemento"
@@ -126,6 +141,34 @@ export function ProfilePage({ value, state, warning, onSave, onReload }) {
                       ×
                     </button>
                   </div>
+                  {key === 'evidence' && item.type === 'star-story' && (
+                    <>
+                      <TextField
+                        label={s.profileEntry.situation}
+                        rows={3}
+                        value={item.situation}
+                        onChange={(v) => patchItem(key, i, { situation: v })}
+                      />
+                      <TextField
+                        label={s.profileEntry.task}
+                        rows={3}
+                        value={item.task}
+                        onChange={(v) => patchItem(key, i, { task: v })}
+                      />
+                      <TextField
+                        label={s.profileEntry.tags}
+                        value={(item.tags || []).join(', ')}
+                        onChange={(v) =>
+                          patchItem(key, i, {
+                            tags: v
+                              .split(',')
+                              .map((tag) => tag.trim())
+                              .filter(Boolean),
+                          })
+                        }
+                      />
+                    </>
+                  )}
                   <div className="form-two">
                     <TextField
                       label={

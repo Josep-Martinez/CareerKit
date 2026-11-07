@@ -9,7 +9,7 @@ No hace falta escribir comandos si usas un asistente de programación que pueda 
 1. Abre esta carpeta como proyecto local en tu asistente de programación.
 2. Copia este prompt en el chat del proyecto:
 
-   > Prepara y abre CareerKit en este ordenador. Usa pnpm para instalar lo necesario, prepara los JSON vacíos con `pnpm data:init` sin leer otros proyectos ni sobrescribir archivos e inicia la app con `pnpm local`. Cuando esté lista, dame el enlace local y ayúdame a abrirlo. No rellenes datos, no publiques nada ni conectes carpetas por mí. Guíame para que yo conecte `private-data/` y acepte el permiso del navegador. Si falta algún programa, explícame cómo instalarlo con pasos sencillos, sin pedirme que escriba comandos.
+   > Lee `AGENTS.md` y `.agents/skills/careerkit-data-entry/SKILL.md`. Prepara y abre CareerKit en este ordenador. Usa pnpm para instalar lo necesario, prepara los JSON vacíos con `pnpm data:init` sin leer otros proyectos ni sobrescribir archivos e inicia la app con `pnpm local`. Cuando esté lista, dame el enlace local y ayúdame a abrirlo. No rellenes datos, no publiques nada ni conectes carpetas por mí. Guíame para que yo conecte `private-data/` y acepte el permiso del navegador. Si falta algún programa, explícame cómo instalarlo con pasos sencillos, sin pedirme que escriba comandos.
 
 3. Cuando se abra CareerKit, pulsa **Conectar carpeta de datos**, elige `private-data/` y acepta el permiso de lectura y escritura del navegador.
 
@@ -38,7 +38,7 @@ Los elementos del perfil y las vacantes usan IDs estables (`id`, UUID recomendad
 ### Instrucciones para asistentes de programación locales
 
 1. El agente local puede leer y editar los JSON de `private-data/` cuando la tarea que solicita el usuario lo requiera. Si no tiene acceso local, pide al usuario que abra el proyecto o deja claro que no guardaste cambios.
-2. Trabaja con los datos que el usuario haya guardado en CareerKit. No busques datos en otros proyectos, documentos, PDFs, cuentas de LinkedIn ni navegadores para completar la aplicación, salvo que el usuario lo pida expresamente.
+2. Trabaja únicamente con datos guardados en CareerKit o compartidos en la conversación. No busques ni copies datos de otros proyectos, documentos, PDFs, cuentas de LinkedIn o navegadores para completar la aplicación.
 3. Valida el JSON contra el esquema de `schemas/` correspondiente y conserva todas las propiedades desconocidas. Si un archivo está mal formado, compáralo con `templates/<módulo>.json`, explica el problema y espera instrucciones antes de repararlo. No inventes datos, fechas, valoraciones o verificaciones.
 4. Mantén IDs estables. Para relacionar evidencia con vacantes, referencia `profile.json` mediante `matchingEvidenceIds`.
 5. Escribe de forma atómica cuando sea posible, preserva UTF-8 y el formato JSON legible. Informa de los archivos efectivamente guardados.
@@ -50,7 +50,7 @@ La página de CV muestra dos bases de consulta: formato español y formato ingl�
 
 Puedes pedirlo con este texto:
 
-> Revisa `private-data/profile.json`, `private-data/linkedin.json` y `private-data/cv.json`. Actualiza las dos bases generales del CV a partir de la información confirmada y marcada como evidencia para CV. Mantén la versión española en español y con el formato de dos columnas; la versión inglesa debe estar completamente en inglés y usar una columna. Comprueba que los hechos compartidos coinciden con la copia publicada de LinkedIn. Si hay contradicciones, pregúntame antes de resolverlas. No modifiques LinkedIn. Guarda en `cv.json` solo si tienes acceso local a `private-data/` y confirma qué fichero guardaste.
+> Antes de empezar, lee `AGENTS.md`, `schemas/agent-format.md`, `.agents/skills/cv-optimizer/SKILL.md` y `.agents/skills/cv-formatos/SKILL.md`. Revisa `private-data/profile.json`, `private-data/linkedin.json` y `private-data/cv.json`. Actualiza las dos bases generales del CV a partir de la información confirmada y marcada como evidencia para CV. Mantén la versión española en español y con el formato de dos columnas; la versión inglesa debe estar completamente en inglés y usar una columna. Comprueba que los hechos compartidos coinciden con la copia publicada de LinkedIn. Si hay contradicciones, pregúntame antes de resolverlas. No modifiques LinkedIn. Guarda en `cv.json` solo si tienes acceso local a `private-data/` y confirma qué fichero guardaste.
 
 ### Valorar una vacante y preparar los cambios de CV
 
@@ -58,17 +58,21 @@ Al abrir una vacante verás, debajo de su descripción y valoración, qué versi
 
 Puedes pedirlo con este texto:
 
-> Revisa `private-data/vacancies.json` y localiza la vacante que te indique. Contrástala con las evidencias confirmadas de `private-data/profile.json` y con las bases de `private-data/cv.json`. Recomienda el formato español, el inglés o ambos y explica por qué. Añade puntos concretos que habría que adaptar en cada versión dentro de `cvAdvice.spanishAdjustments` y `cvAdvice.englishAdjustments`. Deja clara cualquier carencia demostrable y no inventes experiencia ni fechas. No reescribas las bases del CV. Guarda solo si tienes acceso local a `private-data/` y confirma qué fichero guardaste.
+> Antes de empezar, lee `AGENTS.md`, `schemas/agent-format.md`, `.agents/skills/job-fit-assessor/SKILL.md`, `.agents/skills/cv-optimizer/SKILL.md` y `.agents/skills/cv-formatos/SKILL.md`. Si el mercado de destino está claro, lee además `.agents/skills/cv-espana/SKILL.md` para España o `.agents/skills/cv-europa/SKILL.md` para otro país europeo. Revisa `private-data/vacancies.json` y localiza la vacante que te indique. Contrástala con las evidencias confirmadas de `private-data/profile.json` y con las bases de `private-data/cv.json`. Recomienda el formato español, el inglés o ambos y explica por qué. Añade puntos concretos que habría que adaptar en cada versión dentro de `cvAdvice.spanishAdjustments` y `cvAdvice.englishAdjustments`. Deja clara cualquier carencia demostrable y no inventes experiencia ni fechas. No reescribas las bases del CV. Guarda solo si tienes acceso local a `private-data/` y confirma qué fichero guardaste.
 
 ### Buzón de prompts
 
-La sección **Buzón de prompts**, después de Vacantes, reúne textos listos para copiar y explica cuándo usar cada uno: actualizar el CV base, valorar una vacante, auditar LinkedIn, investigar ofertas y añadir prioridades. Los prompts se copian al portapapeles para que tú los pegues en Codex, Claude Code u otro asistente local; CareerKit no los envía ni ejecuta.
+La sección **Buzón de prompts**, después de Vacantes, incluye tareas para preparar los archivos, completar Perfil, leer un PDF, documento o texto que aportes para rellenar la copia de LinkedIn, actualizar las bases generales del CV, buscar y valorar ofertas, preparar un CV o una carta, estructurar historias STAR y trabajar con publicaciones, mensajes y comentarios de LinkedIn. Puedes buscar por nombre, tema o skill y abrir solo el prompt que necesitas.
+
+Para rellenar LinkedIn, adjunta el PDF, documento o captura al chat de tu asistente local y copia allí el prompt. El archivo se procesa en ese asistente, no se sube a CareerKit; el prompt usa solo el material que tú le proporcionas y no accede a tu cuenta de LinkedIn.
+
+Cada prompt incluye las rutas de las guías que el asistente debe leer. Si tu asistente no descubre las skills automáticamente, esas rutas quedan incluidas también en el texto copiado. Pega el prompt en Codex, Claude Code u otro asistente local; CareerKit no lo envía ni ejecuta. El índice de `.agents/skills/README.md` explica qué guía corresponde a cada tarea. Las guías son genéricas, están versionadas en Git y no incluyen datos personales.
 
 Al guardar cambios en Perfil o LinkedIn, el buzón muestra el indicador **1** y un aviso con el prompt «Actualizar la base general del CV». El aviso se mantiene hasta copiar ese prompt. Si el navegador descarga el JSON individual, sustituye primero el archivo dentro de `private-data/` antes de pedir al agente que actualice el CV.
 
 `cv.json` guarda dos versiones independientes de la base general: español e inglés, junto con fechas de revisión y actualización por separado. La sección CV es de consulta; el agente local actualiza esas bases cuando se lo pides, a partir de la información confirmada de Perfil y de la copia publicada en LinkedIn. El formato español usa dos columnas; el inglés, una columna, y su texto debe estar en inglés. Si conectas un archivo CV antiguo, CareerKit conserva su contenido sin asignarle idioma hasta que confirmes cómo tratarlo.
 
-El repositorio incluye guías para adaptar CV en `.agents/skills/`: `cv-optimizer`, `cv-formatos`, `cv-espana` y `cv-europa`. `AGENTS.md` indica cuándo leerlas y cómo usar los datos pertinentes de CareerKit. Son instrucciones para asistentes de programación; la web no las ejecuta ni conecta un modelo. Si tu asistente no las carga automáticamente, pídele que lea `AGENTS.md` y la guía correspondiente. No copies los datos privados al repositorio ni guardes ahí CVs adaptados.
+El repositorio incluye guías para CV, búsqueda y valoración de vacantes, cartas, historias STAR y tareas de LinkedIn. `AGENTS.md` indica cómo escogerlas según el objetivo. Las versiones regionales solo se aplican cuando el destino está confirmado; la guía de CV específica para una oferta pide primero un diagnóstico y espera tus respuestas antes de redactar. El asistente no aplica a vacantes ni publica o envía mensajes. No copies los datos privados al repositorio ni guardes ahí CVs adaptados.
 
 Consulta `schemas/agent-format.md` para convenciones completas. Las skills usan los objetivos y evidencias pertinentes que el usuario haya añadido a CareerKit; nunca completan huecos con datos de otros proyectos.
 
@@ -76,7 +80,7 @@ Consulta `schemas/agent-format.md` para convenciones completas. Las skills usan 
 
 No hace falta publicar la app para usarla en tu ordenador. Si algún día quieres que esté disponible en GitHub Pages, abre este proyecto en tu asistente y copia el prompt siguiente, sustituyendo el texto entre corchetes por la dirección exacta del repositorio. Esa petición autoriza al asistente a publicarla en ese repositorio:
 
-> Publica CareerKit en GitHub Pages en este repositorio: [pega aquí la dirección exacta]. Antes de publicar, comprueba que ningún archivo de `private-data/` está incluido en Git o en la web generada, y revisa los archivos versionados y el build para detectar datos personales. Puedes leer `private-data/` si lo necesitas para verificar que no se ha copiado información personal; no copies ningún dato personal a archivos versionados ni al build. Si encuentras datos personales en el contenido que se publicaría o no puedes comprobarlo, detente y avísame sin publicar. Prepara la web con pnpm, ajusta la dirección para que funcione en este repositorio y publícala en GitHub Pages. Si no tienes acceso o permisos, explícame qué falta. Al terminar, dame el enlace publicado y confirma si quedó disponible.
+> Lee `AGENTS.md` y la sección «Publicación opcional en GitHub Pages» de este README. Publica CareerKit en GitHub Pages en este repositorio: [pega aquí la dirección exacta]. Antes de publicar, comprueba que ningún archivo de `private-data/` está incluido en Git o en la web generada, y revisa los archivos versionados y el build para detectar datos personales. Puedes leer `private-data/` si lo necesitas para verificar que no se ha copiado información personal; no copies ningún dato personal a archivos versionados ni al build. Si encuentras datos personales en el contenido que se publicaría o no puedes comprobarlo, detente y avísame sin publicar. Prepara la web con pnpm, ajusta la dirección para que funcione en este repositorio y publícala en GitHub Pages. Si no tienes acceso o permisos, explícame qué falta. Al terminar, dame el enlace publicado y confirma si quedó disponible.
 
 El asistente debe confirmar que el repositorio de destino coincide con la dirección que indicaste. La comprobación automática detecta algunos patrones habituales, pero no puede reconocer todos los datos personales; si hay dudas, debe detenerse y preguntarte antes de publicar.
 
