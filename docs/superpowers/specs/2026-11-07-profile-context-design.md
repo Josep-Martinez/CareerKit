@@ -31,6 +31,12 @@ El esquema validará los objetos nuevos cuando estén presentes, sin exigirlos a
 
 El agente no inferirá intereses, valores, debilidades, preferencias, tono ni objetivos a partir de un CV o de LinkedIn. El prompt de actualización desde CV solo importará hechos explícitos y dejará los campos personales sin completar. El prompt manual de Perfil podrá preguntar lo necesario y solo guardará respuestas compartidas por el usuario.
 
+## Estructura de la copia de LinkedIn
+
+La copia publicada añadirá `published.languages` como una lista opcional de cadenas para no invalidar JSON existentes. La plantilla nueva incluirá `languages: []`. Cada entrada de `experience`, `education`, `languages`, `skills`, `certifications`, `projects` y `featured` será una cadena que conserva el texto de un elemento publicado. El esquema y el validador comprobarán que cada lista contenga cadenas; no convertirán el texto a campos inferidos.
+
+Si la fuente no muestra una sección, se conserva sin cambios. Si una entrada contiene indicadores de truncamiento como «… más», no se reemplaza el texto completo existente por ese fragmento: se pide una copia expandida o confirmación explícita. Los nombres, titular y Acerca de que no aparezcan tampoco se vacían. Las secciones completas y visibles pueden prepararse por separado sin afirmar que el documento entero sea una copia actual.
+
 ## Comportamiento de prompts
 
 - **Búsqueda de vacantes:** priorizar tareas, familias de puestos, objetivos y condiciones indicadas en Perfil. No asumir ubicación, salario, modalidad ni sectores ausentes.
