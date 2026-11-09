@@ -10,6 +10,7 @@
     "build": "vite build",
     "format": "prettier --write \"src/**/*.{js,jsx,css}\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"templates/**/*.json\" \"package.json\" \"vite.config.js\" \"index.html\" \".github/**/*.{yml,yaml}\" \".prettierrc.json\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,css}\" \"scripts/**/*.mjs\" \"schemas/**/*.json\" \"templates/**/*.json\" \"package.json\" \"vite.config.js\" \"index.html\" \".github/**/*.{yml,yaml}\" \".prettierrc.json\"",
+    "test": "node --test",
     "pages:prepare": "node scripts/prepare-github-pages.mjs",
     "preview": "vite preview",
     "check:publish": "node scripts/check-publish.mjs",

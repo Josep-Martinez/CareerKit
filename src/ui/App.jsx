@@ -1,7 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { EMPTY } from '../data/catalog.js'
+import { hasCvRelevantLinkedInChanges } from '../data/linkedin-changes.js'
 import { NAV, STRINGS as s, TITLES } from '../i18n/es.js'
-import { useStorageState } from '../data/storage.js'
+import {
+  normalizeModule,
+  useStorageState,
+  validateModule,
+} from '../data/storage.js'
 import { isKnownEmpty, isKnownPopulated } from './utils.js'
 import { SectionIcon } from './components/SectionIcon.jsx'
 import { WorkspaceGate } from './components/WorkspaceGate.jsx'
@@ -24,12 +29,25 @@ export default function App() {
   const [fallbackConnectBusy, setFallbackConnectBusy] = useState(false)
   const [fallbackConnectError, setFallbackConnectError] = useState('')
   const [fallbackSavedModule, setFallbackSavedModule] = useState(null)
+  const [fallbackSavedCvRelevant, setFallbackSavedCvRelevant] = useState(false)
   const [folderDialog, setFolderDialog] = useState(null)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [vacancyId, setVacancyId] = useState(null)
+  const [focusEvidenceId, setFocusEvidenceId] = useState('')
+  const [linkedinHasUnsavedChanges, setLinkedinHasUnsavedChanges] =
+    useState(false)
+  const clearFocusEvidenceId = useCallback(() => setFocusEvidenceId(''), [])
   const [confirmDisconnect, setConfirmDisconnect] = useState(false)
   const [cvPromptPending, setCvPromptPending] = useState(false)
   const [connecting, setConnecting] = useState(false)
+  const [linkedinSyncResolvedExternally, setLinkedinSyncResolvedExternally] =
+    useState(false)
+  const externalRevisions = useRef({})
+  const linkedinLanguagesPending =
+    store.data.linkedin.languageSync?.status === 'pending' &&
+    !linkedinSyncResolvedExternally
+  const pendingPromptCount =
+    Number(cvPromptPending) + Number(linkedinLanguagesPending)
   const currentModule = Object.hasOwn(store.data, page) ? page : null
 
   function showNotice(message, action = null) {
@@ -42,12 +60,57 @@ export default function App() {
     showNotice(message, 'cv-prompt')
   }
 
-  async function reload(module) {
+  function navigateTo(nextPage, { vacancyId: nextVacancyId = null } = {}) {
+    if (
+      page === 'linkedin' &&
+      nextPage !== 'linkedin' &&
+      linkedinHasUnsavedChanges &&
+      !window.confirm(s.linkedinPage.unsavedChangesConfirmation)
+    ) {
+      return false
+    }
+    if (page === 'linkedin' && nextPage !== 'linkedin')
+      setLinkedinHasUnsavedChanges(false)
+    setPage(nextPage)
+    setVacancyId(nextVacancyId)
+    setMobileNavOpen(false)
+    return true
+  }
+
+  function openProfileEvidence(evidenceId) {
+    if (!navigateTo('profile')) return
+    setFocusEvidenceId(evidenceId)
+  }
+
+  async function reload(module, { remind = true } = {}) {
     const result = await store.reload(module)
     if (result.error && store.folder) setFolderDialog(await store.recheck())
-    if (result.ok && ['profile', 'linkedin'].includes(module)) {
+    if (result.ok && module === 'linkedin')
+      setLinkedinSyncResolvedExternally(false)
+    if (remind && result.ok && module === 'profile') {
+      remindCvPrompt(s.promptInbox.sourceReloaded)
+    } else if (
+      remind &&
+      result.ok &&
+      module === 'linkedin' &&
+      hasCvRelevantLinkedInChanges(store.data.linkedin, result.data)
+    ) {
       remindCvPrompt(s.promptInbox.sourceReloaded)
     }
+    return result
+  }
+
+  async function reloadWithUnsavedGuard(module) {
+    if (
+      module === 'linkedin' &&
+      page === 'linkedin' &&
+      linkedinHasUnsavedChanges &&
+      !window.confirm(s.linkedinPage.unsavedChangesConfirmation)
+    ) {
+      return { cancelled: true }
+    }
+    const result = await reload(module)
+    if (module === 'linkedin' && result.ok) setLinkedinHasUnsavedChanges(false)
     return result
   }
 
@@ -60,9 +123,10 @@ export default function App() {
     if (fallbackSavedModule !== module) return
     setFallbackSavedModule(null)
     store.markFallbackSaved(module)
-    if (['profile', 'linkedin'].includes(module))
+    if (module === 'profile' || fallbackSavedCvRelevant)
       remindCvPrompt(`${s.promptInbox.fallbackSaved} ${s.fallbackFiles.saved}`)
     else showNotice(s.fallbackFiles.saved)
+    setFallbackSavedCvRelevant(false)
   }
 
   useEffect(() => {
@@ -79,14 +143,39 @@ export default function App() {
             txt !== store.revision[key] &&
             store.revision[key] !== undefined
           ) {
+            if (externalRevisions.current[key] === txt) continue
+            externalRevisions.current[key] = txt
             if (store.states[key] !== 'Cambio externo') {
               store.setStates((prev) => ({ ...prev, [key]: 'Cambio externo' }))
               store.setWarnings((prev) => ({
                 ...prev,
                 [key]: `${key}.json cambió fuera de la aplicación. Recárgalo para cargar la versión externa antes de guardar.`,
               }))
-              if (['profile', 'linkedin'].includes(key))
-                remindCvPrompt(s.promptInbox.sourceChanged)
+              if (key === 'profile') remindCvPrompt(s.promptInbox.sourceChanged)
+            }
+            if (key === 'linkedin') {
+              try {
+                const external = normalizeModule(
+                  'linkedin',
+                  JSON.parse(txt),
+                ).data
+                if (validateModule('linkedin', external)) {
+                  setLinkedinSyncResolvedExternally(
+                    external.languageSync?.status === 'current',
+                  )
+                  const previous = normalizeModule(
+                    'linkedin',
+                    JSON.parse(store.revision[key]),
+                  ).data
+                  if (
+                    validateModule('linkedin', previous) &&
+                    hasCvRelevantLinkedInChanges(previous, external)
+                  )
+                    remindCvPrompt(s.promptInbox.sourceChanged)
+                }
+              } catch {
+                /* The explicit reload flow reports invalid JSON to the user. */
+              }
             }
           }
         } catch {
@@ -140,6 +229,7 @@ export default function App() {
       else if (result.cancelled)
         showNotice(s.workspaceGate.connectCancelled, 'open-data-files')
       else if (result.connected) {
+        setLinkedinSyncResolvedExternally(false)
         const needsHelp = result.missing.length || result.invalid.length
         setFolderDialog(needsHelp ? result : null)
         showNotice(
@@ -205,12 +295,14 @@ export default function App() {
       showNotice(s.dataConnection.loadedSuccessfully)
   }
   function openSetupPrompt() {
+    if (!navigateTo('prompts')) return
     setFolderDialog(null)
-    setPage('prompts')
-    setVacancyId(null)
     showNotice('')
   }
   async function save(module, value) {
+    const cvRelevantLinkedInChange =
+      module === 'linkedin' &&
+      hasCvRelevantLinkedInChanges(store.data.linkedin, value)
     const result = await store.save(module, value)
     if (result.conflict)
       showNotice(
@@ -219,28 +311,81 @@ export default function App() {
     else if (result.needsReview) setFolderDialog(await store.recheck())
     else if (result.fallback) {
       setFallbackSavedModule(module)
+      setFallbackSavedCvRelevant(
+        module === 'profile' || cvRelevantLinkedInChange,
+      )
+      if (module === 'linkedin') setLinkedinSyncResolvedExternally(false)
       showNotice(s.fallbackFiles.savePrepared)
       setFallbackOpen(true)
     } else if (result.saved && ['profile', 'linkedin'].includes(module)) {
       setFallbackSavedModule(null)
-      remindCvPrompt(
-        module === 'profile'
-          ? s.promptInbox.sourceSavedProfile
-          : s.promptInbox.sourceSavedLinkedin,
-      )
+      setFallbackSavedCvRelevant(false)
+      if (module === 'linkedin') setLinkedinSyncResolvedExternally(false)
+      if (module === 'profile' || cvRelevantLinkedInChange)
+        remindCvPrompt(
+          module === 'profile'
+            ? s.promptInbox.sourceSavedProfile
+            : s.promptInbox.sourceSavedLinkedin,
+        )
+      else showNotice(`${module}.json guardado.`)
     } else if (result.saved) {
       setFallbackSavedModule(null)
       showNotice(`${module}.json guardado.`)
     } else if (result.error) showNotice(result.error)
   }
   function openCvPrompt() {
-    setPage('prompts')
-    setVacancyId(null)
+    if (!navigateTo('prompts')) return
     showNotice('')
   }
+
+  async function checkLinkedInSync() {
+    const result = await reload('linkedin', { remind: false })
+    if (!result.ok) return
+    setLinkedinHasUnsavedChanges(false)
+    showNotice(
+      result.data.languageSync?.status === 'current'
+        ? s.promptInbox.linkedinSyncConfirmed
+        : s.promptInbox.linkedinSyncStillPending,
+    )
+  }
+
+  function requestDisconnect() {
+    if (
+      page === 'linkedin' &&
+      linkedinHasUnsavedChanges &&
+      !window.confirm(s.linkedinPage.unsavedChangesConfirmation)
+    ) {
+      return
+    }
+    setConfirmDisconnect(true)
+  }
+
+  async function disconnectWorkspace(clear) {
+    const result = await store.disconnect(clear)
+    setLinkedinHasUnsavedChanges(false)
+    setConfirmDisconnect(false)
+    setNotice(
+      result.persistenceCleared
+        ? clear
+          ? s.dataConnection.disconnectedClearedNotice
+          : s.dataConnection.disconnectedNotice
+        : s.workspaceGate.disconnectPersistenceNotice,
+    )
+  }
+
   const activeVacancy = store.data.vacancies.items.find(
     (v) => v.id === vacancyId,
   )
+
+  useEffect(() => {
+    if (page !== 'linkedin' || !linkedinHasUnsavedChanges) return undefined
+    const warnBeforeUnload = (event) => {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+    window.addEventListener('beforeunload', warnBeforeUnload)
+    return () => window.removeEventListener('beforeunload', warnBeforeUnload)
+  }, [page, linkedinHasUnsavedChanges])
 
   if (!store.folder && !store.fallbackConnected) {
     return (
@@ -300,22 +445,21 @@ export default function App() {
             <button
               key={key}
               className={`nav-link ${page === key ? 'active' : ''}`}
-              onClick={() => {
-                setPage(key)
-                setVacancyId(null)
-                setMobileNavOpen(false)
-              }}
+              onClick={() => navigateTo(key)}
             >
               <span className="nav-icon">
                 <SectionIcon name={key} />
               </span>
               {label}
-              {key === 'prompts' && cvPromptPending && (
+              {key === 'prompts' && pendingPromptCount > 0 && (
                 <span
                   className="nav-badge"
-                  aria-label={s.promptInbox.pendingTag}
+                  aria-label={s.promptInbox.pendingTag.replace(
+                    '{count}',
+                    pendingPromptCount,
+                  )}
                 >
-                  1
+                  {pendingPromptCount}
                 </span>
               )}
               {page === key && <span className="nav-dot" />}
@@ -452,11 +596,8 @@ export default function App() {
               fallbackConnected={store.fallbackConnected}
               states={store.states}
               cvPromptPending={cvPromptPending}
-              onNavigate={setPage}
-              onVacancy={(v) => {
-                setVacancyId(v.id)
-                setPage('vacancies')
-              }}
+              onNavigate={navigateTo}
+              onVacancy={(v) => navigateTo('vacancies', { vacancyId: v.id })}
             />
           )}
           {page === 'profile' && (
@@ -464,6 +605,8 @@ export default function App() {
               value={store.data.profile}
               state={store.states.profile}
               warning={store.warnings.profile}
+              focusEvidenceId={focusEvidenceId}
+              onEvidenceFocusComplete={clearFocusEvidenceId}
               onSave={(v) => save('profile', v)}
               onReload={() => reload('profile')}
             />
@@ -474,8 +617,11 @@ export default function App() {
               profile={store.data.profile}
               state={store.states.linkedin}
               warning={store.warnings.linkedin}
+              onOpenEvidence={openProfileEvidence}
+              onOpenPrompts={openCvPrompt}
+              onDirtyChange={setLinkedinHasUnsavedChanges}
               onSave={(v) => save('linkedin', v)}
-              onReload={() => reload('linkedin')}
+              onReload={() => reloadWithUnsavedGuard('linkedin')}
             />
           )}
           {page === 'cv' && (
@@ -495,7 +641,7 @@ export default function App() {
               )}
               state={store.states.cv}
               warning={store.warnings.cv}
-              onNavigate={setPage}
+              onNavigate={navigateTo}
               onReload={() => reload('cv')}
               onPromptCopied={handlePromptCopied}
             />
@@ -518,17 +664,23 @@ export default function App() {
             ))}
           {page === 'prompts' && (
             <PromptInboxPage
-              pending={cvPromptPending}
+              pending={{
+                cv: cvPromptPending,
+                linkedinLanguages: linkedinLanguagesPending,
+                linkedinNeedsReload: [
+                  'Cambio externo',
+                  'Conflicto externo',
+                ].includes(store.states.linkedin),
+                linkedinCanCheck: Boolean(store.folder),
+              }}
+              onCheckLinkedIn={checkLinkedInSync}
               onCopy={handlePromptCopied}
             />
           )}
           <footer className="page-footer">
             <span>Privado por diseño · Sin cuentas ni sincronización</span>
             {(store.folder || store.fallbackConnected) && (
-              <button
-                className="text-button"
-                onClick={() => setConfirmDisconnect(true)}
-              >
+              <button className="text-button" onClick={requestDisconnect}>
                 {store.fallbackConnected
                   ? s.fallbackFiles.closeManual
                   : s.disconnect}
@@ -566,9 +718,8 @@ export default function App() {
           onPrepare={prepareMissing}
           onRecheck={recheckFolder}
           onStartProfile={() => {
+            if (!navigateTo('profile')) return
             setFolderDialog(null)
-            setPage('profile')
-            setVacancyId(null)
           }}
           onOpenPrompts={openSetupPrompt}
         />
@@ -602,15 +753,7 @@ export default function App() {
               </button>
               <button
                 className="button secondary"
-                onClick={async () => {
-                  const result = await store.disconnect(false)
-                  setConfirmDisconnect(false)
-                  setNotice(
-                    result.persistenceCleared
-                      ? s.dataConnection.disconnectedNotice
-                      : s.workspaceGate.disconnectPersistenceNotice,
-                  )
-                }}
+                onClick={() => disconnectWorkspace(false)}
               >
                 {store.fallbackConnected
                   ? s.fallbackFiles.closeKeep
@@ -618,15 +761,7 @@ export default function App() {
               </button>
               <button
                 className="button danger"
-                onClick={async () => {
-                  const result = await store.disconnect(true)
-                  setConfirmDisconnect(false)
-                  setNotice(
-                    result.persistenceCleared
-                      ? s.dataConnection.disconnectedClearedNotice
-                      : s.workspaceGate.disconnectPersistenceNotice,
-                  )
-                }}
+                onClick={() => disconnectWorkspace(true)}
               >
                 {store.fallbackConnected
                   ? s.fallbackFiles.closeClear

@@ -21,6 +21,10 @@
       ],
       "properties": {
         "name": { "type": "string" },
+        "language": {
+          "description": "Language of this main published profile snapshot, using es or en when known.",
+          "type": "string"
+        },
         "headline": { "type": "string" },
         "about": { "type": "string" },
         "experience": {
@@ -42,6 +46,7 @@
           }
         },
         "languages": {
+          "description": "Languages listed as profile content. This is not a profile translation or localized version.",
           "type": "array",
           "items": {
             "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/languageEntry" }]
@@ -71,6 +76,16 @@
           "items": {
             "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/featuredEntry" }]
           }
+        },
+        "additionalSections": {
+          "description": "Published LinkedIn sections that do not fit one of the standard fields. Preserve their original heading and complete visible content.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/additionalSection" }
+        },
+        "variants": {
+          "description": "The same LinkedIn profile in another language. Each language has its own text snapshot; the app shows one language at a time.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/localizedProfile" }
         }
       },
       "additionalProperties": true
@@ -93,6 +108,35 @@
         "properties": {
           "id": { "type": "string" },
           "section": { "type": "string" },
+          "sectionId": {
+            "description": "Stable ID of the published additional section this audit note targets, when section is additionalSections.",
+            "type": "string",
+            "minLength": 1
+          },
+          "sectionLabel": {
+            "description": "Last known title of the additional section, retained so an audit remains understandable if that section is removed.",
+            "type": "string"
+          },
+          "variantId": {
+            "description": "Stable ID of the localized published profile this audit targets. Omit for the main published profile.",
+            "type": "string",
+            "minLength": 1
+          },
+          "targetEntryId": {
+            "description": "Stable ID of the exact published list entry targeted by proposedText, when available.",
+            "type": "string",
+            "minLength": 1
+          },
+          "targetEntryIndex": {
+            "description": "Zero-based index of the exact published list entry targeted by proposedText when that entry has no stable ID.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "targetField": {
+            "description": "Exact text field targeted by proposedText. Use value for a plain string item.",
+            "type": "string",
+            "minLength": 1
+          },
           "action": { "enum": ["corregir", "anadir", "aclarar"] },
           "priority": { "enum": ["alta", "media", "baja"] },
           "problem": { "type": "string" },
@@ -106,12 +150,98 @@
           "date": { "type": "string" },
           "status": { "enum": ["pendiente", "aplicada", "descartada"] }
         },
+        "allOf": [
+          {
+            "if": { "required": ["sectionId"] },
+            "then": {
+              "properties": { "section": { "const": "additionalSections" } }
+            }
+          }
+        ],
         "additionalProperties": true
       }
     }
   },
   "additionalProperties": true,
   "$defs": {
+    "localizedProfile": {
+      "type": "object",
+      "required": [
+        "id",
+        "language",
+        "headline",
+        "about",
+        "experience",
+        "education",
+        "skills",
+        "certifications",
+        "projects",
+        "featured"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "language": { "type": "string", "minLength": 1 },
+        "publicationStatus": {
+          "description": "Legacy publication marker retained for compatibility; the application does not use it to select or sync language versions.",
+          "enum": ["draft", "published"]
+        },
+        "lastUpdated": { "type": "string" },
+        "name": { "type": "string" },
+        "headline": { "type": "string" },
+        "about": { "type": "string" },
+        "experience": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/experienceEntry" }
+            ]
+          }
+        },
+        "education": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/educationEntry" }
+            ]
+          }
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/languageEntry" }]
+          }
+        },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "certifications": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/certificationEntry" }
+            ]
+          }
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/projectEntry" }]
+          }
+        },
+        "featured": {
+          "type": "array",
+          "items": {
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/featuredEntry" }]
+          }
+        },
+        "additionalSections": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/additionalSection" }
+        }
+      },
+      "additionalProperties": true
+    },
     "experienceEntry": {
       "type": "object",
       "minProperties": 1,
@@ -121,8 +251,10 @@
         "company": { "type": "string" },
         "employmentType": { "type": "string" },
         "location": { "type": "string" },
+        "workplaceType": { "type": "string" },
         "dates": { "type": "string" },
         "description": { "type": "string" },
+        "descriptionTruncated": { "type": "boolean" },
         "skills": { "type": "array", "items": { "type": "string" } }
       },
       "additionalProperties": true
@@ -138,7 +270,9 @@
         "dates": { "type": "string" },
         "grade": { "type": "string" },
         "activities": { "type": "string" },
-        "description": { "type": "string" }
+        "description": { "type": "string" },
+        "descriptionTruncated": { "type": "boolean" },
+        "skills": { "type": "array", "items": { "type": "string" } }
       },
       "additionalProperties": true
     },
@@ -164,7 +298,9 @@
         "expirationDate": { "type": "string" },
         "credentialId": { "type": "string" },
         "credentialUrl": { "type": "string" },
-        "description": { "type": "string" }
+        "description": { "type": "string" },
+        "descriptionTruncated": { "type": "boolean" },
+        "skills": { "type": "array", "items": { "type": "string" } }
       },
       "additionalProperties": true
     },
@@ -177,7 +313,9 @@
         "associatedWith": { "type": "string" },
         "dates": { "type": "string" },
         "description": { "type": "string" },
-        "url": { "type": "string" }
+        "url": { "type": "string" },
+        "descriptionTruncated": { "type": "boolean" },
+        "skills": { "type": "array", "items": { "type": "string" } }
       },
       "additionalProperties": true
     },
@@ -189,7 +327,27 @@
         "title": { "type": "string" },
         "description": { "type": "string" },
         "url": { "type": "string" },
-        "mediaType": { "type": "string" }
+        "mediaType": { "type": "string" },
+        "descriptionTruncated": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "additionalSection": {
+      "type": "object",
+      "required": ["id", "title", "content"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string" },
+        "content": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "languageSync": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["current", "pending"] },
+        "sourceLanguage": { "enum": ["es", "en"] }
       },
       "additionalProperties": true
     }

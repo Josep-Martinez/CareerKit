@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { EMPTY, FILES } from './catalog.js'
 import { detectLocalFolder } from './local-folder.js'
 import {
+  findUnknownProfileFields,
+  hasProfileContent,
+} from './profile-fields.js'
+import {
   forgetDirectoryHandle,
   loadDirectoryHandle,
   rememberDirectoryHandle,
@@ -38,12 +42,16 @@ const optionalStrings = (value, fields) =>
   fields.every(
     (field) => value[field] === undefined || typeof value[field] === 'string',
   )
-const optionalContext = (value, textFields, listFields) =>
+const optionalContext = (value, textFields, listFields, booleanFields = []) =>
   value === undefined ||
   (isRecord(value) &&
     optionalStrings(value, textFields) &&
     listFields.every(
       (field) => value[field] === undefined || isStringList(value[field]),
+    ) &&
+    booleanFields.every(
+      (field) =>
+        value[field] === undefined || typeof value[field] === 'boolean',
     ))
 const linkedinEntryFields = {
   experience: {
@@ -53,10 +61,12 @@ const linkedinEntryFields = {
       'company',
       'employmentType',
       'location',
+      'workplaceType',
       'dates',
       'description',
     ],
     lists: ['skills'],
+    booleans: ['descriptionTruncated'],
   },
   education: {
     text: [
@@ -69,7 +79,8 @@ const linkedinEntryFields = {
       'activities',
       'description',
     ],
-    lists: [],
+    lists: ['skills'],
+    booleans: ['descriptionTruncated'],
   },
   languages: {
     text: ['id', 'language', 'proficiency', 'details'],
@@ -86,15 +97,18 @@ const linkedinEntryFields = {
       'credentialUrl',
       'description',
     ],
-    lists: [],
+    lists: ['skills'],
+    booleans: ['descriptionTruncated'],
   },
   projects: {
     text: ['id', 'name', 'associatedWith', 'dates', 'description', 'url'],
-    lists: [],
+    lists: ['skills'],
+    booleans: ['descriptionTruncated'],
   },
   featured: {
     text: ['id', 'title', 'description', 'url', 'mediaType'],
     lists: [],
+    booleans: ['descriptionTruncated'],
   },
 }
 const validLinkedInEntry = (section, item) => {
@@ -107,12 +121,50 @@ const validLinkedInEntry = (section, item) => {
     optionalStrings(item, fields.text) &&
     fields.lists.every(
       (field) => item[field] === undefined || isStringList(item[field]),
+    ) &&
+    (fields.booleans || []).every(
+      (field) => item[field] === undefined || typeof item[field] === 'boolean',
     ),
   )
 }
 const isLinkedInList = (section, value) =>
   Array.isArray(value) &&
   value.every((item) => validLinkedInEntry(section, item))
+const isLinkedInAdditionalSections = (value) =>
+  value === undefined ||
+  (Array.isArray(value) &&
+    value.every(
+      (item) =>
+        isRecord(item) &&
+        typeof item.id === 'string' &&
+        item.id.length > 0 &&
+        typeof item.title === 'string' &&
+        typeof item.content === 'string',
+    ))
+const validLinkedInVariant = (value) =>
+  isRecord(value) &&
+  typeof value.id === 'string' &&
+  value.id.length > 0 &&
+  typeof value.language === 'string' &&
+  value.language.length > 0 &&
+  optionalStrings(value, ['name', 'lastUpdated']) &&
+  (value.publicationStatus === undefined ||
+    ['draft', 'published'].includes(value.publicationStatus)) &&
+  typeof value.headline === 'string' &&
+  typeof value.about === 'string' &&
+  isLinkedInAdditionalSections(value.additionalSections) &&
+  (value.languages === undefined ||
+    isLinkedInList('languages', value.languages)) &&
+  ['experience', 'education', 'certifications', 'projects', 'featured'].every(
+    (key) => isLinkedInList(key, value[key]),
+  ) &&
+  isStringList(value.skills)
+const validLinkedInLanguageSync = (value) =>
+  value === undefined ||
+  (isRecord(value) &&
+    ['current', 'pending'].includes(value.status) &&
+    (value.sourceLanguage === undefined ||
+      ['es', 'en'].includes(value.sourceLanguage)))
 const validCVVersion = (value) =>
   isRecord(value) &&
   typeof value.masterText === 'string' &&
@@ -151,6 +203,10 @@ const validProfileEntry = (item) =>
     'dates',
     'actions',
     'results',
+    'description',
+    'grade',
+    'status',
+    'proficiency',
     'situation',
     'task',
   ]) &&
@@ -206,11 +262,13 @@ const validators = {
       d.careerPreferences,
       ['location', 'conditions'],
       ['roleFamilies', 'tasks', 'industries', 'workModes', 'avoid'],
+      ['internal'],
     ) &&
     optionalContext(
       d.contentDirection,
-      ['tone'],
-      ['themes', 'viewpoints', 'avoid'],
+      ['tone', 'versionPreference'],
+      ['themes', 'viewpoints', 'avoid', 'languages'],
+      ['internal'],
     ) &&
     isRecord(d.objectives) &&
     ['shortTerm', 'mediumTerm', 'longTerm'].every(
@@ -221,7 +279,11 @@ const validators = {
     ),
   linkedin: (d) =>
     isRecord(d.published) &&
-    optionalStrings(d.published, ['name']) &&
+    optionalStrings(d.published, ['name', 'language']) &&
+    isLinkedInAdditionalSections(d.published.additionalSections) &&
+    (d.published.variants === undefined ||
+      (Array.isArray(d.published.variants) &&
+        d.published.variants.every(validLinkedInVariant))) &&
     (d.published.languages === undefined ||
       isLinkedInList('languages', d.published.languages)) &&
     typeof d.published.headline === 'string' &&
@@ -230,6 +292,7 @@ const validators = {
       (key) => isLinkedInList(key, d.published[key]),
     ) &&
     isStringList(d.published.skills) &&
+    validLinkedInLanguageSync(d.languageSync) &&
     optionalStrings(d, ['lastUpdated']) &&
     Array.isArray(d.audits) &&
     d.audits.every(
@@ -237,6 +300,23 @@ const validators = {
         isRecord(item) &&
         typeof item.id === 'string' &&
         typeof item.section === 'string' &&
+        (item.sectionId === undefined ||
+          (item.section === 'additionalSections' &&
+            typeof item.sectionId === 'string' &&
+            item.sectionId.length > 0)) &&
+        (item.sectionLabel === undefined ||
+          typeof item.sectionLabel === 'string') &&
+        (item.variantId === undefined ||
+          (typeof item.variantId === 'string' && item.variantId.length > 0)) &&
+        (item.targetEntryId === undefined ||
+          (typeof item.targetEntryId === 'string' &&
+            item.targetEntryId.length > 0)) &&
+        (item.targetEntryIndex === undefined ||
+          (Number.isInteger(item.targetEntryIndex) &&
+            item.targetEntryIndex >= 0)) &&
+        (item.targetField === undefined ||
+          (typeof item.targetField === 'string' &&
+            item.targetField.length > 0)) &&
         ['alta', 'media', 'baja'].includes(item.priority) &&
         optionalStrings(item, [
           'problem',
@@ -305,24 +385,26 @@ const hasMeaningfulValue = (entry) => {
   return false
 }
 
+const hasLocalizedProfileContent = (variants = []) =>
+  variants.some((variant) => {
+    const content = Object.fromEntries(
+      Object.entries(variant).filter(
+        ([key]) =>
+          !['id', 'language', 'publicationStatus', 'lastUpdated'].includes(key),
+      ),
+    )
+    return Boolean(variant.lastUpdated?.trim()) || hasMeaningfulValue(content)
+  })
+
 export function hasModuleContent(name, value) {
   let hasContent
-  if (name === 'profile')
-    hasContent = Boolean(
-      value.professionalProfile.trim() ||
-      hasMeaningfulValue(value.personalContext) ||
-      hasMeaningfulValue(value.careerPreferences) ||
-      hasMeaningfulValue(value.contentDirection) ||
-      ['shortTerm', 'mediumTerm', 'longTerm'].some((key) =>
-        value.objectives[key].trim(),
-      ) ||
-      entryLists.some((key) => hasMeaningfulValue(value[key])),
-    )
+  if (name === 'profile') hasContent = hasProfileContent(value)
   else if (name === 'linkedin')
     hasContent = Boolean(
       value.published.name?.trim() ||
       value.published.headline.trim() ||
       value.published.about.trim() ||
+      hasLocalizedProfileContent(value.published.variants) ||
       [
         'experience',
         'education',
@@ -331,6 +413,7 @@ export function hasModuleContent(name, value) {
         'certifications',
         'projects',
         'featured',
+        'additionalSections',
       ].some((key) => hasMeaningfulValue(value.published[key])) ||
       value.lastUpdated?.trim() ||
       value.audits.some((audit) =>
@@ -860,8 +943,8 @@ export function useStorageState() {
 
   async function reload(name) {
     try {
-      await readModule(name)
-      return { ok: true }
+      const data = await readModule(name)
+      return { ok: true, data }
     } catch (error) {
       const missing = error?.name === 'NotFoundError'
       setStates((prev) => ({
@@ -928,86 +1011,43 @@ export function useStorageState() {
 }
 
 function findUnknown(name, data) {
+  if (name === 'profile') return findUnknownProfileFields(data)
+
   const known = {
-    profile: [
+    linkedin: [
       'schemaVersion',
-      'professionalProfile',
-      'objectives',
-      'personalContext',
-      'careerPreferences',
-      'contentDirection',
-      'skills',
-      'experience',
-      'education',
-      'certifications',
-      'languages',
-      'projects',
-      'evidence',
-      'learnings',
+      'published',
+      'lastUpdated',
+      'audits',
+      'languageSync',
     ],
-    linkedin: ['schemaVersion', 'published', 'lastUpdated', 'audits'],
     cv: ['schemaVersion', 'versions', 'previousVersion'],
     vacancies: ['schemaVersion', 'items'],
     priorities: ['schemaVersion', 'items'],
   }[name]
   const unknown = Object.keys(data).filter((key) => !known.includes(key))
   const rules = {
-    profile: {
-      root: [
-        'objectives',
-        'personalContext',
-        'careerPreferences',
-        'contentDirection',
-        'skills',
-        'experience',
-        'education',
-        'certifications',
-        'languages',
-        'projects',
-        'evidence',
-        'learnings',
-      ],
-      objectives: ['shortTerm', 'mediumTerm', 'longTerm'],
-      entry: [
-        'id',
-        'title',
-        'name',
-        'organization',
-        'dates',
-        'actions',
-        'results',
-        'evidenceIds',
-        'confirmed',
-        'cvEvidence',
-        'onLinkedIn',
-        'internal',
-      ],
-      personalContext: [
-        'aboutMe',
-        'values',
-        'interests',
-        'motivations',
-        'thinkingStyle',
-        'learningStyle',
-        'workStyle',
-        'strengths',
-        'growthAreas',
-        'preferredEnvironment',
-        'boundaries',
-      ],
-      careerPreferences: [
-        'roleFamilies',
-        'tasks',
-        'industries',
-        'workModes',
-        'location',
-        'conditions',
-        'avoid',
-      ],
-      contentDirection: ['themes', 'viewpoints', 'tone', 'avoid'],
-    },
     linkedin: {
       published: [
+        'name',
+        'language',
+        'headline',
+        'about',
+        'experience',
+        'education',
+        'languages',
+        'skills',
+        'certifications',
+        'projects',
+        'featured',
+        'additionalSections',
+        'variants',
+      ],
+      localizedProfile: [
+        'id',
+        'language',
+        'publicationStatus',
+        'lastUpdated',
         'name',
         'headline',
         'about',
@@ -1018,10 +1058,19 @@ function findUnknown(name, data) {
         'certifications',
         'projects',
         'featured',
+        'additionalSections',
       ],
+      languageSync: ['status', 'sourceLanguage'],
+      additionalSection: ['id', 'title', 'content'],
       audit: [
         'id',
         'section',
+        'sectionId',
+        'sectionLabel',
+        'variantId',
+        'targetEntryId',
+        'targetEntryIndex',
+        'targetField',
         'action',
         'priority',
         'problem',
@@ -1076,31 +1125,35 @@ function findUnknown(name, data) {
     for (const key of Object.keys(value))
       if (!allowed.includes(key)) unknown.push(`${path}.${key}`)
   }
-  if (name === 'profile') {
-    inspect(data.objectives, rules.objectives, 'objectives')
-    inspect(data.personalContext, rules.personalContext, 'personalContext')
-    inspect(
-      data.careerPreferences,
-      rules.careerPreferences,
-      'careerPreferences',
-    )
-    inspect(data.contentDirection, rules.contentDirection, 'contentDirection')
-    for (const key of entryLists)
-      (data[key] || []).forEach((item, index) =>
-        inspect(item, rules.entry, `${key}[${index}]`),
-      )
-  }
   if (name === 'linkedin') {
-    inspect(data.published, rules.published, 'published')
-    for (const [section, fields] of Object.entries(linkedinEntryFields))
-      (data.published?.[section] || []).forEach((item, index) => {
-        if (isRecord(item))
-          inspect(
-            item,
-            [...fields.text, ...fields.lists],
-            `published.${section}[${index}]`,
-          )
-      })
+    const inspectPublished = (published, path, allowedFields) => {
+      inspect(published, allowedFields, path)
+      ;(published?.additionalSections || []).forEach((item, index) =>
+        inspect(
+          item,
+          rules.additionalSection,
+          `${path}.additionalSections[${index}]`,
+        ),
+      )
+      for (const [section, fields] of Object.entries(linkedinEntryFields))
+        (published?.[section] || []).forEach((item, index) => {
+          if (isRecord(item))
+            inspect(
+              item,
+              [...fields.text, ...fields.lists, ...(fields.booleans || [])],
+              `${path}.${section}[${index}]`,
+            )
+        })
+    }
+    inspectPublished(data.published, 'published', rules.published)
+    inspect(data.languageSync, rules.languageSync, 'languageSync')
+    ;(data.published?.variants || []).forEach((variant, index) =>
+      inspectPublished(
+        variant,
+        `published.variants[${index}]`,
+        rules.localizedProfile,
+      ),
+    )
     ;(data.audits || []).forEach((item, index) =>
       inspect(item, rules.audit, `audits[${index}]`),
     )

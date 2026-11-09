@@ -228,6 +228,8 @@ export const STRINGS = {
     themes: 'Temas sobre los que te interesa hablar',
     viewpoints: 'Ideas, preguntas u opiniones que quieres explorar',
     tone: 'Tono que te representa',
+    languages: 'Idiomas en los que quieres publicar',
+    versionPreference: 'Preferencia para preparar versiones',
     contentAvoid: 'Temas o enfoques que prefieres evitar',
     collectionLabels: {
       experience: 'Experiencia',
@@ -248,6 +250,12 @@ export const STRINGS = {
     datesLabel: 'Fechas',
     actionsLabel: 'Acciones',
     resultsLabel: 'Resultados demostrables',
+    type: 'Tipo o categoría',
+    description: 'Descripción',
+    status: 'Estado',
+    proficiency: 'Nivel o dominio',
+    grade: 'Calificación',
+    tags: 'Etiquetas',
     cvEvidenceLabel: 'Evidencia para el CV',
     linkedInLabel: 'Aparece en LinkedIn',
     internalLabel: 'Información interna',
@@ -467,11 +475,22 @@ export const STRINGS = {
     subtitle:
       'Conserva el contenido publicado y anota qué corregir o añadir, con su base en perfil y aprendizajes.',
     modeLabel: 'Vista de LinkedIn',
+    languageSwitcherLabel: 'Idioma del perfil de LinkedIn',
+    variantLanguageNames: { es: 'Español', en: 'English' },
+    languageSyncPending: 'Idiomas por sincronizar',
+    openLanguageSyncPrompt: 'Ver Buzón',
     editButton: 'Editar',
     previewButton: 'Vista previa',
     separationNotice: 'La copia publicada y las notas se guardan por separado.',
+    unsavedChangesLabel: 'Cambios sin guardar',
+    unsavedChangesConfirmation:
+      'Hay cambios de LinkedIn sin guardar. Si sales de esta sección o recargas ahora, se perderán. ¿Quieres continuar?',
+    sectionIndexTitle: 'Ir a una sección',
+    sectionIndexHint:
+      'Abre el apartado que quieres editar sin recorrer todo el formulario.',
+    sectionIndexPresentation: 'Presentación',
     formEyebrow: 'COPIA FIEL',
-    formTitle: 'Contenido publicado',
+    formTitle: 'Contenido del perfil',
     formDescription:
       'Escribe cada sección como aparece en tu perfil. Las propuestas de revisión no cambian este contenido.',
     nameLabel: 'Nombre que aparece en LinkedIn',
@@ -496,6 +515,20 @@ export const STRINGS = {
     emptyList: 'Sin elementos añadidos.',
     addSection: 'Añadir',
     removeEntry: 'Eliminar',
+    additionalSectionsTitle: 'Otras secciones publicadas',
+    additionalSectionsDescription:
+      'Conserva aquí una sección completa que no encaje en los campos anteriores, con su título original y el texto tal como aparece.',
+    emptyAdditionalSections:
+      'Si el agente encuentra una sección sin campo equivalente, la guardará aquí. También puedes añadirla manualmente.',
+    addAdditionalSection: 'Añadir otra sección',
+    additionalSectionTitleLabel: 'Título original de la sección',
+    additionalSectionContentLabel: 'Contenido publicado',
+    additionalSectionContentHint:
+      'Mantén el texto, el idioma, las listas y los saltos de línea originales.',
+    removeAdditionalSection: 'Eliminar sección adicional',
+    additionalSectionFallback: 'Otra sección',
+    descriptionTruncatedNotice:
+      'La fuente indica que la descripción está truncada; el texto conservado es parcial.',
     auditLabel: 'PARA REVISAR',
     auditActions: {
       corregir: 'Corregir',
@@ -517,12 +550,20 @@ export const STRINGS = {
       title: 'Punto de auditoría',
       delete: 'Eliminar punto de auditoría',
       section: 'Sección de LinkedIn',
+      additionalSectionOption: 'Otra sección · {title}',
+      sectionUnavailable: 'ya no está disponible',
+      sectionUnavailableHint:
+        'La sección ya no está en la copia publicada. Esta anotación se conserva; puedes vincularla a otra sección o eliminarla.',
+      unlinkedAdditionalSection: 'Otra sección · pendiente de vincular',
+      unlinkedAdditionalSectionHint:
+        'Vincula esta anotación a una sección adicional concreta para que aparezca junto al contenido correspondiente.',
       action: 'Acción',
       problem: 'Qué se observa',
       reasonEvidence: 'Por qué, según el perfil o los aprendizajes',
       relatedEvidence: 'Evidencias relacionadas',
       untitledEvidence: 'Sin título',
       noEvidence: 'Añade primero evidencias o aprendizajes en Perfil.',
+      openInProfile: 'Abrir en Perfil',
       otherEvidenceIds: 'Otros IDs de perfil/aprendizajes',
       evidenceIdsHint: 'Los IDs deben existir en profile.json.',
       recommendation: 'Qué corregir o añadir',
@@ -536,6 +577,24 @@ export const STRINGS = {
         aplicada: 'Aplicada',
         descartada: 'Descartada',
       },
+      proposalTarget: 'Campo al que se aplicará el texto',
+      additionalContent: 'Contenido',
+      additionalTitle: 'Título de la sección',
+      targetEntry: 'Entrada concreta',
+      chooseTargetEntry: 'Selecciona una entrada',
+      targetField: 'Campo concreto',
+      chooseTargetField: 'Selecciona un campo',
+      plainTextValue: 'Texto completo de esta entrada',
+      chooseExactTarget:
+        'Selecciona la entrada y el campo exactos para poder aplicar este texto con seguridad.',
+      applyProposal: 'Revisar y aplicar propuesta',
+      applyConfirmation:
+        'Se sustituirá únicamente el campo seleccionado. ¿Quieres aplicar el cambio?',
+      currentText: 'Texto actual',
+      applyTargetUnavailable:
+        'No se aplicó la propuesta: el destino ya no está disponible o no es válido.',
+      applySuccess:
+        'Propuesta aplicada al campo seleccionado. Guarda los cambios para escribirlos en linkedin.json.',
     },
     evidenceLabels: {
       experience: 'Experiencia',
@@ -563,8 +622,10 @@ export const STRINGS = {
       company: 'Empresa',
       employmentType: 'Tipo de empleo',
       location: 'Ubicación',
+      workplaceType: 'Modalidad del puesto',
       dates: 'Fechas',
       description: 'Descripción completa',
+      descriptionTruncated: 'La fuente muestra la descripción truncada',
       skills: 'Aptitudes asociadas',
       institution: 'Institución',
       degree: 'Titulación',

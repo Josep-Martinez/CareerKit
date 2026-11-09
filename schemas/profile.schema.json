@@ -73,7 +73,8 @@
         "workModes": { "$ref": "#/$defs/stringList" },
         "location": { "type": "string" },
         "conditions": { "type": "string" },
-        "avoid": { "$ref": "#/$defs/stringList" }
+        "avoid": { "$ref": "#/$defs/stringList" },
+        "internal": { "type": "boolean" }
       },
       "additionalProperties": true
     },
@@ -83,7 +84,10 @@
         "themes": { "$ref": "#/$defs/stringList" },
         "viewpoints": { "$ref": "#/$defs/stringList" },
         "tone": { "type": "string" },
-        "avoid": { "$ref": "#/$defs/stringList" }
+        "avoid": { "$ref": "#/$defs/stringList" },
+        "languages": { "$ref": "#/$defs/stringList" },
+        "versionPreference": { "type": "string" },
+        "internal": { "type": "boolean" }
       },
       "additionalProperties": true
     },
@@ -101,6 +105,10 @@
           "dates": { "type": "string" },
           "actions": { "type": "string" },
           "results": { "type": "string" },
+          "description": { "type": "string" },
+          "grade": { "type": "string" },
+          "status": { "type": "string" },
+          "proficiency": { "type": "string" },
           "situation": { "type": "string" },
           "task": { "type": "string" },
           "tags": { "type": "array", "items": { "type": "string" } },

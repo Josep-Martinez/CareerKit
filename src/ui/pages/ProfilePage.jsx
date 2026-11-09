@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import {
   ArrayText,
@@ -8,6 +9,7 @@ import {
 } from '../components/FormPrimitives.jsx'
 import { id } from '../utils.js'
 import { STRINGS as s } from '../../i18n/es.js'
+import { profileEvidenceAnchorId } from '../profile-evidence.js'
 
 const personalFields = [
   { key: 'aboutMe', rows: 4, hint: s.profilePage.aboutMeHint },
@@ -35,8 +37,29 @@ const contentFields = [
   { key: 'themes', list: true },
   { key: 'viewpoints', list: true },
   { key: 'tone', rows: 3 },
+  { key: 'languages', list: true },
+  { key: 'versionPreference', rows: 2 },
   { key: 'avoid', list: true, label: s.profilePage.contentAvoid },
 ]
+const collectionDetails = {
+  skills: [
+    { key: 'type' },
+    { key: 'description', rows: 3 },
+    { key: 'tags', list: true },
+  ],
+  education: [{ key: 'status' }],
+  languages: [
+    { key: 'type' },
+    { key: 'proficiency' },
+    { key: 'description', rows: 3 },
+  ],
+  projects: [
+    { key: 'type' },
+    { key: 'description', rows: 3 },
+    { key: 'grade' },
+    { key: 'tags', list: true },
+  ],
+}
 const collectionKeys = [
   'experience',
   'education',
@@ -65,8 +88,32 @@ function contentCountLabel(count, singular, plural) {
   return `${count} ${count === 1 ? singular : plural}`
 }
 
-export function ProfilePage({ value, state, warning, onSave, onReload }) {
+export function ProfilePage({
+  value,
+  state,
+  warning,
+  focusEvidenceId,
+  onEvidenceFocusComplete,
+  onSave,
+  onReload,
+}) {
   const [draft, setDraft] = useDraft(value)
+  useEffect(() => {
+    if (!focusEvidenceId) return undefined
+    const frame = window.requestAnimationFrame(() => {
+      const target = document.getElementById(
+        profileEvidenceAnchorId(focusEvidenceId),
+      )
+      if (target) {
+        const disclosure = target.closest('details')
+        if (disclosure) disclosure.open = true
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        target.focus({ preventScroll: true })
+      }
+      onEvidenceFocusComplete?.()
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [focusEvidenceId, onEvidenceFocusComplete])
   const update = (key, val) =>
     setDraft((current) => ({ ...current, [key]: val }))
   const updateNested = (objectKey, key, val) =>
@@ -265,7 +312,13 @@ export function ProfilePage({ value, state, warning, onSave, onReload }) {
                   </button>
                 )}
                 {(draft[key] || []).map((item, i) => (
-                  <div className="item-card" key={item.id || i}>
+                  <div
+                    className="item-card"
+                    key={item.id || i}
+                    id={item.id ? profileEvidenceAnchorId(item.id) : undefined}
+                    tabIndex={item.id ? -1 : undefined}
+                    aria-label={`${s.profilePage.collectionLabels[key]} · ${item.title || item.name || s.profilePage.itemLabel}`}
+                  >
                     <div className="item-heading">
                       <span>
                         {item.type === 'star-story'
@@ -361,6 +414,29 @@ export function ProfilePage({ value, state, warning, onSave, onReload }) {
                       value={item.results}
                       onChange={(next) => patchItem(key, i, { results: next })}
                     />
+                    {(collectionDetails[key] || []).map(
+                      ({ key: fieldKey, list, rows }) =>
+                        list ? (
+                          <ArrayText
+                            key={`${fieldKey}-${i}`}
+                            title={s.profilePage[fieldKey]}
+                            items={item[fieldKey] || []}
+                            onChange={(next) =>
+                              patchItem(key, i, { [fieldKey]: next })
+                            }
+                          />
+                        ) : (
+                          <TextField
+                            key={`${fieldKey}-${i}`}
+                            label={s.profilePage[fieldKey]}
+                            rows={rows}
+                            value={item[fieldKey]}
+                            onChange={(next) =>
+                              patchItem(key, i, { [fieldKey]: next })
+                            }
+                          />
+                        ),
+                    )}
                     <div className="checks">
                       <Check
                         label={s.profilePage.cvEvidenceLabel}

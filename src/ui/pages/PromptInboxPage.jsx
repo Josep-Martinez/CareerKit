@@ -4,8 +4,11 @@ import { TextField } from '../components/FormPrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
 
-export function PromptInboxPage({ pending, onCopy }) {
+export function PromptInboxPage({ pending, onCopy, onCheckLinkedIn }) {
   const copy = s.promptInbox
+  const pendingCv = Boolean(pending?.cv)
+  const pendingLinkedinLanguages = Boolean(pending?.linkedinLanguages)
+  const pendingCount = Number(pendingCv) + Number(pendingLinkedinLanguages)
   const [search, setSearch] = useState('')
   const [vacancyReference, setVacancyReference] = useState('')
   const [copyMessages, setCopyMessages] = useState({})
@@ -64,12 +67,31 @@ export function PromptInboxPage({ pending, onCopy }) {
           <p>{copy.noNetwork}</p>
         </div>
       </section>
-      {pending && (
+      {pendingCount > 0 && (
         <section className="prompt-reminder" role="status">
-          <span className="prompt-reminder-count">1</span>
+          <span className="prompt-reminder-count">{pendingCount}</span>
           <div>
             <h2>{copy.pendingTitle}</h2>
-            <p>{copy.pendingBody}</p>
+            {pendingCv && <p>{copy.pendingCvBody}</p>}
+            {pendingLinkedinLanguages && (
+              <div className="prompt-linkedin-check">
+                <p>{copy.pendingLanguagesBody}</p>
+                {pending?.linkedinNeedsReload && (
+                  <p>{copy.pendingLanguagesExternalChange}</p>
+                )}
+                {pending?.linkedinCanCheck ? (
+                  <button
+                    className="button secondary small"
+                    type="button"
+                    onClick={onCheckLinkedIn}
+                  >
+                    {copy.checkLinkedInFile}
+                  </button>
+                ) : (
+                  <p>{copy.linkedinCheckUnavailable}</p>
+                )}
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -92,7 +114,10 @@ export function PromptInboxPage({ pending, onCopy }) {
               <h2 className="prompt-group-title">{category.title}</h2>
               <div className="prompt-group-list">
                 {groupPrompts.map((prompt) => {
-                  const isPending = pending && prompt.id === 'refresh-cv'
+                  const isPending =
+                    (pendingCv && prompt.id === 'refresh-cv') ||
+                    (pendingLinkedinLanguages &&
+                      prompt.id === 'sync-linkedin-languages')
                   const renderedText = buildPromptText(prompt, {
                     vacancyReference: vacancyReference.trim(),
                   })
@@ -109,7 +134,7 @@ export function PromptInboxPage({ pending, onCopy }) {
                           </div>
                           {isPending && (
                             <span className="prompt-pending-tag">
-                              {copy.pendingTag}
+                              {copy.pendingTag.replace('{count}', pendingCount)}
                             </span>
                           )}
                         </summary>

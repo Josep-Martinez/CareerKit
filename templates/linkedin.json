@@ -2,6 +2,7 @@
   "schemaVersion": 1,
   "published": {
     "name": "",
+    "language": "",
     "headline": "",
     "about": "",
     "experience": [],
@@ -10,7 +11,12 @@
     "skills": [],
     "certifications": [],
     "projects": [],
-    "featured": []
+    "featured": [],
+    "additionalSections": [],
+    "variants": []
+  },
+  "languageSync": {
+    "status": "current"
   },
   "lastUpdated": "",
   "audits": []

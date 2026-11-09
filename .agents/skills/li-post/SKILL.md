@@ -16,6 +16,7 @@ Turn one real idea into a clear, natural post. Do not claim that writing formula
 ## Draft
 
 - One central idea. Lead with a specific, supported opening; use short readable paragraphs; close with one relevant question or action, not both.
+- When it fits the material, make the opening line specific, let the next line add its payoff or context, develop the evidence in short paragraphs, and end with one clear insight before the close. This is an optional shape, not a template to force on every idea.
 - Keep the length appropriate to the idea. Check current official guidance before stating platform character limits or feed behavior.
 - Keep numbers, names, metrics, and outcomes exactly as supplied. Never invent a client, result, view, lesson, or personal claim. Use a visible placeholder only when the user can safely fill it in.
 - Avoid generic engagement bait, irrelevant hashtags, and tagging people or organizations without a clear reason and the user's approval.
