@@ -31,6 +31,9 @@ version without changing its meaning.
 - For profile fields, keep both versions independently clear and readable.
   The Spanish translation may need a different character count; verify each
   version against current platform limits when exact limits matter.
+- In CareerKit, public language versions are separate `published.variants[]`
+  snapshots. Keep every draft scoped to its language and write to a published
+  snapshot only when the user asks; never copy or translate it automatically.
 - If the user explicitly asks for only one language, follow that request.
 
 ## Context and review

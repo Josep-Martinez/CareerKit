@@ -133,6 +133,22 @@ const isLinkedInAdditionalSections = (value) =>
         typeof item.title === 'string' &&
         typeof item.content === 'string',
     ))
+const validLinkedInVariant = (value) =>
+  isRecord(value) &&
+  typeof value.id === 'string' &&
+  value.id.length > 0 &&
+  typeof value.language === 'string' &&
+  value.language.length > 0 &&
+  optionalStrings(value, ['name', 'lastUpdated']) &&
+  typeof value.headline === 'string' &&
+  typeof value.about === 'string' &&
+  isLinkedInAdditionalSections(value.additionalSections) &&
+  (value.languages === undefined ||
+    isLinkedInList('languages', value.languages)) &&
+  ['experience', 'education', 'certifications', 'projects', 'featured'].every(
+    (key) => isLinkedInList(key, value[key]),
+  ) &&
+  isStringList(value.skills)
 const validCVVersion = (value) =>
   isRecord(value) &&
   typeof value.masterText === 'string' &&
@@ -243,6 +259,9 @@ const validators = {
     isRecord(d.published) &&
     optionalStrings(d.published, ['name']) &&
     isLinkedInAdditionalSections(d.published.additionalSections) &&
+    (d.published.variants === undefined ||
+      (Array.isArray(d.published.variants) &&
+        d.published.variants.every(validLinkedInVariant))) &&
     (d.published.languages === undefined ||
       isLinkedInList('languages', d.published.languages)) &&
     typeof d.published.headline === 'string' &&
@@ -264,6 +283,8 @@ const validators = {
             item.sectionId.length > 0)) &&
         (item.sectionLabel === undefined ||
           typeof item.sectionLabel === 'string') &&
+        (item.variantId === undefined ||
+          (typeof item.variantId === 'string' && item.variantId.length > 0)) &&
         (item.targetEntryId === undefined ||
           (typeof item.targetEntryId === 'string' &&
             item.targetEntryId.length > 0)) &&
@@ -341,6 +362,16 @@ const hasMeaningfulValue = (entry) => {
   return false
 }
 
+const hasLocalizedProfileContent = (variants = []) =>
+  variants.some((variant) => {
+    const content = Object.fromEntries(
+      Object.entries(variant).filter(
+        ([key]) => !['id', 'language', 'lastUpdated'].includes(key),
+      ),
+    )
+    return Boolean(variant.lastUpdated?.trim()) || hasMeaningfulValue(content)
+  })
+
 export function hasModuleContent(name, value) {
   let hasContent
   if (name === 'profile')
@@ -359,6 +390,7 @@ export function hasModuleContent(name, value) {
       value.published.name?.trim() ||
       value.published.headline.trim() ||
       value.published.about.trim() ||
+      hasLocalizedProfileContent(value.published.variants) ||
       [
         'experience',
         'education',
@@ -1056,6 +1088,23 @@ function findUnknown(name, data) {
         'projects',
         'featured',
         'additionalSections',
+        'variants',
+      ],
+      localizedProfile: [
+        'id',
+        'language',
+        'lastUpdated',
+        'name',
+        'headline',
+        'about',
+        'experience',
+        'education',
+        'languages',
+        'skills',
+        'certifications',
+        'projects',
+        'featured',
+        'additionalSections',
       ],
       additionalSection: ['id', 'title', 'content'],
       audit: [
@@ -1063,6 +1112,7 @@ function findUnknown(name, data) {
         'section',
         'sectionId',
         'sectionLabel',
+        'variantId',
         'targetEntryId',
         'targetEntryIndex',
         'targetField',
@@ -1135,23 +1185,33 @@ function findUnknown(name, data) {
       )
   }
   if (name === 'linkedin') {
-    inspect(data.published, rules.published, 'published')
-    ;(data.published?.additionalSections || []).forEach((item, index) =>
-      inspect(
-        item,
-        rules.additionalSection,
-        `published.additionalSections[${index}]`,
+    const inspectPublished = (published, path, allowedFields) => {
+      inspect(published, allowedFields, path)
+      ;(published?.additionalSections || []).forEach((item, index) =>
+        inspect(
+          item,
+          rules.additionalSection,
+          `${path}.additionalSections[${index}]`,
+        ),
+      )
+      for (const [section, fields] of Object.entries(linkedinEntryFields))
+        (published?.[section] || []).forEach((item, index) => {
+          if (isRecord(item))
+            inspect(
+              item,
+              [...fields.text, ...fields.lists, ...(fields.booleans || [])],
+              `${path}.${section}[${index}]`,
+            )
+        })
+    }
+    inspectPublished(data.published, 'published', rules.published)
+    ;(data.published?.variants || []).forEach((variant, index) =>
+      inspectPublished(
+        variant,
+        `published.variants[${index}]`,
+        rules.localizedProfile,
       ),
     )
-    for (const [section, fields] of Object.entries(linkedinEntryFields))
-      (data.published?.[section] || []).forEach((item, index) => {
-        if (isRecord(item))
-          inspect(
-            item,
-            [...fields.text, ...fields.lists, ...(fields.booleans || [])],
-            `published.${section}[${index}]`,
-          )
-      })
     ;(data.audits || []).forEach((item, index) =>
       inspect(item, rules.audit, `audits[${index}]`),
     )

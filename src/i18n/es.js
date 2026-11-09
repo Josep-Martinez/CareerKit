@@ -467,6 +467,14 @@ export const STRINGS = {
     subtitle:
       'Conserva el contenido publicado y anota qué corregir o añadir, con su base en perfil y aprendizajes.',
     modeLabel: 'Vista de LinkedIn',
+    variantSelector: 'Versión del perfil publicado',
+    primaryVariant: 'Perfil principal',
+    variantLanguageNames: { es: 'Español', en: 'Inglés' },
+    addVariantLabel: 'Añadir una versión vacía',
+    addSpanishVariant: 'En español',
+    addEnglishVariant: 'En inglés',
+    variantIsolationHint:
+      'Cada versión se guarda por separado; no se copia ni se traduce texto.',
     editButton: 'Editar',
     previewButton: 'Vista previa',
     separationNotice: 'La copia publicada y las notas se guardan por separado.',

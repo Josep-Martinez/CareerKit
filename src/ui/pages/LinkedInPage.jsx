@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import {
   ArrayText,
@@ -13,8 +13,10 @@ import {
   LINKEDIN_AUDIT_FIELDS,
   resolveLinkedInAuditTarget,
 } from '../../data/linkedin-audit.js'
+import { createEmptyLinkedInVariant } from '../../data/linkedin-variants.js'
 
 const copy = s.linkedinPage
+const languageBase = (language = '') => language.toLowerCase().split(/[-_]/)[0]
 const LINKEDIN_SECTION_KEYS = [
   'headline',
   'about',
@@ -102,10 +104,46 @@ export function LinkedInPage({
   const [draft, setDraft] = useDraft(value)
   const [view, setView] = useState('edit')
   const [applyNotice, setApplyNotice] = useState('')
-  const pub = draft.published
+  const [activeVariantId, setActiveVariantId] = useState('')
+  const rootPublished = draft.published
+  const variants = rootPublished.variants || []
+  const activeVariant = variants.find(
+    (variant) => variant.id === activeVariantId,
+  )
+  const pub = activeVariant || rootPublished
+  useEffect(() => {
+    if (activeVariantId && !activeVariant) setActiveVariantId('')
+  }, [activeVariantId, activeVariant])
+  const withSelectedPublished = (root, next) =>
+    activeVariantId
+      ? {
+          ...root,
+          variants: (root.variants || []).map((variant) =>
+            variant.id === activeVariantId ? next : variant,
+          ),
+        }
+      : next
+  const replaceSelectedPublished = (next) =>
+    setDraft({
+      ...draft,
+      published: withSelectedPublished(rootPublished, next),
+    })
   const additionalSections = pub.additionalSections || []
-  const setPub = (key, val) =>
-    setDraft({ ...draft, published: { ...pub, [key]: val } })
+  const setPub = (key, val) => replaceSelectedPublished({ ...pub, [key]: val })
+  const createVariant = (language) => {
+    const variant = createEmptyLinkedInVariant(id(), language)
+    setDraft({
+      ...draft,
+      published: {
+        ...rootPublished,
+        variants: [...variants, variant],
+      },
+    })
+    setActiveVariantId(variant.id)
+    setApplyNotice('')
+    setView('edit')
+  }
+  const isEditingVariant = (variantId) => (variantId || '') === activeVariantId
   const evidenceItems = PROFILE_EVIDENCE_KEYS.flatMap((key) =>
     (profile[key] || []).map((item) => ({ ...item, category: key })),
   )
@@ -117,6 +155,7 @@ export function LinkedInPage({
         {
           id: id(),
           section: 'about',
+          ...(activeVariantId ? { variantId: activeVariantId } : {}),
           action: 'corregir',
           priority: 'media',
           problem: '',
@@ -142,11 +181,15 @@ export function LinkedInPage({
     )
     setDraft({
       ...draft,
-      published: { ...pub, additionalSections: updatedSections },
+      published: withSelectedPublished(rootPublished, {
+        ...pub,
+        additionalSections: updatedSections,
+      }),
       audits:
         part.title === undefined
           ? draft.audits
           : draft.audits.map((item) =>
+              isEditingVariant(item.variantId) &&
               item.section === 'additionalSections' &&
               item.sectionId === sectionId
                 ? {
@@ -163,14 +206,16 @@ export function LinkedInPage({
     )
     setDraft({
       ...draft,
-      published: {
+      published: withSelectedPublished(rootPublished, {
         ...pub,
         additionalSections: additionalSections.filter(
           (section) => section.id !== sectionId,
         ),
-      },
+      }),
       audits: draft.audits.map((item) =>
-        item.section === 'additionalSections' && item.sectionId === sectionId
+        isEditingVariant(item.variantId) &&
+        item.section === 'additionalSections' &&
+        item.sectionId === sectionId
           ? {
               ...item,
               sectionLabel:
@@ -197,7 +242,7 @@ export function LinkedInPage({
     if (!window.confirm(confirmation)) return
     setDraft({
       ...draft,
-      published: { ...draft.published, ...result.published },
+      published: withSelectedPublished(rootPublished, result.published),
       audits: draft.audits.map((audit, auditIndex) =>
         auditIndex === index ? { ...audit, status: 'aplicada' } : audit,
       ),
@@ -213,9 +258,13 @@ export function LinkedInPage({
     'projects',
     'featured',
   ]
+  const activeAudits = draft.audits.filter((item) =>
+    isEditingVariant(item.variantId),
+  )
   const auditNotes = (section, sectionId) =>
     draft.audits.filter(
       (item) =>
+        isEditingVariant(item.variantId) &&
         item.section === section &&
         (section !== 'additionalSections' ||
           (sectionId ? item.sectionId === sectionId : !item.sectionId)) &&
@@ -228,7 +277,7 @@ export function LinkedInPage({
     hasEntryContent(additionalSections) ||
     previewKeys.some((key) => pub[key]?.some(hasEntryContent)),
   )
-  const hasActiveAudits = draft.audits.some(
+  const hasActiveAudits = activeAudits.some(
     (item) => item.status !== 'descartada',
   )
   const initials =
@@ -246,6 +295,52 @@ export function LinkedInPage({
         subtitle={copy.subtitle}
       />
       <Status state={state} warning={warning} onReload={onReload} />
+      <div className="linkedin-variant-row">
+        <label className="field linkedin-variant-picker">
+          <span>{copy.variantSelector}</span>
+          <select
+            value={activeVariantId}
+            onChange={(event) => {
+              setActiveVariantId(event.target.value)
+              setApplyNotice('')
+            }}
+          >
+            <option value="">{copy.primaryVariant}</option>
+            {variants.map((variant) => (
+              <option key={variant.id} value={variant.id}>
+                {copy.variantLanguageNames[languageBase(variant.language)] ||
+                  variant.language}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="linkedin-variant-actions">
+          <span>{copy.addVariantLabel}</span>
+          {!variants.some(
+            (variant) => languageBase(variant.language) === 'es',
+          ) && (
+            <button
+              className="button secondary small"
+              type="button"
+              onClick={() => createVariant('es')}
+            >
+              {copy.addSpanishVariant}
+            </button>
+          )}
+          {!variants.some(
+            (variant) => languageBase(variant.language) === 'en',
+          ) && (
+            <button
+              className="button secondary small"
+              type="button"
+              onClick={() => createVariant('en')}
+            >
+              {copy.addEnglishVariant}
+            </button>
+          )}
+          <p>{copy.variantIsolationHint}</p>
+        </div>
+      </div>
       <div className="linkedin-mode-row">
         <div
           className="linkedin-mode-switch"
@@ -381,8 +476,12 @@ export function LinkedInPage({
           </section>
           <TextField
             label={copy.lastUpdatedLabel}
-            value={draft.lastUpdated}
-            onChange={(v) => setDraft({ ...draft, lastUpdated: v })}
+            value={activeVariant ? pub.lastUpdated || '' : draft.lastUpdated}
+            onChange={(v) =>
+              activeVariant
+                ? setPub('lastUpdated', v)
+                : setDraft({ ...draft, lastUpdated: v })
+            }
             hint={copy.lastUpdatedHint}
           />
           <section
@@ -402,19 +501,22 @@ export function LinkedInPage({
                 {copy.addAudit}
               </button>
             </div>
-            {draft.audits.map((item, i) => (
-              <AuditCard
-                key={item.id || i}
-                item={item}
-                evidence={evidenceItems}
-                additionalSections={additionalSections}
-                published={pub}
-                onApply={() => applyAudit(i)}
-                onChange={(part) => updateAudit(i, part)}
-                onDelete={() => removeAudit(i)}
-              />
-            ))}
-            {!draft.audits.length && (
+            {activeAudits.map((item) => {
+              const index = draft.audits.indexOf(item)
+              return (
+                <AuditCard
+                  key={item.id || index}
+                  item={item}
+                  evidence={evidenceItems}
+                  additionalSections={additionalSections}
+                  published={pub}
+                  onApply={() => applyAudit(index)}
+                  onChange={(part) => updateAudit(index, part)}
+                  onDelete={() => removeAudit(index)}
+                />
+              )
+            })}
+            {!activeAudits.length && (
               <p className="quiet-empty">{copy.emptyAudit}</p>
             )}
             {applyNotice && (

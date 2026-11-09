@@ -2178,6 +2178,39 @@ select {
   gap: 18px;
   margin: -6px 0 20px;
 }
+.linkedin-variant-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(260px, 1.25fr);
+  align-items: end;
+  gap: 16px;
+  margin: 0 0 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.52);
+}
+.linkedin-variant-picker {
+  margin: 0;
+}
+.linkedin-variant-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.linkedin-variant-actions > span {
+  width: 100%;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+.linkedin-variant-actions p {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
 .linkedin-mode-row > span {
   color: var(--muted);
   font-size: 12px;
@@ -2718,6 +2751,10 @@ select {
   .linkedin-audit-heading {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .linkedin-variant-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
   }
   .linkedin-preview-cover {
     height: 108px;

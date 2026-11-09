@@ -42,6 +42,7 @@
           }
         },
         "languages": {
+          "description": "Languages listed as profile content. This is not a profile translation or localized version.",
           "type": "array",
           "items": {
             "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/languageEntry" }]
@@ -76,6 +77,11 @@
           "description": "Published LinkedIn sections that do not fit one of the standard fields. Preserve their original heading and complete visible content.",
           "type": "array",
           "items": { "$ref": "#/$defs/additionalSection" }
+        },
+        "variants": {
+          "description": "Additional public snapshots in explicitly recorded languages. Each item is independent; do not assume or translate the main snapshot.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/localizedProfile" }
         }
       },
       "additionalProperties": true
@@ -106,6 +112,11 @@
           "sectionLabel": {
             "description": "Last known title of the additional section, retained so an audit remains understandable if that section is removed.",
             "type": "string"
+          },
+          "variantId": {
+            "description": "Stable ID of the localized published profile this audit targets. Omit for the main published profile.",
+            "type": "string",
+            "minLength": 1
           },
           "targetEntryId": {
             "description": "Stable ID of the exact published list entry targeted by proposedText, when available.",
@@ -149,6 +160,80 @@
   },
   "additionalProperties": true,
   "$defs": {
+    "localizedProfile": {
+      "type": "object",
+      "required": [
+        "id",
+        "language",
+        "headline",
+        "about",
+        "experience",
+        "education",
+        "skills",
+        "certifications",
+        "projects",
+        "featured"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "language": { "type": "string", "minLength": 1 },
+        "lastUpdated": { "type": "string" },
+        "name": { "type": "string" },
+        "headline": { "type": "string" },
+        "about": { "type": "string" },
+        "experience": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/experienceEntry" }
+            ]
+          }
+        },
+        "education": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/educationEntry" }
+            ]
+          }
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/languageEntry" }]
+          }
+        },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "certifications": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/certificationEntry" }
+            ]
+          }
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/projectEntry" }]
+          }
+        },
+        "featured": {
+          "type": "array",
+          "items": {
+            "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/featuredEntry" }]
+          }
+        },
+        "additionalSections": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/additionalSection" }
+        }
+      },
+      "additionalProperties": true
+    },
     "experienceEntry": {
       "type": "object",
       "minProperties": 1,

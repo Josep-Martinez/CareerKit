@@ -39,6 +39,8 @@ Los elementos del perfil y las vacantes usan IDs estables (`id`, UUID recomendad
 
 `linkedin.json.published.languages` guarda idiomas por separado. Las entradas de experiencia, educación, certificaciones, proyectos, idiomas y destacados aceptan campos estructurados; las cadenas de versiones antiguas siguen siendo válidas. También se guardan modalidad del puesto (`workplaceType`), aptitudes asociadas y el indicador booleano `descriptionTruncated` cuando la fuente muestra un texto cortado. Las secciones publicadas que no encajen en esos campos se conservan en `published.additionalSections`, cada una con un título original, su contenido completo y un ID estable. El esquema comprueba los tipos de cada campo conocido y conserva propiedades adicionales. La transcripción desde un archivo mantiene el texto visible y marca las descripciones truncadas para no confundirlas con contenido completo.
 
+`published.variants[]` guarda copias públicas independientes en otros idiomas, con identificador estable y el idioma indicado. La app permite crear una versión vacía en español o inglés y editarla sin copiar ni traducir automáticamente el perfil principal. Las auditorías pueden vincularse a una versión con `variantId`; `published.languages` sigue refiriéndose a idiomas hablados.
+
 ### Instrucciones para asistentes de programación locales
 
 1. El agente local puede leer y editar los JSON de `private-data/` cuando la tarea que solicita el usuario lo requiera. Si no tiene acceso local, pide al usuario que abra el proyecto o deja claro que no guardaste cambios.

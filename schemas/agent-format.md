@@ -12,6 +12,8 @@ Los cinco módulos son JSON UTF-8 independientes y cada uno se valida con su pro
 
 Las plantillas en `../templates/` muestran la forma mínima vacía. No contienen datos de muestra. Mantén identificadores al editar y elimina una evidencia solo si el usuario lo solicita; antes de hacerlo, revisa referencias desde las vacantes.
 
+`linkedin.json.published.languages` son idiomas que aparecen en la sección pública de idiomas de LinkedIn. Para copias públicas del perfil en más de un idioma, usa `published.variants[]`, con un `id` estable, el código o nombre de `language` y la misma estructura de contenido que el perfil principal. Cada versión es independiente: no traduzcas ni copies el perfil principal automáticamente. `audits[].variantId` relaciona una auditoría con una versión concreta; omítelo para el perfil principal. Si se elimina una versión, conserva sus auditorías y avisa de que el destino ya no está disponible.
+
 ## Evidencias para adaptar un CV
 
 Cuando el usuario pida actualizar las bases generales, compara `profile.json` con la copia publicada de `linkedin.json` y las versiones de `cv.json`. Usa objetivos y hechos confirmados marcados como evidencia para CV; no incluyas información interna ni pendiente de confirmar. Mantén ambas versiones independientes y sus idiomas correctos. Si las fuentes discrepan, señala el hecho concreto y pide confirmación antes de actualizarlo. No cambies la copia publicada de LinkedIn. La sección CV de la app es de consulta; un agente local puede actualizar `cv.json` solo si el usuario lo solicita y tiene acceso local.
