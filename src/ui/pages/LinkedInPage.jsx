@@ -98,6 +98,7 @@ export function LinkedInPage({
   profile,
   state,
   warning,
+  onOpenEvidence,
   onSave,
   onReload,
 }) {
@@ -390,6 +391,7 @@ export function LinkedInPage({
           <AuditPoints
             notes={auditNotes('headline')}
             evidence={evidenceItems}
+            onOpenEvidence={onOpenEvidence}
           />
           <TextField
             label={copy.sectionLabels.about}
@@ -397,7 +399,11 @@ export function LinkedInPage({
             value={pub.about}
             onChange={(v) => setPub('about', v)}
           />
-          <AuditPoints notes={auditNotes('about')} evidence={evidenceItems} />
+          <AuditPoints
+            notes={auditNotes('about')}
+            evidence={evidenceItems}
+            onOpenEvidence={onOpenEvidence}
+          />
           <div className="linkedin-edit-sections">
             {previewKeys.map((key) => (
               <LinkedInListEditor
@@ -407,7 +413,11 @@ export function LinkedInPage({
                 items={pub[key]}
                 onChange={(v) => setPub(key, v)}
               >
-                <AuditPoints notes={auditNotes(key)} evidence={evidenceItems} />
+                <AuditPoints
+                  notes={auditNotes(key)}
+                  evidence={evidenceItems}
+                  onOpenEvidence={onOpenEvidence}
+                />
               </LinkedInListEditor>
             ))}
           </div>
@@ -462,6 +472,7 @@ export function LinkedInPage({
                 <AuditPoints
                   notes={auditNotes('additionalSections', section.id)}
                   evidence={evidenceItems}
+                  onOpenEvidence={onOpenEvidence}
                 />
                 <button
                   className="button quiet linkedin-remove-entry"
@@ -510,6 +521,7 @@ export function LinkedInPage({
                   evidence={evidenceItems}
                   additionalSections={additionalSections}
                   published={pub}
+                  onOpenEvidence={onOpenEvidence}
                   onApply={() => applyAudit(index)}
                   onChange={(part) => updateAudit(index, part)}
                   onDelete={() => removeAudit(index)}
@@ -576,6 +588,7 @@ export function LinkedInPage({
                 <AuditPoints
                   notes={auditNotes('headline')}
                   evidence={evidenceItems}
+                  onOpenEvidence={onOpenEvidence}
                 />
                 {(pub.about.trim() || auditNotes('about').length > 0) && (
                   <PreviewSection title={copy.sectionLabels.about}>
@@ -583,6 +596,7 @@ export function LinkedInPage({
                     <AuditPoints
                       notes={auditNotes('about')}
                       evidence={evidenceItems}
+                      onOpenEvidence={onOpenEvidence}
                     />
                   </PreviewSection>
                 )}
@@ -608,6 +622,7 @@ export function LinkedInPage({
                       <AuditPoints
                         notes={auditNotes(key)}
                         evidence={evidenceItems}
+                        onOpenEvidence={onOpenEvidence}
                       />
                     </PreviewSection>
                   ))}
@@ -624,7 +639,11 @@ export function LinkedInPage({
                           {section.content}
                         </p>
                       )}
-                      <AuditPoints notes={notes} evidence={evidenceItems} />
+                      <AuditPoints
+                        notes={notes}
+                        evidence={evidenceItems}
+                        onOpenEvidence={onOpenEvidence}
+                      />
                     </PreviewSection>
                   )
                 })}
@@ -807,7 +826,7 @@ function PreviewSection({ title, children }) {
   )
 }
 
-function AuditPoints({ notes, evidence }) {
+function AuditPoints({ notes, evidence, onOpenEvidence }) {
   if (!notes.length) return null
   return (
     <div className="preview-audit-points">
@@ -817,11 +836,7 @@ function AuditPoints({ notes, evidence }) {
           const linked = evidence.filter((item) =>
             (note.profileEvidenceIds || []).includes(item.id),
           )
-          const basis = linked.length
-            ? linked
-                .map((item) => item.title || item.name || item.id)
-                .join(' · ')
-            : (note.profileEvidenceIds || []).join(' · ')
+          const basis = (note.profileEvidenceIds || []).join(' · ')
           return (
             <li key={note.id}>
               <b>
@@ -835,9 +850,35 @@ function AuditPoints({ notes, evidence }) {
               )}
               <small>
                 {note.reasonEvidence ? `${note.reasonEvidence} · ` : ''}
-                {basis
-                  ? `${copy.evidenceBasePrefix}: ${basis}`
-                  : copy.missingEvidenceHint}{' '}
+                {basis ? (
+                  <>
+                    {copy.evidenceBasePrefix}:{' '}
+                    {linked.length ? (
+                      <span className="preview-audit-evidence-links">
+                        {linked.map((item, index) => (
+                          <span key={item.id}>
+                            {index > 0 && ' · '}
+                            {onOpenEvidence ? (
+                              <button
+                                className="preview-audit-evidence-link"
+                                type="button"
+                                onClick={() => onOpenEvidence(item.id)}
+                              >
+                                {item.title || item.name || item.id}
+                              </button>
+                            ) : (
+                              item.title || item.name || item.id
+                            )}
+                          </span>
+                        ))}
+                      </span>
+                    ) : (
+                      basis
+                    )}
+                  </>
+                ) : (
+                  copy.missingEvidenceHint
+                )}{' '}
                 · {copy.auditPriority}{' '}
                 {copy.auditCard.priorities[note.priority] ||
                   copy.auditCard.priorities.media}{' '}
@@ -856,6 +897,7 @@ function AuditCard({
   evidence,
   additionalSections,
   published,
+  onOpenEvidence,
   onApply,
   onChange,
   onDelete,
@@ -1169,6 +1211,24 @@ function AuditCard({
           hint={labels.evidenceIdsHint}
         />
       </fieldset>
+      {onOpenEvidence &&
+        evidence.some((entry) => selectedIds.includes(entry.id)) && (
+          <div className="audit-open-evidence">
+            {evidence
+              .filter((entry) => selectedIds.includes(entry.id))
+              .map((entry) => (
+                <button
+                  className="text-button"
+                  key={entry.id}
+                  type="button"
+                  onClick={() => onOpenEvidence(entry.id)}
+                >
+                  {labels.openInProfile}:{' '}
+                  {entry.title || entry.name || entry.id}
+                </button>
+              ))}
+          </div>
+        )}
       <TextField
         label={labels.recommendation}
         rows={2}

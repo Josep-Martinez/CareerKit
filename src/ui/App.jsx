@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { EMPTY } from '../data/catalog.js'
 import { NAV, STRINGS as s, TITLES } from '../i18n/es.js'
 import { useStorageState } from '../data/storage.js'
@@ -27,6 +27,8 @@ export default function App() {
   const [folderDialog, setFolderDialog] = useState(null)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [vacancyId, setVacancyId] = useState(null)
+  const [focusEvidenceId, setFocusEvidenceId] = useState('')
+  const clearFocusEvidenceId = useCallback(() => setFocusEvidenceId(''), [])
   const [confirmDisconnect, setConfirmDisconnect] = useState(false)
   const [cvPromptPending, setCvPromptPending] = useState(false)
   const [connecting, setConnecting] = useState(false)
@@ -40,6 +42,13 @@ export default function App() {
   function remindCvPrompt(message) {
     setCvPromptPending(true)
     showNotice(message, 'cv-prompt')
+  }
+
+  function openProfileEvidence(evidenceId) {
+    setFocusEvidenceId(evidenceId)
+    setPage('profile')
+    setVacancyId(null)
+    setMobileNavOpen(false)
   }
 
   async function reload(module) {
@@ -464,6 +473,8 @@ export default function App() {
               value={store.data.profile}
               state={store.states.profile}
               warning={store.warnings.profile}
+              focusEvidenceId={focusEvidenceId}
+              onEvidenceFocusComplete={clearFocusEvidenceId}
               onSave={(v) => save('profile', v)}
               onReload={() => reload('profile')}
             />
@@ -474,6 +485,7 @@ export default function App() {
               profile={store.data.profile}
               state={store.states.linkedin}
               warning={store.warnings.linkedin}
+              onOpenEvidence={openProfileEvidence}
               onSave={(v) => save('linkedin', v)}
               onReload={() => reload('linkedin')}
             />

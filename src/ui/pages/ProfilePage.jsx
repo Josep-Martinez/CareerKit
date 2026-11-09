@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import {
   ArrayText,
@@ -8,6 +9,7 @@ import {
 } from '../components/FormPrimitives.jsx'
 import { id } from '../utils.js'
 import { STRINGS as s } from '../../i18n/es.js'
+import { profileEvidenceAnchorId } from '../profile-evidence.js'
 
 const personalFields = [
   { key: 'aboutMe', rows: 4, hint: s.profilePage.aboutMeHint },
@@ -65,8 +67,32 @@ function contentCountLabel(count, singular, plural) {
   return `${count} ${count === 1 ? singular : plural}`
 }
 
-export function ProfilePage({ value, state, warning, onSave, onReload }) {
+export function ProfilePage({
+  value,
+  state,
+  warning,
+  focusEvidenceId,
+  onEvidenceFocusComplete,
+  onSave,
+  onReload,
+}) {
   const [draft, setDraft] = useDraft(value)
+  useEffect(() => {
+    if (!focusEvidenceId) return undefined
+    const frame = window.requestAnimationFrame(() => {
+      const target = document.getElementById(
+        profileEvidenceAnchorId(focusEvidenceId),
+      )
+      if (target) {
+        const disclosure = target.closest('details')
+        if (disclosure) disclosure.open = true
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        target.focus({ preventScroll: true })
+      }
+      onEvidenceFocusComplete?.()
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [focusEvidenceId, onEvidenceFocusComplete])
   const update = (key, val) =>
     setDraft((current) => ({ ...current, [key]: val }))
   const updateNested = (objectKey, key, val) =>
@@ -265,7 +291,13 @@ export function ProfilePage({ value, state, warning, onSave, onReload }) {
                   </button>
                 )}
                 {(draft[key] || []).map((item, i) => (
-                  <div className="item-card" key={item.id || i}>
+                  <div
+                    className="item-card"
+                    key={item.id || i}
+                    id={item.id ? profileEvidenceAnchorId(item.id) : undefined}
+                    tabIndex={item.id ? -1 : undefined}
+                    aria-label={`${s.profilePage.collectionLabels[key]} · ${item.title || item.name || s.profilePage.itemLabel}`}
+                  >
                     <div className="item-heading">
                       <span>
                         {item.type === 'star-story'

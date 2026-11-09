@@ -552,6 +552,7 @@ export const STRINGS = {
       relatedEvidence: 'Evidencias relacionadas',
       untitledEvidence: 'Sin título',
       noEvidence: 'Añade primero evidencias o aprendizajes en Perfil.',
+      openInProfile: 'Abrir en Perfil',
       otherEvidenceIds: 'Otros IDs de perfil/aprendizajes',
       evidenceIdsHint: 'Los IDs deben existir en profile.json.',
       recommendation: 'Qué corregir o añadir',
