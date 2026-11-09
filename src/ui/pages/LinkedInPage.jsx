@@ -106,6 +106,7 @@ export function LinkedInPage({
   onReload,
 }) {
   const [draft, setDraft] = useDraft(value)
+  const hasUnsavedChanges = JSON.stringify(draft) !== JSON.stringify(value)
   const [view, setView] = useState('edit')
   const [applyNotice, setApplyNotice] = useState('')
   const [activeVariantId, setActiveVariantId] = useState('')
@@ -404,7 +405,7 @@ export function LinkedInPage({
               {copy.previewButton}
             </button>
           </div>
-          {view === 'edit' && (
+          {view === 'edit' && hasUnsavedChanges && (
             <button
               className="button primary small linkedin-mode-save"
               type="button"
@@ -586,12 +587,15 @@ export function LinkedInPage({
               </p>
             )}
           </section>
-          <button
-            className="button primary save-button"
-            onClick={saveLinkedInDraft}
-          >
-            {copy.save}
-          </button>
+          {hasUnsavedChanges && (
+            <button
+              className="button primary save-button"
+              type="button"
+              onClick={saveLinkedInDraft}
+            >
+              {copy.save}
+            </button>
+          )}
         </section>
       ) : (
         <section
