@@ -13,6 +13,7 @@ export function useDraft(
   useLayoutEffect(() => {
     setEditor((current) => {
       if (current.base === value) return current
+      if (sameDraft(current.base, value)) return { ...current, base: value }
       if (
         savedDraft &&
         current.base === savedDraft.base &&
