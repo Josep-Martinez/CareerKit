@@ -108,6 +108,8 @@ export function LinkedInPage({
   const [activeVariantId, setActiveVariantId] = useState('')
   const rootPublished = draft.published
   const variants = rootPublished.variants || []
+  const primaryLanguage = languageBase(rootPublished.language)
+  const hasPrimaryLanguage = ['es', 'en'].includes(primaryLanguage)
   const activeVariant = variants.find(
     (variant) => variant.id === activeVariantId,
   )
@@ -143,6 +145,29 @@ export function LinkedInPage({
     setActiveVariantId(variant.id)
     setApplyNotice('')
     setView('edit')
+  }
+  const selectLanguage = (language) => {
+    setApplyNotice('')
+    if (!hasPrimaryLanguage) {
+      setActiveVariantId('')
+      setPub('language', language)
+      setView('edit')
+      return
+    }
+    if (primaryLanguage === language) {
+      setActiveVariantId('')
+      setView('edit')
+      return
+    }
+    const matchingVariant = variants.find(
+      (variant) => languageBase(variant.language) === language,
+    )
+    if (matchingVariant) {
+      setActiveVariantId(matchingVariant.id)
+      setView('edit')
+      return
+    }
+    createVariant(language)
   }
   const isEditingVariant = (variantId) => (variantId || '') === activeVariantId
   const evidenceItems = PROFILE_EVIDENCE_KEYS.flatMap((key) =>
@@ -296,51 +321,81 @@ export function LinkedInPage({
         subtitle={copy.subtitle}
       />
       <Status state={state} warning={warning} onReload={onReload} />
-      <div className="linkedin-variant-row">
-        <label className="field linkedin-variant-picker">
-          <span>{copy.variantSelector}</span>
-          <select
-            value={activeVariantId}
-            onChange={(event) => {
-              setActiveVariantId(event.target.value)
-              setApplyNotice('')
-            }}
-          >
-            <option value="">{copy.primaryVariant}</option>
-            {variants.map((variant) => (
-              <option key={variant.id} value={variant.id}>
-                {copy.variantLanguageNames[languageBase(variant.language)] ||
-                  variant.language}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="linkedin-variant-actions">
-          <span>{copy.addVariantLabel}</span>
-          {!variants.some(
-            (variant) => languageBase(variant.language) === 'es',
-          ) && (
-            <button
-              className="button secondary small"
-              type="button"
-              onClick={() => createVariant('es')}
-            >
-              {copy.addSpanishVariant}
-            </button>
-          )}
-          {!variants.some(
-            (variant) => languageBase(variant.language) === 'en',
-          ) && (
-            <button
-              className="button secondary small"
-              type="button"
-              onClick={() => createVariant('en')}
-            >
-              {copy.addEnglishVariant}
-            </button>
-          )}
-          <p>{copy.variantIsolationHint}</p>
+      <div className="linkedin-language-panel">
+        <div className="linkedin-language-copy">
+          <span className="eyebrow">
+            {hasPrimaryLanguage
+              ? copy.languageEyebrow
+              : copy.languageAssignmentEyebrow}
+          </span>
+          <h2>
+            {hasPrimaryLanguage
+              ? copy.languageTitle
+              : copy.languageAssignmentTitle}
+          </h2>
+          <p>
+            {hasPrimaryLanguage
+              ? copy.languageDescription
+              : copy.languageAssignmentDescription}
+          </p>
         </div>
+        <div
+          className="linkedin-language-switch"
+          role="group"
+          aria-label={copy.languageSwitcherLabel}
+        >
+          {['es', 'en'].map((language) => {
+            const variant = variants.find(
+              (item) => languageBase(item.language) === language,
+            )
+            const isPrimary = primaryLanguage === language
+            const isActive = activeVariant
+              ? activeVariant.id === variant?.id
+              : isPrimary
+            const languageExists = isPrimary || Boolean(variant)
+            return (
+              <button
+                key={language}
+                className={`linkedin-language-option${isActive ? ' active' : ''}${!languageExists && hasPrimaryLanguage ? ' add' : ''}`}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => selectLanguage(language)}
+              >
+                {!languageExists && hasPrimaryLanguage && (
+                  <span className="linkedin-language-plus" aria-hidden="true">
+                    +
+                  </span>
+                )}
+                <span className="linkedin-language-code" aria-hidden="true">
+                  {language.toUpperCase()}
+                </span>
+                <span>{copy.variantLanguageNames[language]}</span>
+              </button>
+            )
+          })}
+        </div>
+        {activeVariant && (
+          <label className="linkedin-language-status">
+            <span>{copy.publicationStatusLabel}</span>
+            <select
+              value={activeVariant.publicationStatus || ''}
+              onChange={(event) =>
+                setPub('publicationStatus', event.target.value || undefined)
+              }
+            >
+              <option value="">{copy.publicationStatusUnknown}</option>
+              <option value="draft">{copy.publicationStatusDraft}</option>
+              <option value="published">
+                {copy.publicationStatusPublished}
+              </option>
+            </select>
+          </label>
+        )}
+        <p className="linkedin-language-hint">
+          {hasPrimaryLanguage
+            ? copy.variantIsolationHint
+            : copy.languageAssignmentHint}
+        </p>
       </div>
       <div className="linkedin-mode-row">
         <div
@@ -374,8 +429,16 @@ export function LinkedInPage({
           aria-labelledby="linkedin-edit-title"
         >
           <div className="linkedin-form-intro">
-            <span className="eyebrow">{copy.formEyebrow}</span>
-            <h2 id="linkedin-edit-title">{copy.formTitle}</h2>
+            <span className="eyebrow">
+              {activeVariant?.publicationStatus === 'draft'
+                ? copy.draftEyebrow
+                : copy.formEyebrow}
+            </span>
+            <h2 id="linkedin-edit-title">
+              {activeVariant?.publicationStatus === 'draft'
+                ? copy.draftFormTitle
+                : copy.formTitle}
+            </h2>
             <p>{copy.formDescription}</p>
           </div>
           <TextField

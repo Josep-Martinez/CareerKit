@@ -147,6 +147,8 @@ const validLinkedInVariant = (value) =>
   value.id.length > 0 &&
   typeof value.language === 'string' &&
   value.language.length > 0 &&
+  (value.publicationStatus === undefined ||
+    ['draft', 'published'].includes(value.publicationStatus)) &&
   optionalStrings(value, ['name', 'lastUpdated']) &&
   typeof value.headline === 'string' &&
   typeof value.about === 'string' &&
@@ -271,7 +273,7 @@ const validators = {
     ),
   linkedin: (d) =>
     isRecord(d.published) &&
-    optionalStrings(d.published, ['name']) &&
+    optionalStrings(d.published, ['name', 'language']) &&
     isLinkedInAdditionalSections(d.published.additionalSections) &&
     (d.published.variants === undefined ||
       (Array.isArray(d.published.variants) &&
@@ -380,7 +382,8 @@ const hasLocalizedProfileContent = (variants = []) =>
   variants.some((variant) => {
     const content = Object.fromEntries(
       Object.entries(variant).filter(
-        ([key]) => !['id', 'language', 'lastUpdated'].includes(key),
+        ([key]) =>
+          !['id', 'language', 'publicationStatus', 'lastUpdated'].includes(key),
       ),
     )
     return Boolean(variant.lastUpdated?.trim()) || hasMeaningfulValue(content)
@@ -1014,6 +1017,7 @@ function findUnknown(name, data) {
     linkedin: {
       published: [
         'name',
+        'language',
         'headline',
         'about',
         'experience',
@@ -1029,6 +1033,7 @@ function findUnknown(name, data) {
       localizedProfile: [
         'id',
         'language',
+        'publicationStatus',
         'lastUpdated',
         'name',
         'headline',

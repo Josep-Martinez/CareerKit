@@ -21,6 +21,10 @@
       ],
       "properties": {
         "name": { "type": "string" },
+        "language": {
+          "description": "Language of this main published profile snapshot, using es or en when known.",
+          "type": "string"
+        },
         "headline": { "type": "string" },
         "about": { "type": "string" },
         "experience": {
@@ -79,7 +83,7 @@
           "items": { "$ref": "#/$defs/additionalSection" }
         },
         "variants": {
-          "description": "Additional public snapshots in explicitly recorded languages. Each item is independent; do not assume or translate the main snapshot.",
+          "description": "The same LinkedIn profile in another language. Each language has its own text snapshot; publicationStatus distinguishes a published snapshot from a working draft.",
           "type": "array",
           "items": { "$ref": "#/$defs/localizedProfile" }
         }
@@ -177,6 +181,7 @@
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "language": { "type": "string", "minLength": 1 },
+        "publicationStatus": { "enum": ["draft", "published"] },
         "lastUpdated": { "type": "string" },
         "name": { "type": "string" },
         "headline": { "type": "string" },

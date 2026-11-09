@@ -8,6 +8,7 @@ test('creates a blank language version without copying the main profile', () => 
   assert.deepEqual(version, {
     id: 'variant-en',
     language: 'en',
+    publicationStatus: 'draft',
     name: '',
     headline: '',
     about: '',

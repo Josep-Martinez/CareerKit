@@ -31,9 +31,13 @@ version without changing its meaning.
 - For profile fields, keep both versions independently clear and readable.
   The Spanish translation may need a different character count; verify each
   version against current platform limits when exact limits matter.
-- In CareerKit, public language versions are separate `published.variants[]`
-  snapshots. Keep every draft scoped to its language and write to a published
-  snapshot only when the user asks; never copy or translate it automatically.
+- In CareerKit, Spanish and English are language versions of the same LinkedIn
+  profile. The main snapshot records its language in `published.language`; the
+  other language uses a separate `published.variants[]` snapshot. Keep each
+  text scoped to its language and write only when the user asks. Do not copy or
+  translate a published snapshot automatically. Keep a newly prepared but
+  unpublished language version marked `publicationStatus: "draft"`; change it
+  to `published` only after the user confirms publication.
 - If the user explicitly asks for only one language, follow that request.
 
 ## Context and review

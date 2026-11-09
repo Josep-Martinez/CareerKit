@@ -475,19 +475,31 @@ export const STRINGS = {
     subtitle:
       'Conserva el contenido publicado y anota qué corregir o añadir, con su base en perfil y aprendizajes.',
     modeLabel: 'Vista de LinkedIn',
-    variantSelector: 'Versión del perfil publicado',
-    primaryVariant: 'Perfil principal',
-    variantLanguageNames: { es: 'Español', en: 'Inglés' },
-    addVariantLabel: 'Añadir una versión vacía',
-    addSpanishVariant: 'En español',
-    addEnglishVariant: 'En inglés',
+    languageEyebrow: 'UN PERFIL · DOS IDIOMAS',
+    languageTitle: 'Elige el idioma que quieres ver',
+    languageDescription:
+      'Es el mismo perfil profesional. Aquí se muestra un idioma cada vez.',
+    languageAssignmentEyebrow: 'CONFIGURA EL IDIOMA',
+    languageAssignmentTitle: '¿En qué idioma está este perfil?',
+    languageAssignmentDescription:
+      'Esto etiqueta el texto que ya tienes; no lo modifica ni lo traduce.',
+    languageSwitcherLabel: 'Idioma del perfil de LinkedIn',
+    variantLanguageNames: { es: 'Español', en: 'English' },
     variantIsolationHint:
-      'Cada versión se guarda por separado; no se copia ni se traduce texto.',
+      'Las dos versiones viven en linkedin.json y guardan texto separado. Tras editar una, usa el prompt del Buzón para revisar y actualizar la otra.',
+    languageAssignmentHint:
+      'Selecciona el idioma del contenido actual. Después podrás crear la versión del otro idioma.',
+    publicationStatusLabel: 'Estado de esta versión',
+    publicationStatusUnknown: 'Sin indicar',
+    publicationStatusDraft: 'Borrador · aún no publicado',
+    publicationStatusPublished: 'Publicado en LinkedIn',
     editButton: 'Editar',
     previewButton: 'Vista previa',
     separationNotice: 'La copia publicada y las notas se guardan por separado.',
     formEyebrow: 'COPIA FIEL',
     formTitle: 'Contenido publicado',
+    draftEyebrow: 'VERSIÓN DE TRABAJO',
+    draftFormTitle: 'Contenido de la versión',
     formDescription:
       'Escribe cada sección como aparece en tu perfil. Las propuestas de revisión no cambian este contenido.',
     nameLabel: 'Nombre que aparece en LinkedIn',

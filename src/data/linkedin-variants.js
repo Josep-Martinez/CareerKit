@@ -2,6 +2,7 @@ export function createEmptyLinkedInVariant(id, language) {
   return {
     id,
     language,
+    publicationStatus: 'draft',
     name: '',
     headline: '',
     about: '',
