@@ -21,3 +21,7 @@ Cuando el usuario pida valorar una oferta, usa la vacante seleccionada de `vacan
 Si no tienes acceso local a los JSON, pide al usuario que abra la carpeta o comparta los datos necesarios y deja claro que no pudiste leerlos ni guardarlos. No guardes contenido personal en archivos versionados.
 
 La app convierte un CV v1 en memoria y conserva su contenido en `previousVersion` sin modificar el archivo original. El cambio a v2 solo se escribe cuando el usuario lo solicita. Si el objeto v1 contiene `versions` o `previousVersion`, no lo migres automáticamente: informa del conflicto. También prepara las vacantes v1 para v2 añadiendo una recomendación vacía en memoria; solo modifica `vacancies.json` cuando el usuario guarda. Un `cvAdvice` existente que no cumpla el esquema debe dejar el fichero intacto y reportarse.
+
+## Aplicar propuestas de auditoría de LinkedIn
+
+Una anotación no modifica `published` al guardarse. Cuando `proposedText` deba sustituir un texto concreto, rellena `targetField`; para listas, especifica la entrada mediante `targetEntryId` o, si no tiene ID, `targetEntryIndex`. Para una entrada de texto simple usa `targetField: "value"`. En `additionalSections`, enlaza `sectionId` y apunta a `content` o `title`. La interfaz muestra el valor actual y la propuesta, pide confirmación y, solo si el usuario confirma, cambia ese campo y marca la nota como aplicada. Si el destino no es inequívoco, deja la propuesta como guía manual sin asignar un destino.

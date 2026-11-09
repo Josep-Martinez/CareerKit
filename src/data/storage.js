@@ -264,6 +264,15 @@ const validators = {
             item.sectionId.length > 0)) &&
         (item.sectionLabel === undefined ||
           typeof item.sectionLabel === 'string') &&
+        (item.targetEntryId === undefined ||
+          (typeof item.targetEntryId === 'string' &&
+            item.targetEntryId.length > 0)) &&
+        (item.targetEntryIndex === undefined ||
+          (Number.isInteger(item.targetEntryIndex) &&
+            item.targetEntryIndex >= 0)) &&
+        (item.targetField === undefined ||
+          (typeof item.targetField === 'string' &&
+            item.targetField.length > 0)) &&
         ['alta', 'media', 'baja'].includes(item.priority) &&
         optionalStrings(item, [
           'problem',
@@ -1054,6 +1063,9 @@ function findUnknown(name, data) {
         'section',
         'sectionId',
         'sectionLabel',
+        'targetEntryId',
+        'targetEntryIndex',
+        'targetField',
         'action',
         'priority',
         'problem',

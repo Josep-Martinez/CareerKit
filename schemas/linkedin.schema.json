@@ -107,6 +107,21 @@
             "description": "Last known title of the additional section, retained so an audit remains understandable if that section is removed.",
             "type": "string"
           },
+          "targetEntryId": {
+            "description": "Stable ID of the exact published list entry targeted by proposedText, when available.",
+            "type": "string",
+            "minLength": 1
+          },
+          "targetEntryIndex": {
+            "description": "Zero-based index of the exact published list entry targeted by proposedText when that entry has no stable ID.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "targetField": {
+            "description": "Exact text field targeted by proposedText. Use value for a plain string item.",
+            "type": "string",
+            "minLength": 1
+          },
           "action": { "enum": ["corregir", "anadir", "aclarar"] },
           "priority": { "enum": ["alta", "media", "baja"] },
           "problem": { "type": "string" },

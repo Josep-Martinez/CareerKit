@@ -416,6 +416,29 @@ select {
 .audit-card {
   border-left: 3px solid #66846c;
 }
+.audit-target-fields {
+  margin-bottom: 14px;
+}
+.audit-apply-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.audit-apply-row .quiet-empty {
+  margin: 0;
+}
+.linkedin-apply-notice {
+  margin: 12px 0 18px;
+  padding: 10px 13px;
+  border-left: 3px solid #66846c;
+  border-radius: 5px;
+  background: #edf2eb;
+  color: #315c47;
+  font-size: 13px;
+  line-height: 1.5;
+}
 .audit-evidence {
   border: 1px solid #e1ded3;
   border-radius: 4px 8px 4px 8px;

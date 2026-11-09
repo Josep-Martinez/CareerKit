@@ -557,6 +557,24 @@ export const STRINGS = {
         aplicada: 'Aplicada',
         descartada: 'Descartada',
       },
+      proposalTarget: 'Campo al que se aplicará el texto',
+      additionalContent: 'Contenido',
+      additionalTitle: 'Título de la sección',
+      targetEntry: 'Entrada concreta',
+      chooseTargetEntry: 'Selecciona una entrada',
+      targetField: 'Campo concreto',
+      chooseTargetField: 'Selecciona un campo',
+      plainTextValue: 'Texto completo de esta entrada',
+      chooseExactTarget:
+        'Selecciona la entrada y el campo exactos para poder aplicar este texto con seguridad.',
+      applyProposal: 'Revisar y aplicar propuesta',
+      applyConfirmation:
+        'Se sustituirá únicamente el campo seleccionado. ¿Quieres aplicar el cambio?',
+      currentText: 'Texto actual',
+      applyTargetUnavailable:
+        'No se aplicó la propuesta: el destino ya no está disponible o no es válido.',
+      applySuccess:
+        'Propuesta aplicada al campo seleccionado. Guarda los cambios para escribirlos en linkedin.json.',
     },
     evidenceLabels: {
       experience: 'Experiencia',

@@ -8,6 +8,11 @@ import {
 } from '../components/FormPrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
 import { id } from '../utils.js'
+import {
+  applyLinkedInAuditProposal,
+  LINKEDIN_AUDIT_FIELDS,
+  resolveLinkedInAuditTarget,
+} from '../../data/linkedin-audit.js'
 
 const copy = s.linkedinPage
 const LINKEDIN_SECTION_KEYS = [
@@ -96,6 +101,7 @@ export function LinkedInPage({
 }) {
   const [draft, setDraft] = useDraft(value)
   const [view, setView] = useState('edit')
+  const [applyNotice, setApplyNotice] = useState('')
   const pub = draft.published
   const additionalSections = pub.additionalSections || []
   const setPub = (key, val) =>
@@ -176,6 +182,28 @@ export function LinkedInPage({
   }
   const removeAudit = (index) =>
     setDraft({ ...draft, audits: draft.audits.filter((_, n) => n !== index) })
+  const applyAudit = (index) => {
+    const item = draft.audits[index]
+    const result = applyLinkedInAuditProposal(pub, item)
+    if (result.error) {
+      setApplyNotice(copy.auditCard.applyTargetUnavailable)
+      return
+    }
+    const confirmation = [
+      copy.auditCard.applyConfirmation,
+      `${copy.auditCard.currentText}: ${result.beforeValue || '—'}`,
+      `${copy.proposedTextPrefix}: ${item.proposedText}`,
+    ].join('\n\n')
+    if (!window.confirm(confirmation)) return
+    setDraft({
+      ...draft,
+      published: { ...draft.published, ...result.published },
+      audits: draft.audits.map((audit, auditIndex) =>
+        auditIndex === index ? { ...audit, status: 'aplicada' } : audit,
+      ),
+    })
+    setApplyNotice(copy.auditCard.applySuccess)
+  }
   const previewKeys = [
     'experience',
     'education',
@@ -380,12 +408,19 @@ export function LinkedInPage({
                 item={item}
                 evidence={evidenceItems}
                 additionalSections={additionalSections}
+                published={pub}
+                onApply={() => applyAudit(i)}
                 onChange={(part) => updateAudit(i, part)}
                 onDelete={() => removeAudit(i)}
               />
             ))}
             {!draft.audits.length && (
               <p className="quiet-empty">{copy.emptyAudit}</p>
+            )}
+            {applyNotice && (
+              <p className="linkedin-apply-notice" role="status">
+                {applyNotice}
+              </p>
             )}
           </section>
           <button
@@ -714,7 +749,15 @@ function AuditPoints({ notes, evidence }) {
   )
 }
 
-function AuditCard({ item, evidence, additionalSections, onChange, onDelete }) {
+function AuditCard({
+  item,
+  evidence,
+  additionalSections,
+  published,
+  onApply,
+  onChange,
+  onDelete,
+}) {
   const selectedIds = item.profileEvidenceIds || []
   const sectionKeys = LINKEDIN_SECTION_KEYS
   const categoryLabels = copy.evidenceLabels
@@ -730,8 +773,44 @@ function AuditCard({ item, evidence, additionalSections, onChange, onDelete }) {
       : sectionKeys.includes(item.section)
         ? item.section
         : item.section || 'about'
+  const sectionItems = Array.isArray(published[item.section])
+    ? published[item.section]
+    : []
+  const selectedEntryIndex =
+    typeof item.targetEntryId === 'string'
+      ? sectionItems.findIndex(
+          (entry) =>
+            entry &&
+            typeof entry === 'object' &&
+            entry.id === item.targetEntryId,
+        )
+      : Number.isInteger(item.targetEntryIndex)
+        ? item.targetEntryIndex
+        : -1
+  const selectedEntry = sectionItems[selectedEntryIndex]
+  const targetFieldOptions =
+    typeof selectedEntry === 'string'
+      ? ['value']
+      : (LINKEDIN_AUDIT_FIELDS[item.section] || []).filter(
+          (field) =>
+            selectedEntry &&
+            (selectedEntry[field] === undefined ||
+              typeof selectedEntry[field] === 'string'),
+        )
+  const canApply = Boolean(
+    item.status !== 'aplicada' &&
+    item.proposedText?.trim() &&
+    !resolveLinkedInAuditTarget(published, item).error,
+  )
   const clearSectionLink = (section) => {
-    onChange({ section, sectionId: undefined, sectionLabel: undefined })
+    onChange({
+      section,
+      sectionId: undefined,
+      sectionLabel: undefined,
+      targetEntryId: undefined,
+      targetEntryIndex: undefined,
+      targetField: undefined,
+    })
   }
   return (
     <div className="item-card audit-card">
@@ -763,6 +842,9 @@ function AuditCard({ item, evidence, additionalSections, onChange, onDelete }) {
                   section: 'additionalSections',
                   sectionId,
                   sectionLabel: target?.title || copy.additionalSectionFallback,
+                  targetEntryId: undefined,
+                  targetEntryIndex: undefined,
+                  targetField: 'content',
                 })
                 return
               }
@@ -825,6 +907,98 @@ function AuditCard({ item, evidence, additionalSections, onChange, onDelete }) {
           </select>
         </label>
       </div>
+      {item.section === 'additionalSections' && selectedAdditionalSection && (
+        <label className="field">
+          <span>{labels.proposalTarget}</span>
+          <select
+            value={item.targetField || 'content'}
+            onChange={(e) => onChange({ targetField: e.target.value })}
+          >
+            <option value="content">{labels.additionalContent}</option>
+            <option value="title">{labels.additionalTitle}</option>
+          </select>
+        </label>
+      )}
+      {LINKEDIN_AUDIT_FIELDS[item.section] || item.section === 'skills' ? (
+        <div className="form-two audit-target-fields">
+          <label className="field">
+            <span>{labels.targetEntry}</span>
+            <select
+              value={
+                selectedEntryIndex < 0
+                  ? ''
+                  : typeof sectionItems[selectedEntryIndex] === 'object' &&
+                      sectionItems[selectedEntryIndex]?.id
+                    ? `id:${sectionItems[selectedEntryIndex].id}`
+                    : `index:${selectedEntryIndex}`
+              }
+              onChange={(e) => {
+                const value = e.target.value
+                const isId = value.startsWith('id:')
+                const nextIndex = isId
+                  ? -1
+                  : Number(value.slice('index:'.length))
+                const nextEntry = isId
+                  ? sectionItems.find((entry) => entry?.id === value.slice(3))
+                  : sectionItems[nextIndex]
+                const fields =
+                  typeof nextEntry === 'string'
+                    ? ['value']
+                    : (LINKEDIN_AUDIT_FIELDS[item.section] || []).filter(
+                        (field) =>
+                          nextEntry &&
+                          (nextEntry[field] === undefined ||
+                            typeof nextEntry[field] === 'string'),
+                      )
+                onChange({
+                  targetEntryId: isId ? value.slice(3) : undefined,
+                  targetEntryIndex: isId ? undefined : nextIndex,
+                  targetField: fields[0] || undefined,
+                })
+              }}
+            >
+              <option value="">{labels.chooseTargetEntry}</option>
+              {sectionItems.map((entry, index) => {
+                const value =
+                  entry && typeof entry === 'object' && entry.id
+                    ? `id:${entry.id}`
+                    : `index:${index}`
+                const title =
+                  typeof entry === 'string'
+                    ? entry
+                    : entry?.title ||
+                      entry?.name ||
+                      entry?.degree ||
+                      entry?.language ||
+                      entry?.institution ||
+                      labels.untitledEvidence
+                return (
+                  <option key={value} value={value}>
+                    {`${index + 1}. ${title}`}
+                  </option>
+                )
+              })}
+            </select>
+          </label>
+          <label className="field">
+            <span>{labels.targetField}</span>
+            <select
+              value={item.targetField || ''}
+              onChange={(e) => onChange({ targetField: e.target.value })}
+              disabled={selectedEntryIndex < 0}
+            >
+              <option value="">{labels.chooseTargetField}</option>
+              {targetFieldOptions.map((field) => (
+                <option key={field} value={field}>
+                  {field === 'value'
+                    ? labels.plainTextValue
+                    : copy.entryFieldLabels[field] || field}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      ) : null}
       <label className="field">
         <span>{copy.auditPriority}</span>
         <select
@@ -905,6 +1079,21 @@ function AuditCard({ item, evidence, additionalSections, onChange, onDelete }) {
         value={item.proposedText}
         onChange={(v) => onChange({ proposedText: v })}
       />
+      <div className="audit-apply-row">
+        <button
+          className="button secondary small"
+          type="button"
+          disabled={!canApply}
+          onClick={onApply}
+        >
+          {labels.applyProposal}
+        </button>
+        {!canApply &&
+          item.proposedText?.trim() &&
+          item.status !== 'aplicada' && (
+            <p className="quiet-empty">{labels.chooseExactTarget}</p>
+          )}
+      </div>
       <div className="form-two">
         <TextField
           label={labels.date}
