@@ -6,6 +6,7 @@ import { isKnownEmpty, isKnownPopulated } from './utils.js'
 import { SectionIcon } from './components/SectionIcon.jsx'
 import { WorkspaceGate } from './components/WorkspaceGate.jsx'
 import { FallbackDialog, FolderDataDialog } from './components/DataDialogs.jsx'
+import { FallbackConnectDialog } from './components/FallbackConnectDialog.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { ProfilePage } from './pages/ProfilePage.jsx'
 import { LinkedInPage } from './pages/LinkedInPage.jsx'
@@ -19,6 +20,9 @@ export default function App() {
   const [notice, setNotice] = useState('')
   const [noticeAction, setNoticeAction] = useState(null)
   const [fallbackOpen, setFallbackOpen] = useState(false)
+  const [fallbackConnectOpen, setFallbackConnectOpen] = useState(false)
+  const [fallbackConnectBusy, setFallbackConnectBusy] = useState(false)
+  const [fallbackConnectError, setFallbackConnectError] = useState('')
   const [fallbackSavedModule, setFallbackSavedModule] = useState(null)
   const [folderDialog, setFolderDialog] = useState(null)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -55,9 +59,10 @@ export default function App() {
   function handleFallbackDownload(module) {
     if (fallbackSavedModule !== module) return
     setFallbackSavedModule(null)
+    store.markFallbackSaved(module)
     if (['profile', 'linkedin'].includes(module))
-      remindCvPrompt(s.promptInbox.fallbackSaved)
-    else showNotice(s.promptInbox.downloadPrepared)
+      remindCvPrompt(`${s.promptInbox.fallbackSaved} ${s.fallbackFiles.saved}`)
+    else showNotice(s.fallbackFiles.saved)
   }
 
   useEffect(() => {
@@ -118,11 +123,22 @@ export default function App() {
     setConnecting(true)
     try {
       const result = await store.connect(options)
-      if (result.fallback) showNotice(s.workspaceGate.browserUnsupported)
-      else if (result.localMissing) showNotice(s.workspaceGate.localMissing)
-      else if (result.wrongFolder) showNotice(s.workspaceGate.wrongFolder)
+      if (result.fallback) {
+        setFallbackConnectError('')
+        setFallbackConnectOpen(true)
+        showNotice(s.workspaceGate.browserUnsupported)
+      } else if (result.localMissing) showNotice(s.workspaceGate.localMissing)
+      else if (result.wrongFolder)
+        showNotice(
+          s.workspaceGate.wrongFolder.replace(
+            '{name}',
+            result.selectedName || 'otra carpeta',
+          ),
+        )
       else if (result.permissionDenied)
-        showNotice(s.workspaceGate.permissionNotice)
+        showNotice(s.workspaceGate.permissionNotice, 'open-data-files')
+      else if (result.cancelled)
+        showNotice(s.workspaceGate.connectCancelled, 'open-data-files')
       else if (result.connected) {
         const needsHelp = result.missing.length || result.invalid.length
         setFolderDialog(needsHelp ? result : null)
@@ -135,9 +151,33 @@ export default function App() {
                 ? s.dataConnection.reconnectedReady
                 : s.dataConnection.connectedReady,
         )
-      } else if (result.error) showNotice(s.dataConnection.connectFailed)
+      } else if (result.error)
+        showNotice(s.workspaceGate.connectUnexpected, 'open-data-files')
+    } catch {
+      showNotice(s.workspaceGate.connectUnexpected, 'open-data-files')
     } finally {
       setConnecting(false)
+    }
+  }
+  async function connectFiles(files) {
+    setFallbackConnectBusy(true)
+    setFallbackConnectError('')
+    try {
+      const result = await store.connectFiles(files)
+      if (result.error) {
+        setFallbackConnectError(s.fallbackFiles.noRecognized)
+        return
+      }
+      setFallbackConnectOpen(false)
+      showNotice(
+        result.invalid.length || result.missing.length
+          ? s.fallbackFiles.connectedWithIssues
+          : s.fallbackFiles.connected,
+      )
+    } catch {
+      setFallbackConnectError(s.fallbackFiles.openError)
+    } finally {
+      setFallbackConnectBusy(false)
     }
   }
   async function prepareMissing() {
@@ -179,9 +219,7 @@ export default function App() {
     else if (result.needsReview) setFolderDialog(await store.recheck())
     else if (result.fallback) {
       setFallbackSavedModule(module)
-      showNotice(
-        'Cambios preparados. Usa «Guardar JSON individual» para guardar este módulo en tu dispositivo.',
-      )
+      showNotice(s.fallbackFiles.savePrepared)
       setFallbackOpen(true)
     } else if (result.saved && ['profile', 'linkedin'].includes(module)) {
       setFallbackSavedModule(null)
@@ -204,19 +242,38 @@ export default function App() {
     (v) => v.id === vacancyId,
   )
 
-  if (!store.folder) {
+  if (!store.folder && !store.fallbackConnected) {
     return (
-      <WorkspaceGate
-        connecting={connecting}
-        notice={notice}
-        restoreStatus={store.restoreStatus}
-        hasRememberedFolder={store.hasRememberedFolder}
-        onConnect={() => connect()}
-        onChooseFolder={() => connect({ selectAnother: true })}
-        onConnectLocal={
-          import.meta.env.DEV ? () => connect({ useLocal: true }) : undefined
-        }
-      />
+      <>
+        <WorkspaceGate
+          connecting={connecting}
+          notice={notice}
+          noticeAction={noticeAction}
+          restoreStatus={store.restoreStatus}
+          hasRememberedFolder={store.hasRememberedFolder}
+          onConnect={() => connect()}
+          onChooseFolder={() => connect({ selectAnother: true })}
+          onConnectLocal={
+            import.meta.env.DEV ? () => connect({ useLocal: true }) : undefined
+          }
+          onOpenFiles={() => {
+            setFallbackConnectError('')
+            setFallbackConnectOpen(true)
+            showNotice('')
+          }}
+        />
+        {fallbackConnectOpen && (
+          <FallbackConnectDialog
+            busy={fallbackConnectBusy}
+            error={fallbackConnectError}
+            onClose={() => {
+              setFallbackConnectOpen(false)
+              setFallbackConnectError('')
+            }}
+            onFiles={connectFiles}
+          />
+        )}
+      </>
     )
   }
 
@@ -284,11 +341,13 @@ export default function App() {
             {store.folder ? s.changeFolder : s.connect}
           </button>
           <p className="side-note">
-            {store.rememberFailed
-              ? s.dataConnection.folderRememberFailed
-              : store.hasRememberedFolder
-                ? s.dataConnection.folderRemembered
-                : s.dataConnection.folderNotRemembered}
+            {store.fallbackConnected
+              ? s.fallbackFiles.manualSideNote
+              : store.rememberFailed
+                ? s.dataConnection.folderRememberFailed
+                : store.hasRememberedFolder
+                  ? s.dataConnection.folderRemembered
+                  : s.dataConnection.folderNotRemembered}
           </p>
         </div>
       </aside>
@@ -318,21 +377,67 @@ export default function App() {
           </div>
           <div className="top-actions">
             <span
-              className={`connection ${store.folder ? 'is-connected' : ''}`}
+              className={`connection ${store.folder || store.fallbackConnected ? 'is-connected' : ''} ${store.fallbackConnected ? 'is-manual' : ''}`}
             >
               <i />
-              {store.folder ? 'Datos conectados' : 'Solo vista previa'}
+              {store.folder
+                ? s.connected
+                : store.fallbackConnected
+                  ? s.fallbackFiles.manualStatus
+                  : s.workspaceGate.previewOnly}
             </span>
             <button className="avatar">C</button>
           </div>
         </header>
         <section className="page-content">
+          {store.fallbackConnected && (
+            <section className="fallback-storage-banner" role="note">
+              <div>
+                <span className="eyebrow">{s.fallbackFiles.eyebrow}</span>
+                <b>{s.fallbackFiles.bannerTitle}</b>
+                <p>{s.fallbackFiles.bannerBody}</p>
+              </div>
+              <div className="fallback-storage-actions">
+                <button
+                  className="button secondary"
+                  type="button"
+                  onClick={() => {
+                    setFallbackConnectError('')
+                    setFallbackConnectOpen(true)
+                  }}
+                >
+                  {s.fallbackFiles.chooseAgain}
+                </button>
+                <button
+                  className="button secondary"
+                  type="button"
+                  disabled={connecting}
+                  onClick={() => connect({ selectAnother: true })}
+                >
+                  {s.fallbackFiles.tryDirect}
+                </button>
+              </div>
+            </section>
+          )}
           {notice && (
             <div className="toast" role="status">
               <span>{notice}</span>
               {noticeAction === 'cv-prompt' && (
                 <button className="toast-action" onClick={openCvPrompt}>
                   {s.promptInbox.openButton}
+                </button>
+              )}
+              {noticeAction === 'open-data-files' && (
+                <button
+                  className="toast-action"
+                  type="button"
+                  onClick={() => {
+                    setFallbackConnectError('')
+                    setFallbackConnectOpen(true)
+                    showNotice('')
+                  }}
+                >
+                  {s.fallbackFiles.choose}
                 </button>
               )}
               <button onClick={() => showNotice('')} aria-label="Cerrar aviso">
@@ -343,8 +448,10 @@ export default function App() {
           {page === 'home' && (
             <HomePage
               data={store.data}
-              connected={Boolean(store.folder)}
+              connected={Boolean(store.folder || store.fallbackConnected)}
+              fallbackConnected={store.fallbackConnected}
               states={store.states}
+              cvPromptPending={cvPromptPending}
               onNavigate={setPage}
               onVacancy={(v) => {
                 setVacancyId(v.id)
@@ -374,7 +481,7 @@ export default function App() {
           {page === 'cv' && (
             <CVPage
               value={store.data.cv}
-              connected={Boolean(store.folder)}
+              connected={Boolean(store.folder || store.fallbackConnected)}
               isEmpty={isKnownEmpty('cv', store.data.cv, store.states.cv)}
               profileReady={isKnownPopulated(
                 'profile',
@@ -417,12 +524,14 @@ export default function App() {
           )}
           <footer className="page-footer">
             <span>Privado por diseño · Sin cuentas ni sincronización</span>
-            {store.folder && (
+            {(store.folder || store.fallbackConnected) && (
               <button
                 className="text-button"
                 onClick={() => setConfirmDisconnect(true)}
               >
-                {s.disconnect}
+                {store.fallbackConnected
+                  ? s.fallbackFiles.closeManual
+                  : s.disconnect}
               </button>
             )}
           </footer>
@@ -437,6 +546,17 @@ export default function App() {
             setFallbackSavedModule(null)
           }}
           onDownload={handleFallbackDownload}
+        />
+      )}
+      {fallbackConnectOpen && (
+        <FallbackConnectDialog
+          busy={fallbackConnectBusy}
+          error={fallbackConnectError}
+          onClose={() => {
+            setFallbackConnectOpen(false)
+            setFallbackConnectError('')
+          }}
+          onFiles={connectFiles}
         />
       )}
       {folderDialog && (
@@ -463,10 +583,15 @@ export default function App() {
               ×
             </button>
             <span className="eyebrow">Privacidad</span>
-            <h2>Desconectar carpeta</h2>
+            <h2>
+              {store.fallbackConnected
+                ? s.fallbackFiles.closeManualTitle
+                : 'Desconectar carpeta'}
+            </h2>
             <p>
-              La web dejará de leer y guardar los JSON. Puedes borrar también
-              los datos cargados en esta sesión.
+              {store.fallbackConnected
+                ? s.fallbackFiles.closeManualBody
+                : 'La web dejará de leer y guardar los JSON. Puedes borrar también los datos cargados en esta sesión.'}
             </p>
             <div className="modal-actions">
               <button
@@ -487,7 +612,9 @@ export default function App() {
                   )
                 }}
               >
-                Desconectar
+                {store.fallbackConnected
+                  ? s.fallbackFiles.closeKeep
+                  : 'Desconectar'}
               </button>
               <button
                 className="button danger"
@@ -501,7 +628,9 @@ export default function App() {
                   )
                 }}
               >
-                Desconectar y borrar datos de sesión
+                {store.fallbackConnected
+                  ? s.fallbackFiles.closeClear
+                  : 'Desconectar y borrar datos de sesión'}
               </button>
             </div>
           </div>

@@ -25,6 +25,15 @@ const isRecord = (value) =>
   value !== null && typeof value === 'object' && !Array.isArray(value)
 const isStringList = (value) =>
   Array.isArray(value) && value.every((item) => typeof item === 'string')
+const readTextFile = (file) => {
+  if (typeof file.text === 'function') return file.text()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = () => reject(reader.error)
+    reader.onload = () => resolve(String(reader.result || ''))
+    reader.readAsText(file)
+  })
+}
 const optionalStrings = (value, fields) =>
   fields.every(
     (field) => value[field] === undefined || typeof value[field] === 'string',
@@ -424,6 +433,7 @@ export function normalizeModule(name, value) {
 
 export function useStorageState() {
   const [folder, setFolderState] = useState(null)
+  const [fallbackConnected, setFallbackConnected] = useState(false)
   const folderRef = useRef(null)
   function setFolder(value) {
     folderRef.current = value
@@ -605,7 +615,8 @@ export function useStorageState() {
         mode: 'readwrite',
         id: 'careerkit-private-data',
       })
-      if (handle.name !== 'private-data') return { wrongFolder: true }
+      if (handle.name !== 'private-data')
+        return { wrongFolder: true, selectedName: handle.name }
       return connectHandle(handle, { requestPermission: true })
     } catch (error) {
       if (error.name === 'AbortError') return { cancelled: true }
@@ -647,6 +658,7 @@ export function useStorageState() {
       setRevision({})
       const result = await scanFolder(handle)
       setFolder(handle)
+      setFallbackConnected(false)
       setRestoreResult(null)
       setRestoreStatus('connected')
       return {
@@ -658,6 +670,97 @@ export function useStorageState() {
       if (error?.name === 'AbortError') return { cancelled: true }
       return { error: error?.message || 'No se pudo abrir la carpeta.' }
     }
+  }
+
+  async function connectFiles(files) {
+    const selected = new Map()
+    const duplicates = new Set()
+    for (const file of Array.from(files || [])) {
+      const module = FILES.find(
+        (name) => file.name.toLowerCase() === `${name}.json`,
+      )
+      if (!module) continue
+      if (selected.has(module)) duplicates.add(module)
+      else selected.set(module, file)
+    }
+    if (!selected.size) return { error: 'noRecognizedFiles' }
+
+    const nextData = fallbackConnected
+      ? { ...data }
+      : Object.fromEntries(FILES.map((name) => [name, clone(EMPTY[name])]))
+    const nextStates = fallbackConnected ? { ...states } : {}
+    const nextWarnings = fallbackConnected ? { ...warnings } : {}
+    const nextRevision = fallbackConnected ? { ...revision } : {}
+    const loaded = []
+    const invalid = []
+    const missing = []
+
+    for (const name of FILES) {
+      const file = selected.get(name)
+      if (!file) {
+        if (!fallbackConnected) {
+          missing.push(name)
+          nextStates[name] = 'Falta plantilla'
+          nextWarnings[name] =
+            `${name}.json no se seleccionó. Puedes abrirlo después desde la carpeta private-data.`
+        }
+        continue
+      }
+      if (duplicates.has(name)) {
+        const message = `Se seleccionó más de un archivo llamado ${name}.json. Elige solo el archivo de private-data.`
+        invalid.push({ name, message })
+        nextStates[name] = 'Revisar plantilla'
+        nextWarnings[name] = message
+        continue
+      }
+
+      try {
+        const raw = await readTextFile(file)
+        if (!raw.trim()) throw new Error(templateMessage(name, 'está vacío.'))
+        let source
+        try {
+          source = JSON.parse(raw)
+        } catch {
+          throw new Error(templateMessage(name, 'no contiene JSON válido.'))
+        }
+        const normalized = normalizeModule(name, source)
+        if (!validateModule(name, normalized.data))
+          throw new Error(
+            templateMessage(
+              name,
+              `no coincide con el esquema v${schemaVersions[name]}.`,
+            ),
+          )
+
+        nextData[name] = normalized.data
+        nextStates[name] = normalized.migrated
+          ? 'Migración pendiente'
+          : 'Cargado'
+        nextRevision[name] = raw
+        const unknown = findUnknown(name, normalized.data)
+        nextWarnings[name] = unknown.length
+          ? `Campos no reconocidos preservados: ${unknown.join(', ')}`
+          : ''
+        loaded.push(name)
+      } catch (error) {
+        const message =
+          error.message || templateMessage(name, 'no se pudo leer.')
+        invalid.push({ name, message })
+        nextStates[name] = 'Revisar plantilla'
+        nextWarnings[name] = message
+      }
+    }
+
+    setData(nextData)
+    setStates(nextStates)
+    setWarnings(nextWarnings)
+    setRevision(nextRevision)
+    setFallbackConnected(true)
+    return { connected: true, loaded, invalid, missing }
+  }
+
+  function markFallbackSaved(name) {
+    setStates((prev) => ({ ...prev, [name]: 'Guardado manual' }))
   }
 
   async function recheck() {
@@ -786,6 +889,7 @@ export function useStorageState() {
     setRememberedFolder(null)
     setRememberFailed(!persistenceCleared)
     setFolder(null)
+    setFallbackConnected(false)
     setRestoreResult(null)
     setRestoreStatus('no-saved-folder')
     if (clear) {
@@ -801,6 +905,7 @@ export function useStorageState() {
 
   return {
     folder,
+    fallbackConnected,
     restoreStatus,
     restoreResult,
     hasRememberedFolder: Boolean(rememberedFolder),
@@ -810,11 +915,13 @@ export function useStorageState() {
     warnings,
     revision,
     connect,
+    connectFiles,
     recheck,
     prepareMissing,
     save,
     reload,
     disconnect,
+    markFallbackSaved,
     setStates,
     setWarnings,
   }

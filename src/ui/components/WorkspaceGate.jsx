@@ -5,11 +5,13 @@ import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
 export function WorkspaceGate({
   connecting,
   notice,
+  noticeAction,
   restoreStatus,
   hasRememberedFolder,
   onConnect,
   onChooseFolder,
   onConnectLocal,
+  onOpenFiles,
 }) {
   const [showPrompt, setShowPrompt] = useState(false)
   const [promptMessage, setPromptMessage] = useState('')
@@ -68,6 +70,15 @@ export function WorkspaceGate({
         {notice && (
           <p className="workspace-gate-notice" role="status">
             {notice}
+            {noticeAction === 'open-data-files' && (
+              <button
+                className="text-button workspace-gate-notice-action"
+                type="button"
+                onClick={onOpenFiles}
+              >
+                {copy.openFiles} →
+              </button>
+            )}
           </p>
         )}
         <div className="workspace-gate-actions">
@@ -78,6 +89,14 @@ export function WorkspaceGate({
             disabled={connecting || checking}
           >
             {primaryLabel}
+          </button>
+          <button
+            className="button secondary"
+            type="button"
+            onClick={onOpenFiles}
+            disabled={connecting || checking}
+          >
+            {copy.openFiles}
           </button>
           {(permissionRequired || storageError) && hasRememberedFolder && (
             <button
@@ -114,6 +133,9 @@ export function WorkspaceGate({
             </button>
           )}
         </div>
+        {!checking && !permissionRequired && (
+          <p className="workspace-gate-picker-hint">{copy.pickerHelp}</p>
+        )}
         {showPrompt && (
           <div className="workspace-gate-prompt" id="workspace-setup-prompt">
             <label className="field">
