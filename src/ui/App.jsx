@@ -1,3 +1,4 @@
+import { Modal } from './components/Modal.jsx'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useCvReviewTask } from '../data/cv-review-task.js'
 import { EMPTY } from '../data/catalog.js'
@@ -65,8 +66,36 @@ export default function App() {
   const [folderDialog, setFolderDialog] = useState(null)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [focusEvidenceId, setFocusEvidenceId] = useState('')
-  const [linkedinHasUnsavedChanges, setLinkedinHasUnsavedChanges] =
-    useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const editorSnapshots = useRef({})
+  const pendingSave = useRef(null)
+  const [savingModule, setSavingModule] = useState(null)
+  const [savedDrafts, setSavedDrafts] = useState({})
+  const [editorReset, setEditorReset] = useState({})
+  const [conflict, setConflict] = useState(null)
+  const [copyDraftStatus, setCopyDraftStatus] = useState('')
+  const [showDraftText, setShowDraftText] = useState(false)
+  const [conflictBusy, setConflictBusy] = useState(false)
+  const confirmDiscard = () =>
+    !hasUnsavedChanges ||
+    window.confirm('Tienes cambios sin guardar. ¿Quieres descartarlos?')
+  const resetEditor = (module) => {
+    setEditorReset((previous) => ({
+      ...previous,
+      [module]: (previous[module] || 0) + 1,
+    }))
+    delete editorSnapshots.current[module]
+    setHasUnsavedChanges(false)
+  }
+  const draftProps = (module) => ({
+    key: editorReset[module] || 0,
+    savedDraft: savedDrafts[module],
+    saving: savingModule === module,
+    onDirtyChange: setHasUnsavedChanges,
+    onDraftChange: (snapshot) => {
+      editorSnapshots.current[module] = snapshot
+    },
+  })
   const clearFocusEvidenceId = useCallback(() => setFocusEvidenceId(''), [])
   const [confirmDisconnect, setConfirmDisconnect] = useState(false)
   const cvReview = useCvReviewTask()
@@ -95,16 +124,9 @@ export default function App() {
   }
 
   function navigateTo(nextPage, { vacancyId: nextVacancyId = null } = {}) {
-    if (
-      page === 'linkedin' &&
-      nextPage !== 'linkedin' &&
-      linkedinHasUnsavedChanges &&
-      !window.confirm(s.linkedinPage.unsavedChangesConfirmation)
-    ) {
-      return false
-    }
-    if (page === 'linkedin' && nextPage !== 'linkedin')
-      setLinkedinHasUnsavedChanges(false)
+    const changing = nextPage !== page || nextVacancyId !== vacancyId
+    if (changing && (pendingSave.current || !confirmDiscard())) return false
+    if (changing) setHasUnsavedChanges(false)
     if (nextPage !== page || nextVacancyId !== vacancyId) {
       window.history.pushState(null, '', routeHash(nextPage, nextVacancyId))
       setRoute({ page: nextPage, vacancyId: nextVacancyId })
@@ -117,22 +139,17 @@ export default function App() {
     function restoreRoute() {
       const next = readRoute()
       if (next.page === page && next.vacancyId === vacancyId) return
-      if (
-        page === 'linkedin' &&
-        next.page !== 'linkedin' &&
-        linkedinHasUnsavedChanges &&
-        !window.confirm(s.linkedinPage.unsavedChangesConfirmation)
-      ) {
+      if (pendingSave.current || !confirmDiscard()) {
         window.history.pushState(null, '', routeHash(page, vacancyId))
         return
       }
-      if (next.page !== 'linkedin') setLinkedinHasUnsavedChanges(false)
+      setHasUnsavedChanges(false)
       setRoute(next)
       setMobileNavOpen(false)
     }
     window.addEventListener('popstate', restoreRoute)
     return () => window.removeEventListener('popstate', restoreRoute)
-  }, [page, vacancyId, linkedinHasUnsavedChanges])
+  }, [page, vacancyId, hasUnsavedChanges])
 
   useEffect(() => {
     if (!pageContent.current) return
@@ -175,17 +192,52 @@ export default function App() {
     return result
   }
 
-  async function reloadWithUnsavedGuard(module) {
-    if (
-      module === 'linkedin' &&
-      page === 'linkedin' &&
-      linkedinHasUnsavedChanges &&
-      !window.confirm(s.linkedinPage.unsavedChangesConfirmation)
-    ) {
-      return { cancelled: true }
+  async function showConflict(module) {
+    const snapshot = editorSnapshots.current[module]
+    const base = snapshot?.base || store.data[module]
+    setCopyDraftStatus('')
+    setShowDraftText(false)
+    setConflict({ module, fields: null })
+    try {
+      const handle = await store.folder.getFileHandle(`${module}.json`)
+      const external = JSON.parse(await (await handle.getFile()).text())
+      const normalized = normalizeModule(module, external).data
+      if (!validateModule(module, normalized)) return
+      const fields = [
+        ...new Set([...Object.keys(base), ...Object.keys(normalized)]),
+      ].filter(
+        (key) => JSON.stringify(base[key]) !== JSON.stringify(normalized[key]),
+      )
+      setConflict((current) =>
+        current?.module === module ? { module, fields } : current,
+      )
+    } catch {
+      // Leave the editor intact if the external file cannot be read or validated.
     }
+  }
+
+  async function reloadWithUnsavedGuard(module) {
+    if (pendingSave.current) return
+    if (
+      ['Cambio externo', 'Conflicto externo'].includes(store.states[module]) ||
+      editorSnapshots.current[module]?.base !== store.data[module]
+    ) {
+      await showConflict(module)
+      return
+    }
+    if (!confirmDiscard()) return
+    await reloadEditor(module)
+  }
+
+  async function reloadEditor(module) {
+    const snapshot = editorSnapshots.current[module]
     const result = await reload(module)
-    if (module === 'linkedin' && result.ok) setLinkedinHasUnsavedChanges(false)
+    if (
+      result.ok &&
+      editorSnapshots.current[module]?.draft === snapshot?.draft
+    ) {
+      resetEditor(module)
+    }
     return result
   }
 
@@ -347,6 +399,7 @@ export default function App() {
   }, [mobileNavOpen])
 
   async function connect(options = {}) {
+    if (pendingSave.current || !confirmDiscard()) return
     setConnecting(true)
     try {
       const result = await store.connect(options)
@@ -388,6 +441,7 @@ export default function App() {
     }
   }
   async function connectFiles(files) {
+    if (pendingSave.current || !confirmDiscard()) return
     setFallbackConnectBusy(true)
     setFallbackConnectError('')
     try {
@@ -396,6 +450,7 @@ export default function App() {
         setFallbackConnectError(s.fallbackFiles.noRecognized)
         return
       }
+      resetEditor(page)
       setFallbackConnectOpen(false)
       showNotice(
         result.invalid.length || result.missing.length
@@ -438,6 +493,24 @@ export default function App() {
     showNotice('')
   }
   async function save(module, value) {
+    if (pendingSave.current) return
+    const snapshot =
+      page === module ? editorSnapshots.current[module] : undefined
+    if (snapshot && snapshot.base !== store.data[module]) {
+      await showConflict(module)
+      return
+    }
+    pendingSave.current = module
+    setSavingModule(module)
+    try {
+      await saveModule(module, value, snapshot)
+    } finally {
+      pendingSave.current = null
+      setSavingModule(null)
+    }
+  }
+
+  async function saveModule(module, value, snapshot) {
     const cvRelevantProfileChange =
       module === 'profile' &&
       hasCvRelevantProfileChanges(store.data.profile, value)
@@ -445,6 +518,17 @@ export default function App() {
       module === 'linkedin' &&
       hasCvRelevantLinkedInChanges(store.data.linkedin, value)
     const result = await store.save(module, value)
+    if (snapshot && (result.saved || result.fallback))
+      setSavedDrafts((previous) => ({
+        ...previous,
+        [module]: {
+          ...snapshot,
+          submitted: {
+            ...value,
+            schemaVersion: store.data[module].schemaVersion,
+          },
+        },
+      }))
     if (result.saved)
       setSavedAt((previous) => ({
         ...previous,
@@ -454,8 +538,7 @@ export default function App() {
       observedCv.current = value
       cvReview.check(value)
     }
-    if (result.conflict)
-      showNotice(s.saveStatus.conflict.replace('{file}', `${module}.json`))
+    if (result.conflict) await showConflict(module)
     else if (result.needsReview) setFolderDialog(await store.recheck())
     else if (result.fallback) {
       setFallbackSavedModule(module)
@@ -490,7 +573,7 @@ export default function App() {
   async function checkLinkedInSync() {
     const result = await reload('linkedin', { remind: false })
     if (!result.ok) return
-    setLinkedinHasUnsavedChanges(false)
+    setHasUnsavedChanges(false)
     showNotice(
       result.data.languageSync?.status !== 'pending'
         ? s.promptInbox.linkedinSyncConfirmed
@@ -512,19 +595,13 @@ export default function App() {
   }
 
   function requestDisconnect() {
-    if (
-      page === 'linkedin' &&
-      linkedinHasUnsavedChanges &&
-      !window.confirm(s.linkedinPage.unsavedChangesConfirmation)
-    ) {
-      return
-    }
+    if (pendingSave.current || !confirmDiscard()) return
     setConfirmDisconnect(true)
   }
 
   async function disconnectWorkspace(clear) {
     const result = await store.disconnect(clear)
-    setLinkedinHasUnsavedChanges(false)
+    setHasUnsavedChanges(false)
     observedCv.current = null
     if (clear) cvReview.clear()
     setExternalLinkedinPending(null)
@@ -545,14 +622,14 @@ export default function App() {
   )
 
   useEffect(() => {
-    if (page !== 'linkedin' || !linkedinHasUnsavedChanges) return undefined
+    if (!hasUnsavedChanges && !savingModule) return undefined
     const warnBeforeUnload = (event) => {
       event.preventDefault()
       event.returnValue = ''
     }
     window.addEventListener('beforeunload', warnBeforeUnload)
     return () => window.removeEventListener('beforeunload', warnBeforeUnload)
-  }, [page, linkedinHasUnsavedChanges])
+  }, [hasUnsavedChanges, savingModule])
 
   if (!store.folder && !store.fallbackConnected) {
     return (
@@ -778,6 +855,7 @@ export default function App() {
           )}
           {page === 'profile' && (
             <ProfilePage
+              {...draftProps('profile')}
               value={store.data.profile}
               state={store.states.profile}
               warning={store.warnings.profile}
@@ -785,11 +863,12 @@ export default function App() {
               focusEvidenceId={focusEvidenceId}
               onEvidenceFocusComplete={clearFocusEvidenceId}
               onSave={(v) => save('profile', v)}
-              onReload={() => reload('profile')}
+              onReload={() => reloadWithUnsavedGuard('profile')}
             />
           )}
           {page === 'linkedin' && (
             <LinkedInPage
+              {...draftProps('linkedin')}
               value={store.data.linkedin}
               profile={store.data.profile}
               languagesPending={linkedinLanguagesPending}
@@ -798,7 +877,6 @@ export default function App() {
               savedAt={savedAt.linkedin}
               onOpenEvidence={openProfileEvidence}
               onOpenPrompts={openCvPrompt}
-              onDirtyChange={setLinkedinHasUnsavedChanges}
               onSave={(v) => save('linkedin', v)}
               onReload={() => reloadWithUnsavedGuard('linkedin')}
             />
@@ -834,12 +912,13 @@ export default function App() {
               />
             ) : (
               <VacanciesPage
+                {...draftProps('vacancies')}
                 value={store.data.vacancies}
                 state={store.states.vacancies}
                 warning={store.warnings.vacancies}
                 savedAt={savedAt.vacancies}
                 onSave={(v) => save('vacancies', v)}
-                onReload={() => reload('vacancies')}
+                onReload={() => reloadWithUnsavedGuard('vacancies')}
                 onSelect={() => {}}
               />
             ))}
@@ -906,6 +985,96 @@ export default function App() {
           }}
           onOpenPrompts={openSetupPrompt}
         />
+      )}
+      {conflict && (
+        <Modal
+          labelledBy="editor-conflict-title"
+          onClose={() => !conflictBusy && setConflict(null)}
+        >
+          <h2 id="editor-conflict-title">
+            Cambios externos en {conflict.module}.json
+          </h2>
+          <p>
+            El archivo no se ha sobrescrito. Puedes conservar una copia de tu
+            borrador antes de cargar la versión actual.
+          </p>
+          {conflict.fields?.length > 0 && (
+            <>
+              <p>Secciones modificadas en el archivo:</p>
+              <ul>
+                {conflict.fields.map((field) => (
+                  <li key={field}>{field}</li>
+                ))}
+              </ul>
+            </>
+          )}
+          {conflict.fields === null && (
+            <p>No se ha podido comparar el archivo todavía.</p>
+          )}
+          {copyDraftStatus && <p role="status">{copyDraftStatus}</p>}
+          {showDraftText && (
+            <textarea
+              aria-label="Copia del borrador"
+              readOnly
+              rows={8}
+              value={JSON.stringify(
+                editorSnapshots.current[conflict.module]?.draft,
+                null,
+                2,
+              )}
+              onFocus={(event) => event.target.select()}
+            />
+          )}
+          <div className="modal-actions">
+            <button
+              type="button"
+              className="button secondary"
+              disabled={conflictBusy}
+              onClick={() => setConflict(null)}
+            >
+              Seguir editando
+            </button>
+            {editorSnapshots.current[conflict.module] && (
+              <button
+                type="button"
+                className="button secondary"
+                onClick={async () => {
+                  const draft = editorSnapshots.current[conflict.module]?.draft
+                  try {
+                    await navigator.clipboard.writeText(
+                      JSON.stringify(draft, null, 2),
+                    )
+                    setCopyDraftStatus('Borrador copiado.')
+                  } catch {
+                    setShowDraftText(true)
+                    setCopyDraftStatus(
+                      'Selecciona y copia el borrador de forma manual.',
+                    )
+                  }
+                }}
+              >
+                Copiar borrador
+              </button>
+            )}
+            <button
+              type="button"
+              className="button primary"
+              disabled={conflictBusy || !store.folder}
+              onClick={async () => {
+                if (!confirmDiscard()) return
+                setConflictBusy(true)
+                try {
+                  const result = await reloadEditor(conflict.module)
+                  if (result.ok || result.error) setConflict(null)
+                } finally {
+                  setConflictBusy(false)
+                }
+              }}
+            >
+              Cargar versión del archivo
+            </button>
+          </div>
+        </Modal>
       )}
       {confirmDisconnect && (
         <DisconnectDialog

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import {
   ArrayText,
@@ -107,10 +107,17 @@ export function LinkedInPage({
   onOpenEvidence,
   onOpenPrompts,
   onDirtyChange,
+  onDraftChange,
+  savedDraft,
+  saving,
   onSave,
   onReload,
 }) {
-  const [draft, setDraft] = useDraft(value)
+  const [draft, setDraft] = useDraft(value, {
+    onDirtyChange,
+    onDraftChange,
+    savedDraft,
+  })
   const hasUnsavedChanges = hasLinkedInUnsavedChanges(draft, value)
   const [view, setView] = useState('edit')
   const [applyNotice, setApplyNotice] = useState('')
@@ -330,10 +337,6 @@ export function LinkedInPage({
   const hasActiveAudits = activeAudits.some(
     (item) => item.status !== 'descartada',
   )
-  useEffect(() => {
-    onDirtyChange?.(hasUnsavedChanges)
-  }, [hasUnsavedChanges, onDirtyChange])
-  useEffect(() => () => onDirtyChange?.(false), [onDirtyChange])
   const profileText = (profile) => {
     if (!profile) return null
     const content = { ...profile }
@@ -478,6 +481,7 @@ export function LinkedInPage({
               className="button primary small linkedin-mode-save"
               type="button"
               onClick={saveLinkedInDraft}
+              disabled={saving}
             >
               {copy.save}
             </button>
@@ -730,6 +734,7 @@ export function LinkedInPage({
               className="button primary save-button"
               type="button"
               onClick={saveLinkedInDraft}
+              disabled={saving}
             >
               {copy.save}
             </button>
