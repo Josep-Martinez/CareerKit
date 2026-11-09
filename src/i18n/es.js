@@ -176,21 +176,25 @@ export const STRINGS = {
     title: 'Perfil y aprendizajes',
     subtitle:
       'Tu espacio para explicar cómo eres, qué buscas y qué quieres aportar. No es una copia de LinkedIn.',
-    privateTitle: 'Contexto interno para tu asistente',
-    privateBody:
-      'Lo que escribas aquí ayuda a orientar búsquedas y borradores. No se publica ni pasa al CV automáticamente; el asistente te enseñará cualquier propuesta antes de usarla en LinkedIn.',
+    internalBadge: 'Contexto interno',
+    evidenceBadge: 'Trayectoria y evidencias',
+    emptyBlock: 'Aún sin datos',
+    fieldSingular: 'campo con contenido',
+    fieldPlural: 'campos con contenido',
+    itemSingular: 'elemento guardado',
+    itemPlural: 'elementos guardados',
     personalTitle: 'Quién eres y cómo trabajas',
     personalDescription:
-      'Incluye lo que un CV no suele contar. Completa solo lo que te apetezca compartir.',
+      'Ayuda al agente a entender tu forma de pensar y trabajar. Es contexto interno.',
     careerTitle: 'Qué trabajo buscamos',
     careerDescription:
-      'Prioriza las tareas y el entorno que encajan contigo; no hace falta saber el nombre exacto del puesto.',
+      'Ayuda a priorizar vacantes por roles, tareas y condiciones que indiques; el agente no supone lo que falte.',
     contentTitle: 'Intereses y voz para publicaciones',
     contentDescription:
-      'Guía privada para que el asistente encuentre temas y prepare borradores que se parezcan a ti.',
+      'Guía ideas y tono de borradores; no se publica una opinión personal sin tu aprobación.',
     journeyTitle: 'Trayectoria y evidencias',
     journeyDescription:
-      'Hechos profesionales, académicos y personales que quieras conservar, aunque no aparezcan en LinkedIn.',
+      'Conserva hechos y aprendizajes. Tus marcas indican qué está confirmado y si se utiliza en el CV o aparece en LinkedIn.',
     professionalSummary: 'Resumen profesional',
     professionalSummaryHint:
       'Una presentación breve de tu trayectoria y dirección profesional; puede diferir de tu titular y Acerca de en LinkedIn.',
@@ -253,6 +257,8 @@ export const STRINGS = {
     pendingState: 'Pendiente de confirmar',
     evidenceRelationHint:
       'Cada elemento de trayectoria puede relacionarse con vacantes, CV o LinkedIn.',
+    saveHint:
+      'Puedes completar estos bloques poco a poco. Los cambios se guardan en profile.json cuando pulses el botón.',
     save: 'Guardar perfil',
     sideTitle: 'Tu Perfil no es tu página pública',
     sideBody:

@@ -48,6 +48,23 @@ const collectionKeys = [
   'learnings',
 ]
 
+function hasFieldContent(value) {
+  if (typeof value === 'string') return value.trim().length > 0
+  if (Array.isArray(value)) return value.some(hasFieldContent)
+  if (value && typeof value === 'object')
+    return Object.values(value).some(hasFieldContent)
+  return Boolean(value)
+}
+
+function countFieldsWithContent(value, fields) {
+  return fields.filter(({ key }) => hasFieldContent(value?.[key])).length
+}
+
+function contentCountLabel(count, singular, plural) {
+  if (!count) return s.profilePage.emptyBlock
+  return `${count} ${count === 1 ? singular : plural}`
+}
+
 export function ProfilePage({ value, state, warning, onSave, onReload }) {
   const [draft, setDraft] = useDraft(value)
   const update = (key, val) =>
@@ -110,6 +127,23 @@ export function ProfilePage({ value, state, warning, onSave, onReload }) {
       )
     })
   }
+  const personalCount = countFieldsWithContent(
+    draft.personalContext,
+    personalFields,
+  )
+  const objectiveFields = ['shortTerm', 'mediumTerm', 'longTerm'].map(
+    (key) => ({ key }),
+  )
+  const goalsAndPreferencesCount =
+    countFieldsWithContent(draft.objectives, objectiveFields) +
+    countFieldsWithContent(draft.careerPreferences, careerFields)
+  const contentDirectionCount = countFieldsWithContent(
+    draft.contentDirection,
+    contentFields,
+  )
+  const evidenceCount =
+    (hasFieldContent(draft.professionalProfile) ? 1 : 0) +
+    collectionKeys.reduce((total, key) => total + (draft[key] || []).length, 0)
 
   return (
     <>
@@ -121,41 +155,31 @@ export function ProfilePage({ value, state, warning, onSave, onReload }) {
       <Status state={state} warning={warning} onReload={onReload} />
       <div className="editor-grid profile-editor-grid">
         <div className="profile-main">
-          <aside
-            className="profile-private-note"
-            aria-label={s.profilePage.privateTitle}
+          <ProfileDisclosure
+            kind="internal"
+            count={contentCountLabel(
+              personalCount,
+              s.profilePage.fieldSingular,
+              s.profilePage.fieldPlural,
+            )}
+            title={s.profilePage.personalTitle}
+            description={s.profilePage.personalDescription}
           >
-            <span className="profile-private-mark" aria-hidden="true">
-              ◌
-            </span>
-            <div>
-              <h2>{s.profilePage.privateTitle}</h2>
-              <p>{s.profilePage.privateBody}</p>
-            </div>
-          </aside>
-
-          <section className="panel form-panel profile-card">
-            <ProfileCardHeading
-              title={s.profilePage.personalTitle}
-              description={s.profilePage.personalDescription}
-            />
             <div className="profile-fields-grid">
               {renderContextFields('personalContext', personalFields)}
             </div>
-          </section>
+          </ProfileDisclosure>
 
-          <section className="panel form-panel profile-card">
-            <ProfileCardHeading
-              title={s.profilePage.careerTitle}
-              description={s.profilePage.careerDescription}
-            />
-            <TextField
-              label={s.profilePage.professionalSummary}
-              rows={4}
-              value={draft.professionalProfile}
-              onChange={(next) => update('professionalProfile', next)}
-              hint={s.profilePage.professionalSummaryHint}
-            />
+          <ProfileDisclosure
+            kind="internal"
+            count={contentCountLabel(
+              goalsAndPreferencesCount,
+              s.profilePage.fieldSingular,
+              s.profilePage.fieldPlural,
+            )}
+            title={s.profilePage.careerTitle}
+            description={s.profilePage.careerDescription}
+          >
             <CardTitle
               title={s.profilePage.objectivesTitle}
               description={s.profilePage.objectivesDescription}
@@ -190,25 +214,40 @@ export function ProfilePage({ value, state, warning, onSave, onReload }) {
             <div className="profile-fields-grid">
               {renderContextFields('careerPreferences', careerFields)}
             </div>
-          </section>
+          </ProfileDisclosure>
 
-          <section className="panel form-panel profile-card">
-            <ProfileCardHeading
-              title={s.profilePage.contentTitle}
-              description={s.profilePage.contentDescription}
-            />
+          <ProfileDisclosure
+            kind="internal"
+            count={contentCountLabel(
+              contentDirectionCount,
+              s.profilePage.fieldSingular,
+              s.profilePage.fieldPlural,
+            )}
+            title={s.profilePage.contentTitle}
+            description={s.profilePage.contentDescription}
+          >
             <div className="profile-fields-grid">
               {renderContextFields('contentDirection', contentFields)}
             </div>
-          </section>
+          </ProfileDisclosure>
 
-          <section
-            className="panel form-panel profile-card"
+          <ProfileDisclosure
+            kind="evidence"
+            count={contentCountLabel(
+              evidenceCount,
+              s.profilePage.itemSingular,
+              s.profilePage.itemPlural,
+            )}
+            title={s.profilePage.journeyTitle}
+            description={s.profilePage.journeyDescription}
             id="profile-main-form"
           >
-            <ProfileCardHeading
-              title={s.profilePage.journeyTitle}
-              description={s.profilePage.journeyDescription}
+            <TextField
+              label={s.profilePage.professionalSummary}
+              rows={4}
+              value={draft.professionalProfile}
+              onChange={(next) => update('professionalProfile', next)}
+              hint={s.profilePage.professionalSummaryHint}
             />
             {collectionKeys.map((key) => (
               <div className="collection" key={key}>
@@ -359,6 +398,10 @@ export function ProfilePage({ value, state, warning, onSave, onReload }) {
                 )}
               </div>
             ))}
+          </ProfileDisclosure>
+
+          <div className="profile-save-bar">
+            <p>{s.profilePage.saveHint}</p>
             <button
               className="button primary save-button"
               type="button"
@@ -366,7 +409,7 @@ export function ProfilePage({ value, state, warning, onSave, onReload }) {
             >
               {s.profilePage.save}
             </button>
-          </section>
+          </div>
         </div>
         <aside className="side-info profile-side-info">
           <div className="tip-card">
@@ -392,11 +435,33 @@ export function ProfilePage({ value, state, warning, onSave, onReload }) {
   )
 }
 
-function ProfileCardHeading({ title, description }) {
+function ProfileDisclosure({
+  kind,
+  count,
+  title,
+  description,
+  id: elementId,
+  children,
+}) {
+  const isInternal = kind === 'internal'
   return (
-    <header className="profile-card-heading">
-      <h2>{title}</h2>
-      <p>{description}</p>
-    </header>
+    <details
+      className={`panel profile-disclosure ${isInternal ? 'is-internal' : 'is-evidence'}`}
+      id={elementId}
+    >
+      <summary className="profile-disclosure-summary">
+        <span className="profile-disclosure-copy">
+          <span className="profile-disclosure-kind">
+            {isInternal
+              ? s.profilePage.internalBadge
+              : s.profilePage.evidenceBadge}
+          </span>
+          <span className="profile-disclosure-title">{title}</span>
+          <span className="profile-disclosure-description">{description}</span>
+        </span>
+        <span className="profile-disclosure-count">{count}</span>
+      </summary>
+      <div className="profile-disclosure-content">{children}</div>
+    </details>
   )
 }
