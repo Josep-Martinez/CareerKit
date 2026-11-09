@@ -99,6 +99,7 @@ export function VacanciesPage({
   value,
   state,
   warning,
+  savedAt,
   onSave,
   onReload,
   onSelect,
@@ -159,7 +160,13 @@ export function VacanciesPage({
           </button>
         }
       />
-      <Status state={state} warning={warning} onReload={onReload} />
+      <Status
+        fileName="vacancies"
+        state={state}
+        warning={warning}
+        savedAt={savedAt}
+        onReload={onReload}
+      />
       <div className="vacancies-layout">
         <section className="vacancy-list">
           {items.length ? (

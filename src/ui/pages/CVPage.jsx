@@ -12,6 +12,7 @@ export function CVPage({
   linkedinReady,
   state,
   warning,
+  savedAt,
   onNavigate,
   onReload,
   onPromptCopied,
@@ -52,7 +53,13 @@ export function CVPage({
           title={copy.title}
           subtitle={copy.subtitle}
         />
-        <Status state={state} warning={warning} onReload={onReload} />
+        <Status
+          fileName="cv"
+          state={state}
+          warning={warning}
+          savedAt={savedAt}
+          onReload={onReload}
+        />
         <section className="cv-preparation panel">
           <span className="eyebrow">{copy.emptyEyebrow}</span>
           <h2>{copy.emptyTitle}</h2>
@@ -127,7 +134,13 @@ export function CVPage({
         title={copy.title}
         subtitle={copy.subtitle}
       />
-      <Status state={state} warning={warning} onReload={onReload} />
+      <Status
+        fileName="cv"
+        state={state}
+        warning={warning}
+        savedAt={savedAt}
+        onReload={onReload}
+      />
       <div
         className="cv-version-switch"
         role="group"

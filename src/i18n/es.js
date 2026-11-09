@@ -103,6 +103,22 @@ export const STRINGS = {
   disconnect: 'Desconectar carpeta',
   disconnected: 'Datos desconectados',
   connected: 'Carpeta conectada',
+  saveStatus: {
+    saving: 'Guardando {file}…',
+    saved: '{file} guardado · {time}',
+    manualSaved:
+      '{file} descargado. Sustitúyelo en private-data para guardar el cambio.',
+    pendingManual:
+      '{file} preparado. Descárgalo y sustitúyelo en private-data.',
+    state: '{file} · {state}',
+    externalState: '{file} · Cambió fuera de la web',
+    conflictState: '{file} · Cambió antes de guardar',
+    changedExternally:
+      '{file} cambió fuera de CareerKit. El guardado está bloqueado para protegerlo. Puedes cargar la versión actual y continuar desde ella; el formulario mostrará ese archivo.',
+    conflict:
+      'El archivo cambió antes de guardar. No se guardó este intento y tu edición sigue visible. Si cargas la versión actual, el formulario la mostrará y podrás volver a aplicar lo que quieras conservar.',
+    reloadExternal: 'Cargar versión actual',
+  },
   dataConnection: {
     bannerEyebrow: 'TUS ARCHIVOS LOCALES',
     bannerTitle: 'Conecta tu carpeta para ver y guardar tus datos',

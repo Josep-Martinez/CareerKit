@@ -100,8 +100,10 @@ const LINKEDIN_OBJECT_FIELDS = {
 export function LinkedInPage({
   value,
   profile,
+  languagesPending,
   state,
   warning,
+  savedAt,
   onOpenEvidence,
   onOpenPrompts,
   onDirtyChange,
@@ -112,7 +114,13 @@ export function LinkedInPage({
   const hasUnsavedChanges = hasLinkedInUnsavedChanges(draft, value)
   const [view, setView] = useState('edit')
   const [applyNotice, setApplyNotice] = useState('')
-  const [activeVariantId, setActiveVariantId] = useState('')
+  const [activeVariantId, setActiveVariantId] = useState(() =>
+    languageBase(value.published.language) === 'en'
+      ? ''
+      : value.published.variants?.find(
+          (variant) => languageBase(variant.language) === 'en',
+        )?.id || '',
+  )
   const rootPublished = draft.published
   const variants = rootPublished.variants || []
   const primaryLanguage = languageBase(rootPublished.language)
@@ -407,7 +415,7 @@ export function LinkedInPage({
               role="group"
               aria-label={copy.languageSwitcherLabel}
             >
-              {['es', 'en'].map((language) => {
+              {['en', 'es'].map((language) => {
                 const variant = variants.find(
                   (item) => languageBase(item.language) === language,
                 )
@@ -431,7 +439,7 @@ export function LinkedInPage({
                 )
               })}
             </div>
-            {value.languageSync?.status === 'pending' && (
+            {languagesPending && (
               <div className="linkedin-sync-pending" role="status">
                 <span className="linkedin-sync-dot" aria-hidden="true" />
                 <span>{copy.languageSyncPending}</span>
@@ -443,7 +451,13 @@ export function LinkedInPage({
           </div>
         }
       />
-      <Status state={state} warning={warning} onReload={onReload} />
+      <Status
+        fileName="linkedin"
+        state={state}
+        warning={warning}
+        savedAt={savedAt}
+        onReload={onReload}
+      />
       <div className="linkedin-mode-row">
         <div className="linkedin-mode-controls">
           <div

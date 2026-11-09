@@ -92,6 +92,7 @@ export function ProfilePage({
   value,
   state,
   warning,
+  savedAt,
   focusEvidenceId,
   onEvidenceFocusComplete,
   onSave,
@@ -199,7 +200,13 @@ export function ProfilePage({
         title={s.profilePage.title}
         subtitle={s.profilePage.subtitle}
       />
-      <Status state={state} warning={warning} onReload={onReload} />
+      <Status
+        fileName="profile"
+        state={state}
+        warning={warning}
+        savedAt={savedAt}
+        onReload={onReload}
+      />
       <div className="editor-grid profile-editor-grid">
         <div className="profile-main">
           <ProfileDisclosure

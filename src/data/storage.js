@@ -904,8 +904,13 @@ export function useStorageState() {
       const current = await file.text()
       if (current !== revision[name]) {
         setStates((prev) => ({ ...prev, [name]: 'Conflicto externo' }))
+        setWarnings((prev) => ({
+          ...prev,
+          [name]: `No se guardó el cambio porque ${name}.json cambió antes. Tu edición sigue en el formulario. Puedes cargar la versión actual y volver a aplicar lo que quieras conservar.`,
+        }))
         return { conflict: true }
       }
+      setStates((prev) => ({ ...prev, [name]: 'Guardando' }))
       const writable = await handle.createWritable()
       const raw = JSON.stringify(safe, null, 2) + '\n'
       await writable.write(raw)
