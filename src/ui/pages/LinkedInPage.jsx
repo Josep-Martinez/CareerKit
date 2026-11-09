@@ -13,7 +13,10 @@ import {
   LINKEDIN_AUDIT_FIELDS,
   resolveLinkedInAuditTarget,
 } from '../../data/linkedin-audit.js'
-import { createEmptyLinkedInVariant } from '../../data/linkedin-variants.js'
+import {
+  createEmptyLinkedInVariant,
+  markLinkedInLanguageSyncPending,
+} from '../../data/linkedin-variants.js'
 
 const copy = s.linkedinPage
 const languageBase = (language = '') => language.toLowerCase().split(/[-_]/)[0]
@@ -144,19 +147,16 @@ export function LinkedInPage({
     })
     setActiveVariantId(variant.id)
     setApplyNotice('')
-    setView('edit')
   }
   const selectLanguage = (language) => {
     setApplyNotice('')
     if (!hasPrimaryLanguage) {
       setActiveVariantId('')
       setPub('language', language)
-      setView('edit')
       return
     }
     if (primaryLanguage === language) {
       setActiveVariantId('')
-      setView('edit')
       return
     }
     const matchingVariant = variants.find(
@@ -164,7 +164,6 @@ export function LinkedInPage({
     )
     if (matchingVariant) {
       setActiveVariantId(matchingVariant.id)
-      setView('edit')
       return
     }
     createVariant(language)
@@ -306,6 +305,18 @@ export function LinkedInPage({
   const hasActiveAudits = activeAudits.some(
     (item) => item.status !== 'descartada',
   )
+  const selectedProfile = (root, variantId) =>
+    variantId
+      ? root.published.variants?.find((variant) => variant.id === variantId)
+      : root.published
+  const profileText = (profile) => {
+    if (!profile) return null
+    const content = { ...profile }
+    delete content.language
+    delete content.lastUpdated
+    delete content.publicationStatus
+    return content
+  }
   const initials =
     pub.name
       ?.trim()
@@ -316,87 +327,43 @@ export function LinkedInPage({
   return (
     <>
       <PageHeading
+        className="linkedin-page-heading"
         eyebrow={copy.eyebrow}
         title={copy.title}
         subtitle={copy.subtitle}
+        action={
+          <div
+            className="linkedin-language-switch linkedin-language-switch-header"
+            role="group"
+            aria-label={copy.languageSwitcherLabel}
+          >
+            {['es', 'en'].map((language) => {
+              const variant = variants.find(
+                (item) => languageBase(item.language) === language,
+              )
+              const isPrimary = primaryLanguage === language
+              const isActive = activeVariant
+                ? activeVariant.id === variant?.id
+                : isPrimary
+              return (
+                <button
+                  key={language}
+                  className={`linkedin-language-option${isActive ? ' active' : ''}`}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => selectLanguage(language)}
+                >
+                  <span className="linkedin-language-code" aria-hidden="true">
+                    {language.toUpperCase()}
+                  </span>
+                  <span>{copy.variantLanguageNames[language]}</span>
+                </button>
+              )
+            })}
+          </div>
+        }
       />
       <Status state={state} warning={warning} onReload={onReload} />
-      <div className="linkedin-language-panel">
-        <div className="linkedin-language-copy">
-          <span className="eyebrow">
-            {hasPrimaryLanguage
-              ? copy.languageEyebrow
-              : copy.languageAssignmentEyebrow}
-          </span>
-          <h2>
-            {hasPrimaryLanguage
-              ? copy.languageTitle
-              : copy.languageAssignmentTitle}
-          </h2>
-          <p>
-            {hasPrimaryLanguage
-              ? copy.languageDescription
-              : copy.languageAssignmentDescription}
-          </p>
-        </div>
-        <div
-          className="linkedin-language-switch"
-          role="group"
-          aria-label={copy.languageSwitcherLabel}
-        >
-          {['es', 'en'].map((language) => {
-            const variant = variants.find(
-              (item) => languageBase(item.language) === language,
-            )
-            const isPrimary = primaryLanguage === language
-            const isActive = activeVariant
-              ? activeVariant.id === variant?.id
-              : isPrimary
-            const languageExists = isPrimary || Boolean(variant)
-            return (
-              <button
-                key={language}
-                className={`linkedin-language-option${isActive ? ' active' : ''}${!languageExists && hasPrimaryLanguage ? ' add' : ''}`}
-                type="button"
-                aria-pressed={isActive}
-                onClick={() => selectLanguage(language)}
-              >
-                {!languageExists && hasPrimaryLanguage && (
-                  <span className="linkedin-language-plus" aria-hidden="true">
-                    +
-                  </span>
-                )}
-                <span className="linkedin-language-code" aria-hidden="true">
-                  {language.toUpperCase()}
-                </span>
-                <span>{copy.variantLanguageNames[language]}</span>
-              </button>
-            )
-          })}
-        </div>
-        {activeVariant && (
-          <label className="linkedin-language-status">
-            <span>{copy.publicationStatusLabel}</span>
-            <select
-              value={activeVariant.publicationStatus || ''}
-              onChange={(event) =>
-                setPub('publicationStatus', event.target.value || undefined)
-              }
-            >
-              <option value="">{copy.publicationStatusUnknown}</option>
-              <option value="draft">{copy.publicationStatusDraft}</option>
-              <option value="published">
-                {copy.publicationStatusPublished}
-              </option>
-            </select>
-          </label>
-        )}
-        <p className="linkedin-language-hint">
-          {hasPrimaryLanguage
-            ? copy.variantIsolationHint
-            : copy.languageAssignmentHint}
-        </p>
-      </div>
       <div className="linkedin-mode-row">
         <div
           className="linkedin-mode-switch"
@@ -429,16 +396,8 @@ export function LinkedInPage({
           aria-labelledby="linkedin-edit-title"
         >
           <div className="linkedin-form-intro">
-            <span className="eyebrow">
-              {activeVariant?.publicationStatus === 'draft'
-                ? copy.draftEyebrow
-                : copy.formEyebrow}
-            </span>
-            <h2 id="linkedin-edit-title">
-              {activeVariant?.publicationStatus === 'draft'
-                ? copy.draftFormTitle
-                : copy.formTitle}
-            </h2>
+            <span className="eyebrow">{copy.formEyebrow}</span>
+            <h2 id="linkedin-edit-title">{copy.formTitle}</h2>
             <p>{copy.formDescription}</p>
           </div>
           <TextField
@@ -602,7 +561,22 @@ export function LinkedInPage({
           </section>
           <button
             className="button primary save-button"
-            onClick={() => onSave(draft)}
+            onClick={() => {
+              const originalProfile = selectedProfile(value, activeVariantId)
+              const nextProfile = selectedProfile(draft, activeVariantId)
+              const publishedChanged =
+                JSON.stringify(profileText(originalProfile)) !==
+                  JSON.stringify(profileText(nextProfile)) &&
+                (hasEntryContent(profileText(originalProfile)) ||
+                  hasEntryContent(profileText(nextProfile)))
+              const next = publishedChanged
+                ? markLinkedInLanguageSyncPending(
+                    draft,
+                    languageBase(pub.language || rootPublished.language),
+                  )
+                : draft
+              onSave(next)
+            }}
           >
             {copy.save}
           </button>

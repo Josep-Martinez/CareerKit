@@ -35,9 +35,11 @@ version without changing its meaning.
   profile. The main snapshot records its language in `published.language`; the
   other language uses a separate `published.variants[]` snapshot. Keep each
   text scoped to its language and write only when the user asks. Do not copy or
-  translate a published snapshot automatically. Keep a newly prepared but
-  unpublished language version marked `publicationStatus: "draft"`; change it
-  to `published` only after the user confirms publication.
+  translate a published snapshot automatically. When the user requests a sync,
+  use `languageSync.sourceLanguage` if `languageSync.status` is `pending` and
+  that language is clear. Once both versions are reviewed and aligned, set
+  `languageSync.status` to `current` and remove `sourceLanguage`. Preserve a
+  legacy `publicationStatus` property if present, but do not use or update it.
 - If the user explicitly asks for only one language, follow that request.
 
 ## Context and review

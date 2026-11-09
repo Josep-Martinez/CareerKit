@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createEmptyLinkedInVariant } from '../src/data/linkedin-variants.js'
+import {
+  createEmptyLinkedInVariant,
+  markLinkedInLanguageSyncPending,
+} from '../src/data/linkedin-variants.js'
 
 test('creates a blank language version without copying the main profile', () => {
   const version = createEmptyLinkedInVariant('variant-en', 'en')
@@ -8,7 +11,6 @@ test('creates a blank language version without copying the main profile', () => 
   assert.deepEqual(version, {
     id: 'variant-en',
     language: 'en',
-    publicationStatus: 'draft',
     name: '',
     headline: '',
     about: '',
@@ -21,4 +23,22 @@ test('creates a blank language version without copying the main profile', () => 
     featured: [],
     additionalSections: [],
   })
+})
+
+test('records a pending language sync without mutating the source JSON', () => {
+  const source = {
+    schemaVersion: 1,
+    published: { language: 'en', headline: 'A profile headline' },
+    audits: [],
+    retainedField: { note: 'keep me' },
+  }
+
+  const next = markLinkedInLanguageSyncPending(source, 'es')
+
+  assert.deepEqual(next.languageSync, {
+    status: 'pending',
+    sourceLanguage: 'es',
+  })
+  assert.deepEqual(next.retainedField, source.retainedField)
+  assert.equal(source.languageSync, undefined)
 })

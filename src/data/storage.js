@@ -147,9 +147,9 @@ const validLinkedInVariant = (value) =>
   value.id.length > 0 &&
   typeof value.language === 'string' &&
   value.language.length > 0 &&
+  optionalStrings(value, ['name', 'lastUpdated']) &&
   (value.publicationStatus === undefined ||
     ['draft', 'published'].includes(value.publicationStatus)) &&
-  optionalStrings(value, ['name', 'lastUpdated']) &&
   typeof value.headline === 'string' &&
   typeof value.about === 'string' &&
   isLinkedInAdditionalSections(value.additionalSections) &&
@@ -159,6 +159,12 @@ const validLinkedInVariant = (value) =>
     (key) => isLinkedInList(key, value[key]),
   ) &&
   isStringList(value.skills)
+const validLinkedInLanguageSync = (value) =>
+  value === undefined ||
+  (isRecord(value) &&
+    ['current', 'pending'].includes(value.status) &&
+    (value.sourceLanguage === undefined ||
+      ['es', 'en'].includes(value.sourceLanguage)))
 const validCVVersion = (value) =>
   isRecord(value) &&
   typeof value.masterText === 'string' &&
@@ -286,6 +292,7 @@ const validators = {
       (key) => isLinkedInList(key, d.published[key]),
     ) &&
     isStringList(d.published.skills) &&
+    validLinkedInLanguageSync(d.languageSync) &&
     optionalStrings(d, ['lastUpdated']) &&
     Array.isArray(d.audits) &&
     d.audits.every(
@@ -1007,7 +1014,13 @@ function findUnknown(name, data) {
   if (name === 'profile') return findUnknownProfileFields(data)
 
   const known = {
-    linkedin: ['schemaVersion', 'published', 'lastUpdated', 'audits'],
+    linkedin: [
+      'schemaVersion',
+      'published',
+      'lastUpdated',
+      'audits',
+      'languageSync',
+    ],
     cv: ['schemaVersion', 'versions', 'previousVersion'],
     vacancies: ['schemaVersion', 'items'],
     priorities: ['schemaVersion', 'items'],
@@ -1047,6 +1060,7 @@ function findUnknown(name, data) {
         'featured',
         'additionalSections',
       ],
+      languageSync: ['status', 'sourceLanguage'],
       additionalSection: ['id', 'title', 'content'],
       audit: [
         'id',
@@ -1132,6 +1146,7 @@ function findUnknown(name, data) {
         })
     }
     inspectPublished(data.published, 'published', rules.published)
+    inspect(data.languageSync, rules.languageSync, 'languageSync')
     ;(data.published?.variants || []).forEach((variant, index) =>
       inspectPublished(
         variant,

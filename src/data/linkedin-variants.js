@@ -2,7 +2,6 @@ export function createEmptyLinkedInVariant(id, language) {
   return {
     id,
     language,
-    publicationStatus: 'draft',
     name: '',
     headline: '',
     about: '',
@@ -14,5 +13,17 @@ export function createEmptyLinkedInVariant(id, language) {
     projects: [],
     featured: [],
     additionalSections: [],
+  }
+}
+
+export function markLinkedInLanguageSyncPending(value, sourceLanguage) {
+  return {
+    ...value,
+    languageSync: {
+      status: 'pending',
+      ...(sourceLanguage === 'es' || sourceLanguage === 'en'
+        ? { sourceLanguage }
+        : {}),
+    },
   }
 }

@@ -83,7 +83,7 @@
           "items": { "$ref": "#/$defs/additionalSection" }
         },
         "variants": {
-          "description": "The same LinkedIn profile in another language. Each language has its own text snapshot; publicationStatus distinguishes a published snapshot from a working draft.",
+          "description": "The same LinkedIn profile in another language. Each language has its own text snapshot; the app shows one language at a time.",
           "type": "array",
           "items": { "$ref": "#/$defs/localizedProfile" }
         }
@@ -181,7 +181,10 @@
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "language": { "type": "string", "minLength": 1 },
-        "publicationStatus": { "enum": ["draft", "published"] },
+        "publicationStatus": {
+          "description": "Legacy publication marker retained for compatibility; the application does not use it to select or sync language versions.",
+          "enum": ["draft", "published"]
+        },
         "lastUpdated": { "type": "string" },
         "name": { "type": "string" },
         "headline": { "type": "string" },
@@ -336,6 +339,15 @@
         "id": { "type": "string", "minLength": 1 },
         "title": { "type": "string" },
         "content": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "languageSync": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["current", "pending"] },
+        "sourceLanguage": { "enum": ["es", "en"] }
       },
       "additionalProperties": true
     }

@@ -31,9 +31,9 @@ export default function App() {
   const clearFocusEvidenceId = useCallback(() => setFocusEvidenceId(''), [])
   const [confirmDisconnect, setConfirmDisconnect] = useState(false)
   const [cvPromptPending, setCvPromptPending] = useState(false)
-  const [linkedinLanguagesPending, setLinkedinLanguagesPending] =
-    useState(false)
   const [connecting, setConnecting] = useState(false)
+  const linkedinLanguagesPending =
+    store.data.linkedin.languageSync?.status === 'pending'
   const pendingPromptCount =
     Number(cvPromptPending) + Number(linkedinLanguagesPending)
   const currentModule = Object.hasOwn(store.data, page) ? page : null
@@ -59,7 +59,6 @@ export default function App() {
     const result = await store.reload(module)
     if (result.error && store.folder) setFolderDialog(await store.recheck())
     if (result.ok && ['profile', 'linkedin'].includes(module)) {
-      if (module === 'linkedin') setLinkedinLanguagesPending(true)
       remindCvPrompt(s.promptInbox.sourceReloaded)
     }
     return result
@@ -67,8 +66,6 @@ export default function App() {
 
   function handlePromptCopied(promptId) {
     if (promptId === 'refresh-cv') setCvPromptPending(false)
-    if (promptId === 'sync-linkedin-languages')
-      setLinkedinLanguagesPending(false)
     showNotice(s.promptInbox.promptCopiedNotice)
   }
 
@@ -76,7 +73,6 @@ export default function App() {
     if (fallbackSavedModule !== module) return
     setFallbackSavedModule(null)
     store.markFallbackSaved(module)
-    if (module === 'linkedin') setLinkedinLanguagesPending(true)
     if (['profile', 'linkedin'].includes(module))
       remindCvPrompt(`${s.promptInbox.fallbackSaved} ${s.fallbackFiles.saved}`)
     else showNotice(s.fallbackFiles.saved)
@@ -104,7 +100,6 @@ export default function App() {
               }))
               if (['profile', 'linkedin'].includes(key))
                 remindCvPrompt(s.promptInbox.sourceChanged)
-              if (key === 'linkedin') setLinkedinLanguagesPending(true)
             }
           }
         } catch {
@@ -241,7 +236,6 @@ export default function App() {
       setFallbackOpen(true)
     } else if (result.saved && ['profile', 'linkedin'].includes(module)) {
       setFallbackSavedModule(null)
-      if (module === 'linkedin') setLinkedinLanguagesPending(true)
       remindCvPrompt(
         module === 'profile'
           ? s.promptInbox.sourceSavedProfile

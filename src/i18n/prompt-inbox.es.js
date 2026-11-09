@@ -10,7 +10,7 @@ export const PROMPT_INBOX_ES = {
   pendingCvBody:
     'Has guardado cambios en Perfil o LinkedIn. Usa «Actualizar la base general del CV» para que las dos versiones reflejen la información reciente.',
   pendingLanguagesBody:
-    'Has actualizado la copia de LinkedIn. Usa «Actualizar las dos versiones de LinkedIn» para revisar la versión del otro idioma.',
+    'Has guardado cambios en LinkedIn. Usa «Actualizar las dos versiones de LinkedIn» para revisar y sincronizar español e inglés.',
   openButton: 'Abrir el buzón',
   pendingTag: 'Pendiente · {count}',
   copyButton: 'Copiar prompt',
@@ -541,9 +541,9 @@ export const PROMPT_INBOX_ES = {
       ],
       text: [
         'Trabaja solo con private-data/linkedin.json y con los cambios o instrucciones que yo indique en esta conversación. No abras LinkedIn, otras cuentas, enlaces ni otros documentos. Si no tienes acceso local autorizado, prepara el mapeo propuesto y no afirmes que guardaste nada.',
-        'Antes de editar, valida el JSON con schemas/linkedin.schema.json y revisa published.language y published.variants. Mantén una única copia de LinkedIn con una versión en español y otra en inglés. Si te indico qué idioma he actualizado, úsalo como fuente para preparar su equivalente. Si no está claro qué versión contiene el cambio confirmado, compara ambas y pregúntame antes de sustituir texto; no adivines cuál es más reciente.',
-        'Conserva todos los hechos, el sentido, el orden, los identificadores, nombres propios, enlaces, fechas, credenciales oficiales, marcas de truncamiento, propiedades desconocidas y anotaciones de auditoría. Traduce el texto descriptivo con li-bilingual; no inventes ni añadas logros, y no cambies el contenido publicado fuera de este archivo. Si un campo no tiene equivalente claro o una fuente está truncada, consérvalo y pregúntame cómo resolverlo.',
-        'Modifica únicamente las versiones de published necesarias. Si creas una traducción que aún no se ha publicado, guárdala como variant con publicationStatus: "draft". Cambia ese estado a "published" solo si te confirmo que ya la publiqué. No inventes fechas de actualización. Valida linkedin.json antes y después, conserva cualquier propiedad desconocida y deja intactos los archivos de Perfil, CV, vacantes y prioridades. Dime qué idioma usaste como fuente y qué campos tradujiste o quedaron pendientes. No publiques ni afirmes que las versiones están sincronizadas con la cuenta de LinkedIn.',
+        'Antes de editar, valida el JSON con schemas/linkedin.schema.json y revisa published.language, published.variants y languageSync. El perfil está en una sola estructura JSON con textos separados por idioma: la copia principal y published.variants[]. Usa languageSync.sourceLanguage como versión que cambió cuando status sea "pending". Si no existe o hay cambios distintos en ambas versiones, pregúntame cuál es la referencia antes de sustituir texto.',
+        'Usa .agents/skills/li-bilingual/SKILL.md para traducir todos los campos textuales de la versión de origen a la otra. Conserva hechos, sentido, orden, identificadores, nombres propios, enlaces, fechas, credenciales oficiales, idiomas hablados, marcas de truncamiento, propiedades desconocidas y auditorías. Traduce descripciones, no nombres propios ni credenciales. No inventes ni añadas logros. Si falta una versión, créala con un id estable; no dupliques contenido sin traducir como si ya estuviera sincronizado.',
+        'Si un campo no tiene equivalente claro, hay texto truncado o necesitas confirmar una decisión sustantiva, conserva ambas versiones y deja languageSync.status en "pending". Si ambas versiones quedan revisadas y alineadas, establece languageSync.status en "current" y elimina sourceLanguage. No inventes fechas. Valida linkedin.json antes y después, conserva propiedades desconocidas y deja intactos Perfil, CV, vacantes y prioridades. Informa del idioma de origen, campos traducidos y dudas pendientes. No publiques ni afirmes que los cambios están sincronizados con la cuenta de LinkedIn.',
       ].join('\n\n'),
     },
   ],
