@@ -37,8 +37,29 @@ const contentFields = [
   { key: 'themes', list: true },
   { key: 'viewpoints', list: true },
   { key: 'tone', rows: 3 },
+  { key: 'languages', list: true },
+  { key: 'versionPreference', rows: 2 },
   { key: 'avoid', list: true, label: s.profilePage.contentAvoid },
 ]
+const collectionDetails = {
+  skills: [
+    { key: 'type' },
+    { key: 'description', rows: 3 },
+    { key: 'tags', list: true },
+  ],
+  education: [{ key: 'status' }],
+  languages: [
+    { key: 'type' },
+    { key: 'proficiency' },
+    { key: 'description', rows: 3 },
+  ],
+  projects: [
+    { key: 'type' },
+    { key: 'description', rows: 3 },
+    { key: 'grade' },
+    { key: 'tags', list: true },
+  ],
+}
 const collectionKeys = [
   'experience',
   'education',
@@ -393,6 +414,29 @@ export function ProfilePage({
                       value={item.results}
                       onChange={(next) => patchItem(key, i, { results: next })}
                     />
+                    {(collectionDetails[key] || []).map(
+                      ({ key: fieldKey, list, rows }) =>
+                        list ? (
+                          <ArrayText
+                            key={`${fieldKey}-${i}`}
+                            title={s.profilePage[fieldKey]}
+                            items={item[fieldKey] || []}
+                            onChange={(next) =>
+                              patchItem(key, i, { [fieldKey]: next })
+                            }
+                          />
+                        ) : (
+                          <TextField
+                            key={`${fieldKey}-${i}`}
+                            label={s.profilePage[fieldKey]}
+                            rows={rows}
+                            value={item[fieldKey]}
+                            onChange={(next) =>
+                              patchItem(key, i, { [fieldKey]: next })
+                            }
+                          />
+                        ),
+                    )}
                     <div className="checks">
                       <Check
                         label={s.profilePage.cvEvidenceLabel}

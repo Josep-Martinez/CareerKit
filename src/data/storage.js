@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { EMPTY, FILES } from './catalog.js'
 import { detectLocalFolder } from './local-folder.js'
 import {
+  findUnknownProfileFields,
+  hasProfileContent,
+} from './profile-fields.js'
+import {
   forgetDirectoryHandle,
   loadDirectoryHandle,
   rememberDirectoryHandle,
@@ -38,12 +42,16 @@ const optionalStrings = (value, fields) =>
   fields.every(
     (field) => value[field] === undefined || typeof value[field] === 'string',
   )
-const optionalContext = (value, textFields, listFields) =>
+const optionalContext = (value, textFields, listFields, booleanFields = []) =>
   value === undefined ||
   (isRecord(value) &&
     optionalStrings(value, textFields) &&
     listFields.every(
       (field) => value[field] === undefined || isStringList(value[field]),
+    ) &&
+    booleanFields.every(
+      (field) =>
+        value[field] === undefined || typeof value[field] === 'boolean',
     ))
 const linkedinEntryFields = {
   experience: {
@@ -187,6 +195,10 @@ const validProfileEntry = (item) =>
     'dates',
     'actions',
     'results',
+    'description',
+    'grade',
+    'status',
+    'proficiency',
     'situation',
     'task',
   ]) &&
@@ -242,11 +254,13 @@ const validators = {
       d.careerPreferences,
       ['location', 'conditions'],
       ['roleFamilies', 'tasks', 'industries', 'workModes', 'avoid'],
+      ['internal'],
     ) &&
     optionalContext(
       d.contentDirection,
-      ['tone'],
-      ['themes', 'viewpoints', 'avoid'],
+      ['tone', 'versionPreference'],
+      ['themes', 'viewpoints', 'avoid', 'languages'],
+      ['internal'],
     ) &&
     isRecord(d.objectives) &&
     ['shortTerm', 'mediumTerm', 'longTerm'].every(
@@ -374,17 +388,7 @@ const hasLocalizedProfileContent = (variants = []) =>
 
 export function hasModuleContent(name, value) {
   let hasContent
-  if (name === 'profile')
-    hasContent = Boolean(
-      value.professionalProfile.trim() ||
-      hasMeaningfulValue(value.personalContext) ||
-      hasMeaningfulValue(value.careerPreferences) ||
-      hasMeaningfulValue(value.contentDirection) ||
-      ['shortTerm', 'mediumTerm', 'longTerm'].some((key) =>
-        value.objectives[key].trim(),
-      ) ||
-      entryLists.some((key) => hasMeaningfulValue(value[key])),
-    )
+  if (name === 'profile') hasContent = hasProfileContent(value)
   else if (name === 'linkedin')
     hasContent = Boolean(
       value.published.name?.trim() ||
@@ -997,23 +1001,9 @@ export function useStorageState() {
 }
 
 function findUnknown(name, data) {
+  if (name === 'profile') return findUnknownProfileFields(data)
+
   const known = {
-    profile: [
-      'schemaVersion',
-      'professionalProfile',
-      'objectives',
-      'personalContext',
-      'careerPreferences',
-      'contentDirection',
-      'skills',
-      'experience',
-      'education',
-      'certifications',
-      'languages',
-      'projects',
-      'evidence',
-      'learnings',
-    ],
     linkedin: ['schemaVersion', 'published', 'lastUpdated', 'audits'],
     cv: ['schemaVersion', 'versions', 'previousVersion'],
     vacancies: ['schemaVersion', 'items'],
@@ -1021,60 +1011,6 @@ function findUnknown(name, data) {
   }[name]
   const unknown = Object.keys(data).filter((key) => !known.includes(key))
   const rules = {
-    profile: {
-      root: [
-        'objectives',
-        'personalContext',
-        'careerPreferences',
-        'contentDirection',
-        'skills',
-        'experience',
-        'education',
-        'certifications',
-        'languages',
-        'projects',
-        'evidence',
-        'learnings',
-      ],
-      objectives: ['shortTerm', 'mediumTerm', 'longTerm'],
-      entry: [
-        'id',
-        'title',
-        'name',
-        'organization',
-        'dates',
-        'actions',
-        'results',
-        'evidenceIds',
-        'confirmed',
-        'cvEvidence',
-        'onLinkedIn',
-        'internal',
-      ],
-      personalContext: [
-        'aboutMe',
-        'values',
-        'interests',
-        'motivations',
-        'thinkingStyle',
-        'learningStyle',
-        'workStyle',
-        'strengths',
-        'growthAreas',
-        'preferredEnvironment',
-        'boundaries',
-      ],
-      careerPreferences: [
-        'roleFamilies',
-        'tasks',
-        'industries',
-        'workModes',
-        'location',
-        'conditions',
-        'avoid',
-      ],
-      contentDirection: ['themes', 'viewpoints', 'tone', 'avoid'],
-    },
     linkedin: {
       published: [
         'name',
@@ -1169,20 +1105,6 @@ function findUnknown(name, data) {
       return
     for (const key of Object.keys(value))
       if (!allowed.includes(key)) unknown.push(`${path}.${key}`)
-  }
-  if (name === 'profile') {
-    inspect(data.objectives, rules.objectives, 'objectives')
-    inspect(data.personalContext, rules.personalContext, 'personalContext')
-    inspect(
-      data.careerPreferences,
-      rules.careerPreferences,
-      'careerPreferences',
-    )
-    inspect(data.contentDirection, rules.contentDirection, 'contentDirection')
-    for (const key of entryLists)
-      (data[key] || []).forEach((item, index) =>
-        inspect(item, rules.entry, `${key}[${index}]`),
-      )
   }
   if (name === 'linkedin') {
     const inspectPublished = (published, path, allowedFields) => {
