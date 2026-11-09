@@ -29,12 +29,20 @@ export const STRINGS = {
     storageErrorBody:
       'No se pudo recuperar el acceso guardado en este navegador. Tus archivos no se han modificado; puedes volver a elegir la carpeta.',
     connecting: 'Conectando carpeta…',
+    previewOnly: 'Solo vista previa',
     checking: 'Buscando carpeta…',
     connectLocal: 'Conectar la carpeta de este proyecto',
     localMissing:
       'No encontramos private-data en este proyecto. Abre el prompt de preparación, pásaselo a tu asistente local y vuelve a pulsar este botón.',
     wrongFolder:
-      'Elige la carpeta llamada private-data. Si todavía no existe, usa el prompt de preparación.',
+      'Se ha seleccionado «{name}», pero CareerKit necesita la carpeta llamada private-data. Si elegiste la raíz del proyecto, vuelve a seleccionar private-data dentro de ella.',
+    pickerHelp:
+      'En la ventana del sistema, selecciona la carpeta llamada private-data y confirma con «Seleccionar carpeta». Al conectarla, CareerKit seguirá adelante aunque los JSON estén vacíos.',
+    connectCancelled:
+      'La carpeta no se conectó. Vuelve a elegir private-data y confirma la selección en la ventana del sistema, o abre los JSON en modo manual.',
+    connectUnexpected:
+      'No se pudo completar la conexión. No se han modificado tus archivos; vuelve a seleccionar la carpeta private-data.',
+    openFiles: 'Abrir JSON de private-data',
     grantPermission: 'Dar permiso a carpeta guardada',
     chooseAnother: 'Elegir otra carpeta',
     permissionNotice:
@@ -51,9 +59,46 @@ export const STRINGS = {
     copied: 'Prompt copiado. Pégalo en tu asistente local.',
     copyFailed: 'No se pudo copiar. Selecciona el texto y cópialo.',
     browserUnsupported:
-      'Este navegador no permite conectar carpetas directamente. Abre CareerKit en un navegador compatible para continuar.',
+      'Este navegador no completó la conexión directa. Puedes probar con otro navegador o abrir los JSON de private-data en modo manual.',
     privacy:
       'Cuando el navegador lo permite, recuerda la selección. Tus JSON siguen en tu carpeta y no se envían a servidores.',
+  },
+  fallbackFiles: {
+    eyebrow: 'ACCESO MANUAL A TUS ARCHIVOS',
+    title: 'Abre los JSON de private-data',
+    body: 'Si este navegador no completa la selección de carpeta, puedes abrir aquí los archivos directamente. CareerKit valida cada módulo por separado y mantiene los datos solo en esta sesión del navegador.',
+    files:
+      'Selecciona uno o varios de estos archivos: profile.json, linkedin.json, cv.json, vacancies.json y priorities.json.',
+    choose: 'Seleccionar archivos JSON',
+    opening: 'Abriendo archivos…',
+    noRecognized:
+      'No se encontró ningún JSON de CareerKit. Selecciona archivos con los nombres indicados y vuelve a intentarlo.',
+    openError:
+      'No se pudieron leer los archivos seleccionados. Revisa que sean JSON válidos y vuelve a elegirlos.',
+    connected: 'Archivos abiertos en modo manual.',
+    connectedWithIssues:
+      'Se abrieron los módulos válidos. Revisa los que aparecen marcados en Inicio antes de usarlos.',
+    limitTitle: 'El guardado será manual',
+    limitBody:
+      'Al guardar un formulario se descargará el JSON actualizado. Sustitúyelo en private-data. La página no escribe en los archivos originales, no detecta cambios externos y olvidará los datos al cerrarse o recargarse. Nada se envía a servidores.',
+    bannerTitle: 'Archivos abiertos · guardado manual',
+    bannerBody:
+      'Los cambios de los formularios no se guardan en los archivos originales. Descarga cada JSON actualizado y sustitúyelo en private-data antes de cerrar esta página.',
+    chooseAgain: 'Abrir o corregir JSON',
+    tryDirect: 'Conectar carpeta directamente',
+    savePrepared:
+      'Cambios preparados. Usa «Guardar JSON individual» para descargar este módulo y sustituirlo en private-data.',
+    saved:
+      'JSON descargado. Sustitúyelo en private-data para guardar el cambio.',
+    manualStatus: 'JSON abiertos · guardado manual',
+    manualSideNote:
+      'Modo manual: vuelve a abrir los JSON al iniciar otra sesión y sustituye cada archivo descargado en private-data.',
+    closeManual: 'Cerrar archivos abiertos',
+    closeManualTitle: 'Cerrar archivos abiertos',
+    closeKeep: 'Cerrar sin borrar datos de sesión',
+    closeClear: 'Cerrar y borrar datos de sesión',
+    closeManualBody:
+      'CareerKit dejará de mostrar estos JSON. Puedes cerrar la vista o borrar también los datos que siguen en esta sesión del navegador.',
   },
   disconnect: 'Desconectar carpeta',
   disconnected: 'Datos desconectados',
@@ -213,26 +258,130 @@ export const STRINGS = {
     sideBody:
       'Aquí puedes guardar matices, intereses y objetivos para que el asistente te conozca mejor. LinkedIn conserva por separado y literalmente lo que tú publicas.',
   },
-  homeIntro: 'Una vista clara de lo que estás construyendo.',
+  homePage: {
+    eyebrow: 'TU ESPACIO PROFESIONAL',
+    title: 'Inicio',
+    subtitle: 'Una vista clara de lo que estás construyendo.',
+    activityEyebrow: 'A TENER EN CUENTA',
+    activityTitle: 'Tu actividad',
+    registeredDates: 'Fechas registradas',
+    linkedinAudit: 'LinkedIn · última auditoría',
+    updatedLabel: 'Actualizado',
+    openLinkedin: 'Abrir LinkedIn',
+    vacanciesEyebrow: 'ORDEN DE PREFERENCIA',
+    viewAll: 'Ver todas',
+    vacanciesEmpty:
+      'Cuando empieces a buscar, guarda aquí las ofertas que quieras comparar. No hace falta rellenar esta sección ahora.',
+    vacanciesAction: 'Ver Vacantes',
+    roleFallback: 'Puesto sin título',
+    companyFallback: 'Empresa sin registrar',
+    locationFallback: 'Ubicación sin registrar',
+    modalityFallback: 'Sin modalidad',
+    prioritiesEyebrow: 'SIGUIENTES PASOS',
+    priorityTitleFallback: 'Prioridad sin título',
+    priorityReasonFallback: 'Sin motivo registrado',
+    noPrioritiesTitle: 'Sin prioridades todavía',
+    noPrioritiesBody:
+      'Un agente puede añadir aquí prioridades cuando le pidas revisar tu perfil o una oferta.',
+  },
+  homeProgress: {
+    eyebrow: 'GUÍA DE PROGRESO',
+    title: 'Prepara tu base profesional paso a paso',
+    subtitle:
+      'Perfil y LinkedIn son el punto de partida. El CV viene después; las vacantes pueden esperar hasta que empieces a buscar.',
+    connected: 'Carpeta local conectada',
+    disconnected: 'Carpeta sin conectar',
+    localStorageNote: 'Los cambios se guardan en tus archivos locales.',
+    manualConnected: 'Archivos abiertos en modo manual',
+    manualStorageNote:
+      'Descarga cada JSON actualizado y sustitúyelo en private-data.',
+    manualConnected: 'Archivos abiertos en modo manual',
+    manualStorageNote:
+      'Descarga cada JSON actualizado y sustitúyelo en private-data.',
+    connectNote: 'Conecta la carpeta para consultar y guardar tus datos.',
+    progressLabel: 'Módulos con contenido',
+    progressCount: '{count} de {total} módulos con contenido',
+    progressComplete: 'Perfil, LinkedIn y CV tienen contenido',
+    progressNeedsReview: 'Hay un archivo que revisar',
+    nextLabel: 'TU SIGUIENTE PASO',
+    priorityLabel: 'PRIORIDAD ALTA · PRIMEROS PASOS',
+    nextReviewTitle: 'Hay un archivo que necesita atención',
+    nextReviewBody:
+      'CareerKit lo ha dejado intacto. Abre el módulo indicado para revisar qué ocurre.',
+    reviewActions: {
+      profile: 'Revisar Perfil',
+      linkedin: 'Revisar LinkedIn',
+      cv: 'Revisar CV',
+    },
+    nextCheckingTitle: 'Comprobando tus archivos',
+    nextCheckingBody:
+      'En cuanto termine la lectura, verás aquí qué módulo conviene completar.',
+    checkingAction: 'Abrir sección',
+    nextProfileTitle: 'Empieza por Perfil y aprendizajes',
+    nextProfileBody:
+      'Añade tus objetivos, preferencias y evidencias. Este dossier puede guardar también lo que no publicas en LinkedIn.',
+    profileAction: 'Completar Perfil',
+    nextLinkedinTitle: 'Añade la copia de tu LinkedIn',
+    nextLinkedinBody:
+      'Puedes transcribirla en el formulario o pedir al agente que la organice desde un archivo legible.',
+    linkedinAction: 'Añadir copia de LinkedIn',
+    nextPromptTitle: 'Perfil o LinkedIn ha cambiado',
+    nextPromptBody:
+      'Usa el prompt pendiente para revisar y actualizar las dos bases del CV.',
+    promptAction: 'Abrir prompt en el Buzón',
+    nextCvTitle: 'Prepara las dos bases del CV',
+    nextCvBody:
+      'Perfil y LinkedIn ya tienen contenido. En CV encontrarás el prompt para preparar las versiones española e inglesa.',
+    cvAction: 'Ver preparación del CV',
+    noUrgentLabel: 'SIN PASOS OBLIGATORIOS',
+    allReadyTitle: 'Tu base profesional tiene contenido',
+    allReadyBody:
+      'Por ahora no hace falta completar nada más. Cuando empieces a buscar, puedes guardar vacantes para compararlas.',
+    status: {
+      ready: 'Con contenido',
+      empty: 'Por completar',
+      priority: 'Prioridad alta',
+      waiting: 'Después',
+      review: 'Revisar archivo',
+      checking: 'Comprobando',
+      update: 'Actualizar CV',
+    },
+    steps: {
+      profile: {
+        title: 'Perfil y aprendizajes',
+        ready: 'Tu dossier y tus evidencias tienen contenido.',
+        empty: 'Cuéntale al agente qué buscas y qué quieres conservar.',
+        waiting: 'Añade objetivos, preferencias y evidencias cuando quieras.',
+        review: 'Comprueba el archivo de Perfil antes de seguir.',
+        checking: 'Leyendo el archivo de Perfil.',
+      },
+      linkedin: {
+        title: 'LinkedIn',
+        ready: 'La copia publicada está guardada por separado.',
+        empty: 'Registra fielmente lo que aparece en tu perfil publicado.',
+        waiting: 'Añade la copia publicada cuando la tengas a mano.',
+        review: 'Comprueba el archivo de LinkedIn antes de seguir.',
+        checking: 'Leyendo el archivo de LinkedIn.',
+      },
+      cv: {
+        title: 'CV base',
+        ready: 'Las versiones española e inglesa tienen contenido.',
+        empty:
+          'El agente puede preparar las dos versiones desde el prompt de CV.',
+        waiting: 'Se prepara después de Perfil y LinkedIn.',
+        review: 'Comprueba el archivo del CV antes de seguir.',
+        checking: 'Leyendo el archivo del CV.',
+        update: 'Hay un prompt pendiente para poner al día las dos versiones.',
+      },
+    },
+    optionalLabel: 'A TU RITMO',
+    optionalVacancies:
+      'Vacantes es opcional. Puedes dejar esta sección vacía hasta que empieces a buscar.',
+    optionalAction: 'Ver Vacantes',
+  },
   priorities: 'Prioridades',
   featured: 'Vacantes destacadas',
   cvDates: 'CV',
-  homeSetup: {
-    highPriorityLabel: 'ALTA PRIORIDAD · PRIMEROS PASOS',
-    urgentTitle: 'Tu espacio necesita tu historia profesional',
-    urgentBodyBoth:
-      'Añade la información confirmada de tu trayectoria en Perfil y copia en LinkedIn lo que tienes publicado. Cuando ambas estén listas, el CV te mostrará el prompt para preparar las dos versiones.',
-    urgentBodyProfile:
-      'Añade la información confirmada de tu trayectoria en Perfil. Después podrás contrastarla con tu copia publicada en LinkedIn y preparar los CV desde su prompt.',
-    urgentBodyLinkedin:
-      'Añade la copia fiel de lo que tienes publicado en LinkedIn. Después podrás contrastarla con tu Perfil y preparar los CV desde su prompt.',
-    cvTitle: 'El CV base está pendiente de preparar',
-    cvBody:
-      'Tu Perfil y LinkedIn ya tienen contenido. Abre CV y copia el prompt para que tu asistente prepare las dos versiones.',
-    profileAction: 'Completar Perfil',
-    linkedinAction: 'Completar LinkedIn',
-    cvAction: 'Preparar los dos CV',
-  },
   cvEditor: {
     title: 'CV base',
     subtitle:
