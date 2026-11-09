@@ -2207,8 +2207,19 @@ select {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 18px;
   margin: -6px 0 20px;
+}
+.linkedin-mode-controls {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+.linkedin-mode-save {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 .linkedin-page-heading {
   align-items: flex-start;
@@ -2798,6 +2809,10 @@ select {
     flex-direction: column;
     gap: 9px;
   }
+  .linkedin-mode-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
   .linkedin-edit-sections {
     grid-template-columns: 1fr;
   }
@@ -2811,6 +2826,10 @@ select {
   }
 }
 @media (max-width: 520px) {
+  .linkedin-mode-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
   .linkedin-mode-switch {
     display: grid;
     width: 100%;
@@ -2819,6 +2838,9 @@ select {
   .linkedin-mode-switch button {
     min-width: 0;
     padding-inline: 9px;
+  }
+  .linkedin-mode-save {
+    width: 100%;
   }
   .linkedin-list-heading,
   .linkedin-audit-heading {

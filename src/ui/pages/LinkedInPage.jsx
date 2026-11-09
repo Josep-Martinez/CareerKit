@@ -317,6 +317,22 @@ export function LinkedInPage({
     delete content.publicationStatus
     return content
   }
+  const saveLinkedInDraft = () => {
+    const originalProfile = selectedProfile(value, activeVariantId)
+    const nextProfile = selectedProfile(draft, activeVariantId)
+    const publishedChanged =
+      JSON.stringify(profileText(originalProfile)) !==
+        JSON.stringify(profileText(nextProfile)) &&
+      (hasEntryContent(profileText(originalProfile)) ||
+        hasEntryContent(profileText(nextProfile)))
+    const next = publishedChanged
+      ? markLinkedInLanguageSyncPending(
+          draft,
+          languageBase(pub.language || rootPublished.language),
+        )
+      : draft
+    onSave(next)
+  }
   const initials =
     pub.name
       ?.trim()
@@ -365,27 +381,38 @@ export function LinkedInPage({
       />
       <Status state={state} warning={warning} onReload={onReload} />
       <div className="linkedin-mode-row">
-        <div
-          className="linkedin-mode-switch"
-          role="group"
-          aria-label={copy.modeLabel}
-        >
-          <button
-            type="button"
-            className={view === 'edit' ? 'active' : ''}
-            aria-pressed={view === 'edit'}
-            onClick={() => setView('edit')}
+        <div className="linkedin-mode-controls">
+          <div
+            className="linkedin-mode-switch"
+            role="group"
+            aria-label={copy.modeLabel}
           >
-            {copy.editButton}
-          </button>
-          <button
-            type="button"
-            className={view === 'preview' ? 'active' : ''}
-            aria-pressed={view === 'preview'}
-            onClick={() => setView('preview')}
-          >
-            {copy.previewButton}
-          </button>
+            <button
+              type="button"
+              className={view === 'edit' ? 'active' : ''}
+              aria-pressed={view === 'edit'}
+              onClick={() => setView('edit')}
+            >
+              {copy.editButton}
+            </button>
+            <button
+              type="button"
+              className={view === 'preview' ? 'active' : ''}
+              aria-pressed={view === 'preview'}
+              onClick={() => setView('preview')}
+            >
+              {copy.previewButton}
+            </button>
+          </div>
+          {view === 'edit' && (
+            <button
+              className="button primary small linkedin-mode-save"
+              type="button"
+              onClick={saveLinkedInDraft}
+            >
+              {copy.save}
+            </button>
+          )}
         </div>
         <span>{copy.separationNotice}</span>
       </div>
@@ -561,22 +588,7 @@ export function LinkedInPage({
           </section>
           <button
             className="button primary save-button"
-            onClick={() => {
-              const originalProfile = selectedProfile(value, activeVariantId)
-              const nextProfile = selectedProfile(draft, activeVariantId)
-              const publishedChanged =
-                JSON.stringify(profileText(originalProfile)) !==
-                  JSON.stringify(profileText(nextProfile)) &&
-                (hasEntryContent(profileText(originalProfile)) ||
-                  hasEntryContent(profileText(nextProfile)))
-              const next = publishedChanged
-                ? markLinkedInLanguageSyncPending(
-                    draft,
-                    languageBase(pub.language || rootPublished.language),
-                  )
-                : draft
-              onSave(next)
-            }}
+            onClick={saveLinkedInDraft}
           >
             {copy.save}
           </button>
