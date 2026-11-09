@@ -334,7 +334,7 @@ export const PROMPT_INBOX_ES = {
       text: [
         'Organiza la experiencia que te he contado en Situación, Tarea, Acción y Resultado. Mantén claro qué hice yo y qué hizo el equipo. No inventes alcance, cifras, fechas ni resultados; conserva exactamente los datos que proporcioné.',
         'Si falta un dato importante, haz hasta tres preguntas concretas. Si el resultado cuantitativo no está confirmado, no lo estimes. Devuelve primero la historia en el chat para que la revise.',
-        'Solo si te pido guardarla, añade una evidencia con ID estable a private-data/profile.json.evidence. Usa type: star-story y los campos situation, task, actions, results y tags; marca confirmación y uso para CV según lo que haya confirmado. Valida el archivo, conserva los demás datos y no crees otro fichero. Si no tienes acceso, di que no se guardó.',
+        'Devuelve primero la historia completa en el chat para que la revise y pregúntame si quiero guardarla. No la guardes hasta que te confirme después de verla. Si confirmo, añade una evidencia con ID estable, título breve y type: star-story a private-data/profile.json.evidence, con los campos situation, task, actions, results y tags. Marca confirmed y cvEvidence solo cuando mi confirmación lo justifique; no infieras onLinkedIn ni internal. Valida profile.json antes y después, conserva los demás datos y no crees otro fichero. Si no confirmo guardar, no escribas nada. Si no tienes acceso, dilo y no afirmes que se guardó.',
       ].join('\n\n'),
     },
     {
