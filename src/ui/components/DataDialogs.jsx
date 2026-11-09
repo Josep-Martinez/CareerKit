@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { EMPTY } from '../../data/catalog.js'
 import { STRINGS as s } from '../../i18n/es.js'
+import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
 import { normalizeModule, validateModule } from '../../data/storage.js'
 
 export function FolderDataDialog({
@@ -26,17 +27,22 @@ export function FolderDataDialog({
     : hasInvalid
       ? copy.invalidTitle
       : copy.emptyTitle
-  const prompt = [
-    copy.prompt,
-    hasMissing
-      ? `${copy.missingLabel}: ${missing.map((name) => `${name}.json`).join(', ')}.`
-      : '',
-    hasInvalid
-      ? `${copy.invalidLabel}: ${invalid.map(({ name }) => `${name}.json (compara con templates/${name}.json)`).join(', ')}.`
-      : '',
-  ]
-    .filter(Boolean)
-    .join('\n\n')
+  const preparationPrompt = s.promptInbox.prompts.find(
+    (item) => item.id === 'prepare-data',
+  )
+  const prompt = buildPromptText(preparationPrompt, {
+    body: [
+      copy.prompt,
+      hasMissing
+        ? `${copy.missingLabel}: ${missing.map((name) => `${name}.json`).join(', ')}.`
+        : '',
+      hasInvalid
+        ? `${copy.invalidLabel}: ${invalid.map(({ name }) => `${name}.json (compara con templates/${name}.json)`).join(', ')}.`
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n\n'),
+  })
 
   async function copyInstructions() {
     try {

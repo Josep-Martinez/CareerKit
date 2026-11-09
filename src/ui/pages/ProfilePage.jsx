@@ -1,234 +1,402 @@
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import {
+  ArrayText,
   CardTitle,
   Check,
   TextField,
   useDraft,
 } from '../components/FormPrimitives.jsx'
 import { id } from '../utils.js'
+import { STRINGS as s } from '../../i18n/es.js'
+
+const personalFields = [
+  { key: 'aboutMe', rows: 4, hint: s.profilePage.aboutMeHint },
+  { key: 'values', list: true },
+  { key: 'interests', list: true },
+  { key: 'motivations', rows: 3 },
+  { key: 'thinkingStyle', rows: 3 },
+  { key: 'learningStyle', rows: 3 },
+  { key: 'workStyle', rows: 3 },
+  { key: 'strengths', list: true },
+  { key: 'growthAreas', list: true, hint: s.profilePage.growthAreasHint },
+  { key: 'preferredEnvironment', rows: 3 },
+  { key: 'boundaries', rows: 3 },
+]
+const careerFields = [
+  { key: 'roleFamilies', list: true },
+  { key: 'tasks', list: true },
+  { key: 'industries', list: true },
+  { key: 'workModes', list: true },
+  { key: 'location', rows: 2 },
+  { key: 'conditions', rows: 3 },
+  { key: 'avoid', list: true },
+]
+const contentFields = [
+  { key: 'themes', list: true },
+  { key: 'viewpoints', list: true },
+  { key: 'tone', rows: 3 },
+  { key: 'avoid', list: true, label: s.profilePage.contentAvoid },
+]
+const collectionKeys = [
+  'experience',
+  'education',
+  'skills',
+  'certifications',
+  'languages',
+  'projects',
+  'evidence',
+  'learnings',
+]
 
 export function ProfilePage({ value, state, warning, onSave, onReload }) {
   const [draft, setDraft] = useDraft(value)
-  const update = (key, val) => setDraft({ ...draft, [key]: val })
-  const add = (key) =>
-    update(key, [
-      ...(draft[key] || []),
-      {
-        id: id(),
-        title: '',
-        organization: '',
-        dates: '',
-        actions: '',
-        results: '',
-        evidenceIds: [],
-        confirmed: false,
-        cvEvidence: false,
-        onLinkedIn: false,
-        internal: false,
-      },
-    ])
+  const update = (key, val) =>
+    setDraft((current) => ({ ...current, [key]: val }))
+  const updateNested = (objectKey, key, val) =>
+    setDraft((current) => ({
+      ...current,
+      [objectKey]: { ...(current[objectKey] || {}), [key]: val },
+    }))
+  const add = (key, type) =>
+    setDraft((current) => ({
+      ...current,
+      [key]: [
+        ...(current[key] || []),
+        {
+          id: id(),
+          ...(type ? { type } : {}),
+          title: '',
+          organization: '',
+          dates: '',
+          actions: '',
+          results: '',
+          evidenceIds: [],
+          confirmed: false,
+          cvEvidence: false,
+          onLinkedIn: false,
+          internal: false,
+        },
+      ],
+    }))
   const patchItem = (key, idx, part) =>
-    update(
-      key,
-      draft[key].map((item, i) => (i === idx ? { ...item, ...part } : item)),
-    )
+    setDraft((current) => ({
+      ...current,
+      [key]: current[key].map((item, i) =>
+        i === idx ? { ...item, ...part } : item,
+      ),
+    }))
+  const renderContextFields = (objectKey, fields) => {
+    const values = draft[objectKey] || {}
+    return fields.map(({ key, list, rows, hint, label }) => {
+      const fieldLabel = label || s.profilePage[key]
+      if (list)
+        return (
+          <ArrayText
+            key={`${objectKey}-${key}`}
+            title={fieldLabel}
+            items={values[key] || []}
+            onChange={(next) => updateNested(objectKey, key, next)}
+          />
+        )
+      return (
+        <TextField
+          key={`${objectKey}-${key}`}
+          label={fieldLabel}
+          rows={rows}
+          value={values[key]}
+          onChange={(next) => updateNested(objectKey, key, next)}
+          hint={hint}
+        />
+      )
+    })
+  }
+
   return (
     <>
       <PageHeading
-        eyebrow="BASE DE TU HISTORIA"
-        title="Perfil y aprendizajes"
-        subtitle="Guarda experiencias, metas y evidencias a tu manera."
+        eyebrow={s.profilePage.eyebrow}
+        title={s.profilePage.title}
+        subtitle={s.profilePage.subtitle}
       />
       <Status state={state} warning={warning} onReload={onReload} />
-      <div className="editor-grid">
-        <section className="panel form-panel" id="profile-main-form">
-          <CardTitle
-            title="Perfil profesional"
-            description="Una descripción de tu perfil, editable por ti."
-          />
-          <TextField
-            label="Perfil profesional"
-            rows={5}
-            value={draft.professionalProfile}
-            onChange={(v) => update('professionalProfile', v)}
-            placeholder="Escribe tu perfil profesional…"
-          />
-          <CardTitle
-            title="Objetivos"
-            description="Metas a corto, medio y largo plazo."
-          />
-          <div className="form-two">
-            <TextField
-              label="Corto plazo"
-              rows={3}
-              value={draft.objectives.shortTerm}
-              onChange={(v) =>
-                update('objectives', { ...draft.objectives, shortTerm: v })
-              }
-            />
-            <TextField
-              label="Medio plazo"
-              rows={3}
-              value={draft.objectives.mediumTerm}
-              onChange={(v) =>
-                update('objectives', { ...draft.objectives, mediumTerm: v })
-              }
-            />
-          </div>
-          <TextField
-            label="Largo plazo"
-            rows={3}
-            value={draft.objectives.longTerm}
-            onChange={(v) =>
-              update('objectives', { ...draft.objectives, longTerm: v })
-            }
-          />
-          {[
-            'experience',
-            'education',
-            'skills',
-            'certifications',
-            'languages',
-            'projects',
-            'evidence',
-            'learnings',
-          ].map((key) => (
-            <div className="collection" key={key}>
-              <CardTitle
-                title={
-                  {
-                    experience: 'Experiencia',
-                    education: 'Formación',
-                    skills: 'Habilidades',
-                    certifications: 'Certificaciones',
-                    languages: 'Idiomas',
-                    projects: 'Proyectos',
-                    evidence: 'Otras evidencias',
-                    learnings: 'Aprendizajes',
-                  }[key]
-                }
-                onAdd={() => add(key)}
-              />
-              {(draft[key] || []).map((item, i) => (
-                <div className="item-card" key={item.id || i}>
-                  <div className="item-heading">
-                    <span>Elemento {i + 1}</span>
-                    <button
-                      className="icon-button"
-                      aria-label="Eliminar elemento"
-                      onClick={() =>
-                        update(
-                          key,
-                          draft[key].filter((_, n) => n !== i),
-                        )
-                      }
-                    >
-                      ×
-                    </button>
-                  </div>
-                  <div className="form-two">
-                    <TextField
-                      label={
-                        key === 'skills' || key === 'languages'
-                          ? 'Nombre'
-                          : 'Título'
-                      }
-                      value={item.title || item.name}
-                      onChange={(v) =>
-                        patchItem(
-                          key,
-                          i,
-                          key === 'skills' || key === 'languages'
-                            ? { title: v, name: v }
-                            : { title: v },
-                        )
-                      }
-                    />
-                    <TextField
-                      label="Organización / contexto"
-                      value={item.organization}
-                      onChange={(v) => patchItem(key, i, { organization: v })}
-                    />
-                  </div>
-                  <div className="form-two">
-                    <TextField
-                      label="Fechas"
-                      value={item.dates}
-                      onChange={(v) => patchItem(key, i, { dates: v })}
-                    />
-                    <TextField
-                      label="Acciones"
-                      value={item.actions}
-                      onChange={(v) => patchItem(key, i, { actions: v })}
-                    />
-                  </div>
-                  <TextField
-                    label="Resultados demostrables"
-                    value={item.results}
-                    onChange={(v) => patchItem(key, i, { results: v })}
-                  />
-                  <div className="checks">
-                    <Check
-                      label="Evidencia para el CV"
-                      checked={item.cvEvidence}
-                      onChange={(v) => patchItem(key, i, { cvEvidence: v })}
-                    />
-                    <Check
-                      label="Aparece en LinkedIn"
-                      checked={item.onLinkedIn}
-                      onChange={(v) => patchItem(key, i, { onLinkedIn: v })}
-                    />
-                    <Check
-                      label="Información interna"
-                      checked={item.internal}
-                      onChange={(v) => patchItem(key, i, { internal: v })}
-                    />
-                    <Check
-                      label="Confirmado"
-                      checked={item.confirmed}
-                      onChange={(v) => patchItem(key, i, { confirmed: v })}
-                    />
-                  </div>
-                </div>
-              ))}
-              {!(draft[key] || []).length && (
-                <p className="quiet-empty">
-                  Sin elementos. Añade uno cuando quieras.
-                </p>
-              )}
-            </div>
-          ))}
-          <button
-            className="button primary save-button"
-            onClick={() => onSave(draft)}
+      <div className="editor-grid profile-editor-grid">
+        <div className="profile-main">
+          <aside
+            className="profile-private-note"
+            aria-label={s.profilePage.privateTitle}
           >
-            Guardar perfil
-          </button>
-        </section>
-        <aside className="side-info">
+            <span className="profile-private-mark" aria-hidden="true">
+              ◌
+            </span>
+            <div>
+              <h2>{s.profilePage.privateTitle}</h2>
+              <p>{s.profilePage.privateBody}</p>
+            </div>
+          </aside>
+
+          <section className="panel form-panel profile-card">
+            <ProfileCardHeading
+              title={s.profilePage.personalTitle}
+              description={s.profilePage.personalDescription}
+            />
+            <div className="profile-fields-grid">
+              {renderContextFields('personalContext', personalFields)}
+            </div>
+          </section>
+
+          <section className="panel form-panel profile-card">
+            <ProfileCardHeading
+              title={s.profilePage.careerTitle}
+              description={s.profilePage.careerDescription}
+            />
+            <TextField
+              label={s.profilePage.professionalSummary}
+              rows={4}
+              value={draft.professionalProfile}
+              onChange={(next) => update('professionalProfile', next)}
+              hint={s.profilePage.professionalSummaryHint}
+            />
+            <CardTitle
+              title={s.profilePage.objectivesTitle}
+              description={s.profilePage.objectivesDescription}
+            />
+            <div className="form-two">
+              {['shortTerm', 'mediumTerm'].map((key) => (
+                <TextField
+                  key={key}
+                  label={s.profilePage[key]}
+                  rows={3}
+                  value={draft.objectives[key]}
+                  onChange={(next) =>
+                    update('objectives', {
+                      ...draft.objectives,
+                      [key]: next,
+                    })
+                  }
+                />
+              ))}
+            </div>
+            <TextField
+              label={s.profilePage.longTerm}
+              rows={3}
+              value={draft.objectives.longTerm}
+              onChange={(next) =>
+                update('objectives', {
+                  ...draft.objectives,
+                  longTerm: next,
+                })
+              }
+            />
+            <div className="profile-fields-grid">
+              {renderContextFields('careerPreferences', careerFields)}
+            </div>
+          </section>
+
+          <section className="panel form-panel profile-card">
+            <ProfileCardHeading
+              title={s.profilePage.contentTitle}
+              description={s.profilePage.contentDescription}
+            />
+            <div className="profile-fields-grid">
+              {renderContextFields('contentDirection', contentFields)}
+            </div>
+          </section>
+
+          <section
+            className="panel form-panel profile-card"
+            id="profile-main-form"
+          >
+            <ProfileCardHeading
+              title={s.profilePage.journeyTitle}
+              description={s.profilePage.journeyDescription}
+            />
+            {collectionKeys.map((key) => (
+              <div className="collection" key={key}>
+                <CardTitle
+                  title={s.profilePage.collectionLabels[key]}
+                  onAdd={() => add(key)}
+                />
+                {key === 'evidence' && (
+                  <button
+                    className="button secondary small"
+                    type="button"
+                    onClick={() => add(key, 'star-story')}
+                  >
+                    {s.profileEntry.addStarStory}
+                  </button>
+                )}
+                {(draft[key] || []).map((item, i) => (
+                  <div className="item-card" key={item.id || i}>
+                    <div className="item-heading">
+                      <span>
+                        {item.type === 'star-story'
+                          ? s.profileEntry.starStory
+                          : `${s.profilePage.itemLabel} ${i + 1}`}
+                      </span>
+                      <button
+                        className="icon-button"
+                        type="button"
+                        aria-label={s.profilePage.deleteItem}
+                        onClick={() =>
+                          update(
+                            key,
+                            draft[key].filter((_, n) => n !== i),
+                          )
+                        }
+                      >
+                        ×
+                      </button>
+                    </div>
+                    {key === 'evidence' && item.type === 'star-story' && (
+                      <>
+                        <TextField
+                          label={s.profileEntry.situation}
+                          rows={3}
+                          value={item.situation}
+                          onChange={(next) =>
+                            patchItem(key, i, { situation: next })
+                          }
+                        />
+                        <TextField
+                          label={s.profileEntry.task}
+                          rows={3}
+                          value={item.task}
+                          onChange={(next) => patchItem(key, i, { task: next })}
+                        />
+                        <TextField
+                          label={s.profileEntry.tags}
+                          value={(item.tags || []).join(', ')}
+                          onChange={(next) =>
+                            patchItem(key, i, {
+                              tags: next
+                                .split(',')
+                                .map((tag) => tag.trim())
+                                .filter(Boolean),
+                            })
+                          }
+                        />
+                      </>
+                    )}
+                    <div className="form-two">
+                      <TextField
+                        label={
+                          key === 'skills' || key === 'languages'
+                            ? s.profilePage.nameLabel
+                            : s.profilePage.titleLabel
+                        }
+                        value={item.title || item.name}
+                        onChange={(next) =>
+                          patchItem(
+                            key,
+                            i,
+                            key === 'skills' || key === 'languages'
+                              ? { title: next, name: next }
+                              : { title: next },
+                          )
+                        }
+                      />
+                      <TextField
+                        label={s.profilePage.organizationLabel}
+                        value={item.organization}
+                        onChange={(next) =>
+                          patchItem(key, i, { organization: next })
+                        }
+                      />
+                    </div>
+                    <div className="form-two">
+                      <TextField
+                        label={s.profilePage.datesLabel}
+                        value={item.dates}
+                        onChange={(next) => patchItem(key, i, { dates: next })}
+                      />
+                      <TextField
+                        label={s.profilePage.actionsLabel}
+                        value={item.actions}
+                        onChange={(next) =>
+                          patchItem(key, i, { actions: next })
+                        }
+                      />
+                    </div>
+                    <TextField
+                      label={s.profilePage.resultsLabel}
+                      value={item.results}
+                      onChange={(next) => patchItem(key, i, { results: next })}
+                    />
+                    <div className="checks">
+                      <Check
+                        label={s.profilePage.cvEvidenceLabel}
+                        checked={item.cvEvidence}
+                        onChange={(next) =>
+                          patchItem(key, i, { cvEvidence: next })
+                        }
+                      />
+                      <Check
+                        label={s.profilePage.linkedInLabel}
+                        checked={item.onLinkedIn}
+                        onChange={(next) =>
+                          patchItem(key, i, { onLinkedIn: next })
+                        }
+                      />
+                      <Check
+                        label={s.profilePage.internalLabel}
+                        checked={item.internal}
+                        onChange={(next) =>
+                          patchItem(key, i, { internal: next })
+                        }
+                      />
+                      <Check
+                        label={s.profilePage.confirmedLabel}
+                        checked={item.confirmed}
+                        onChange={(next) =>
+                          patchItem(key, i, { confirmed: next })
+                        }
+                      />
+                    </div>
+                  </div>
+                ))}
+                {!(draft[key] || []).length && (
+                  <p className="quiet-empty">{s.profilePage.noItems}</p>
+                )}
+              </div>
+            ))}
+            <button
+              className="button primary save-button"
+              type="button"
+              onClick={() => onSave(draft)}
+            >
+              {s.profilePage.save}
+            </button>
+          </section>
+        </div>
+        <aside className="side-info profile-side-info">
           <div className="tip-card">
-            <span className="tip-icon">✳</span>
-            <h3>Una historia completa</h3>
-            <p>
-              Guarda aquí también proyectos universitarios y actividades que no
-              formen parte de LinkedIn.
-            </p>
+            <span className="tip-icon" aria-hidden="true">
+              ✳
+            </span>
+            <h3>{s.profilePage.sideTitle}</h3>
+            <p>{s.profilePage.sideBody}</p>
           </div>
           <div className="legend-card">
-            <h3>Estado de la información</h3>
+            <h3>{s.profilePage.legendTitle}</h3>
             <div>
-              <i className="legend-confirmed" /> Confirmado
+              <i className="legend-confirmed" /> {s.profilePage.confirmedState}
             </div>
             <div>
-              <i className="legend-pending" /> Pendiente de confirmar
+              <i className="legend-pending" /> {s.profilePage.pendingState}
             </div>
-            <p>
-              Cada elemento incluye un identificador para relacionarlo con
-              vacantes.
-            </p>
+            <p>{s.profilePage.evidenceRelationHint}</p>
           </div>
         </aside>
       </div>
     </>
+  )
+}
+
+function ProfileCardHeading({ title, description }) {
+  return (
+    <header className="profile-card-heading">
+      <h2>{title}</h2>
+      <p>{description}</p>
+    </header>
   )
 }

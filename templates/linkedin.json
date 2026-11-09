@@ -1,10 +1,12 @@
 {
   "schemaVersion": 1,
   "published": {
+    "name": "",
     "headline": "",
     "about": "",
     "experience": [],
     "education": [],
+    "languages": [],
     "skills": [],
     "certifications": [],
     "projects": [],
