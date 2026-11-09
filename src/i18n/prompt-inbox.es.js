@@ -8,7 +8,7 @@ export const PROMPT_INBOX_ES = {
     'Para guardar cambios, el asistente debe tener acceso local a private-data. El prompt del complemento requiere que LinkedIn esté conectado en ese asistente; no sustituye el acceso local a los JSON. Las guías indicadas en cada prompt explican el proceso.',
   pendingTitle: 'Tienes tareas pendientes en el Buzón',
   pendingCvBody:
-    'Hay cambios profesionales recientes en Perfil o LinkedIn. Revisa «Actualizar la base general del CV» para reflejarlos en las dos versiones.',
+    'Hay cambios profesionales en {sources}. El aviso se retira cuando ambas bases del CV tienen cambios de contenido o una nueva fecha de revisión.',
   pendingLanguagesBody:
     'Has guardado cambios en LinkedIn. Copiar el prompt no lo ejecuta: úsalo con un agente que pueda guardar en tu carpeta local. El aviso se retira cuando el archivo indica que la revisión está completa. Si ya comprobaste ambas versiones, puedes confirmarlo aquí.',
   pendingLanguagesExternalChange:
@@ -196,7 +196,7 @@ export const PROMPT_INBOX_ES = {
       text: [
         'Revisa private-data/profile.json, private-data/linkedin.json y private-data/cv.json solo si tienes acceso local autorizado. Valida cada módulo con su propio esquema. Si Perfil o LinkedIn no contienen información confirmada suficiente, dime qué falta y espera a que la complete.',
         'Cuando las fuentes estén preparadas, actualiza las dos bases generales en cv.json usando únicamente hechos confirmados y marcados como aptos para CV. Contrasta con la copia publicada de LinkedIn; si las fuentes discrepan, pregunta antes de resolver la diferencia. Respeta IDs, privacidad y datos internos. No uses personalContext, careerPreferences ni contentDirection como evidencia curricular. No modifiques el contenido publicado en LinkedIn.',
-        'Mantén la base española en español y con el formato español de dos columnas. Escribe la base inglesa completamente en inglés y con una columna. Conserva el sentido, pero no traduzcas una versión mecánicamente si el resultado no es natural. Registra fechas solo si están confirmadas y actualiza únicamente porque te lo he pedido.',
+        'Mantén la base española en español y con el formato español de dos columnas. Escribe la base inglesa completamente en inglés y con una columna. Conserva el sentido, pero no traduzcas una versión mecánicamente si el resultado no es natural. Cuando revises efectivamente cada versión, registra la fecha real de esa revisión en lastReviewed, aunque el texto no necesite cambios. Mantén lastUpdated si el contenido no cambia y no inventes fechas.',
         'Valida cv.json después de editarlo, conserva sus campos desconocidos y no sustituyas un archivo inválido. Si no puedes acceder o guardar, dilo claramente; no afirmes que actualizaste las bases.',
       ].join('\n\n'),
     },

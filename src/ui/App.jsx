@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useCvReviewTask } from '../data/cv-review-task.js'
 import { EMPTY } from '../data/catalog.js'
 import { hasCvRelevantLinkedInChanges } from '../data/linkedin-changes.js'
 import { hasCvRelevantProfileChanges } from '../data/profile-changes.js'
@@ -39,11 +40,14 @@ export default function App() {
     useState(false)
   const clearFocusEvidenceId = useCallback(() => setFocusEvidenceId(''), [])
   const [confirmDisconnect, setConfirmDisconnect] = useState(false)
-  const [cvPromptPending, setCvPromptPending] = useState(false)
+  const cvReview = useCvReviewTask()
+  const cvPromptPending = Boolean(cvReview.task)
+  const observedCv = useRef(null)
   const [connecting, setConnecting] = useState(false)
   const [savedAt, setSavedAt] = useState({})
   const [externalLinkedinPending, setExternalLinkedinPending] = useState(null)
   const externalRevisions = useRef({})
+  const observedSources = useRef({})
   const linkedinLanguagesPending =
     externalLinkedinPending ??
     store.data.linkedin.languageSync?.status === 'pending'
@@ -56,8 +60,8 @@ export default function App() {
     setNoticeAction(action)
   }
 
-  function remindCvPrompt(message) {
-    setCvPromptPending(true)
+  function remindCvPrompt(message, source) {
+    cvReview.record(source, observedCv.current || store.data.cv)
     showNotice(message, 'cv-prompt')
   }
 
@@ -87,26 +91,28 @@ export default function App() {
     const result = await store.reload(module)
     if (result.error && store.folder) setFolderDialog(await store.recheck())
     if (result.ok && module === 'linkedin') setExternalLinkedinPending(null)
-    if (
-      result.ok &&
-      module === 'cv' &&
-      JSON.stringify(store.data.cv) !== JSON.stringify(result.data)
-    )
-      setCvPromptPending(false)
+    if (result.ok && module === 'cv') {
+      observedCv.current = result.data
+      cvReview.check(result.data)
+    }
+    const seen = observedSources.current[module]
+    const alreadyObserved = result.ok && seen === JSON.stringify(result.data)
     if (
       remind &&
+      !alreadyObserved &&
       result.ok &&
       module === 'profile' &&
       hasCvRelevantProfileChanges(store.data.profile, result.data)
     ) {
-      remindCvPrompt(s.promptInbox.sourceReloaded)
+      remindCvPrompt(s.promptInbox.sourceReloaded, module)
     } else if (
       remind &&
+      !alreadyObserved &&
       result.ok &&
       module === 'linkedin' &&
       hasCvRelevantLinkedInChanges(store.data.linkedin, result.data)
     ) {
-      remindCvPrompt(s.promptInbox.sourceReloaded)
+      remindCvPrompt(s.promptInbox.sourceReloaded, module)
     }
     return result
   }
@@ -133,11 +139,20 @@ export default function App() {
     if (fallbackSavedModule !== module) return
     setFallbackSavedModule(null)
     store.markFallbackSaved(module)
-    if (module === 'profile' || fallbackSavedCvRelevant)
-      remindCvPrompt(`${s.promptInbox.fallbackSaved} ${s.fallbackFiles.saved}`)
+    if (fallbackSavedCvRelevant)
+      remindCvPrompt(
+        `${s.promptInbox.fallbackSaved} ${s.fallbackFiles.saved}`,
+        module,
+      )
     else showNotice(s.fallbackFiles.saved)
     setFallbackSavedCvRelevant(false)
   }
+
+  useEffect(() => {
+    if (store.revision.cv === undefined) return
+    observedCv.current = store.data.cv
+    cvReview.check(store.data.cv)
+  }, [store.revision.cv, store.data.cv])
 
   useEffect(() => {
     if (!store.folder) return undefined
@@ -179,8 +194,10 @@ export default function App() {
                 if (
                   validateModule('profile', external) &&
                   hasCvRelevantProfileChanges(store.data.profile, external)
-                )
-                  remindCvPrompt(s.promptInbox.sourceChanged)
+                ) {
+                  observedSources.current[key] = JSON.stringify(external)
+                  remindCvPrompt(s.promptInbox.sourceChanged, key)
+                }
               } catch {
                 /* The explicit reload flow reports invalid JSON to the user. */
               }
@@ -203,8 +220,10 @@ export default function App() {
                   if (
                     validateModule('linkedin', previous) &&
                     hasCvRelevantLinkedInChanges(previous, external)
-                  )
-                    remindCvPrompt(s.promptInbox.sourceChanged)
+                  ) {
+                    observedSources.current[key] = JSON.stringify(external)
+                    remindCvPrompt(s.promptInbox.sourceChanged, key)
+                  }
                 }
               } catch {
                 /* The explicit reload flow reports invalid JSON to the user. */
@@ -213,7 +232,10 @@ export default function App() {
             if (key === 'cv') {
               try {
                 const external = normalizeModule('cv', JSON.parse(txt)).data
-                if (validateModule('cv', external)) setCvPromptPending(false)
+                if (validateModule('cv', external)) {
+                  observedCv.current = external
+                  cvReview.check(external)
+                }
               } catch {
                 /* The explicit reload flow reports invalid JSON to the user. */
               }
@@ -370,7 +392,10 @@ export default function App() {
         ...previous,
         [module]: new Date().toISOString(),
       }))
-    if (result.saved && module === 'cv') setCvPromptPending(false)
+    if (result.saved && module === 'cv') {
+      observedCv.current = value
+      cvReview.check(value)
+    }
     if (result.conflict)
       showNotice(s.saveStatus.conflict.replace('{file}', `${module}.json`))
     else if (result.needsReview) setFolderDialog(await store.recheck())
@@ -391,6 +416,7 @@ export default function App() {
           module === 'profile'
             ? s.promptInbox.sourceSavedProfile
             : s.promptInbox.sourceSavedLinkedin,
+          module,
         )
       else showNotice(`${module}.json guardado.`)
     } else if (result.saved) {
@@ -441,8 +467,11 @@ export default function App() {
   async function disconnectWorkspace(clear) {
     const result = await store.disconnect(clear)
     setLinkedinHasUnsavedChanges(false)
+    observedCv.current = null
+    if (clear) cvReview.clear()
     setExternalLinkedinPending(null)
-    delete externalRevisions.current.linkedin
+    externalRevisions.current = {}
+    observedSources.current = {}
     setConfirmDisconnect(false)
     setNotice(
       result.persistenceCleared
@@ -751,6 +780,7 @@ export default function App() {
             <PromptInboxPage
               pending={{
                 cv: cvPromptPending,
+                cvSources: cvReview.task?.sources,
                 linkedinLanguages: linkedinLanguagesPending,
                 linkedinNeedsReload: [
                   'Cambio externo',

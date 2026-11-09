@@ -189,7 +189,18 @@ export function PromptInboxPage({
           <span className="prompt-reminder-count">{pendingCount}</span>
           <div>
             <h2>{copy.pendingTitle}</h2>
-            {pendingCv && <p>{copy.pendingCvBody}</p>}
+            {pendingCv && (
+              <p>
+                {copy.pendingCvBody.replace(
+                  '{sources}',
+                  (pending.cvSources || [])
+                    .map((source) =>
+                      source === 'profile' ? s.profilePage.title : 'LinkedIn',
+                    )
+                    .join(' y '),
+                )}
+              </p>
+            )}
             {pendingLinkedinLanguages && (
               <div className="prompt-linkedin-check">
                 <p>{copy.pendingLanguagesBody}</p>
