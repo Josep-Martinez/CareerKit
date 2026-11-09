@@ -98,6 +98,15 @@
         "properties": {
           "id": { "type": "string" },
           "section": { "type": "string" },
+          "sectionId": {
+            "description": "Stable ID of the published additional section this audit note targets, when section is additionalSections.",
+            "type": "string",
+            "minLength": 1
+          },
+          "sectionLabel": {
+            "description": "Last known title of the additional section, retained so an audit remains understandable if that section is removed.",
+            "type": "string"
+          },
           "action": { "enum": ["corregir", "anadir", "aclarar"] },
           "priority": { "enum": ["alta", "media", "baja"] },
           "problem": { "type": "string" },
@@ -111,6 +120,14 @@
           "date": { "type": "string" },
           "status": { "enum": ["pendiente", "aplicada", "descartada"] }
         },
+        "allOf": [
+          {
+            "if": { "required": ["sectionId"] },
+            "then": {
+              "properties": { "section": { "const": "additionalSections" } }
+            }
+          }
+        ],
         "additionalProperties": true
       }
     }

@@ -130,6 +130,50 @@ export function LinkedInPage({
         n === index ? { ...item, ...part } : item,
       ),
     })
+  const updateAdditionalSection = (sectionId, part) => {
+    const updatedSections = additionalSections.map((section) =>
+      section.id === sectionId ? { ...section, ...part } : section,
+    )
+    setDraft({
+      ...draft,
+      published: { ...pub, additionalSections: updatedSections },
+      audits:
+        part.title === undefined
+          ? draft.audits
+          : draft.audits.map((item) =>
+              item.section === 'additionalSections' &&
+              item.sectionId === sectionId
+                ? {
+                    ...item,
+                    sectionLabel: part.title || copy.additionalSectionFallback,
+                  }
+                : item,
+            ),
+    })
+  }
+  const removeAdditionalSection = (sectionId) => {
+    const removedSection = additionalSections.find(
+      (section) => section.id === sectionId,
+    )
+    setDraft({
+      ...draft,
+      published: {
+        ...pub,
+        additionalSections: additionalSections.filter(
+          (section) => section.id !== sectionId,
+        ),
+      },
+      audits: draft.audits.map((item) =>
+        item.section === 'additionalSections' && item.sectionId === sectionId
+          ? {
+              ...item,
+              sectionLabel:
+                removedSection?.title || copy.additionalSectionFallback,
+            }
+          : item,
+      ),
+    })
+  }
   const removeAudit = (index) =>
     setDraft({ ...draft, audits: draft.audits.filter((_, n) => n !== index) })
   const previewKeys = [
@@ -141,9 +185,13 @@ export function LinkedInPage({
     'projects',
     'featured',
   ]
-  const auditNotes = (section) =>
+  const auditNotes = (section, sectionId) =>
     draft.audits.filter(
-      (item) => item.section === section && item.status !== 'descartada',
+      (item) =>
+        item.section === section &&
+        (section !== 'additionalSections' ||
+          (sectionId ? item.sectionId === sectionId : !item.sectionId)) &&
+        item.status !== 'descartada',
     )
   const hasPublishedContent = Boolean(
     pub.name?.trim() ||
@@ -276,12 +324,7 @@ export function LinkedInPage({
                   label={copy.additionalSectionTitleLabel}
                   value={section.title}
                   onChange={(title) =>
-                    setPub(
-                      'additionalSections',
-                      additionalSections.map((item, itemIndex) =>
-                        itemIndex === index ? { ...item, title } : item,
-                      ),
-                    )
+                    updateAdditionalSection(section.id, { title })
                   }
                 />
                 <TextField
@@ -290,26 +333,18 @@ export function LinkedInPage({
                   value={section.content}
                   hint={copy.additionalSectionContentHint}
                   onChange={(content) =>
-                    setPub(
-                      'additionalSections',
-                      additionalSections.map((item, itemIndex) =>
-                        itemIndex === index ? { ...item, content } : item,
-                      ),
-                    )
+                    updateAdditionalSection(section.id, { content })
                   }
+                />
+                <AuditPoints
+                  notes={auditNotes('additionalSections', section.id)}
+                  evidence={evidenceItems}
                 />
                 <button
                   className="button quiet linkedin-remove-entry"
                   type="button"
                   aria-label={`${copy.removeAdditionalSection} ${section.title || index + 1}`}
-                  onClick={() =>
-                    setPub(
-                      'additionalSections',
-                      additionalSections.filter(
-                        (_, itemIndex) => itemIndex !== index,
-                      ),
-                    )
-                  }
+                  onClick={() => removeAdditionalSection(section.id)}
                 >
                   {copy.removeAdditionalSection}
                 </button>
@@ -344,6 +379,7 @@ export function LinkedInPage({
                 key={item.id || i}
                 item={item}
                 evidence={evidenceItems}
+                additionalSections={additionalSections}
                 onChange={(part) => updateAudit(i, part)}
                 onDelete={() => removeAudit(i)}
               />
@@ -438,16 +474,23 @@ export function LinkedInPage({
                       />
                     </PreviewSection>
                   ))}
-                {additionalSections
-                  .filter(hasEntryContent)
-                  .map((section, index) => (
+                {additionalSections.map((section, index) => {
+                  const notes = auditNotes('additionalSections', section.id)
+                  if (!hasEntryContent(section) && !notes.length) return null
+                  return (
                     <PreviewSection
                       key={section.id || index}
                       title={section.title || copy.additionalSectionFallback}
                     >
-                      {section.content && <p>{section.content}</p>}
+                      {section.content && (
+                        <p className="linkedin-additional-preview-content">
+                          {section.content}
+                        </p>
+                      )}
+                      <AuditPoints notes={notes} evidence={evidenceItems} />
                     </PreviewSection>
-                  ))}
+                  )
+                })}
                 {hasActiveAudits && !hasPublishedContent && (
                   <p className="linkedin-audit-only-note">
                     {copy.auditOnlyNote}
@@ -671,11 +714,25 @@ function AuditPoints({ notes, evidence }) {
   )
 }
 
-function AuditCard({ item, evidence, onChange, onDelete }) {
+function AuditCard({ item, evidence, additionalSections, onChange, onDelete }) {
   const selectedIds = item.profileEvidenceIds || []
   const sectionKeys = LINKEDIN_SECTION_KEYS
   const categoryLabels = copy.evidenceLabels
   const labels = copy.auditCard
+  const selectedAdditionalSection =
+    item.section === 'additionalSections' && item.sectionId
+      ? additionalSections.find((section) => section.id === item.sectionId)
+      : null
+  const selectedSectionValue = selectedAdditionalSection
+    ? `additional:${selectedAdditionalSection.id}`
+    : item.section === 'additionalSections' && item.sectionId
+      ? `additional:${item.sectionId}`
+      : sectionKeys.includes(item.section)
+        ? item.section
+        : item.section || 'about'
+  const clearSectionLink = (section) => {
+    onChange({ section, sectionId: undefined, sectionLabel: undefined })
+  }
   return (
     <div className="item-card audit-card">
       <div className="item-heading">
@@ -694,23 +751,66 @@ function AuditCard({ item, evidence, onChange, onDelete }) {
         <label className="field">
           <span>{labels.section}</span>
           <select
-            value={
-              sectionKeys.includes(item.section)
-                ? item.section
-                : item.section || 'about'
-            }
-            onChange={(e) => onChange({ section: e.target.value })}
+            value={selectedSectionValue}
+            onChange={(e) => {
+              const value = e.target.value
+              if (value.startsWith('additional:')) {
+                const sectionId = value.slice('additional:'.length)
+                const target = additionalSections.find(
+                  (section) => section.id === sectionId,
+                )
+                onChange({
+                  section: 'additionalSections',
+                  sectionId,
+                  sectionLabel: target?.title || copy.additionalSectionFallback,
+                })
+                return
+              }
+              clearSectionLink(value)
+            }}
           >
             {!sectionKeys.includes(item.section) && item.section && (
-              <option value={item.section}>{item.section}</option>
+              <option value={item.section}>
+                {item.section === 'additionalSections' && !item.sectionId
+                  ? labels.unlinkedAdditionalSection
+                  : item.section}
+              </option>
             )}
+            {item.section === 'additionalSections' &&
+              item.sectionId &&
+              !selectedAdditionalSection && (
+                <option value={`additional:${item.sectionId}`}>
+                  {item.sectionLabel || copy.additionalSectionFallback} ·{' '}
+                  {labels.sectionUnavailable}
+                </option>
+              )}
             {sectionKeys.map((key) => (
               <option key={key} value={key}>
                 {copy.sectionLabels[key]}
               </option>
             ))}
+            {additionalSections.map((section) => (
+              <option key={section.id} value={`additional:${section.id}`}>
+                {labels.additionalSectionOption.replace(
+                  '{title}',
+                  section.title || copy.additionalSectionFallback,
+                )}
+              </option>
+            ))}
           </select>
         </label>
+        {item.section === 'additionalSections' && !item.sectionId && (
+          <p className="quiet-empty audit-section-unavailable">
+            {labels.unlinkedAdditionalSectionHint}
+          </p>
+        )}
+        {item.section === 'additionalSections' &&
+          item.sectionId &&
+          !selectedAdditionalSection && (
+            <p className="quiet-empty audit-section-unavailable">
+              {labels.sectionUnavailableHint}
+            </p>
+          )}
         <label className="field">
           <span>{labels.action}</span>
           <select

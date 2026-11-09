@@ -22,6 +22,6 @@ Provide separate Spanish and English versions by default, following `li-bilingua
 
 ## CareerKit audit notes
 
-The published LinkedIn copy in `private-data/linkedin.json.published` is a faithful record. Never replace it with a recommendation. Add section-linked audit notes to `linkedin.json.audits` only when the user asks, including priority, observed issue, reason and evidence, linked profile evidence IDs, recommendation, optional proposed text, known date, and pending status. Validate the affected JSON and leave it unchanged if invalid.
+The published LinkedIn copy in `private-data/linkedin.json.published` is a faithful record. Never replace it with a recommendation. Add section-linked audit notes to `linkedin.json.audits` only when the user asks, including priority, observed issue, reason and evidence, linked profile evidence IDs, recommendation, optional proposed text, known date, and pending status. For a section in `published.additionalSections`, set `section` to `additionalSections`, copy its stable `id` to `sectionId`, and keep its current title in `sectionLabel` for readability if the section is later removed. Never link only by a mutable title or create duplicate additional-section entries for audit notes. Validate the affected JSON and leave it unchanged if invalid.
 
 Return the score or unassessed areas, the strongest evidence, prioritized changes, and copy-ready options. Do not access the account or apply changes.

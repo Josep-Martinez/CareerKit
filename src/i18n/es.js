@@ -531,6 +531,13 @@ export const STRINGS = {
       title: 'Punto de auditoría',
       delete: 'Eliminar punto de auditoría',
       section: 'Sección de LinkedIn',
+      additionalSectionOption: 'Otra sección · {title}',
+      sectionUnavailable: 'ya no está disponible',
+      sectionUnavailableHint:
+        'La sección ya no está en la copia publicada. Esta anotación se conserva; puedes vincularla a otra sección o eliminarla.',
+      unlinkedAdditionalSection: 'Otra sección · pendiente de vincular',
+      unlinkedAdditionalSectionHint:
+        'Vincula esta anotación a una sección adicional concreta para que aparezca junto al contenido correspondiente.',
       action: 'Acción',
       problem: 'Qué se observa',
       reasonEvidence: 'Por qué, según el perfil o los aprendizajes',

@@ -2409,6 +2409,15 @@ select {
   padding: 20px 0;
   border-top: 1px solid var(--line);
 }
+
+.linkedin-additional-preview-content {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.audit-section-unavailable {
+  margin-top: 0;
+}
 .linkedin-preview-section h4 {
   margin: 0 0 10px;
   color: var(--ink);

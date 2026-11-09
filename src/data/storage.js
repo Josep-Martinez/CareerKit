@@ -258,6 +258,12 @@ const validators = {
         isRecord(item) &&
         typeof item.id === 'string' &&
         typeof item.section === 'string' &&
+        (item.sectionId === undefined ||
+          (item.section === 'additionalSections' &&
+            typeof item.sectionId === 'string' &&
+            item.sectionId.length > 0)) &&
+        (item.sectionLabel === undefined ||
+          typeof item.sectionLabel === 'string') &&
         ['alta', 'media', 'baja'].includes(item.priority) &&
         optionalStrings(item, [
           'problem',
@@ -1046,6 +1052,8 @@ function findUnknown(name, data) {
       audit: [
         'id',
         'section',
+        'sectionId',
+        'sectionLabel',
         'action',
         'priority',
         'problem',
