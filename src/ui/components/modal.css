@@ -1,0 +1,20 @@
+dialog.modal {
+  position: fixed;
+  inset: 0;
+  width: calc(100% - 36px);
+  height: fit-content;
+  max-height: calc(100dvh - 36px);
+  margin: auto;
+  border: 0;
+  overflow: auto;
+  color: inherit;
+}
+
+dialog.modal::backdrop {
+  background: #20203377;
+}
+
+.file-button:focus-within {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}

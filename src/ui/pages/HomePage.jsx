@@ -1,6 +1,7 @@
 import { PageHeading, EmptyState } from '../components/PagePrimitives.jsx'
 import { SectionIcon } from '../components/SectionIcon.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
+import { HOME_STATUS_ES as statusCopy } from '../../i18n/home-status.es.js'
 import { invalidModuleStates, isKnownPopulated, pretty } from '../utils.js'
 
 const progressCopy = s.homeProgress
@@ -13,18 +14,59 @@ function moduleStatus(key, data, states) {
   return isKnownPopulated(key, data[key], state) ? 'ready' : 'empty'
 }
 
+function latestAuditDate(audits) {
+  let latest
+  let latestTime = -Infinity
+  for (const { date } of audits) {
+    const time = Date.parse(date)
+    if (time > latestTime) {
+      latest = date
+      latestTime = time
+    }
+  }
+  return latest
+}
+
+function HomeFileStatus({ name, state, warning, onReview, action }) {
+  if (!state) return <p role="status">{statusCopy.reading}</p>
+
+  const external = ['Cambio externo', 'Conflicto externo'].includes(state)
+  const message = external
+    ? statusCopy.externalChange
+    : state === 'Falta plantilla'
+      ? statusCopy.missingFile
+      : statusCopy.invalidFile
+
+  return (
+    <div className="warning-box" role="status">
+      <span>{warning || message.replace('{file}', `${name}.json`)}</span>
+      {onReview && (
+        <button type="button" onClick={onReview}>
+          {action}
+        </button>
+      )}
+    </div>
+  )
+}
+
 function HomeProgressGuide({
   data,
   states,
   cvPromptPending,
+  linkedinLanguagesPending,
   connected,
   fallbackConnected,
   onNavigate,
 }) {
   const profileStatus = moduleStatus('profile', data, states)
-  const linkedinStatus = moduleStatus('linkedin', data, states)
+  const linkedinFileStatus = moduleStatus('linkedin', data, states)
+  const linkedinStatus =
+    linkedinFileStatus === 'ready' && linkedinLanguagesPending
+      ? 'update'
+      : linkedinFileStatus
   const cvFileStatus = moduleStatus('cv', data, states)
-  const sourcesReady = profileStatus === 'ready' && linkedinStatus === 'ready'
+  const sourcesReady =
+    profileStatus === 'ready' && linkedinFileStatus === 'ready'
   const cvStatus =
     cvFileStatus === 'review'
       ? 'review'
@@ -76,6 +118,15 @@ function HomeProgressGuide({
       body: progressCopy.nextLinkedinBody,
       action: progressCopy.linkedinAction,
       target: 'linkedin',
+    }
+  } else if (linkedinStatus === 'update') {
+    nextStep = {
+      status: 'update',
+      key: 'linkedin',
+      title: statusCopy.linkedinLanguagesTitle,
+      body: statusCopy.linkedinLanguagesBody,
+      action: progressCopy.promptAction,
+      target: 'prompts',
     }
   } else if (sourcesReady && cvStatus === 'update') {
     nextStep = {
@@ -205,13 +256,19 @@ function HomeProgressGuide({
               <div>
                 <h3>{progressCopy.steps[key].title}</h3>
                 <span className={`home-step-status is-${status}`}>
-                  {status === 'empty' && key !== 'cv'
-                    ? progressCopy.status.priority
-                    : progressCopy.status[status]}
+                  {key === 'linkedin' && status === 'update'
+                    ? statusCopy.linkedinLanguages
+                    : status === 'empty' && key !== 'cv'
+                      ? progressCopy.status.priority
+                      : progressCopy.status[status]}
                 </span>
               </div>
             </div>
-            <p>{progressCopy.steps[key][status]}</p>
+            <p>
+              {key === 'linkedin' && status === 'update'
+                ? statusCopy.linkedinLanguagesBody
+                : progressCopy.steps[key][status]}
+            </p>
           </li>
         ))}
       </ol>
@@ -236,10 +293,15 @@ export function HomePage({
   connected,
   fallbackConnected,
   states,
+  warnings = {},
   cvPromptPending,
+  linkedinLanguagesPending,
   onNavigate,
   onVacancy,
+  onReviewData,
 }) {
+  const vacanciesStatus = moduleStatus('vacancies', data, states)
+  const prioritiesStatus = moduleStatus('priorities', data, states)
   const vacancies = [...data.vacancies.items]
     .filter((item) => item.featured)
     .sort((a, b) => (a.preference || 999) - (b.preference || 999))
@@ -262,6 +324,7 @@ export function HomePage({
         data={data}
         states={states}
         cvPromptPending={cvPromptPending}
+        linkedinLanguagesPending={linkedinLanguagesPending}
         connected={connected}
         fallbackConnected={fallbackConnected}
         onNavigate={onNavigate}
@@ -316,7 +379,7 @@ export function HomePage({
           </div>
           <div>
             <span>{s.homePage.linkedinAudit}</span>
-            <strong>{pretty(data.linkedin.audits.at(-1)?.date)}</strong>
+            <strong>{pretty(latestAuditDate(data.linkedin.audits))}</strong>
             <small>
               {s.homePage.updatedLabel}: {pretty(data.linkedin.lastUpdated)}
             </small>
@@ -346,7 +409,15 @@ export function HomePage({
               {s.homePage.viewAll} <span>→</span>
             </button>
           </div>
-          {vacancies.length ? (
+          {['checking', 'review'].includes(vacanciesStatus) ? (
+            <HomeFileStatus
+              name="vacancies"
+              state={states.vacancies}
+              warning={warnings.vacancies}
+              action={s.homePage.vacanciesAction}
+              onReview={() => onNavigate('vacancies')}
+            />
+          ) : vacancies.length ? (
             vacancies.map((vacancy, index) => (
               <button
                 className="vacancy-row"
@@ -392,7 +463,19 @@ export function HomePage({
               ✳
             </span>
           </div>
-          {priorities.length ? (
+          {['checking', 'review'].includes(prioritiesStatus) ? (
+            <HomeFileStatus
+              name="priorities"
+              state={states.priorities}
+              warning={warnings.priorities}
+              action={
+                onReviewData
+                  ? statusCopy.reviewFiles
+                  : statusCopy.preparationPrompt
+              }
+              onReview={onReviewData || (() => onNavigate('prompts'))}
+            />
+          ) : priorities.length ? (
             priorities.map((priority) => (
               <button
                 className="priority-row"
@@ -400,13 +483,19 @@ export function HomePage({
                 type="button"
                 onClick={() => onNavigate(priority.section || 'profile')}
               >
-                <span className={`priority-dot ${priority.level || 'media'}`} />
+                <span
+                  className={`priority-dot ${priority.level || 'media'}`}
+                  aria-hidden="true"
+                />
                 <span>
                   <b>{priority.title || s.homePage.priorityTitleFallback}</b>
                   <small>
                     {priority.reason || s.homePage.priorityReasonFallback}
                   </small>
-                  <small>{pretty(priority.date)}</small>
+                  <small>
+                    {statusCopy.priorityLevels[priority.level || 'media']} ·{' '}
+                    {pretty(priority.date)}
+                  </small>
                 </span>
                 <span className="row-arrow">↗</span>
               </button>

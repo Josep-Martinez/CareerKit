@@ -12,7 +12,11 @@ import {
 import { isKnownEmpty, isKnownPopulated } from './utils.js'
 import { SectionIcon } from './components/SectionIcon.jsx'
 import { WorkspaceGate } from './components/WorkspaceGate.jsx'
-import { FallbackDialog, FolderDataDialog } from './components/DataDialogs.jsx'
+import {
+  DisconnectDialog,
+  FallbackDialog,
+  FolderDataDialog,
+} from './components/DataDialogs.jsx'
 import { FallbackConnectDialog } from './components/FallbackConnectDialog.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { ProfilePage } from './pages/ProfilePage.jsx'
@@ -21,9 +25,35 @@ import { CVPage } from './pages/CVPage.jsx'
 import { VacancyDetail, VacanciesPage } from './pages/VacanciesPage.jsx'
 import { PromptInboxPage } from './pages/PromptInboxPage.jsx'
 
+function readRoute() {
+  const [section, vacancy] = window.location.hash.slice(1).split('/')
+  const page = NAV.some(([key]) => key === section) ? section : 'home'
+  let vacancyId = null
+  if (page === 'vacancies' && vacancy) {
+    try {
+      vacancyId = decodeURIComponent(vacancy)
+    } catch {
+      // A malformed link opens the vacancy list.
+    }
+  }
+  return { page, vacancyId }
+}
+
+function routeHash(page, vacancyId) {
+  return (
+    '#' +
+    page +
+    (page === 'vacancies' && vacancyId
+      ? '/' + encodeURIComponent(vacancyId)
+      : '')
+  )
+}
+
 export default function App() {
   const store = useStorageState()
-  const [page, setPage] = useState('home')
+  const [route, setRoute] = useState(readRoute)
+  const { page, vacancyId } = route
+  const pageContent = useRef(null)
   const [notice, setNotice] = useState('')
   const [noticeAction, setNoticeAction] = useState(null)
   const [fallbackOpen, setFallbackOpen] = useState(false)
@@ -34,7 +64,6 @@ export default function App() {
   const [fallbackSavedCvRelevant, setFallbackSavedCvRelevant] = useState(false)
   const [folderDialog, setFolderDialog] = useState(null)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const [vacancyId, setVacancyId] = useState(null)
   const [focusEvidenceId, setFocusEvidenceId] = useState('')
   const [linkedinHasUnsavedChanges, setLinkedinHasUnsavedChanges] =
     useState(false)
@@ -76,11 +105,40 @@ export default function App() {
     }
     if (page === 'linkedin' && nextPage !== 'linkedin')
       setLinkedinHasUnsavedChanges(false)
-    setPage(nextPage)
-    setVacancyId(nextVacancyId)
+    if (nextPage !== page || nextVacancyId !== vacancyId) {
+      window.history.pushState(null, '', routeHash(nextPage, nextVacancyId))
+      setRoute({ page: nextPage, vacancyId: nextVacancyId })
+    }
     setMobileNavOpen(false)
     return true
   }
+
+  useEffect(() => {
+    function restoreRoute() {
+      const next = readRoute()
+      if (next.page === page && next.vacancyId === vacancyId) return
+      if (
+        page === 'linkedin' &&
+        next.page !== 'linkedin' &&
+        linkedinHasUnsavedChanges &&
+        !window.confirm(s.linkedinPage.unsavedChangesConfirmation)
+      ) {
+        window.history.pushState(null, '', routeHash(page, vacancyId))
+        return
+      }
+      if (next.page !== 'linkedin') setLinkedinHasUnsavedChanges(false)
+      setRoute(next)
+      setMobileNavOpen(false)
+    }
+    window.addEventListener('popstate', restoreRoute)
+    return () => window.removeEventListener('popstate', restoreRoute)
+  }, [page, vacancyId, linkedinHasUnsavedChanges])
+
+  useEffect(() => {
+    if (!pageContent.current) return
+    pageContent.current.focus({ preventScroll: true })
+    window.scrollTo(0, 0)
+  }, [page, vacancyId])
 
   function openProfileEvidence(evidenceId) {
     if (!navigateTo('profile')) return
@@ -554,6 +612,7 @@ export default function App() {
             <button
               key={key}
               className={`nav-link ${page === key ? 'active' : ''}`}
+              aria-current={page === key ? 'page' : undefined}
               onClick={() => navigateTo(key)}
             >
               <span className="nav-icon">
@@ -642,7 +701,12 @@ export default function App() {
             <button className="avatar">C</button>
           </div>
         </header>
-        <section className="page-content">
+        <section
+          className="page-content"
+          ref={pageContent}
+          tabIndex={-1}
+          aria-label={TITLES[page] || 'Inicio'}
+        >
           {store.fallbackConnected && (
             <section className="fallback-storage-banner" role="note">
               <div>
@@ -705,6 +769,9 @@ export default function App() {
               fallbackConnected={store.fallbackConnected}
               states={store.states}
               cvPromptPending={cvPromptPending}
+              linkedinLanguagesPending={linkedinLanguagesPending}
+              warnings={store.warnings}
+              onReviewData={store.folder ? recheckFolder : undefined}
               onNavigate={navigateTo}
               onVacancy={(v) => navigateTo('vacancies', { vacancyId: v.id })}
             />
@@ -763,7 +830,7 @@ export default function App() {
             (activeVacancy ? (
               <VacancyDetail
                 value={activeVacancy}
-                onBack={() => setVacancyId(null)}
+                onBack={() => navigateTo('vacancies')}
               />
             ) : (
               <VacanciesPage
@@ -841,51 +908,11 @@ export default function App() {
         />
       )}
       {confirmDisconnect && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <button
-              className="modal-close"
-              onClick={() => setConfirmDisconnect(false)}
-            >
-              ×
-            </button>
-            <span className="eyebrow">Privacidad</span>
-            <h2>
-              {store.fallbackConnected
-                ? s.fallbackFiles.closeManualTitle
-                : 'Desconectar carpeta'}
-            </h2>
-            <p>
-              {store.fallbackConnected
-                ? s.fallbackFiles.closeManualBody
-                : 'La web dejará de leer y guardar los JSON. Puedes borrar también los datos cargados en esta sesión.'}
-            </p>
-            <div className="modal-actions">
-              <button
-                className="button secondary"
-                onClick={() => setConfirmDisconnect(false)}
-              >
-                Cancelar
-              </button>
-              <button
-                className="button secondary"
-                onClick={() => disconnectWorkspace(false)}
-              >
-                {store.fallbackConnected
-                  ? s.fallbackFiles.closeKeep
-                  : 'Desconectar'}
-              </button>
-              <button
-                className="button danger"
-                onClick={() => disconnectWorkspace(true)}
-              >
-                {store.fallbackConnected
-                  ? s.fallbackFiles.closeClear
-                  : 'Desconectar y borrar datos de sesión'}
-              </button>
-            </div>
-          </div>
-        </div>
+        <DisconnectDialog
+          manual={store.fallbackConnected}
+          onClose={() => setConfirmDisconnect(false)}
+          onDisconnect={disconnectWorkspace}
+        />
       )}
     </div>
   )

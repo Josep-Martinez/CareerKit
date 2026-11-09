@@ -3,6 +3,7 @@ import { EMPTY } from '../../data/catalog.js'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
 import { normalizeModule, validateModule } from '../../data/storage.js'
+import { Modal } from './Modal.jsx'
 
 export function FolderDataDialog({
   scan,
@@ -64,126 +65,119 @@ export function FolderDataDialog({
   }
 
   return (
-    <div className="modal-backdrop">
-      <section
-        className="modal folder-data-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="folder-data-title"
-      >
-        <button
-          className="modal-close"
-          onClick={onClose}
-          aria-label={copy.close}
-        >
-          ×
-        </button>
-        <span className="eyebrow">{s.connected}</span>
-        <h2 id="folder-data-title">{title}</h2>
-        <p>
-          {hasMissing
-            ? copy.missingBody
-            : hasInvalid
-              ? copy.invalidBody
-              : copy.emptyBody}
-        </p>
+    <Modal
+      className="folder-data-modal"
+      labelledBy="folder-data-title"
+      onClose={onClose}
+    >
+      <button className="modal-close" onClick={onClose} aria-label={copy.close}>
+        ×
+      </button>
+      <span className="eyebrow">{s.connected}</span>
+      <h2 id="folder-data-title">{title}</h2>
+      <p>
+        {hasMissing
+          ? copy.missingBody
+          : hasInvalid
+            ? copy.invalidBody
+            : copy.emptyBody}
+      </p>
+      {hasMissing && (
+        <div className="folder-file-list">
+          <b>{copy.missingLabel}</b>
+          <ul>
+            {missing.map((name) => (
+              <li key={name}>{name}.json</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {hasInvalid && (
+        <div className="folder-file-list">
+          <b>{copy.invalidLabel}</b>
+          <ul>
+            {invalid.map(({ name, message: detail }) => (
+              <li key={name}>
+                <strong>{name}.json</strong>
+                <small>{detail}</small>
+                <span>
+                  {copy.templateHint} templates/{name}.json
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {scan.preparationError && (
+        <div className="folder-inline-note" role="status">
+          {copy.prepareError}
+        </div>
+      )}
+      {scan.recheckError && (
+        <div className="folder-inline-note" role="status">
+          {copy.recheckError}
+        </div>
+      )}
+      {message && (
+        <div className="folder-inline-note" role="status">
+          {message}
+        </div>
+      )}
+      {(hasInvalid || hasMissing) && (
+        <label className="field folder-prompt-field">
+          <span>{copy.assistantPromptLabel}</span>
+          <textarea
+            readOnly
+            rows={5}
+            value={prompt}
+            onFocus={(event) => event.target.select()}
+            aria-label={copy.assistantPromptLabel}
+          />
+        </label>
+      )}
+      <div className="modal-actions">
         {hasMissing && (
-          <div className="folder-file-list">
-            <b>{copy.missingLabel}</b>
-            <ul>
-              {missing.map((name) => (
-                <li key={name}>{name}.json</li>
-              ))}
-            </ul>
-          </div>
+          <button
+            className="button primary"
+            disabled={busy}
+            onClick={() => run(onPrepare)}
+          >
+            {busy ? copy.preparing : copy.prepareButton}
+          </button>
         )}
-        {hasInvalid && (
-          <div className="folder-file-list">
-            <b>{copy.invalidLabel}</b>
-            <ul>
-              {invalid.map(({ name, message: detail }) => (
-                <li key={name}>
-                  <strong>{name}.json</strong>
-                  <small>{detail}</small>
-                  <span>
-                    {copy.templateHint} templates/{name}.json
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {scan.preparationError && (
-          <div className="folder-inline-note" role="status">
-            {copy.prepareError}
-          </div>
-        )}
-        {scan.recheckError && (
-          <div className="folder-inline-note" role="status">
-            {copy.recheckError}
-          </div>
-        )}
-        {message && (
-          <div className="folder-inline-note" role="status">
-            {message}
-          </div>
+        {isEmpty && (
+          <button className="button primary" onClick={onStartProfile}>
+            {copy.startProfile}
+          </button>
         )}
         {(hasInvalid || hasMissing) && (
-          <label className="field folder-prompt-field">
-            <span>{copy.assistantPromptLabel}</span>
-            <textarea
-              readOnly
-              rows={5}
-              value={prompt}
-              onFocus={(event) => event.target.select()}
-              aria-label={copy.assistantPromptLabel}
-            />
-          </label>
-        )}
-        <div className="modal-actions">
-          {hasMissing && (
-            <button
-              className="button primary"
-              disabled={busy}
-              onClick={() => run(onPrepare)}
-            >
-              {busy ? copy.preparing : copy.prepareButton}
-            </button>
-          )}
-          {isEmpty && (
-            <button className="button primary" onClick={onStartProfile}>
-              {copy.startProfile}
-            </button>
-          )}
-          {(hasInvalid || hasMissing) && (
-            <button
-              className="button secondary"
-              disabled={busy}
-              onClick={copyInstructions}
-            >
-              {copy.copyInstructions}
-            </button>
-          )}
-          {(hasInvalid || hasMissing) && (
-            <button
-              className="button secondary"
-              disabled={busy}
-              onClick={() => run(onRecheck)}
-            >
-              {copy.recheckButton}
-            </button>
-          )}
-          {isEmpty && (
-            <button className="button secondary" onClick={onOpenPrompts}>
-              {copy.openPrompts}
-            </button>
-          )}
-          <button className="button secondary" onClick={onClose}>
-            {copy.close}
+          <button
+            className="button secondary"
+            disabled={busy}
+            onClick={copyInstructions}
+          >
+            {copy.copyInstructions}
           </button>
-        </div>
-      </section>
-    </div>
+        )}
+        {(hasInvalid || hasMissing) && (
+          <button
+            className="button secondary"
+            disabled={busy}
+            onClick={() => run(onRecheck)}
+          >
+            {copy.recheckButton}
+          </button>
+        )}
+        {isEmpty && (
+          <button className="button secondary" onClick={onOpenPrompts}>
+            {copy.openPrompts}
+          </button>
+        )}
+        <button className="button secondary" onClick={onClose}>
+          {copy.close}
+        </button>
+      </div>
+    </Modal>
   )
 }
 
@@ -229,65 +223,117 @@ export function FallbackDialog({ module, data, onClose, onDownload }) {
     }
   }
   return (
-    <div className="modal-backdrop">
-      <div className="modal fallback-modal">
-        <button className="modal-close" onClick={onClose}>
-          ×
-        </button>
-        <span className="eyebrow">ACCESO AL ALMACENAMIENTO</span>
-        <h2>
-          {readOnlyCv ? s.cvEditor.fallbackTitle : 'Guardar un JSON individual'}
-        </h2>
-        <p>
-          {readOnlyCv ? (
-            s.cvEditor.fallbackReadOnly
-          ) : (
-            <>
-              Este navegador no ofrece conexión directa a carpetas. Puedes abrir{' '}
-              <b>{module}.json</b>, cargarlo y descargar una versión editada.
-              Sustituye el fichero manualmente en tu carpeta privada.
-            </>
-          )}
-        </p>
-        <label className="button secondary file-button">
-          Abrir {module}.json
-          <input
-            type="file"
-            accept="application/json,.json"
-            onChange={(event) => {
-              const file = event.target.files?.[0]
-              if (file) {
-                const reader = new FileReader()
-                reader.onload = () => setJson(String(reader.result))
-                reader.readAsText(file)
-              }
-            }}
-          />
-        </label>
-        <textarea
-          className="json-editor"
-          aria-label="Contenido del archivo JSON"
-          value={json}
-          onChange={(event) => setJson(event.target.value)}
-          readOnly={readOnlyCv}
-          spellCheck="false"
+    <Modal
+      className="fallback-modal"
+      labelledBy="fallback-title"
+      onClose={onClose}
+    >
+      <button
+        className="modal-close"
+        type="button"
+        aria-label={s.dataConnection.close}
+        onClick={onClose}
+      >
+        ×
+      </button>
+      <span className="eyebrow">ACCESO AL ALMACENAMIENTO</span>
+      <h2 id="fallback-title">
+        {readOnlyCv ? s.cvEditor.fallbackTitle : 'Guardar un JSON individual'}
+      </h2>
+      <p>
+        {readOnlyCv ? (
+          s.cvEditor.fallbackReadOnly
+        ) : (
+          <>
+            Este navegador no ofrece conexión directa a carpetas. Puedes abrir{' '}
+            <b>{module}.json</b>, cargarlo y descargar una versión editada.
+            Sustituye el fichero manualmente en tu carpeta privada.
+          </>
+        )}
+      </p>
+      <label className="button secondary file-button">
+        Abrir {module}.json
+        <input
+          type="file"
+          accept="application/json,.json"
+          onChange={(event) => {
+            const file = event.target.files?.[0]
+            if (file) {
+              const reader = new FileReader()
+              reader.onload = () => setJson(String(reader.result))
+              reader.readAsText(file)
+            }
+          }}
         />
-        <div className="modal-actions">
-          <button className="button secondary" onClick={onClose}>
-            Cerrar
+      </label>
+      <textarea
+        className="json-editor"
+        aria-label="Contenido del archivo JSON"
+        value={json}
+        onChange={(event) => setJson(event.target.value)}
+        readOnly={readOnlyCv}
+        spellCheck="false"
+      />
+      <div className="modal-actions">
+        <button className="button secondary" onClick={onClose}>
+          Cerrar
+        </button>
+        {!readOnlyCv && (
+          <button className="button primary" onClick={download}>
+            Descargar {module}.json actualizado
           </button>
-          {!readOnlyCv && (
-            <button className="button primary" onClick={download}>
-              Descargar {module}.json actualizado
-            </button>
-          )}
-        </div>
-        <small className="limit-note">
-          {readOnlyCv
-            ? s.cvEditor.fallbackLimitNote
-            : 'El modo manual no detecta cambios externos ni sincroniza el fichero con esta página.'}
-        </small>
+        )}
       </div>
-    </div>
+      <small className="limit-note">
+        {readOnlyCv
+          ? s.cvEditor.fallbackLimitNote
+          : 'El modo manual no detecta cambios externos ni sincroniza el fichero con esta página.'}
+      </small>
+    </Modal>
+  )
+}
+
+export function DisconnectDialog({ manual, onClose, onDisconnect }) {
+  return (
+    <Modal labelledBy="disconnect-title" onClose={onClose}>
+      <button
+        className="modal-close"
+        type="button"
+        aria-label={s.dataConnection.close}
+        onClick={onClose}
+      >
+        ×
+      </button>
+      <span className="eyebrow">Privacidad</span>
+      <h2 id="disconnect-title">
+        {manual ? s.fallbackFiles.closeManualTitle : 'Desconectar carpeta'}
+      </h2>
+      <p>
+        {manual
+          ? s.fallbackFiles.closeManualBody
+          : 'La web dejará de leer y guardar los JSON. Puedes borrar también los datos cargados en esta sesión.'}
+      </p>
+      <div className="modal-actions">
+        <button className="button secondary" type="button" onClick={onClose}>
+          Cancelar
+        </button>
+        <button
+          className="button secondary"
+          type="button"
+          onClick={() => onDisconnect(false)}
+        >
+          {manual ? s.fallbackFiles.closeKeep : 'Desconectar'}
+        </button>
+        <button
+          className="button danger"
+          type="button"
+          onClick={() => onDisconnect(true)}
+        >
+          {manual
+            ? s.fallbackFiles.closeClear
+            : 'Desconectar y borrar datos de sesión'}
+        </button>
+      </div>
+    </Modal>
   )
 }
