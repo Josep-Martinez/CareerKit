@@ -4,7 +4,7 @@ import { TextField } from '../components/FormPrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
 
-export function PromptInboxPage({ pending, onCopy }) {
+export function PromptInboxPage({ pending, onCopy, onCheckLinkedIn }) {
   const copy = s.promptInbox
   const pendingCv = Boolean(pending?.cv)
   const pendingLinkedinLanguages = Boolean(pending?.linkedinLanguages)
@@ -73,7 +73,25 @@ export function PromptInboxPage({ pending, onCopy }) {
           <div>
             <h2>{copy.pendingTitle}</h2>
             {pendingCv && <p>{copy.pendingCvBody}</p>}
-            {pendingLinkedinLanguages && <p>{copy.pendingLanguagesBody}</p>}
+            {pendingLinkedinLanguages && (
+              <div className="prompt-linkedin-check">
+                <p>{copy.pendingLanguagesBody}</p>
+                {pending?.linkedinNeedsReload && (
+                  <p>{copy.pendingLanguagesExternalChange}</p>
+                )}
+                {pending?.linkedinCanCheck ? (
+                  <button
+                    className="button secondary small"
+                    type="button"
+                    onClick={onCheckLinkedIn}
+                  >
+                    {copy.checkLinkedInFile}
+                  </button>
+                ) : (
+                  <p>{copy.linkedinCheckUnavailable}</p>
+                )}
+              </div>
+            )}
           </div>
         </section>
       )}

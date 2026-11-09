@@ -943,8 +943,8 @@ export function useStorageState() {
 
   async function reload(name) {
     try {
-      await readModule(name)
-      return { ok: true }
+      const data = await readModule(name)
+      return { ok: true, data }
     } catch (error) {
       const missing = error?.name === 'NotFoundError'
       setStates((prev) => ({

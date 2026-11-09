@@ -72,10 +72,10 @@ export default function App() {
     setFocusEvidenceId(evidenceId)
   }
 
-  async function reload(module) {
+  async function reload(module, { remind = true } = {}) {
     const result = await store.reload(module)
     if (result.error && store.folder) setFolderDialog(await store.recheck())
-    if (result.ok && ['profile', 'linkedin'].includes(module)) {
+    if (remind && result.ok && ['profile', 'linkedin'].includes(module)) {
       remindCvPrompt(s.promptInbox.sourceReloaded)
     }
     return result
@@ -279,6 +279,17 @@ export default function App() {
   function openCvPrompt() {
     if (!navigateTo('prompts')) return
     showNotice('')
+  }
+
+  async function checkLinkedInSync() {
+    const result = await reload('linkedin', { remind: false })
+    if (!result.ok) return
+    setLinkedinHasUnsavedChanges(false)
+    showNotice(
+      result.data.languageSync?.status === 'current'
+        ? s.promptInbox.linkedinSyncConfirmed
+        : s.promptInbox.linkedinSyncStillPending,
+    )
   }
 
   function requestDisconnect() {
@@ -599,7 +610,13 @@ export default function App() {
               pending={{
                 cv: cvPromptPending,
                 linkedinLanguages: linkedinLanguagesPending,
+                linkedinNeedsReload: [
+                  'Cambio externo',
+                  'Conflicto externo',
+                ].includes(store.states.linkedin),
+                linkedinCanCheck: Boolean(store.folder),
               }}
+              onCheckLinkedIn={checkLinkedInSync}
               onCopy={handlePromptCopied}
             />
           )}

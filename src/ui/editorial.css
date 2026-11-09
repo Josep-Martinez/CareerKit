@@ -923,6 +923,17 @@ select {
 .prompt-reminder h2 {
   color: #694c3b;
 }
+.prompt-linkedin-check {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+}
+.prompt-linkedin-check p {
+  margin-top: 5px;
+}
+.prompt-linkedin-check .button {
+  margin-top: 5px;
+}
 .prompt-list {
   display: grid;
   gap: 22px;

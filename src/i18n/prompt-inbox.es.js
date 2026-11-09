@@ -10,7 +10,16 @@ export const PROMPT_INBOX_ES = {
   pendingCvBody:
     'Has guardado cambios en Perfil o LinkedIn. Usa «Actualizar la base general del CV» para que las dos versiones reflejen la información reciente.',
   pendingLanguagesBody:
-    'Has guardado cambios en LinkedIn. Usa «Actualizar las dos versiones de LinkedIn» para revisar y sincronizar español e inglés.',
+    'Has guardado cambios en LinkedIn. Copiar el prompt no lo ejecuta: úsalo con un agente que pueda guardar en tu carpeta local. Después, comprueba el archivo para actualizar este aviso.',
+  pendingLanguagesExternalChange:
+    'El archivo de LinkedIn cambió fuera de la web. Vuelve a leerlo para comprobar si el agente completó la revisión.',
+  checkLinkedInFile: 'Comprobar archivo de LinkedIn',
+  linkedinSyncConfirmed:
+    'El archivo confirma que los dos idiomas están revisados. Se ha retirado la tarea del Buzón.',
+  linkedinSyncStillPending:
+    'El archivo sigue indicando que los idiomas están pendientes. El agente debe guardar la revisión al terminar.',
+  linkedinCheckUnavailable:
+    'Para comprobar el archivo desde aquí, conecta la carpeta de datos directamente.',
   openButton: 'Abrir el buzón',
   pendingTag: 'Pendiente · {count}',
   copyButton: 'Copiar prompt',
