@@ -7,9 +7,13 @@ import {
   TextField,
   useDraft,
 } from '../components/FormPrimitives.jsx'
-import { id } from '../utils.js'
+import { id, invalidModuleStates } from '../utils.js'
 import { STRINGS as s } from '../../i18n/es.js'
-import { profileEvidenceAnchorId } from '../profile-evidence.js'
+import {
+  collectProfileEvidence,
+  profileEvidenceAnchorId,
+  profileEvidenceCollections,
+} from '../profile-evidence.js'
 
 const personalFields = [
   { key: 'aboutMe', rows: 4, hint: s.profilePage.aboutMeHint },
@@ -60,17 +64,6 @@ const collectionDetails = {
     { key: 'tags', list: true },
   ],
 }
-const collectionKeys = [
-  'experience',
-  'education',
-  'skills',
-  'certifications',
-  'languages',
-  'projects',
-  'evidence',
-  'learnings',
-]
-
 function hasFieldContent(value) {
   if (typeof value === 'string') return value.trim().length > 0
   if (Array.isArray(value)) return value.some(hasFieldContent)
@@ -90,6 +83,12 @@ function contentCountLabel(count, singular, plural) {
 
 export function ProfilePage({
   value,
+  vacancies = [],
+  vacanciesState,
+  onDirtyChange,
+  onDraftChange,
+  saving,
+  savedDraft,
   state,
   warning,
   savedAt,
@@ -98,7 +97,46 @@ export function ProfilePage({
   onSave,
   onReload,
 }) {
-  const [draft, setDraft] = useDraft(value)
+  const [draft, setDraft] = useDraft(value, {
+    onDirtyChange,
+    onDraftChange,
+    savedDraft,
+  })
+  const persistedEvidence = collectProfileEvidence(value)
+  function removeEvidence(key, index, item) {
+    const linked = vacancies.filter((vacancy) =>
+      vacancy.matchingEvidenceIds?.includes(item.id),
+    )
+    if (linked.length) {
+      const labels = linked.map(
+        (vacancy) =>
+          [vacancy.role, vacancy.company].filter(Boolean).join(' · ') ||
+          vacancy.id,
+      )
+      window.alert(
+        `Esta evidencia está vinculada a: ${labels.join(', ')}. Quita esos vínculos y guarda Vacantes antes de eliminarla.`,
+      )
+      return
+    }
+    if (
+      persistedEvidence.has(item.id) &&
+      (!vacanciesState ||
+        invalidModuleStates.includes(vacanciesState) ||
+        ['Error', 'Pendiente de guardar', 'Guardado manual'].includes(
+          vacanciesState,
+        ))
+    ) {
+      window.alert(
+        'Revisa y carga el archivo de Vacantes antes de eliminar una evidencia guardada. Así se pueden comprobar sus vínculos.',
+      )
+      return
+    }
+    update(
+      key,
+      draft[key].filter((_, position) => position !== index),
+    )
+  }
+
   useEffect(() => {
     if (!focusEvidenceId) return undefined
     const frame = window.requestAnimationFrame(() => {
@@ -191,7 +229,10 @@ export function ProfilePage({
   )
   const evidenceCount =
     (hasFieldContent(draft.professionalProfile) ? 1 : 0) +
-    collectionKeys.reduce((total, key) => total + (draft[key] || []).length, 0)
+    profileEvidenceCollections.reduce(
+      (total, key) => total + (draft[key] || []).length,
+      0,
+    )
 
   return (
     <>
@@ -303,7 +344,7 @@ export function ProfilePage({
               onChange={(next) => update('professionalProfile', next)}
               hint={s.profilePage.professionalSummaryHint}
             />
-            {collectionKeys.map((key) => (
+            {profileEvidenceCollections.map((key) => (
               <div className="collection" key={key}>
                 <CardTitle
                   title={s.profilePage.collectionLabels[key]}
@@ -336,12 +377,7 @@ export function ProfilePage({
                         className="icon-button"
                         type="button"
                         aria-label={s.profilePage.deleteItem}
-                        onClick={() =>
-                          update(
-                            key,
-                            draft[key].filter((_, n) => n !== i),
-                          )
-                        }
+                        onClick={() => removeEvidence(key, i, item)}
                       >
                         ×
                       </button>
@@ -488,6 +524,7 @@ export function ProfilePage({
             <button
               className="button primary save-button"
               type="button"
+              disabled={saving}
               onClick={() => onSave(draft)}
             >
               {s.profilePage.save}

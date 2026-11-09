@@ -11,6 +11,7 @@ import {
   validateModule,
 } from '../data/storage.js'
 import { isKnownEmpty, isKnownPopulated } from './utils.js'
+import { checkEvidenceRemoval } from './profile-evidence-guard.js'
 import { SectionIcon } from './components/SectionIcon.jsx'
 import { WorkspaceGate } from './components/WorkspaceGate.jsx'
 import {
@@ -56,6 +57,7 @@ export default function App() {
   const { page, vacancyId } = route
   const pageContent = useRef(null)
   const [notice, setNotice] = useState('')
+  const [adaptationVacancyId, setAdaptationVacancyId] = useState(null)
   const [noticeAction, setNoticeAction] = useState(null)
   const [fallbackOpen, setFallbackOpen] = useState(false)
   const [fallbackConnectOpen, setFallbackConnectOpen] = useState(false)
@@ -132,6 +134,7 @@ export default function App() {
       setRoute({ page: nextPage, vacancyId: nextVacancyId })
     }
     setMobileNavOpen(false)
+    setAdaptationVacancyId(null)
     return true
   }
 
@@ -511,6 +514,17 @@ export default function App() {
   }
 
   async function saveModule(module, value, snapshot) {
+    if (module === 'profile') {
+      const blockedRemoval = await checkEvidenceRemoval(store, value)
+      if (blockedRemoval) {
+        showNotice(
+          blockedRemoval.unavailable
+            ? 'No se pudo comprobar si Vacantes usa las evidencias eliminadas. Revisa o vuelve a abrir vacancies.json y conserva el borrador.'
+            : 'Hay vacantes que todavía usan las evidencias eliminadas. Conserva las evidencias o retira sus referencias desde Vacantes antes de guardar.',
+        )
+        return
+      }
+    }
     const cvRelevantProfileChange =
       module === 'profile' &&
       hasCvRelevantProfileChanges(store.data.profile, value)
@@ -565,6 +579,12 @@ export default function App() {
       showNotice(`${module}.json guardado.`)
     } else if (result.error) showNotice(result.error)
   }
+  function openVacancyAdaptation(id) {
+    if (!navigateTo('prompts')) return
+    setAdaptationVacancyId(id)
+    showNotice('')
+  }
+
   function openCvPrompt() {
     if (!navigateTo('prompts')) return
     showNotice('')
@@ -857,6 +877,8 @@ export default function App() {
             <ProfilePage
               {...draftProps('profile')}
               value={store.data.profile}
+              vacancies={store.data.vacancies.items}
+              vacanciesState={store.states.vacancies}
               state={store.states.profile}
               warning={store.warnings.profile}
               savedAt={savedAt.profile}
@@ -908,12 +930,16 @@ export default function App() {
             (activeVacancy ? (
               <VacancyDetail
                 value={activeVacancy}
+                profile={store.data.profile}
+                onOpenAdaptation={openVacancyAdaptation}
                 onBack={() => navigateTo('vacancies')}
               />
             ) : (
               <VacanciesPage
                 {...draftProps('vacancies')}
                 value={store.data.vacancies}
+                profile={store.data.profile}
+                onOpenAdaptation={openVacancyAdaptation}
                 state={store.states.vacancies}
                 warning={store.warnings.vacancies}
                 savedAt={savedAt.vacancies}
@@ -924,6 +950,8 @@ export default function App() {
             ))}
           {page === 'prompts' && (
             <PromptInboxPage
+              key={adaptationVacancyId || 'catalog'}
+              adaptationVacancyId={adaptationVacancyId}
               pending={{
                 cv: cvPromptPending,
                 cvSources: cvReview.task?.sources,

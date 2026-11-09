@@ -260,7 +260,7 @@ export const PROMPT_INBOX_ES = {
         '.agents/skills/cv-europa/SKILL.md',
       ],
       text: [
-        'Quiero adaptar un CV a esta oferta: {{vacancy}}. Lee la oferta completa y contrástala con private-data/cv.json y las evidencias confirmadas de private-data/profile.json, solo si tienes acceso local autorizado. Si falta el anuncio completo, el CV actual o el país cuando sea necesario, pregunta lo imprescindible.',
+        'Quiero adaptar un CV a esta oferta: {{vacancy}}. Si te doy un identificador, busca la coincidencia exacta en private-data/vacancies.json con acceso local autorizado. Si te doy un puesto o una empresa y hay varias coincidencias, pídeme que elija. Lee la oferta completa y contrástala con private-data/cv.json y las evidencias confirmadas de private-data/profile.json, solo si tienes acceso local autorizado. Si falta el anuncio completo, el CV actual o el país cuando sea necesario, pregunta lo imprescindible.',
         'Sigue literalmente el proceso de dos fases de ruthless-cv-optimizer. En la primera respuesta, presenta requisitos principales, evidencia que los respalda, carencias demostrables y hasta cinco preguntas importantes. Detente ahí y espera mi respuesta; no redactes aún el CV final.',
         'Cuando responda, prepara únicamente la versión solicitada. No inventes hechos, métricas, fechas ni motivaciones. Elige idioma y formato según mi petición, la vacante y el canal; no prometas resultados ATS. Conserva intactas las dos bases generales en cv.json y guarda el borrador en el chat. Solo crea un archivo privado si te lo pido expresamente y apruebo su destino.',
         'No envíes solicitudes ni contactes a la empresa. Si no tienes acceso local, dilo y trabaja solo con el contenido que te comparta; no afirmes haber leído o guardado archivos.',
@@ -744,7 +744,7 @@ export function buildPromptText(
 ) {
   const resolvedBody = body.replace(
     '{{vacancy}}',
-    vacancyReference || PROMPT_INBOX_ES.vacancyPromptPlaceholder,
+    () => vacancyReference || PROMPT_INBOX_ES.vacancyPromptPlaceholder,
   )
   return [
     PROMPT_INBOX_ES.skillInstruction,

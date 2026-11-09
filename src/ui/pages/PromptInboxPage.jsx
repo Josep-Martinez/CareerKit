@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PageHeading } from '../components/PagePrimitives.jsx'
 import { TextField } from '../components/FormPrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
@@ -12,6 +12,7 @@ export function PromptInboxPage({
   onCopy,
   onCheckLinkedIn,
   onConfirmLinkedIn,
+  adaptationVacancyId,
 }) {
   const copy = s.promptInbox
   const pendingCv = Boolean(pending?.cv)
@@ -22,8 +23,20 @@ export function PromptInboxPage({
     ...(pendingLinkedinLanguages ? ['sync-linkedin-languages'] : []),
   ])
   const [search, setSearch] = useState('')
-  const [vacancyReference, setVacancyReference] = useState('')
+  const [vacancyReference, setVacancyReference] = useState(
+    adaptationVacancyId || '',
+  )
   const [copyMessages, setCopyMessages] = useState({})
+  useEffect(() => {
+    if (!adaptationVacancyId) return
+    const summary = document.querySelector('#prompt-tailor-cv-vacancy summary')
+    const frame = requestAnimationFrame(() => {
+      summary?.focus({ preventScroll: true })
+      summary?.scrollIntoView({ block: 'start' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [adaptationVacancyId])
+
   const query = search.trim().toLocaleLowerCase('es')
   const prompts = copy.prompts.filter((prompt) =>
     [
@@ -73,7 +86,13 @@ export function PromptInboxPage({
         id={`prompt-${prompt.id}`}
         key={prompt.id}
       >
-        <details className="prompt-details" open={isPending}>
+        <details
+          className="prompt-details"
+          open={
+            isPending ||
+            (Boolean(adaptationVacancyId) && prompt.id === 'tailor-cv-vacancy')
+          }
+        >
           <summary className="prompt-card-heading">
             <div>
               <h3>{prompt.title}</h3>
