@@ -2229,6 +2229,14 @@ select {
   flex: 1 1 420px;
   min-width: min(100%, 320px);
 }
+.linkedin-heading-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: auto;
+}
 .linkedin-language-switch {
   display: flex;
   align-items: center;
@@ -2238,9 +2246,37 @@ select {
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.55);
 }
-.linkedin-page-heading > .linkedin-language-switch-header {
+.linkedin-heading-actions .linkedin-language-switch-header {
   flex: 0 0 auto;
-  margin-left: auto;
+}
+.linkedin-sync-pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #875139;
+  font-size: 11px;
+  font-weight: 680;
+}
+.linkedin-sync-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+.linkedin-sync-pending button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #315c47;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.linkedin-sync-pending button:focus-visible {
+  outline: 3px solid rgba(49, 92, 71, 0.28);
+  outline-offset: 3px;
 }
 .linkedin-language-option {
   display: inline-flex;
@@ -2348,6 +2384,119 @@ select {
   color: var(--muted);
   font-size: 14px;
   line-height: 1.65;
+}
+.linkedin-section-index {
+  margin: 0 0 24px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f8f7f1;
+  scroll-margin-top: 18px;
+}
+.linkedin-section-index summary {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  color: #3f5144;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+.linkedin-section-index summary::-webkit-details-marker {
+  display: none;
+}
+.linkedin-section-index summary::after {
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  content: '';
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.16s ease;
+}
+.linkedin-section-index[open] summary::after {
+  transform: rotate(225deg) translate(-2px, -1px);
+}
+.linkedin-section-index summary:focus-visible,
+.linkedin-section-index a:focus-visible {
+  outline: 3px solid rgba(49, 92, 71, 0.25);
+  outline-offset: -3px;
+}
+.linkedin-section-index-count {
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: #e9eee8;
+  color: #526957;
+  font-size: 10px;
+  font-weight: 750;
+}
+.linkedin-section-index > p {
+  margin: 0;
+  padding: 0 16px 10px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.linkedin-section-index nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  padding: 0 12px 12px;
+}
+.linkedin-section-index nav a {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid #e8e5da;
+  border-radius: 7px;
+  background: #fffefa;
+  color: #49584c;
+  font-size: 11px;
+  font-weight: 620;
+  text-decoration: none;
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    transform 0.16s ease;
+}
+.linkedin-section-index nav a:hover {
+  border-color: #c8d5c8;
+  background: #f0f3ed;
+  transform: translateY(-1px);
+}
+.linkedin-section-index nav a span {
+  color: #78907c;
+  font-size: 12px;
+}
+.linkedin-presentation-fields,
+.linkedin-list-editor,
+.linkedin-additional-editor,
+.linkedin-date-editor,
+.linkedin-audit-editor {
+  scroll-margin-top: 22px;
+}
+.linkedin-presentation-fields {
+  margin: 0 0 25px;
+}
+.linkedin-presentation-fields h3 {
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  font-weight: 500;
+}
+.linkedin-presentation-fields > .field {
+  max-width: 860px;
+  margin-bottom: 19px;
+}
+.linkedin-date-editor > .field {
+  max-width: none;
 }
 .linkedin-edit-panel > .field {
   max-width: 860px;
@@ -2853,12 +3002,15 @@ select {
   .linkedin-page-heading > div:first-child {
     flex-basis: 100%;
   }
-  .linkedin-page-heading > .linkedin-language-switch-header {
+  .linkedin-heading-actions {
     margin: -4px 0 0 auto;
   }
   .linkedin-language-option {
     min-width: 0;
     padding-inline: 9px;
+  }
+  .linkedin-section-index nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .linkedin-preview-cover {
     height: 108px;

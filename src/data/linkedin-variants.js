@@ -27,3 +27,7 @@ export function markLinkedInLanguageSyncPending(value, sourceLanguage) {
     },
   }
 }
+
+export function hasLinkedInUnsavedChanges(draft, saved) {
+  return JSON.stringify(draft) !== JSON.stringify(saved)
+}

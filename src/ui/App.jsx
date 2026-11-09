@@ -28,6 +28,8 @@ export default function App() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [vacancyId, setVacancyId] = useState(null)
   const [focusEvidenceId, setFocusEvidenceId] = useState('')
+  const [linkedinHasUnsavedChanges, setLinkedinHasUnsavedChanges] =
+    useState(false)
   const clearFocusEvidenceId = useCallback(() => setFocusEvidenceId(''), [])
   const [confirmDisconnect, setConfirmDisconnect] = useState(false)
   const [cvPromptPending, setCvPromptPending] = useState(false)
@@ -48,11 +50,26 @@ export default function App() {
     showNotice(message, 'cv-prompt')
   }
 
-  function openProfileEvidence(evidenceId) {
-    setFocusEvidenceId(evidenceId)
-    setPage('profile')
-    setVacancyId(null)
+  function navigateTo(nextPage, { vacancyId: nextVacancyId = null } = {}) {
+    if (
+      page === 'linkedin' &&
+      nextPage !== 'linkedin' &&
+      linkedinHasUnsavedChanges &&
+      !window.confirm(s.linkedinPage.unsavedChangesConfirmation)
+    ) {
+      return false
+    }
+    if (page === 'linkedin' && nextPage !== 'linkedin')
+      setLinkedinHasUnsavedChanges(false)
+    setPage(nextPage)
+    setVacancyId(nextVacancyId)
     setMobileNavOpen(false)
+    return true
+  }
+
+  function openProfileEvidence(evidenceId) {
+    if (!navigateTo('profile')) return
+    setFocusEvidenceId(evidenceId)
   }
 
   async function reload(module) {
@@ -61,6 +78,20 @@ export default function App() {
     if (result.ok && ['profile', 'linkedin'].includes(module)) {
       remindCvPrompt(s.promptInbox.sourceReloaded)
     }
+    return result
+  }
+
+  async function reloadWithUnsavedGuard(module) {
+    if (
+      module === 'linkedin' &&
+      page === 'linkedin' &&
+      linkedinHasUnsavedChanges &&
+      !window.confirm(s.linkedinPage.unsavedChangesConfirmation)
+    ) {
+      return { cancelled: true }
+    }
+    const result = await reload(module)
+    if (module === 'linkedin' && result.ok) setLinkedinHasUnsavedChanges(false)
     return result
   }
 
@@ -218,9 +249,8 @@ export default function App() {
       showNotice(s.dataConnection.loadedSuccessfully)
   }
   function openSetupPrompt() {
+    if (!navigateTo('prompts')) return
     setFolderDialog(null)
-    setPage('prompts')
-    setVacancyId(null)
     showNotice('')
   }
   async function save(module, value) {
@@ -247,13 +277,47 @@ export default function App() {
     } else if (result.error) showNotice(result.error)
   }
   function openCvPrompt() {
-    setPage('prompts')
-    setVacancyId(null)
+    if (!navigateTo('prompts')) return
     showNotice('')
   }
+
+  function requestDisconnect() {
+    if (
+      page === 'linkedin' &&
+      linkedinHasUnsavedChanges &&
+      !window.confirm(s.linkedinPage.unsavedChangesConfirmation)
+    ) {
+      return
+    }
+    setConfirmDisconnect(true)
+  }
+
+  async function disconnectWorkspace(clear) {
+    const result = await store.disconnect(clear)
+    setLinkedinHasUnsavedChanges(false)
+    setConfirmDisconnect(false)
+    setNotice(
+      result.persistenceCleared
+        ? clear
+          ? s.dataConnection.disconnectedClearedNotice
+          : s.dataConnection.disconnectedNotice
+        : s.workspaceGate.disconnectPersistenceNotice,
+    )
+  }
+
   const activeVacancy = store.data.vacancies.items.find(
     (v) => v.id === vacancyId,
   )
+
+  useEffect(() => {
+    if (page !== 'linkedin' || !linkedinHasUnsavedChanges) return undefined
+    const warnBeforeUnload = (event) => {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+    window.addEventListener('beforeunload', warnBeforeUnload)
+    return () => window.removeEventListener('beforeunload', warnBeforeUnload)
+  }, [page, linkedinHasUnsavedChanges])
 
   if (!store.folder && !store.fallbackConnected) {
     return (
@@ -313,11 +377,7 @@ export default function App() {
             <button
               key={key}
               className={`nav-link ${page === key ? 'active' : ''}`}
-              onClick={() => {
-                setPage(key)
-                setVacancyId(null)
-                setMobileNavOpen(false)
-              }}
+              onClick={() => navigateTo(key)}
             >
               <span className="nav-icon">
                 <SectionIcon name={key} />
@@ -468,11 +528,8 @@ export default function App() {
               fallbackConnected={store.fallbackConnected}
               states={store.states}
               cvPromptPending={cvPromptPending}
-              onNavigate={setPage}
-              onVacancy={(v) => {
-                setVacancyId(v.id)
-                setPage('vacancies')
-              }}
+              onNavigate={navigateTo}
+              onVacancy={(v) => navigateTo('vacancies', { vacancyId: v.id })}
             />
           )}
           {page === 'profile' && (
@@ -493,8 +550,10 @@ export default function App() {
               state={store.states.linkedin}
               warning={store.warnings.linkedin}
               onOpenEvidence={openProfileEvidence}
+              onOpenPrompts={openCvPrompt}
+              onDirtyChange={setLinkedinHasUnsavedChanges}
               onSave={(v) => save('linkedin', v)}
-              onReload={() => reload('linkedin')}
+              onReload={() => reloadWithUnsavedGuard('linkedin')}
             />
           )}
           {page === 'cv' && (
@@ -514,7 +573,7 @@ export default function App() {
               )}
               state={store.states.cv}
               warning={store.warnings.cv}
-              onNavigate={setPage}
+              onNavigate={navigateTo}
               onReload={() => reload('cv')}
               onPromptCopied={handlePromptCopied}
             />
@@ -547,10 +606,7 @@ export default function App() {
           <footer className="page-footer">
             <span>Privado por diseño · Sin cuentas ni sincronización</span>
             {(store.folder || store.fallbackConnected) && (
-              <button
-                className="text-button"
-                onClick={() => setConfirmDisconnect(true)}
-              >
+              <button className="text-button" onClick={requestDisconnect}>
                 {store.fallbackConnected
                   ? s.fallbackFiles.closeManual
                   : s.disconnect}
@@ -588,9 +644,8 @@ export default function App() {
           onPrepare={prepareMissing}
           onRecheck={recheckFolder}
           onStartProfile={() => {
+            if (!navigateTo('profile')) return
             setFolderDialog(null)
-            setPage('profile')
-            setVacancyId(null)
           }}
           onOpenPrompts={openSetupPrompt}
         />
@@ -624,15 +679,7 @@ export default function App() {
               </button>
               <button
                 className="button secondary"
-                onClick={async () => {
-                  const result = await store.disconnect(false)
-                  setConfirmDisconnect(false)
-                  setNotice(
-                    result.persistenceCleared
-                      ? s.dataConnection.disconnectedNotice
-                      : s.workspaceGate.disconnectPersistenceNotice,
-                  )
-                }}
+                onClick={() => disconnectWorkspace(false)}
               >
                 {store.fallbackConnected
                   ? s.fallbackFiles.closeKeep
@@ -640,15 +687,7 @@ export default function App() {
               </button>
               <button
                 className="button danger"
-                onClick={async () => {
-                  const result = await store.disconnect(true)
-                  setConfirmDisconnect(false)
-                  setNotice(
-                    result.persistenceCleared
-                      ? s.dataConnection.disconnectedClearedNotice
-                      : s.workspaceGate.disconnectPersistenceNotice,
-                  )
-                }}
+                onClick={() => disconnectWorkspace(true)}
               >
                 {store.fallbackConnected
                   ? s.fallbackFiles.closeClear

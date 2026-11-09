@@ -477,9 +477,18 @@ export const STRINGS = {
     modeLabel: 'Vista de LinkedIn',
     languageSwitcherLabel: 'Idioma del perfil de LinkedIn',
     variantLanguageNames: { es: 'Español', en: 'English' },
+    languageSyncPending: 'Idiomas por sincronizar',
+    openLanguageSyncPrompt: 'Ver Buzón',
     editButton: 'Editar',
     previewButton: 'Vista previa',
     separationNotice: 'La copia publicada y las notas se guardan por separado.',
+    unsavedChangesLabel: 'Cambios sin guardar',
+    unsavedChangesConfirmation:
+      'Hay cambios de LinkedIn sin guardar. Si sales de esta sección o recargas ahora, se perderán. ¿Quieres continuar?',
+    sectionIndexTitle: 'Ir a una sección',
+    sectionIndexHint:
+      'Abre el apartado que quieres editar sin recorrer todo el formulario.',
+    sectionIndexPresentation: 'Presentación',
     formEyebrow: 'COPIA FIEL',
     formTitle: 'Contenido del perfil',
     formDescription:

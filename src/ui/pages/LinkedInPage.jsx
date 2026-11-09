@@ -15,6 +15,7 @@ import {
 } from '../../data/linkedin-audit.js'
 import {
   createEmptyLinkedInVariant,
+  hasLinkedInUnsavedChanges,
   markLinkedInLanguageSyncPending,
 } from '../../data/linkedin-variants.js'
 
@@ -102,11 +103,13 @@ export function LinkedInPage({
   state,
   warning,
   onOpenEvidence,
+  onOpenPrompts,
+  onDirtyChange,
   onSave,
   onReload,
 }) {
   const [draft, setDraft] = useDraft(value)
-  const hasUnsavedChanges = JSON.stringify(draft) !== JSON.stringify(value)
+  const hasUnsavedChanges = hasLinkedInUnsavedChanges(draft, value)
   const [view, setView] = useState('edit')
   const [applyNotice, setApplyNotice] = useState('')
   const [activeVariantId, setActiveVariantId] = useState('')
@@ -284,6 +287,22 @@ export function LinkedInPage({
     'projects',
     'featured',
   ]
+  const editorSections = [
+    {
+      id: 'linkedin-section-presentation',
+      label: copy.sectionIndexPresentation,
+    },
+    ...previewKeys.map((key) => ({
+      id: `linkedin-section-${key}`,
+      label: copy.sectionLabels[key],
+    })),
+    {
+      id: 'linkedin-section-additional',
+      label: copy.additionalSectionsTitle,
+    },
+    { id: 'linkedin-section-update', label: copy.lastUpdatedLabel },
+    { id: 'linkedin-section-audits', label: copy.auditTitle },
+  ]
   const activeAudits = draft.audits.filter((item) =>
     isEditingVariant(item.variantId),
   )
@@ -306,31 +325,64 @@ export function LinkedInPage({
   const hasActiveAudits = activeAudits.some(
     (item) => item.status !== 'descartada',
   )
-  const selectedProfile = (root, variantId) =>
-    variantId
-      ? root.published.variants?.find((variant) => variant.id === variantId)
-      : root.published
+  useEffect(() => {
+    onDirtyChange?.(hasUnsavedChanges)
+  }, [hasUnsavedChanges, onDirtyChange])
+  useEffect(() => () => onDirtyChange?.(false), [onDirtyChange])
   const profileText = (profile) => {
     if (!profile) return null
     const content = { ...profile }
     delete content.language
     delete content.lastUpdated
     delete content.publicationStatus
+    delete content.variants
     return content
   }
-  const saveLinkedInDraft = () => {
-    const originalProfile = selectedProfile(value, activeVariantId)
-    const nextProfile = selectedProfile(draft, activeVariantId)
-    const publishedChanged =
-      JSON.stringify(profileText(originalProfile)) !==
-        JSON.stringify(profileText(nextProfile)) &&
-      (hasEntryContent(profileText(originalProfile)) ||
-        hasEntryContent(profileText(nextProfile)))
-    const next = publishedChanged
-      ? markLinkedInLanguageSyncPending(
-          draft,
-          languageBase(pub.language || rootPublished.language),
+  const changedLanguages = () => {
+    const collect = (root) => {
+      const languages = new Map()
+      const mainLanguage = languageBase(root.published.language)
+      languages.set(
+        ['es', 'en'].includes(mainLanguage) ? mainLanguage : 'unassigned:main',
+        root.published,
+      )
+      for (const variant of root.published.variants || []) {
+        const language = languageBase(variant.language)
+        languages.set(
+          ['es', 'en'].includes(language)
+            ? language
+            : `unassigned:${variant.id}`,
+          variant,
         )
+      }
+      return languages
+    }
+    const original = collect(value)
+    const next = collect(draft)
+    const modified = [...new Set([...original.keys(), ...next.keys()])].filter(
+      (language) => {
+        const before = profileText(original.get(language))
+        const after = profileText(next.get(language))
+        return (
+          JSON.stringify(before) !== JSON.stringify(after) &&
+          (hasEntryContent(before) || hasEntryContent(after))
+        )
+      },
+    )
+    return {
+      modified,
+      sourceLanguage:
+        modified.length === 1 &&
+        next.has(modified[0]) &&
+        ['es', 'en'].includes(modified[0])
+          ? modified[0]
+          : undefined,
+    }
+  }
+  const saveLinkedInDraft = () => {
+    const { modified, sourceLanguage } = changedLanguages()
+    const next = modified.length
+      ? markLinkedInLanguageSyncPending(draft, sourceLanguage)
       : draft
     onSave(next)
   }
@@ -349,34 +401,45 @@ export function LinkedInPage({
         title={copy.title}
         subtitle={copy.subtitle}
         action={
-          <div
-            className="linkedin-language-switch linkedin-language-switch-header"
-            role="group"
-            aria-label={copy.languageSwitcherLabel}
-          >
-            {['es', 'en'].map((language) => {
-              const variant = variants.find(
-                (item) => languageBase(item.language) === language,
-              )
-              const isPrimary = primaryLanguage === language
-              const isActive = activeVariant
-                ? activeVariant.id === variant?.id
-                : isPrimary
-              return (
-                <button
-                  key={language}
-                  className={`linkedin-language-option${isActive ? ' active' : ''}`}
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={() => selectLanguage(language)}
-                >
-                  <span className="linkedin-language-code" aria-hidden="true">
-                    {language.toUpperCase()}
-                  </span>
-                  <span>{copy.variantLanguageNames[language]}</span>
+          <div className="linkedin-heading-actions">
+            <div
+              className="linkedin-language-switch linkedin-language-switch-header"
+              role="group"
+              aria-label={copy.languageSwitcherLabel}
+            >
+              {['es', 'en'].map((language) => {
+                const variant = variants.find(
+                  (item) => languageBase(item.language) === language,
+                )
+                const isPrimary = primaryLanguage === language
+                const isActive = activeVariant
+                  ? activeVariant.id === variant?.id
+                  : isPrimary
+                return (
+                  <button
+                    key={language}
+                    className={`linkedin-language-option${isActive ? ' active' : ''}`}
+                    type="button"
+                    aria-pressed={isActive}
+                    onClick={() => selectLanguage(language)}
+                  >
+                    <span className="linkedin-language-code" aria-hidden="true">
+                      {language.toUpperCase()}
+                    </span>
+                    <span>{copy.variantLanguageNames[language]}</span>
+                  </button>
+                )
+              })}
+            </div>
+            {value.languageSync?.status === 'pending' && (
+              <div className="linkedin-sync-pending" role="status">
+                <span className="linkedin-sync-dot" aria-hidden="true" />
+                <span>{copy.languageSyncPending}</span>
+                <button type="button" onClick={onOpenPrompts}>
+                  {copy.openLanguageSyncPrompt}
                 </button>
-              )
-            })}
+              </div>
+            )}
           </div>
         }
       />
@@ -415,7 +478,9 @@ export function LinkedInPage({
             </button>
           )}
         </div>
-        <span>{copy.separationNotice}</span>
+        <span>
+          {hasUnsavedChanges ? copy.unsavedChangesLabel : copy.separationNotice}
+        </span>
       </div>
       {view === 'edit' ? (
         <section
@@ -428,36 +493,64 @@ export function LinkedInPage({
             <h2 id="linkedin-edit-title">{copy.formTitle}</h2>
             <p>{copy.formDescription}</p>
           </div>
-          <TextField
-            label={copy.nameLabel}
-            value={pub.name || ''}
-            onChange={(v) => setPub('name', v)}
-          />
-          <TextField
-            label={copy.sectionLabels.headline}
-            value={pub.headline}
-            onChange={(v) => setPub('headline', v)}
-          />
-          <AuditPoints
-            notes={auditNotes('headline')}
-            evidence={evidenceItems}
-            onOpenEvidence={onOpenEvidence}
-          />
-          <TextField
-            label={copy.sectionLabels.about}
-            rows={7}
-            value={pub.about}
-            onChange={(v) => setPub('about', v)}
-          />
-          <AuditPoints
-            notes={auditNotes('about')}
-            evidence={evidenceItems}
-            onOpenEvidence={onOpenEvidence}
-          />
+          <details className="linkedin-section-index">
+            <summary>
+              <span>{copy.sectionIndexTitle}</span>
+              <span className="linkedin-section-index-count">
+                {editorSections.length}
+              </span>
+            </summary>
+            <p>{copy.sectionIndexHint}</p>
+            <nav aria-label={copy.sectionIndexTitle}>
+              {editorSections.map((section) => (
+                <a key={section.id} href={`#${section.id}`}>
+                  {section.label}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              ))}
+            </nav>
+          </details>
+          <section
+            className="linkedin-presentation-fields"
+            id="linkedin-section-presentation"
+            tabIndex={-1}
+            aria-labelledby="linkedin-presentation-title"
+          >
+            <h3 id="linkedin-presentation-title">
+              {copy.sectionIndexPresentation}
+            </h3>
+            <TextField
+              label={copy.nameLabel}
+              value={pub.name || ''}
+              onChange={(v) => setPub('name', v)}
+            />
+            <TextField
+              label={copy.sectionLabels.headline}
+              value={pub.headline}
+              onChange={(v) => setPub('headline', v)}
+            />
+            <AuditPoints
+              notes={auditNotes('headline')}
+              evidence={evidenceItems}
+              onOpenEvidence={onOpenEvidence}
+            />
+            <TextField
+              label={copy.sectionLabels.about}
+              rows={7}
+              value={pub.about}
+              onChange={(v) => setPub('about', v)}
+            />
+            <AuditPoints
+              notes={auditNotes('about')}
+              evidence={evidenceItems}
+              onOpenEvidence={onOpenEvidence}
+            />
+          </section>
           <div className="linkedin-edit-sections">
             {previewKeys.map((key) => (
               <LinkedInListEditor
                 key={key}
+                sectionId={`linkedin-section-${key}`}
                 section={key}
                 title={copy.sectionLabels[key]}
                 items={pub[key]}
@@ -473,6 +566,8 @@ export function LinkedInPage({
           </div>
           <section
             className="linkedin-additional-editor"
+            id="linkedin-section-additional"
+            tabIndex={-1}
             aria-labelledby="linkedin-additional-title"
           >
             <div className="linkedin-list-heading">
@@ -535,18 +630,26 @@ export function LinkedInPage({
               </div>
             ))}
           </section>
-          <TextField
-            label={copy.lastUpdatedLabel}
-            value={activeVariant ? pub.lastUpdated || '' : draft.lastUpdated}
-            onChange={(v) =>
-              activeVariant
-                ? setPub('lastUpdated', v)
-                : setDraft({ ...draft, lastUpdated: v })
-            }
-            hint={copy.lastUpdatedHint}
-          />
+          <section
+            className="linkedin-date-editor"
+            id="linkedin-section-update"
+            tabIndex={-1}
+          >
+            <TextField
+              label={copy.lastUpdatedLabel}
+              value={activeVariant ? pub.lastUpdated || '' : draft.lastUpdated}
+              onChange={(v) =>
+                activeVariant
+                  ? setPub('lastUpdated', v)
+                  : setDraft({ ...draft, lastUpdated: v })
+              }
+              hint={copy.lastUpdatedHint}
+            />
+          </section>
           <section
             className="linkedin-audit-editor"
+            id="linkedin-section-audits"
+            tabIndex={-1}
             aria-labelledby="linkedin-audit-title"
           >
             <div className="linkedin-audit-heading">
@@ -715,6 +818,7 @@ export function LinkedInPage({
 }
 
 function LinkedInListEditor({
+  sectionId,
   section,
   title,
   items = [],
@@ -729,7 +833,7 @@ function LinkedInListEditor({
     update(index, { ...items[index], [field]: value })
   const fields = LINKEDIN_OBJECT_FIELDS[section] || []
   return (
-    <section className="linkedin-list-editor">
+    <section id={sectionId} className="linkedin-list-editor" tabIndex={-1}>
       <div className="linkedin-list-heading">
         <h3>{title}</h3>
         <button
