@@ -114,24 +114,28 @@ export function LinkedInPage({
   const hasUnsavedChanges = hasLinkedInUnsavedChanges(draft, value)
   const [view, setView] = useState('edit')
   const [applyNotice, setApplyNotice] = useState('')
-  const [activeVariantId, setActiveVariantId] = useState(() =>
-    languageBase(value.published.language) === 'en'
-      ? ''
-      : value.published.variants?.find(
-          (variant) => languageBase(variant.language) === 'en',
-        )?.id || '',
-  )
+  const [requestedLanguage, setRequestedLanguage] = useState('')
   const rootPublished = draft.published
   const variants = rootPublished.variants || []
   const primaryLanguage = languageBase(rootPublished.language)
-  const hasPrimaryLanguage = ['es', 'en'].includes(primaryLanguage)
-  const activeVariant = variants.find(
-    (variant) => variant.id === activeVariantId,
-  )
+  const hasEnglishVersion =
+    primaryLanguage === 'en' ||
+    variants.some((variant) => languageBase(variant.language) === 'en')
+  const selectedLanguage =
+    requestedLanguage || (hasEnglishVersion ? 'en' : primaryLanguage)
+  const activeVariant =
+    primaryLanguage === selectedLanguage
+      ? undefined
+      : variants.find(
+          (variant) => languageBase(variant.language) === selectedLanguage,
+        )
+  const activeVariantId = activeVariant?.id || ''
   const pub = activeVariant || rootPublished
-  useEffect(() => {
-    if (activeVariantId && !activeVariant) setActiveVariantId('')
-  }, [activeVariantId, activeVariant])
+  const missingLanguage =
+    requestedLanguage && primaryLanguage !== requestedLanguage && !activeVariant
+      ? requestedLanguage
+      : ''
+  const canAssignLanguage = !rootPublished.language
   const withSelectedPublished = (root, next) =>
     activeVariantId
       ? {
@@ -157,28 +161,21 @@ export function LinkedInPage({
         variants: [...variants, variant],
       },
     })
-    setActiveVariantId(variant.id)
     setApplyNotice('')
   }
   const selectLanguage = (language) => {
     setApplyNotice('')
-    if (!hasPrimaryLanguage) {
-      setActiveVariantId('')
-      setPub('language', language)
-      return
+    setRequestedLanguage(language)
+  }
+  const prepareMissingLanguage = () => {
+    if (canAssignLanguage) {
+      setDraft({
+        ...draft,
+        published: { ...rootPublished, language: missingLanguage },
+      })
+    } else {
+      createVariant(missingLanguage)
     }
-    if (primaryLanguage === language) {
-      setActiveVariantId('')
-      return
-    }
-    const matchingVariant = variants.find(
-      (variant) => languageBase(variant.language) === language,
-    )
-    if (matchingVariant) {
-      setActiveVariantId(matchingVariant.id)
-      return
-    }
-    createVariant(language)
   }
   const isEditingVariant = (variantId) => (variantId || '') === activeVariantId
   const evidenceItems = PROFILE_EVIDENCE_KEYS.flatMap((key) =>
@@ -416,13 +413,7 @@ export function LinkedInPage({
               aria-label={copy.languageSwitcherLabel}
             >
               {['en', 'es'].map((language) => {
-                const variant = variants.find(
-                  (item) => languageBase(item.language) === language,
-                )
-                const isPrimary = primaryLanguage === language
-                const isActive = activeVariant
-                  ? activeVariant.id === variant?.id
-                  : isPrimary
+                const isActive = selectedLanguage === language
                 return (
                   <button
                     key={language}
@@ -496,7 +487,37 @@ export function LinkedInPage({
           {hasUnsavedChanges ? copy.unsavedChangesLabel : copy.separationNotice}
         </span>
       </div>
-      {view === 'edit' ? (
+      {missingLanguage ? (
+        <section className="panel linkedin-preview-panel">
+          <div className="linkedin-preview-empty">
+            <h2>{copy.variantLanguageNames[missingLanguage]}</h2>
+            <p>
+              {canAssignLanguage
+                ? 'La copia principal todavía no tiene idioma asignado.'
+                : 'Todavía no hay una versión guardada en este idioma.'}
+            </p>
+            {view === 'edit' ? (
+              <button
+                className="button secondary"
+                type="button"
+                onClick={prepareMissingLanguage}
+              >
+                {canAssignLanguage
+                  ? 'Asignar este idioma a la copia principal'
+                  : 'Crear versión en este idioma'}
+              </button>
+            ) : (
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => setView('edit')}
+              >
+                {copy.editAction}
+              </button>
+            )}
+          </div>
+        </section>
+      ) : view === 'edit' ? (
         <section
           className="panel linkedin-edit-panel"
           id="linkedin-content-form"

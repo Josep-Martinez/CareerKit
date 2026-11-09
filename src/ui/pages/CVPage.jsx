@@ -3,6 +3,7 @@ import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
 import { pretty } from '../utils.js'
+import { CVDocument } from './CVDocument.jsx'
 
 export function CVPage({
   value,
@@ -26,6 +27,7 @@ export function CVPage({
     lastUpdated: '',
     lastReviewed: '',
   }
+  const masterText = current.masterText?.trim() ? current.masterText : ''
   const guide = spanish ? copy.spanishGuide : copy.englishGuide
   const guideTitle = spanish ? copy.spanishGuideTitle : copy.englishGuideTitle
   const showEmptyGuidance = connected && isEmpty
@@ -133,6 +135,17 @@ export function CVPage({
         eyebrow="BASE PROFESIONAL"
         title={copy.title}
         subtitle={copy.subtitle}
+        action={
+          masterText && (
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => window.print()}
+            >
+              Imprimir o guardar PDF
+            </button>
+          )
+        }
       />
       <Status
         fileName="cv"
@@ -186,12 +199,11 @@ export function CVPage({
             <p>{copy.baseGuidance}</p>
             <small>{copy.baseHint}</small>
           </div>
-          <pre
-            className={`cv-master-text ${spanish ? 'spanish' : 'english'}`}
-            lang={spanish ? 'es' : 'en'}
-          >
-            {current.masterText || copy.noBase}
-          </pre>
+          {masterText ? (
+            <CVDocument text={masterText} spanish={spanish} />
+          ) : (
+            <p className="cv-master-text">{copy.noBase}</p>
+          )}
           <dl className="cv-date-summary">
             <div>
               <dt>{copy.lastUpdated}</dt>
