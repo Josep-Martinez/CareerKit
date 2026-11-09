@@ -1,3 +1,5 @@
+import { STRINGS as s } from '../../i18n/es.js'
+
 export function PageHeading({
   eyebrow,
   title,
@@ -30,31 +32,59 @@ export function EmptyState({ text, action, onClick }) {
     </div>
   )
 }
-export function Status({ state, warning, onReload }) {
+export function Status({ state, warning, onReload, fileName, savedAt }) {
+  const file = fileName ? `private-data/${fileName}.json` : ''
+  const format = (template, replacements) =>
+    Object.entries(replacements).reduce(
+      (value, [key, replacement]) => value.replaceAll(`{${key}}`, replacement),
+      template,
+    )
+  let label = state
+  if (state === 'Guardando') label = format(s.saveStatus.saving, { file })
+  else if (state === 'Guardado' && savedAt) {
+    const time = new Intl.DateTimeFormat('es-ES', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(savedAt))
+    label = format(s.saveStatus.saved, { file, time })
+  } else if (state === 'Guardado manual')
+    label = format(s.saveStatus.manualSaved, { file })
+  else if (state === 'Pendiente de guardar')
+    label = format(s.saveStatus.pendingManual, { file })
+  else if (state === 'Cambio externo')
+    label = format(s.saveStatus.externalState, { file })
+  else if (state === 'Conflicto externo')
+    label = format(s.saveStatus.conflictState, { file })
+  else if (file) label = format(s.saveStatus.state, { file, state })
+
+  const external = ['Cambio externo', 'Conflicto externo'].includes(state)
   return (
     <>
       {state && (
         <div
-          className={`save-state ${state.includes('Error') || state.includes('externo') ? 'state-error' : ''} ${state.includes('plantilla') ? 'state-warning' : ''}`}
+          className={`save-state ${state.includes('Error') || state.includes('externo') ? 'state-error' : ''} ${state.includes('plantilla') ? 'state-warning' : ''} ${state === 'Guardando' ? 'is-saving' : ''}`}
           role="status"
         >
-          <span>●</span> {state}
-          {state?.includes('externo') && (
-            <button onClick={onReload}>Recargar archivo</button>
-          )}
+          <span>●</span> {label}
         </div>
       )}
       {warning && (
         <div className="warning-box">
           {warning}
-          {state === 'Error' && (
-            <button onClick={onReload}>Volver a intentar</button>
+          {external && (
+            <button type="button" onClick={onReload}>
+              {s.saveStatus.reloadExternal}
+            </button>
           )}
-          {state === 'Cambio externo' && (
-            <button onClick={onReload}>Recargar archivo</button>
+          {state === 'Error' && (
+            <button type="button" onClick={onReload}>
+              Volver a intentar
+            </button>
           )}
           {state?.includes('plantilla') && (
-            <button onClick={onReload}>Volver a comprobar</button>
+            <button type="button" onClick={onReload}>
+              Volver a comprobar
+            </button>
           )}
         </div>
       )}

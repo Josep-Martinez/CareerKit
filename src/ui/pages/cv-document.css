@@ -1,0 +1,94 @@
+.cv-document {
+  margin: 1.5rem 0;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  border: 1px solid #ddd9cd;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #25332d;
+  font:
+    1rem / 1.5 system-ui,
+    sans-serif;
+}
+
+.cv-document-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr);
+  gap: clamp(1rem, 3vw, 2rem);
+}
+
+.cv-document-sidebar {
+  border-inline-end: 1px solid #ddd9cd;
+  padding-inline-end: 1rem;
+}
+
+.cv-document-section + .cv-document-section {
+  margin-block-start: 1rem;
+}
+
+.cv-document-section h2 {
+  margin: 0 0 0.25rem;
+  color: inherit;
+  font:
+    650 1.1em / 1.3 system-ui,
+    sans-serif;
+}
+
+.cv-document-section p {
+  margin: 0;
+  color: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media screen and (max-width: 600px) {
+  .cv-document-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cv-document-sidebar {
+    border-inline-end: 0;
+    border-block-end: 1px solid #ddd9cd;
+    padding: 0 0 1rem;
+  }
+}
+
+@media print {
+  @page careerkit-cv {
+    margin: 14mm;
+  }
+
+  body:has(.cv-document)
+    *:not(.cv-document, .cv-document *, :has(.cv-document)) {
+    display: none !important;
+  }
+
+  body:has(.cv-document),
+  body :has(.cv-document) {
+    display: block !important;
+    position: static !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .cv-document {
+    page: careerkit-cv;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 10pt;
+  }
+
+  .cv-document-section h2 {
+    break-after: avoid;
+  }
+}

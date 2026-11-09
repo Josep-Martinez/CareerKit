@@ -514,10 +514,48 @@ export function normalizeModule(name, value) {
   return { data, migrated: true }
 }
 
+const folderPreferenceKey = 'careerkit-folder-preference'
+
+function getFolderPreference() {
+  try {
+    const session = sessionStorage.getItem(folderPreferenceKey)
+    if (session) return session
+    if (sessionStorage.getItem('careerkit-disconnected')) return 'disconnected'
+  } catch {
+    // A restricted session may still allow persistent storage.
+  }
+  try {
+    return localStorage.getItem(folderPreferenceKey)
+  } catch {
+    return null
+  }
+}
+
+function saveFolderPreference(value) {
+  let persisted = false
+  try {
+    localStorage.setItem(folderPreferenceKey, value)
+    persisted = true
+  } catch {
+    // Use a session marker when persistent storage is not available.
+  }
+  try {
+    if (persisted) sessionStorage.removeItem(folderPreferenceKey)
+    else sessionStorage.setItem(folderPreferenceKey, value)
+    sessionStorage.removeItem('careerkit-disconnected')
+  } catch {
+    // The in-memory preference still applies to this page.
+  }
+  return persisted
+}
+
 export function useStorageState() {
   const [folder, setFolderState] = useState(null)
   const [fallbackConnected, setFallbackConnected] = useState(false)
   const folderRef = useRef(null)
+  const folderPreference = useRef(getFolderPreference())
+  const connectingRef = useRef(true)
+  const rememberedRef = useRef(null)
   function setFolder(value) {
     folderRef.current = value
     setFolderState(value)
@@ -624,14 +662,22 @@ export function useStorageState() {
     let active = true
     async function restoreFolder() {
       try {
+        const preference = folderPreference.current
+        if (preference === 'disconnected' || preference === 'files') {
+          setRestoreStatus('no-saved-folder')
+          return
+        }
+        const saved =
+          preference === 'local' ? null : await loadDirectoryHandle()
         const handle =
-          (await detectLocalFolder()) || (await loadDirectoryHandle())
+          saved || (preference === 'picked' ? null : await detectLocalFolder())
         if (!active) return
         if (!handle) {
           setRestoreStatus('no-saved-folder')
           return
         }
-        setRememberedFolder(handle)
+        rememberedRef.current = saved || null
+        setRememberedFolder(saved || null)
         const permission =
           typeof handle.queryPermission === 'function'
             ? await handle.queryPermission({ mode: 'readwrite' })
@@ -656,23 +702,43 @@ export function useStorageState() {
       } catch {
         if (!active) return
         setRestoreStatus('storage-error')
+      } finally {
+        if (active) connectingRef.current = false
       }
     }
     restoreFolder()
     const timer = setInterval(async () => {
       if (
         !active ||
+        connectingRef.current ||
         folderRef.current ||
-        sessionStorage.getItem('careerkit-disconnected')
+        rememberedRef.current ||
+        ['disconnected', 'picked', 'files'].includes(folderPreference.current)
       )
         return
       const handle = await detectLocalFolder()
-      if (!active || !handle || folderRef.current) return
-      const result = await scanFolder(handle)
-      if (!active) return
-      setFolder(handle)
-      setRestoreResult(result)
-      setRestoreStatus('restored')
+      if (
+        !active ||
+        !handle ||
+        folderRef.current ||
+        connectingRef.current ||
+        rememberedRef.current ||
+        ['disconnected', 'picked', 'files'].includes(folderPreference.current)
+      )
+        return
+      connectingRef.current = true
+      setRestoreStatus('checking')
+      try {
+        const result = await scanFolder(handle)
+        if (!active) return
+        setFolder(handle)
+        setRestoreResult(result)
+        setRestoreStatus('restored')
+      } catch {
+        if (active) setRestoreStatus('storage-error')
+      } finally {
+        if (active) connectingRef.current = false
+      }
     }, 3000)
     return () => {
       clearInterval(timer)
@@ -681,29 +747,35 @@ export function useStorageState() {
   }, [])
 
   async function connect({ selectAnother = false, useLocal = false } = {}) {
-    sessionStorage.removeItem('careerkit-disconnected')
-    if (!selectAnother && !useLocal && rememberedFolder) {
-      return {
-        ...(await connectHandle(rememberedFolder, { requestPermission: true })),
-        reconnected: true,
-      }
-    }
-    if (useLocal || !window.showDirectoryPicker) {
-      const local = await detectLocalFolder()
-      if (!local) return useLocal ? { localMissing: true } : { fallback: true }
-      return connectHandle(local, { requestPermission: false })
-    }
+    if (connectingRef.current) return { cancelled: true }
+    connectingRef.current = true
     try {
+      if (!selectAnother && !useLocal && rememberedFolder) {
+        return {
+          ...(await connectHandle(rememberedFolder, {
+            requestPermission: true,
+          })),
+          reconnected: true,
+        }
+      }
+      if (useLocal || !window.showDirectoryPicker) {
+        const local = await detectLocalFolder()
+        if (!local)
+          return useLocal ? { localMissing: true } : { fallback: true }
+        return await connectHandle(local, { requestPermission: false })
+      }
       const handle = await window.showDirectoryPicker({
         mode: 'readwrite',
         id: 'careerkit-private-data',
       })
       if (handle.name !== 'private-data')
         return { wrongFolder: true, selectedName: handle.name }
-      return connectHandle(handle, { requestPermission: true })
+      return await connectHandle(handle, { requestPermission: true })
     } catch (error) {
       if (error.name === 'AbortError') return { cancelled: true }
       return { error: error.message }
+    } finally {
+      connectingRef.current = false
     }
   }
 
@@ -731,7 +803,12 @@ export function useStorageState() {
           // The status message below tells the user the old selection may remain.
         }
       }
-      setRememberedFolder(persistenceError || handle.local ? null : handle)
+      const preference = handle.local ? 'local' : 'picked'
+      folderPreference.current = preference
+      const preferenceSaved = saveFolderPreference(preference)
+      rememberedRef.current = persistenceError || handle.local ? null : handle
+      setRememberedFolder(rememberedRef.current)
+      persistenceError ||= !preferenceSaved
       setRememberFailed(persistenceError)
       setData(
         Object.fromEntries(FILES.map((name) => [name, clone(EMPTY[name])])),
@@ -838,6 +915,9 @@ export function useStorageState() {
     setStates(nextStates)
     setWarnings(nextWarnings)
     setRevision(nextRevision)
+    folderPreference.current = 'files'
+    saveFolderPreference('files')
+    setFolder(null)
     setFallbackConnected(true)
     return { connected: true, loaded, invalid, missing }
   }
@@ -898,18 +978,44 @@ export function useStorageState() {
       revision[name] === undefined
     )
       return { needsReview: true }
+    function conflict(raw) {
+      let external
+      try {
+        const candidate = normalizeModule(name, JSON.parse(raw)).data
+        if (validateModule(name, candidate)) external = candidate
+      } catch {
+        // Keep an invalid external file intact and allow manual recovery.
+      }
+      setStates((prev) => ({ ...prev, [name]: 'Conflicto externo' }))
+      setWarnings((prev) => ({
+        ...prev,
+        [name]: `No se guardó el cambio porque ${name}.json cambió antes. Tu edición sigue en el formulario. Puedes cargar la versión actual y volver a aplicar lo que quieras conservar.`,
+      }))
+      return { conflict: true, external }
+    }
+
     try {
       const handle = await folder.getFileHandle(`${name}.json`)
       const file = await handle.getFile()
       const current = await file.text()
-      if (current !== revision[name]) {
-        setStates((prev) => ({ ...prev, [name]: 'Conflicto externo' }))
-        return { conflict: true }
-      }
+      if (current !== revision[name]) return conflict(current)
+      setStates((prev) => ({ ...prev, [name]: 'Guardando' }))
       const writable = await handle.createWritable()
       const raw = JSON.stringify(safe, null, 2) + '\n'
-      await writable.write(raw)
-      await writable.close()
+      try {
+        await writable.write(raw)
+        if (!folder.local) {
+          const latest = await (await handle.getFile()).text()
+          if (latest !== current) {
+            await writable.abort().catch(() => {})
+            return conflict(latest)
+          }
+        }
+        await writable.close()
+      } catch (error) {
+        await writable.abort?.().catch(() => {})
+        throw error
+      }
       setData((prev) => ({ ...prev, [name]: safe }))
       setRevision((prev) => ({ ...prev, [name]: raw }))
       setStates((prev) => ({ ...prev, [name]: 'Guardado' }))
@@ -922,6 +1028,16 @@ export function useStorageState() {
       }))
       return { saved: true }
     } catch (error) {
+      if (error?.name === 'ConflictError') {
+        let latest
+        try {
+          const handle = await folder.getFileHandle(`${name}.json`)
+          latest = await (await handle.getFile()).text()
+        } catch {
+          // The file may have moved or changed again after the conflict.
+        }
+        return conflict(latest)
+      }
       if (error?.name === 'NotFoundError') {
         setStates((prev) => ({ ...prev, [name]: 'Falta plantilla' }))
         setWarnings((prev) => ({
@@ -962,13 +1078,14 @@ export function useStorageState() {
   }
 
   async function disconnect(clear) {
-    sessionStorage.setItem('careerkit-disconnected', 'true')
-    let persistenceCleared = true
+    folderPreference.current = 'disconnected'
+    let persistenceCleared = saveFolderPreference('disconnected')
     try {
       await forgetDirectoryHandle()
     } catch {
       persistenceCleared = false
     }
+    rememberedRef.current = null
     setRememberedFolder(null)
     setRememberFailed(!persistenceCleared)
     setFolder(null)

@@ -362,6 +362,9 @@ select {
 .save-state {
   color: #3e7651;
 }
+.save-state.is-saving {
+  color: #8a6d3b;
+}
 .state-error {
   color: #a84b40;
 }
@@ -1038,6 +1041,44 @@ select {
   color: #68736b;
   font-size: 11px;
   line-height: 1.55;
+}
+.prompt-needs {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+  color: #667268;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.prompt-needs p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 6px;
+  margin: 0;
+}
+.prompt-needs b {
+  color: #526158;
+}
+.prompt-needs code {
+  padding: 2px 4px;
+  border-radius: 3px 5px 3px 5px;
+  background: #f1f1e9;
+  color: #526158;
+  font-size: 9px;
+}
+.prompt-recent-description {
+  margin: -8px 0 12px;
+  color: #68736b;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.prompt-all-title {
+  margin: 28px 0 12px;
+  color: #26352d;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 24px;
+  font-weight: 500;
 }
 .prompt-pending-tag {
   flex: 0 0 auto;

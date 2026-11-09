@@ -8,11 +8,14 @@ export const PROMPT_INBOX_ES = {
     'Para guardar cambios, el asistente debe tener acceso local a private-data. El prompt del complemento requiere que LinkedIn esté conectado en ese asistente; no sustituye el acceso local a los JSON. Las guías indicadas en cada prompt explican el proceso.',
   pendingTitle: 'Tienes tareas pendientes en el Buzón',
   pendingCvBody:
-    'Has guardado cambios en Perfil o LinkedIn. Usa «Actualizar la base general del CV» para que las dos versiones reflejen la información reciente.',
+    'Hay cambios profesionales en {sources}. El aviso se retira cuando ambas bases del CV tienen cambios de contenido o una nueva fecha de revisión.',
   pendingLanguagesBody:
-    'Has guardado cambios en LinkedIn. Copiar el prompt no lo ejecuta: úsalo con un agente que pueda guardar en tu carpeta local. Después, comprueba el archivo para actualizar este aviso.',
+    'Has guardado cambios en LinkedIn. Copiar el prompt no lo ejecuta: úsalo con un agente que pueda guardar en tu carpeta local. El aviso se retira cuando el archivo indica que la revisión está completa. Si ya comprobaste ambas versiones, puedes confirmarlo aquí.',
   pendingLanguagesExternalChange:
     'El archivo de LinkedIn cambió fuera de la web. Vuelve a leerlo para comprobar si el agente completó la revisión.',
+  confirmLinkedInSync: 'Ya he revisado las dos versiones',
+  confirmLinkedInSyncQuestion:
+    '¿Confirmas que las versiones en español e inglés ya están revisadas? CareerKit guardará la confirmación en linkedin.json.',
   checkLinkedInFile: 'Comprobar archivo de LinkedIn',
   linkedinSyncConfirmed:
     'El archivo confirma que los dos idiomas están revisados. Se ha retirado la tarea del Buzón.',
@@ -20,6 +23,13 @@ export const PROMPT_INBOX_ES = {
     'El archivo sigue indicando que los idiomas están pendientes. El agente debe guardar la revisión al terminar.',
   linkedinCheckUnavailable:
     'Para comprobar el archivo desde aquí, conecta la carpeta de datos directamente.',
+  recentChangesTitle: 'Para tus cambios recientes',
+  recentChangesDescription:
+    'Estos prompts encajan con los cambios que acabas de guardar. Los demás siguen disponibles más abajo.',
+  allPromptsTitle: 'Todos los prompts',
+  filesLabel: 'Archivos o material',
+  accessLabel: 'Acceso que necesita',
+  recentTag: 'Siguiente paso',
   openButton: 'Abrir el buzón',
   pendingTag: 'Pendiente · {count}',
   copyButton: 'Copiar prompt',
@@ -186,7 +196,7 @@ export const PROMPT_INBOX_ES = {
       text: [
         'Revisa private-data/profile.json, private-data/linkedin.json y private-data/cv.json solo si tienes acceso local autorizado. Valida cada módulo con su propio esquema. Si Perfil o LinkedIn no contienen información confirmada suficiente, dime qué falta y espera a que la complete.',
         'Cuando las fuentes estén preparadas, actualiza las dos bases generales en cv.json usando únicamente hechos confirmados y marcados como aptos para CV. Contrasta con la copia publicada de LinkedIn; si las fuentes discrepan, pregunta antes de resolver la diferencia. Respeta IDs, privacidad y datos internos. No uses personalContext, careerPreferences ni contentDirection como evidencia curricular. No modifiques el contenido publicado en LinkedIn.',
-        'Mantén la base española en español y con el formato español de dos columnas. Escribe la base inglesa completamente en inglés y con una columna. Conserva el sentido, pero no traduzcas una versión mecánicamente si el resultado no es natural. Registra fechas solo si están confirmadas y actualiza únicamente porque te lo he pedido.',
+        'Mantén la base española en español y con el formato español de dos columnas. Escribe la base inglesa completamente en inglés y con una columna. Conserva el sentido, pero no traduzcas una versión mecánicamente si el resultado no es natural. Cuando revises efectivamente cada versión, registra la fecha real de esa revisión en lastReviewed, aunque el texto no necesite cambios. Mantén lastUpdated si el contenido no cambia y no inventes fechas.',
         'Valida cv.json después de editarlo, conserva sus campos desconocidos y no sustituyas un archivo inválido. Si no puedes acceder o guardar, dilo claramente; no afirmes que actualizaste las bases.',
       ].join('\n\n'),
     },
@@ -250,7 +260,7 @@ export const PROMPT_INBOX_ES = {
         '.agents/skills/cv-europa/SKILL.md',
       ],
       text: [
-        'Quiero adaptar un CV a esta oferta: {{vacancy}}. Lee la oferta completa y contrástala con private-data/cv.json y las evidencias confirmadas de private-data/profile.json, solo si tienes acceso local autorizado. Si falta el anuncio completo, el CV actual o el país cuando sea necesario, pregunta lo imprescindible.',
+        'Quiero adaptar un CV a esta oferta: {{vacancy}}. Si te doy un identificador, busca la coincidencia exacta en private-data/vacancies.json con acceso local autorizado. Si te doy un puesto o una empresa y hay varias coincidencias, pídeme que elija. Lee la oferta completa y contrástala con private-data/cv.json y las evidencias confirmadas de private-data/profile.json, solo si tienes acceso local autorizado. Si falta el anuncio completo, el CV actual o el país cuando sea necesario, pregunta lo imprescindible.',
         'Sigue literalmente el proceso de dos fases de ruthless-cv-optimizer. En la primera respuesta, presenta requisitos principales, evidencia que los respalda, carencias demostrables y hasta cinco preguntas importantes. Detente ahí y espera mi respuesta; no redactes aún el CV final.',
         'Cuando responda, prepara únicamente la versión solicitada. No inventes hechos, métricas, fechas ni motivaciones. Elige idioma y formato según mi petición, la vacante y el canal; no prometas resultados ATS. Conserva intactas las dos bases generales en cv.json y guarda el borrador en el chat. Solo crea un archivo privado si te lo pido expresamente y apruebo su destino.',
         'No envíes solicitudes ni contactes a la empresa. Si no tienes acceso local, dilo y trabaja solo con el contenido que te comparta; no afirmes haber leído o guardado archivos.',
@@ -324,7 +334,7 @@ export const PROMPT_INBOX_ES = {
       text: [
         'Organiza la experiencia que te he contado en Situación, Tarea, Acción y Resultado. Mantén claro qué hice yo y qué hizo el equipo. No inventes alcance, cifras, fechas ni resultados; conserva exactamente los datos que proporcioné.',
         'Si falta un dato importante, haz hasta tres preguntas concretas. Si el resultado cuantitativo no está confirmado, no lo estimes. Devuelve primero la historia en el chat para que la revise.',
-        'Solo si te pido guardarla, añade una evidencia con ID estable a private-data/profile.json.evidence. Usa type: star-story y los campos situation, task, actions, results y tags; marca confirmación y uso para CV según lo que haya confirmado. Valida el archivo, conserva los demás datos y no crees otro fichero. Si no tienes acceso, di que no se guardó.',
+        'Devuelve primero la historia completa en el chat para que la revise y pregúntame si quiero guardarla. No la guardes hasta que te confirme después de verla. Si confirmo, añade una evidencia con ID estable, título breve y type: star-story a private-data/profile.json.evidence, con los campos situation, task, actions, results y tags. Marca confirmed y cvEvidence solo cuando mi confirmación lo justifique; no infieras onLinkedIn ni internal. Valida profile.json antes y después, conserva los demás datos y no crees otro fichero. Si no confirmo guardar, no escribas nada. Si no tienes acceso, dilo y no afirmes que se guardó.',
       ].join('\n\n'),
     },
     {
@@ -550,12 +560,179 @@ export const PROMPT_INBOX_ES = {
       ],
       text: [
         'Trabaja solo con private-data/linkedin.json y con los cambios o instrucciones que yo indique en esta conversación. No abras LinkedIn, otras cuentas, enlaces ni otros documentos. Si no tienes acceso local autorizado, prepara el mapeo propuesto y no afirmes que guardaste nada.',
-        'Antes de editar, valida el JSON con schemas/linkedin.schema.json y revisa published.language, published.variants y languageSync. El perfil está en una sola estructura JSON con textos separados por idioma: la copia principal y published.variants[]. Usa languageSync.sourceLanguage como versión que cambió cuando status sea "pending". Si no existe o hay cambios distintos en ambas versiones, pregúntame cuál es la referencia antes de sustituir texto.',
-        'Usa .agents/skills/li-bilingual/SKILL.md para traducir todos los campos textuales de la versión de origen a la otra. Conserva hechos, sentido, orden, identificadores, nombres propios, enlaces, fechas, credenciales oficiales, idiomas hablados, marcas de truncamiento, propiedades desconocidas y auditorías. Traduce descripciones, no nombres propios ni credenciales. No inventes ni añadas logros. Si falta una versión, créala con un id estable; no dupliques contenido sin traducir como si ya estuviera sincronizado.',
-        'Si un campo no tiene equivalente claro, hay texto truncado o necesitas confirmar una decisión sustantiva, conserva ambas versiones y deja languageSync.status en "pending". Si ambas versiones quedan revisadas y alineadas, establece languageSync.status en "current" y elimina sourceLanguage. No inventes fechas. Valida linkedin.json antes y después, conserva propiedades desconocidas y deja intactos Perfil, CV, vacantes y prioridades. Informa del idioma de origen, campos traducidos y dudas pendientes. No publiques ni afirmes que los cambios están sincronizados con la cuenta de LinkedIn.',
+        'Antes de editar, valida el JSON con schemas/linkedin.schema.json y revisa published.language, published.variants y languageSync. El perfil está en una sola estructura JSON con textos separados por idioma: la copia principal y published.variants[]. Usa siempre el inglés como referencia para sincronizar el perfil y el español como traducción. Localiza la versión inglesa por su idioma, esté en published o en published.variants[]. Si falta o no puedes identificarla, pide la copia inglesa antes de escribir. Cuando languageSync.sourceLanguage sea "es", trátalo como aviso de que se editó el español, no como orden de traducir al inglés. Si el español contiene cambios sustantivos ausentes en inglés, o hay diferencias que podrían perderse al reemplazar texto, preséntalas y pide confirmación antes de incorporarlas a la referencia inglesa o descartarlas.',
+        'Usa .agents/skills/li-bilingual/SKILL.md para traducir los campos textuales de la referencia inglesa al español. Conserva hechos, sentido, orden, identificadores, nombres propios, enlaces, fechas, credenciales oficiales, idiomas hablados, marcas de truncamiento, propiedades desconocidas y auditorías. Traduce descripciones, no nombres propios ni credenciales. No inventes ni añadas logros. Si falta una versión, créala con un id estable; no dupliques contenido sin traducir como si ya estuviera sincronizado.',
+        'Si el texto de origen está truncado, traduce solo el fragmento visible y conserva su marca de truncamiento. Eso no impide cerrar la tarea si ambas versiones reflejan el mismo contenido disponible. Deja languageSync.status en "pending" solo si queda una diferencia sin resolver o necesitas una decisión del usuario. Si ambas versiones ya estaban alineadas o quedan alineadas tras la revisión, guarda languageSync.status en "current" y elimina sourceLanguage en el mismo archivo. Antes de terminar, vuelve a leer el JSON guardado y comprueba ese estado: es la señal que retira automáticamente el aviso del Buzón. No inventes fechas. Valida linkedin.json antes y después, conserva propiedades desconocidas y deja intactos Perfil, CV, vacantes y prioridades. Informa del idioma de origen, campos traducidos y dudas pendientes. No publiques ni afirmes que los cambios están sincronizados con la cuenta de LinkedIn.',
       ].join('\n\n'),
     },
   ],
+}
+
+export const PROMPT_REQUIREMENTS = {
+  'prepare-data': {
+    files: ['templates/*.json', 'private-data/*.json'],
+    access:
+      'Acceso local a la carpeta del proyecto para revisar y preparar archivos.',
+  },
+  'fill-profile': {
+    files: ['private-data/profile.json'],
+    access:
+      'Acceso local para leer y guardar; responde a las preguntas en el chat.',
+  },
+  'profile-from-material': {
+    files: ['private-data/profile.json', 'archivo o texto que compartas'],
+    access:
+      'Lectura del material compartido y acceso local para guardar Perfil.',
+  },
+  'profile-from-cv': {
+    files: [
+      'private-data/profile.json',
+      'private-data/cv.json',
+      'private-data/linkedin.json',
+    ],
+    access: 'Acceso local para leer los tres módulos y guardar Perfil.',
+  },
+  'record-linkedin': {
+    files: ['private-data/linkedin.json', 'archivo que compartas'],
+    access:
+      'Lectura del archivo compartido y acceso local para guardar LinkedIn.',
+  },
+  'find-linkedin-profile': {
+    files: ['private-data/linkedin.json'],
+    access:
+      'Complemento de LinkedIn conectado y acceso local para guardar el resultado.',
+  },
+  'refresh-cv': {
+    files: [
+      'private-data/profile.json',
+      'private-data/linkedin.json',
+      'private-data/cv.json',
+    ],
+    access:
+      'Acceso local para leer las fuentes y actualizar ambas bases del CV.',
+  },
+  'cv-from-file': {
+    files: [
+      'archivo de CV que compartas',
+      'private-data/profile.json',
+      'private-data/linkedin.json',
+      'private-data/cv.json',
+    ],
+    access: 'Lectura del CV compartido y acceso local para guardar las bases.',
+  },
+  'assess-vacancy': {
+    files: [
+      'private-data/vacancies.json',
+      'private-data/profile.json',
+      'private-data/cv.json',
+    ],
+    access:
+      'Acceso local para consultar evidencia y guardar la valoración pedida.',
+  },
+  'tailor-cv-vacancy': {
+    files: [
+      'private-data/vacancies.json',
+      'private-data/profile.json',
+      'private-data/cv.json',
+    ],
+    access:
+      'Acceso local si quieres usar tus archivos; el borrador final se entrega en el chat.',
+  },
+  'research-vacancies': {
+    files: ['private-data/profile.json', 'private-data/vacancies.json'],
+    access: 'Búsqueda web actual y acceso local si quieres registrar ofertas.',
+  },
+  'review-priorities': {
+    files: [
+      'private-data/profile.json',
+      'private-data/vacancies.json',
+      'private-data/priorities.json',
+    ],
+    access: 'Acceso local para revisar el contexto y guardar prioridades.',
+  },
+  'cover-letter': {
+    files: [
+      'oferta que compartas',
+      'private-data/profile.json',
+      'private-data/cv.json',
+    ],
+    access:
+      'Oferta en el chat y acceso local opcional para consultar evidencia.',
+  },
+  'extract-star-story': {
+    files: ['experiencia que cuentes', 'private-data/profile.json'],
+    access:
+      'La experiencia se comparte en el chat; acceso local solo para guardarla.',
+  },
+  'match-star-stories': {
+    files: ['oferta o pregunta', 'private-data/profile.json'],
+    access:
+      'Oferta en el chat; acceso local opcional para consultar evidencias.',
+  },
+  'audit-linkedin': {
+    files: ['private-data/linkedin.json', 'private-data/profile.json'],
+    access:
+      'Acceso local para comparar la copia publicada con evidencias de Perfil.',
+  },
+  'audit-linkedin-posts': {
+    files: ['publicaciones y métricas que compartas'],
+    access: 'Solo el material del chat; no requiere acceso a tu cuenta.',
+  },
+  'draft-linkedin-post': {
+    files: [
+      'idea o experiencia que compartas',
+      'private-data/profile.json (opcional)',
+    ],
+    access:
+      'Texto en el chat; acceso local opcional para orientar el borrador.',
+  },
+  'draft-linkedin-carousel': {
+    files: ['idea o material que compartas'],
+    access: 'Material en el chat; no necesita acceso a archivos locales.',
+  },
+  'draft-linkedin-comment': {
+    files: ['publicación que compartas'],
+    access: 'Solo el texto del chat; no necesita acceso a tu cuenta.',
+  },
+  'write-linkedin-dm': {
+    files: ['persona, motivo y objetivo que compartas'],
+    access: 'Solo la información del chat; no necesita acceso a LinkedIn.',
+  },
+  'polish-linkedin-copy': {
+    files: ['borrador que compartas'],
+    access: 'Solo el texto del chat; no necesita acceso a archivos locales.',
+  },
+  'triage-linkedin-inbox': {
+    files: ['mensajes que compartas'],
+    access: 'Solo los mensajes del chat; no necesita acceso a tu bandeja.',
+  },
+  'plan-linkedin': {
+    files: [
+      'private-data/profile.json (opcional)',
+      'objetivos e ideas que compartas',
+    ],
+    access: 'Acceso local opcional; también puedes dar el contexto en el chat.',
+  },
+  'reply-linkedin-comments': {
+    files: ['comentarios que compartas'],
+    access: 'Solo el texto del chat; no necesita acceso a tu cuenta.',
+  },
+  'repurpose-linkedin-source': {
+    files: [
+      'artículo, vídeo, podcast u otro material',
+      'private-data/profile.json (opcional)',
+    ],
+    access:
+      'Lectura del material compartido; acceso local opcional para contexto.',
+  },
+  'bilingual-linkedin-copy': {
+    files: ['texto que quieras traducir'],
+    access: 'Solo el texto del chat; no necesita acceso a archivos locales.',
+  },
+  'sync-linkedin-languages': {
+    files: ['private-data/linkedin.json'],
+    access: 'Acceso local para leer, traducir y guardar las dos versiones.',
+  },
 }
 
 export function buildPromptText(
@@ -567,7 +744,7 @@ export function buildPromptText(
 ) {
   const resolvedBody = body.replace(
     '{{vacancy}}',
-    vacancyReference || PROMPT_INBOX_ES.vacancyPromptPlaceholder,
+    () => vacancyReference || PROMPT_INBOX_ES.vacancyPromptPlaceholder,
   )
   return [
     PROMPT_INBOX_ES.skillInstruction,

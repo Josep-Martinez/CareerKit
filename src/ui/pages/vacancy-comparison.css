@@ -1,0 +1,36 @@
+.vacancy-comparison {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+}
+.vacancy-comparison-scroll {
+  overflow-x: auto;
+}
+.vacancy-comparison table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.vacancy-comparison :is(th, td) {
+  text-align: start;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border, #ddd);
+  padding: 0.65rem;
+  min-width: 9rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.vacancy-compare-option {
+  padding: 0.35rem 0.55rem;
+}
+.vacancy-evidence-picker ul {
+  padding-inline-start: 1.4rem;
+}
+.vacancy-evidence-picker li {
+  margin-block: 0.4rem;
+}
+.vacancy-evidence-picker .text-button {
+  margin-inline-start: 0.5rem;
+}
+
+.vacancy-list .vacancy-card {
+  width: 100%;
+}

@@ -6,7 +6,12 @@ async function request(name = '', options) {
         ? 'El archivo cambió fuera de la aplicación. Recárgalo antes de guardar.'
         : 'No se pudo acceder al archivo local.',
     )
-    error.name = response.status === 404 ? 'NotFoundError' : 'Error'
+    error.name =
+      response.status === 409
+        ? 'ConflictError'
+        : response.status === 404
+          ? 'NotFoundError'
+          : 'Error'
     throw error
   }
   return response.json()

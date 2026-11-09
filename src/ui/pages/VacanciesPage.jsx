@@ -13,6 +13,8 @@ import {
 } from '../components/FormPrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
 import { id, pretty } from '../utils.js'
+import { collectProfileEvidence } from '../profile-evidence.js'
+import './vacancy-comparison.css'
 
 function emptyCvAdvice() {
   return {
@@ -95,19 +97,181 @@ function CvAdjustmentList({ title, items = [], emptyLabel }) {
   )
 }
 
+function evidenceLabel(evidence, id) {
+  const entry = evidence.get(id)
+  if (!entry) return `Evidencia no disponible (${id})`
+  const { item, collection } = entry
+  const name = item.title || item.name || item.organization || id
+  return `${name} · ${s.profilePage.collectionLabels[collection]}`
+}
+
+function EvidencePicker({ evidence, selected, onChange }) {
+  const available = Array.from(evidence.keys()).filter(
+    (id) => !selected.includes(id),
+  )
+  available.sort((a, b) =>
+    evidenceLabel(evidence, a).localeCompare(evidenceLabel(evidence, b), 'es'),
+  )
+  return (
+    <section
+      className="vacancy-evidence-picker"
+      aria-label="Evidencias de encaje"
+    >
+      <label className="field">
+        <span>Añadir evidencia de Perfil</span>
+        <select
+          value=""
+          disabled={!available.length}
+          onChange={(event) => {
+            if (event.target.value) onChange([...selected, event.target.value])
+          }}
+        >
+          <option value="">
+            {available.length
+              ? 'Selecciona por título'
+              : 'No hay más evidencias disponibles'}
+          </option>
+          {available.map((id) => (
+            <option key={id} value={id}>
+              {evidenceLabel(evidence, id)}
+            </option>
+          ))}
+        </select>
+      </label>
+      {selected.length > 0 && (
+        <ul>
+          {selected.map((id, index) => (
+            <li key={`${id}-${index}`}>
+              {evidenceLabel(evidence, id)}
+              <button
+                type="button"
+                className="text-button"
+                aria-label={`Quitar vínculo con ${evidenceLabel(evidence, id)}`}
+                onClick={() =>
+                  onChange(selected.filter((_, position) => position !== index))
+                }
+              >
+                Quitar vínculo
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+function vacancyLabel(vacancy) {
+  return (
+    [vacancy.role, vacancy.company].filter(Boolean).join(' · ') ||
+    'Vacante sin título'
+  )
+}
+
+function VacancyComparison({ items, evidence, onClear }) {
+  const rows = [
+    ['Ubicación', (item) => item.location],
+    ['Modalidad', (item) => item.modality],
+    [
+      'Salario',
+      (item) =>
+        item.salary &&
+        `${item.salary} · ${item.salaryVerified ? 'verificado' : 'sin verificar'}`,
+    ],
+    ['Fecha de verificación', (item) => item.verifiedAt],
+    ['Valoración', (item) => item.assessment],
+    [
+      'Evidencias de encaje',
+      (item) =>
+        (item.matchingEvidenceIds || [])
+          .map((id) => evidenceLabel(evidence, id))
+          .join('\n'),
+    ],
+    ['Carencias', (item) => item.gaps],
+    ['Bloqueos', (item) => item.blockers],
+    [
+      'CV recomendado',
+      (item) =>
+        s.vacancyCvAdvice[item.cvAdvice?.recommendedVersion] ||
+        s.vacancyCvAdvice.pending,
+    ],
+  ]
+  return (
+    <section
+      className="panel vacancy-comparison"
+      aria-labelledby="comparison-heading"
+    >
+      <div className="panel-heading">
+        <h2 id="comparison-heading">Comparación de vacantes</h2>
+        <button
+          type="button"
+          className="button secondary small"
+          onClick={onClear}
+        >
+          Limpiar selección
+        </button>
+      </div>
+      <div
+        className="vacancy-comparison-scroll"
+        tabIndex={0}
+        role="region"
+        aria-label="Tabla de comparación"
+      >
+        <table aria-labelledby="comparison-heading">
+          <thead>
+            <tr>
+              <th scope="col">Criterio</th>
+              {items.map((item) => (
+                <th key={item.id} scope="col">
+                  {vacancyLabel(item)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(([label, getValue]) => (
+              <tr key={label}>
+                <th scope="row">{label}</th>
+                {items.map((item) => (
+                  <td key={item.id}>{pretty(getValue(item))}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}
+
 export function VacanciesPage({
   value,
+  profile,
+  onOpenAdaptation,
+  onDirtyChange,
+  onDraftChange,
+  saving,
+  savedDraft,
   state,
   warning,
+  savedAt,
   onSave,
   onReload,
   onSelect,
 }) {
-  const [draft, setDraft] = useDraft(value)
+  const [draft, setDraft] = useDraft(value, {
+    onDirtyChange,
+    onDraftChange,
+    savedDraft,
+  })
   const [selected, setSelected] = useState(null)
+  const [comparison, setComparison] = useState([])
+  const evidence = collectProfileEvidence(profile)
   const items = [...draft.items].sort(
     (a, b) => (a.preference || 999) - (b.preference || 999),
   )
+
+  const comparedItems = items.filter((item) => comparison.includes(item.id))
 
   function add() {
     const item = {
@@ -159,44 +323,88 @@ export function VacanciesPage({
           </button>
         }
       />
-      <Status state={state} warning={warning} onReload={onReload} />
+      <Status
+        fileName="vacancies"
+        state={state}
+        warning={warning}
+        savedAt={savedAt}
+        onReload={onReload}
+      />
+      {comparedItems.length >= 2 && (
+        <VacancyComparison
+          items={comparedItems}
+          evidence={evidence}
+          onClear={() => setComparison([])}
+        />
+      )}
       <div className="vacancies-layout">
         <section className="vacancy-list">
+          {items.length >= 2 && (
+            <p>
+              Selecciona entre dos y tres ofertas para compararlas (
+              {comparedItems.length}/3).
+            </p>
+          )}
           {items.length ? (
             items.map((item, index) => (
-              <button
-                key={item.id}
-                className={`vacancy-card ${selected === item.id ? 'selected' : ''}`}
-                onClick={() => {
-                  setSelected(item.id)
-                  onSelect(item.id)
-                }}
-              >
-                <div className="vacancy-card-top">
-                  <span className="rank">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span className="vacancy-logo">
-                    {(item.company || '·')[0].toUpperCase()}
-                  </span>
-                  <span className="vacancy-card-title">
-                    <b>{item.role || 'Puesto sin título'}</b>
-                    <small>{item.company || 'Empresa sin registrar'}</small>
-                  </span>
-                  <span className="row-arrow">↗</span>
-                </div>
-                <div className="vacancy-tags">
-                  <span>{item.location || 'Ubicación sin registrar'}</span>
-                  <span>{item.modality || 'Modalidad sin registrar'}</span>
-                  {item.featured && (
-                    <span className="highlight-tag">Destacada</span>
-                  )}
-                </div>
-                <div className="vacancy-card-bottom">
-                  <span>Preferencia {item.preference || '—'}</span>
-                  <span>{item.salary || 'Salario sin registrar'}</span>
-                </div>
-              </button>
+              <div key={item.id}>
+                <button
+                  className={`vacancy-card ${selected === item.id ? 'selected' : ''}`}
+                  onClick={() => {
+                    setSelected(item.id)
+                    onSelect(item.id)
+                  }}
+                >
+                  <div className="vacancy-card-top">
+                    <span className="rank">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <span className="vacancy-logo">
+                      {(item.company || '·')[0].toUpperCase()}
+                    </span>
+                    <span className="vacancy-card-title">
+                      <b>{item.role || 'Puesto sin título'}</b>
+                      <small>{item.company || 'Empresa sin registrar'}</small>
+                    </span>
+                    <span className="row-arrow">↗</span>
+                  </div>
+                  <div className="vacancy-tags">
+                    <span>{item.location || 'Ubicación sin registrar'}</span>
+                    <span>{item.modality || 'Modalidad sin registrar'}</span>
+                    {item.featured && (
+                      <span className="highlight-tag">Destacada</span>
+                    )}
+                  </div>
+                  <div className="vacancy-card-bottom">
+                    <span>Preferencia {item.preference || '—'}</span>
+                    <span>{item.salary || 'Salario sin registrar'}</span>
+                  </div>
+                </button>
+                {items.length >= 2 && (
+                  <label className="check vacancy-compare-option">
+                    <input
+                      type="checkbox"
+                      aria-label={`Comparar ${vacancyLabel(item)}`}
+                      checked={comparison.includes(item.id)}
+                      disabled={
+                        comparedItems.length >= 3 &&
+                        !comparison.includes(item.id)
+                      }
+                      onChange={(event) =>
+                        setComparison((current) => {
+                          const available = current.filter((id) =>
+                            items.some((candidate) => candidate.id === id),
+                          )
+                          return event.target.checked
+                            ? [...available, item.id]
+                            : available.filter((id) => id !== item.id)
+                        })
+                      }
+                    />
+                    <span>Comparar</span>
+                  </label>
+                )}
+              </div>
             ))
           ) : (
             <EmptyState
@@ -207,6 +415,7 @@ export function VacanciesPage({
           )}
           <button
             className="button primary save-button"
+            disabled={saving}
             onClick={() => onSave(draft)}
           >
             Guardar vacantes
@@ -319,16 +528,11 @@ export function VacanciesPage({
               value={detail.assessment}
               onChange={(text) => patch(detail.id, { assessment: text })}
             />
-            <TextField
-              label="Evidencias de encaje (IDs estables del perfil)"
-              value={(detail.matchingEvidenceIds || []).join(', ')}
-              onChange={(text) =>
-                patch(detail.id, {
-                  matchingEvidenceIds: text
-                    .split(',')
-                    .map((item) => item.trim())
-                    .filter(Boolean),
-                })
+            <EvidencePicker
+              evidence={evidence}
+              selected={detail.matchingEvidenceIds || []}
+              onChange={(matchingEvidenceIds) =>
+                patch(detail.id, { matchingEvidenceIds })
               }
             />
             <TextField
@@ -361,7 +565,20 @@ export function VacanciesPage({
               value={detail.cvAdvice}
               onChange={(cvAdvice) => patch(detail.id, { cvAdvice })}
             />
-            <button className="button secondary" onClick={() => onSave(draft)}>
+            {value.items.some((item) => item.id === detail.id) && (
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => onOpenAdaptation?.(detail.id)}
+              >
+                Abrir prompt de adaptación del CV
+              </button>
+            )}
+            <button
+              className="button secondary"
+              disabled={saving}
+              onClick={() => onSave(draft)}
+            >
               Guardar cambios
             </button>
           </section>
@@ -378,8 +595,8 @@ export function VacanciesPage({
             <div className="legend-card">
               <h3>Relación con el perfil</h3>
               <p>
-                Relaciona cada valoración con evidencias mediante sus
-                identificadores estables.
+                Relaciona cada valoración con evidencias de Perfil
+                seleccionándolas por título.
               </p>
             </div>
           </aside>
@@ -389,7 +606,8 @@ export function VacanciesPage({
   )
 }
 
-export function VacancyDetail({ value, onBack }) {
+export function VacancyDetail({ value, profile, onBack, onOpenAdaptation }) {
+  const evidence = collectProfileEvidence(profile)
   const copy = s.vacancyCvAdvice
   const advice = { ...emptyCvAdvice(), ...value.cvAdvice }
   const hasAssessment =
@@ -420,7 +638,11 @@ export function VacancyDetail({ value, onBack }) {
           <h2>Valoración</h2>
           <p className="preline">{value.assessment || 'Sin registrar'}</p>
           <h2>Evidencias de encaje</h2>
-          <p>{value.matchingEvidenceIds?.join(', ') || 'Sin registrar'}</p>
+          <p>
+            {value.matchingEvidenceIds
+              ?.map((id) => evidenceLabel(evidence, id))
+              .join(', ') || 'Sin registrar'}
+          </p>
           <h2>Carencias y bloqueos</h2>
           <p className="preline">
             {[value.gaps, value.blockers].filter(Boolean).join('\n') ||
@@ -446,6 +668,13 @@ export function VacancyDetail({ value, onBack }) {
                 {copy.assessmentDate}: {advice.assessedAt}
               </small>
             )}
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => onOpenAdaptation?.(value.id)}
+            >
+              Abrir prompt de adaptación del CV
+            </button>
             <div className="cv-adjustment-columns">
               <CvAdjustmentList
                 title={copy.spanishAdjustments}
