@@ -71,6 +71,11 @@
           "items": {
             "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/featuredEntry" }]
           }
+        },
+        "additionalSections": {
+          "description": "Published LinkedIn sections that do not fit one of the standard fields. Preserve their original heading and complete visible content.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/additionalSection" }
         }
       },
       "additionalProperties": true
@@ -121,8 +126,10 @@
         "company": { "type": "string" },
         "employmentType": { "type": "string" },
         "location": { "type": "string" },
+        "workplaceType": { "type": "string" },
         "dates": { "type": "string" },
         "description": { "type": "string" },
+        "descriptionTruncated": { "type": "boolean" },
         "skills": { "type": "array", "items": { "type": "string" } }
       },
       "additionalProperties": true
@@ -138,7 +145,9 @@
         "dates": { "type": "string" },
         "grade": { "type": "string" },
         "activities": { "type": "string" },
-        "description": { "type": "string" }
+        "description": { "type": "string" },
+        "descriptionTruncated": { "type": "boolean" },
+        "skills": { "type": "array", "items": { "type": "string" } }
       },
       "additionalProperties": true
     },
@@ -164,7 +173,9 @@
         "expirationDate": { "type": "string" },
         "credentialId": { "type": "string" },
         "credentialUrl": { "type": "string" },
-        "description": { "type": "string" }
+        "description": { "type": "string" },
+        "descriptionTruncated": { "type": "boolean" },
+        "skills": { "type": "array", "items": { "type": "string" } }
       },
       "additionalProperties": true
     },
@@ -177,7 +188,9 @@
         "associatedWith": { "type": "string" },
         "dates": { "type": "string" },
         "description": { "type": "string" },
-        "url": { "type": "string" }
+        "url": { "type": "string" },
+        "descriptionTruncated": { "type": "boolean" },
+        "skills": { "type": "array", "items": { "type": "string" } }
       },
       "additionalProperties": true
     },
@@ -189,7 +202,18 @@
         "title": { "type": "string" },
         "description": { "type": "string" },
         "url": { "type": "string" },
-        "mediaType": { "type": "string" }
+        "mediaType": { "type": "string" },
+        "descriptionTruncated": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "additionalSection": {
+      "type": "object",
+      "required": ["id", "title", "content"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string" },
+        "content": { "type": "string" }
       },
       "additionalProperties": true
     }

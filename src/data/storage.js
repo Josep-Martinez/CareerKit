@@ -53,10 +53,12 @@ const linkedinEntryFields = {
       'company',
       'employmentType',
       'location',
+      'workplaceType',
       'dates',
       'description',
     ],
     lists: ['skills'],
+    booleans: ['descriptionTruncated'],
   },
   education: {
     text: [
@@ -69,7 +71,8 @@ const linkedinEntryFields = {
       'activities',
       'description',
     ],
-    lists: [],
+    lists: ['skills'],
+    booleans: ['descriptionTruncated'],
   },
   languages: {
     text: ['id', 'language', 'proficiency', 'details'],
@@ -86,15 +89,18 @@ const linkedinEntryFields = {
       'credentialUrl',
       'description',
     ],
-    lists: [],
+    lists: ['skills'],
+    booleans: ['descriptionTruncated'],
   },
   projects: {
     text: ['id', 'name', 'associatedWith', 'dates', 'description', 'url'],
-    lists: [],
+    lists: ['skills'],
+    booleans: ['descriptionTruncated'],
   },
   featured: {
     text: ['id', 'title', 'description', 'url', 'mediaType'],
     lists: [],
+    booleans: ['descriptionTruncated'],
   },
 }
 const validLinkedInEntry = (section, item) => {
@@ -107,12 +113,26 @@ const validLinkedInEntry = (section, item) => {
     optionalStrings(item, fields.text) &&
     fields.lists.every(
       (field) => item[field] === undefined || isStringList(item[field]),
+    ) &&
+    (fields.booleans || []).every(
+      (field) => item[field] === undefined || typeof item[field] === 'boolean',
     ),
   )
 }
 const isLinkedInList = (section, value) =>
   Array.isArray(value) &&
   value.every((item) => validLinkedInEntry(section, item))
+const isLinkedInAdditionalSections = (value) =>
+  value === undefined ||
+  (Array.isArray(value) &&
+    value.every(
+      (item) =>
+        isRecord(item) &&
+        typeof item.id === 'string' &&
+        item.id.length > 0 &&
+        typeof item.title === 'string' &&
+        typeof item.content === 'string',
+    ))
 const validCVVersion = (value) =>
   isRecord(value) &&
   typeof value.masterText === 'string' &&
@@ -222,6 +242,7 @@ const validators = {
   linkedin: (d) =>
     isRecord(d.published) &&
     optionalStrings(d.published, ['name']) &&
+    isLinkedInAdditionalSections(d.published.additionalSections) &&
     (d.published.languages === undefined ||
       isLinkedInList('languages', d.published.languages)) &&
     typeof d.published.headline === 'string' &&
@@ -331,6 +352,7 @@ export function hasModuleContent(name, value) {
         'certifications',
         'projects',
         'featured',
+        'additionalSections',
       ].some((key) => hasMeaningfulValue(value.published[key])) ||
       value.lastUpdated?.trim() ||
       value.audits.some((audit) =>
@@ -1018,7 +1040,9 @@ function findUnknown(name, data) {
         'certifications',
         'projects',
         'featured',
+        'additionalSections',
       ],
+      additionalSection: ['id', 'title', 'content'],
       audit: [
         'id',
         'section',
@@ -1092,12 +1116,19 @@ function findUnknown(name, data) {
   }
   if (name === 'linkedin') {
     inspect(data.published, rules.published, 'published')
+    ;(data.published?.additionalSections || []).forEach((item, index) =>
+      inspect(
+        item,
+        rules.additionalSection,
+        `published.additionalSections[${index}]`,
+      ),
+    )
     for (const [section, fields] of Object.entries(linkedinEntryFields))
       (data.published?.[section] || []).forEach((item, index) => {
         if (isRecord(item))
           inspect(
             item,
-            [...fields.text, ...fields.lists],
+            [...fields.text, ...fields.lists, ...(fields.booleans || [])],
             `published.${section}[${index}]`,
           )
       })

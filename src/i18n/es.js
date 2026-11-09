@@ -496,6 +496,20 @@ export const STRINGS = {
     emptyList: 'Sin elementos añadidos.',
     addSection: 'Añadir',
     removeEntry: 'Eliminar',
+    additionalSectionsTitle: 'Otras secciones publicadas',
+    additionalSectionsDescription:
+      'Conserva aquí una sección completa que no encaje en los campos anteriores, con su título original y el texto tal como aparece.',
+    emptyAdditionalSections:
+      'Si el agente encuentra una sección sin campo equivalente, la guardará aquí. También puedes añadirla manualmente.',
+    addAdditionalSection: 'Añadir otra sección',
+    additionalSectionTitleLabel: 'Título original de la sección',
+    additionalSectionContentLabel: 'Contenido publicado',
+    additionalSectionContentHint:
+      'Mantén el texto, el idioma, las listas y los saltos de línea originales.',
+    removeAdditionalSection: 'Eliminar sección adicional',
+    additionalSectionFallback: 'Otra sección',
+    descriptionTruncatedNotice:
+      'La fuente indica que la descripción está truncada; el texto conservado es parcial.',
     auditLabel: 'PARA REVISAR',
     auditActions: {
       corregir: 'Corregir',
@@ -563,8 +577,10 @@ export const STRINGS = {
       company: 'Empresa',
       employmentType: 'Tipo de empleo',
       location: 'Ubicación',
+      workplaceType: 'Modalidad del puesto',
       dates: 'Fechas',
       description: 'Descripción completa',
+      descriptionTruncated: 'La fuente muestra la descripción truncada',
       skills: 'Aptitudes asociadas',
       institution: 'Institución',
       degree: 'Titulación',

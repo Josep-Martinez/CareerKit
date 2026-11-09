@@ -31,14 +31,19 @@ const PROFILE_EVIDENCE_KEYS = [
   'evidence',
   'learnings',
 ]
+const LINKEDIN_BOOLEAN_FIELDS = ['descriptionTruncated']
+const initialLinkedInField = (field) =>
+  field === 'skills' ? [] : LINKEDIN_BOOLEAN_FIELDS.includes(field) ? false : ''
 const LINKEDIN_OBJECT_FIELDS = {
   experience: [
     'title',
     'company',
     'employmentType',
     'location',
+    'workplaceType',
     'dates',
     'description',
+    'descriptionTruncated',
     'skills',
   ],
   education: [
@@ -49,6 +54,8 @@ const LINKEDIN_OBJECT_FIELDS = {
     'grade',
     'activities',
     'description',
+    'descriptionTruncated',
+    'skills',
   ],
   languages: ['language', 'proficiency', 'details'],
   certifications: [
@@ -59,9 +66,25 @@ const LINKEDIN_OBJECT_FIELDS = {
     'credentialId',
     'credentialUrl',
     'description',
+    'descriptionTruncated',
+    'skills',
   ],
-  projects: ['name', 'associatedWith', 'dates', 'description', 'url'],
-  featured: ['title', 'description', 'url', 'mediaType'],
+  projects: [
+    'name',
+    'associatedWith',
+    'dates',
+    'description',
+    'descriptionTruncated',
+    'skills',
+    'url',
+  ],
+  featured: [
+    'title',
+    'description',
+    'descriptionTruncated',
+    'url',
+    'mediaType',
+  ],
 }
 export function LinkedInPage({
   value,
@@ -74,6 +97,7 @@ export function LinkedInPage({
   const [draft, setDraft] = useDraft(value)
   const [view, setView] = useState('edit')
   const pub = draft.published
+  const additionalSections = pub.additionalSections || []
   const setPub = (key, val) =>
     setDraft({ ...draft, published: { ...pub, [key]: val } })
   const evidenceItems = PROFILE_EVIDENCE_KEYS.flatMap((key) =>
@@ -123,8 +147,9 @@ export function LinkedInPage({
     )
   const hasPublishedContent = Boolean(
     pub.name?.trim() ||
-    pub.headline.trim() ||
-    pub.about.trim() ||
+    pub.headline?.trim() ||
+    pub.about?.trim() ||
+    hasEntryContent(additionalSections) ||
     previewKeys.some((key) => pub[key]?.some(hasEntryContent)),
   )
   const hasActiveAudits = draft.audits.some(
@@ -215,6 +240,82 @@ export function LinkedInPage({
               </LinkedInListEditor>
             ))}
           </div>
+          <section
+            className="linkedin-additional-editor"
+            aria-labelledby="linkedin-additional-title"
+          >
+            <div className="linkedin-list-heading">
+              <div>
+                <h3 id="linkedin-additional-title">
+                  {copy.additionalSectionsTitle}
+                </h3>
+                <p>{copy.additionalSectionsDescription}</p>
+              </div>
+              <button
+                className="button secondary small"
+                type="button"
+                onClick={() =>
+                  setPub('additionalSections', [
+                    ...additionalSections,
+                    { id: id(), title: '', content: '' },
+                  ])
+                }
+              >
+                {copy.addAdditionalSection}
+              </button>
+            </div>
+            {!additionalSections.length && (
+              <p className="quiet-empty">{copy.emptyAdditionalSections}</p>
+            )}
+            {additionalSections.map((section, index) => (
+              <div
+                className="linkedin-additional-entry"
+                key={section.id || index}
+              >
+                <TextField
+                  label={copy.additionalSectionTitleLabel}
+                  value={section.title}
+                  onChange={(title) =>
+                    setPub(
+                      'additionalSections',
+                      additionalSections.map((item, itemIndex) =>
+                        itemIndex === index ? { ...item, title } : item,
+                      ),
+                    )
+                  }
+                />
+                <TextField
+                  label={copy.additionalSectionContentLabel}
+                  rows={6}
+                  value={section.content}
+                  hint={copy.additionalSectionContentHint}
+                  onChange={(content) =>
+                    setPub(
+                      'additionalSections',
+                      additionalSections.map((item, itemIndex) =>
+                        itemIndex === index ? { ...item, content } : item,
+                      ),
+                    )
+                  }
+                />
+                <button
+                  className="button quiet linkedin-remove-entry"
+                  type="button"
+                  aria-label={`${copy.removeAdditionalSection} ${section.title || index + 1}`}
+                  onClick={() =>
+                    setPub(
+                      'additionalSections',
+                      additionalSections.filter(
+                        (_, itemIndex) => itemIndex !== index,
+                      ),
+                    )
+                  }
+                >
+                  {copy.removeAdditionalSection}
+                </button>
+              </div>
+            ))}
+          </section>
           <TextField
             label={copy.lastUpdatedLabel}
             value={draft.lastUpdated}
@@ -337,6 +438,16 @@ export function LinkedInPage({
                       />
                     </PreviewSection>
                   ))}
+                {additionalSections
+                  .filter(hasEntryContent)
+                  .map((section, index) => (
+                    <PreviewSection
+                      key={section.id || index}
+                      title={section.title || copy.additionalSectionFallback}
+                    >
+                      {section.content && <p>{section.content}</p>}
+                    </PreviewSection>
+                  ))}
                 {hasActiveAudits && !hasPublishedContent && (
                   <p className="linkedin-audit-only-note">
                     {copy.auditOnlyNote}
@@ -382,7 +493,7 @@ function LinkedInListEditor({
                     ...Object.fromEntries(
                       fields.map((field) => [
                         field,
-                        field === 'skills' ? [] : '',
+                        initialLinkedInField(field),
                       ]),
                     ),
                   },
@@ -405,7 +516,14 @@ function LinkedInListEditor({
           ) : (
             <div className="linkedin-item-fields">
               {fields.map((field) =>
-                field === 'skills' ? (
+                LINKEDIN_BOOLEAN_FIELDS.includes(field) ? (
+                  <Check
+                    key={field}
+                    label={copy.entryFieldLabels[field]}
+                    checked={item[field]}
+                    onChange={(value) => updateField(index, field, value)}
+                  />
+                ) : field === 'skills' ? (
                   <ArrayText
                     key={field}
                     title={copy.entryFieldLabels[field]}
@@ -447,6 +565,7 @@ function LinkedInListEditor({
 
 function hasEntryContent(item) {
   if (typeof item === 'string') return Boolean(item.trim())
+  if (typeof item === 'boolean') return item
   if (Array.isArray(item)) return item.some(hasEntryContent)
   if (!item || typeof item !== 'object') return false
   return Object.entries(item).some(
@@ -469,7 +588,10 @@ function LinkedInEntryPreview({ section, item }) {
     ([key, value]) => key !== 'id' && !known.has(key) && hasEntryContent(value),
   )
   const fields = (LINKEDIN_OBJECT_FIELDS[section] || []).filter(
-    (key) => key !== titleKey && hasEntryContent(item[key]),
+    (key) =>
+      key !== titleKey &&
+      key !== 'descriptionTruncated' &&
+      hasEntryContent(item[key]),
   )
   const renderValue = (key, value) =>
     Array.isArray(value) ? value.join(' · ') : String(value)
@@ -481,6 +603,11 @@ function LinkedInEntryPreview({ section, item }) {
           <b>{copy.entryFieldLabels[key]}:</b> {renderValue(key, item[key])}
         </p>
       ))}
+      {item.descriptionTruncated === true && (
+        <p className="linkedin-truncation-note">
+          {copy.descriptionTruncatedNotice}
+        </p>
+      )}
       {extras.map(([key, value]) => (
         <p key={key}>
           <b>{copy.entryFieldLabels[key] || key}:</b>{' '}
