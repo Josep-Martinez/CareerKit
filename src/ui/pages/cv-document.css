@@ -1,54 +1,194 @@
 .cv-document {
-  margin: 1.5rem 0;
-  padding: clamp(1.25rem, 4vw, 2.5rem);
-  border: 1px solid #ddd9cd;
-  border-radius: 0.75rem;
-  background: #fff;
-  color: #25332d;
+  --cv-ink: #24332c;
+  --cv-muted: #65736a;
+  --cv-accent: #315c47;
+  --cv-line: #dfe5dc;
+  width: min(100%, 58rem);
+  margin: 1.75rem auto;
+  overflow: hidden;
+  border: 1px solid #e6e3d9;
+  border-radius: 0.5rem;
+  background: #fffefa;
+  color: var(--cv-ink);
+  box-shadow:
+    0 18px 45px rgba(36, 51, 44, 0.08),
+    0 2px 8px rgba(36, 51, 44, 0.04);
   font:
-    1rem / 1.5 system-ui,
+    0.9rem / 1.62 Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
     sans-serif;
 }
 
 .cv-document-columns {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr);
-  gap: clamp(1rem, 3vw, 2rem);
+  grid-template-columns: minmax(12rem, 0.78fr) minmax(0, 2fr);
+}
+
+.cv-document-column {
+  min-width: 0;
 }
 
 .cv-document-sidebar {
-  border-inline-end: 1px solid #ddd9cd;
-  padding-inline-end: 1rem;
+  padding: clamp(1.5rem, 3vw, 2.35rem) clamp(1.25rem, 2.5vw, 2rem);
+  background:
+    linear-gradient(155deg, rgba(49, 92, 71, 0.035), transparent 46%), #f1f4ed;
 }
 
-.cv-document-section + .cv-document-section {
-  margin-block-start: 1rem;
+.cv-document-main {
+  padding: clamp(2rem, 4vw, 3.5rem) clamp(1.75rem, 4vw, 3.5rem);
 }
 
-.cv-document-section h2 {
-  margin: 0 0 0.25rem;
-  color: inherit;
+.cv-document-single .cv-document-main {
+  max-width: 52rem;
+  margin-inline: auto;
+}
+
+.cv-document-name {
+  margin: 0 0 0.5rem;
+  color: var(--cv-ink);
   font:
-    650 1.1em / 1.3 system-ui,
-    sans-serif;
-}
-
-.cv-document-section p {
-  margin: 0;
-  color: inherit;
-  white-space: pre-wrap;
+    700 clamp(1.9rem, 4vw, 2.8rem) / 1.05 Georgia,
+    'Times New Roman',
+    serif;
+  letter-spacing: -0.045em;
   overflow-wrap: anywhere;
 }
 
-@media screen and (max-width: 600px) {
+.cv-document-subtitle {
+  margin: 0 0 1.6rem;
+  color: var(--cv-accent);
+  font-size: 1.08rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.cv-document-intro {
+  margin: 1.2rem 0 1.75rem;
+  color: #495a50;
+  font-size: 0.96rem;
+  line-height: 1.7;
+}
+
+.cv-document-section {
+  margin-block-start: 1.65rem;
+  break-inside: avoid;
+}
+
+.cv-document-section h2 {
+  margin: 0 0 0.75rem;
+  padding-block-end: 0.4rem;
+  border-block-end: 1px solid var(--cv-line);
+  color: var(--cv-accent);
+  font:
+    750 0.78rem / 1.35 Inter,
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.cv-document-sidebar .cv-document-section {
+  margin-block-start: 1.35rem;
+}
+
+.cv-document-sidebar .cv-document-section h2 {
+  border: 0;
+  padding: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.09em;
+}
+
+.cv-document-paragraph,
+.cv-document-entry-title {
+  margin: 0 0 0.55rem;
+  overflow-wrap: anywhere;
+}
+
+.cv-document-paragraph {
+  color: #3d4b43;
+}
+
+.cv-document-entry-title {
+  margin-block-start: 0.8rem;
+  color: var(--cv-ink);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.cv-document-section .cv-document-entry-title:first-child {
+  margin-block-start: 0;
+}
+
+.cv-document-sidebar .cv-document-paragraph,
+.cv-document-sidebar .cv-document-entry-title {
+  color: #3e5145;
+  font-size: 0.84rem;
+}
+
+.cv-document-list {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.25rem 0 0.85rem;
+  padding-inline-start: 1.15rem;
+  color: #3d4b43;
+}
+
+.cv-document-list li::marker {
+  color: #6d8a73;
+}
+
+.cv-document-sidebar .cv-document-list {
+  gap: 0.25rem;
+  padding-inline-start: 1rem;
+  font-size: 0.82rem;
+}
+
+.cv-document-skill-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem 0.5rem;
+}
+
+.cv-document-skill-line > span + span::before {
+  content: '·';
+  display: inline-block;
+  margin-inline-end: 0.5rem;
+  color: #8b9a8e;
+}
+
+.cv-document strong {
+  color: #294b3b;
+  font-weight: 700;
+}
+
+.cv-document em {
+  font-style: italic;
+}
+
+.cv-document code {
+  padding: 0.08em 0.3em;
+  border-radius: 0.25rem;
+  background: #e8eee6;
+  font-size: 0.9em;
+}
+
+@media screen and (max-width: 700px) {
   .cv-document-columns {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .cv-document-sidebar {
-    border-inline-end: 0;
-    border-block-end: 1px solid #ddd9cd;
-    padding: 0 0 1rem;
+    padding: 1.5rem 1.4rem;
+    border-block-end: 1px solid var(--cv-line);
+  }
+
+  .cv-document-main {
+    padding: 1.65rem 1.4rem 2rem;
   }
 }
 
@@ -82,10 +222,19 @@
 
   .cv-document {
     page: careerkit-cv;
+    width: 100%;
+    max-width: none;
     margin: 0;
-    padding: 0;
     border: 0;
-    font-size: 10pt;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 9.5pt;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .cv-document-sidebar {
+    background: #f1f4ed !important;
   }
 
   .cv-document-section h2 {
