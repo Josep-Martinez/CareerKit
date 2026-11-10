@@ -970,6 +970,10 @@ export default function App() {
               key={adaptationVacancyId || focusedPromptId || 'catalog'}
               focusedPromptId={focusedPromptId}
               adaptationVacancyId={adaptationVacancyId}
+              vacancies={store.data.vacancies.items}
+              onReturnToVacancy={(id) =>
+                navigateTo('vacancies', { vacancyId: id })
+              }
               pending={{
                 cv: cvPromptPending,
                 cvSources: cvReview.task?.sources,

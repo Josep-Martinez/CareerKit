@@ -319,9 +319,9 @@ function CVColumn({ text, side = false, className = '' }) {
   )
 }
 
-export function CVDocument({ text, spanish }) {
+export function CVDocument({ text, spanish, singleColumn = !spanish }) {
   const tableColumns = extractTableColumns(text)
-  const columns = spanish ? tableColumns : null
+  const columns = singleColumn ? null : tableColumns
   const singleColumnText = tableColumns
     ? [
         tableColumns.before,

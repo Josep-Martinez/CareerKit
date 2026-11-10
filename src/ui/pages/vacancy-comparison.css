@@ -1,23 +1,173 @@
 .vacancy-comparison {
+  max-width: 70rem;
+  min-width: 0;
   margin-bottom: 1.5rem;
-  padding: 1rem;
+  padding: clamp(0.75rem, 2.5vw, 1.5rem);
 }
+
+.comparison-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.comparison-heading h2 {
+  margin: 0.25rem 0;
+}
+
+.comparison-heading p,
+.comparison-scroll-hint {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.comparison-scroll-hint {
+  display: none;
+}
+
 .vacancy-comparison-scroll {
   overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
 }
+
 .vacancy-comparison table {
-  border-collapse: collapse;
+  --criterion-width: clamp(7rem, 16vw, 10rem);
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
   width: 100%;
+  min-width: calc(var(--criterion-width) + 26rem);
 }
+
+.vacancy-comparison table[data-count='3'] {
+  min-width: calc(var(--criterion-width) + 39rem);
+}
+
 .vacancy-comparison :is(th, td) {
   text-align: start;
   vertical-align: top;
-  border-bottom: 1px solid var(--border, #ddd);
-  padding: 0.65rem;
-  min-width: 9rem;
-  white-space: pre-wrap;
+  padding: 0.8rem 1rem;
   overflow-wrap: anywhere;
 }
+
+.vacancy-comparison thead {
+  background: var(--purple-soft);
+}
+
+.vacancy-comparison .comparison-criterion {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: var(--criterion-width);
+  background: var(--paper);
+  border-inline-end: 1px solid var(--line);
+}
+
+.vacancy-comparison thead .comparison-criterion {
+  vertical-align: bottom;
+  background: var(--purple-soft);
+}
+
+.comparison-offer + .comparison-offer,
+.comparison-value-row td + td {
+  border-inline-start: 1px solid var(--line);
+}
+
+.comparison-offer-header {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.comparison-offer-header strong {
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.comparison-company {
+  color: var(--purple);
+  font-size: 0.8rem;
+}
+
+.comparison-offer-header .button {
+  margin-top: 0.25rem;
+}
+
+.vacancy-comparison .comparison-group th {
+  padding-block: 0.5rem;
+  background: var(--purple-soft);
+  color: var(--purple);
+  border-block: 1px solid var(--line);
+  font-size: 0.75rem;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.comparison-group span {
+  position: sticky;
+  left: 1rem;
+}
+
+.comparison-value-row + .comparison-value-row > * {
+  border-top: 1px solid var(--line);
+}
+
+.comparison-value-row td {
+  background: var(--paper);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.comparison-salary {
+  display: block;
+  color: var(--purple);
+  font-size: 1rem;
+}
+
+.comparison-badge {
+  display: inline-block;
+  margin-top: 0.35rem;
+  padding: 0.12rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 2rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.comparison-badge[data-verified='true'] {
+  background: var(--green-soft);
+  color: var(--purple);
+}
+
+.comparison-evidence {
+  margin: 0;
+  padding-inline-start: 1.15rem;
+}
+
+@media (max-width: 64rem) {
+  .comparison-scroll-hint {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 36rem) {
+  .vacancy-comparison :is(th, td) {
+    padding-inline: 0.65rem;
+  }
+
+  .comparison-group span {
+    left: 0.65rem;
+  }
+}
+
 .vacancy-compare-option {
   padding: 0.35rem 0.55rem;
 }
@@ -68,4 +218,41 @@
 .vacancy-card-bottom {
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.vacancy-adapted-cv {
+  margin-top: 0.75rem;
+  padding: clamp(0.85rem, 2.5vw, 1.4rem);
+  background: var(--green-soft);
+}
+
+.vacancy-adapted-cv .panel-heading {
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.vacancy-adapted-cv > p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.vacancy-cv-preview {
+  margin-top: 0.8rem;
+}
+
+.vacancy-cv-preview summary {
+  cursor: pointer;
+  color: var(--purple);
+  font-weight: 650;
+  padding-block: 0.35rem;
+}
+
+.vacancy-cv-preview summary small {
+  margin-inline-start: 0.65rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.vacancy-cv-preview .cv-document {
+  margin: 0.75rem auto 0;
 }

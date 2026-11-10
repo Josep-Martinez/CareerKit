@@ -261,22 +261,26 @@ export const PROMPT_INBOX_ES = {
       id: 'tailor-cv-vacancy',
       category: 'career',
       title: 'Adaptar un CV a una vacante concreta',
-      use: 'Úsalo cuando quieras reescribir una versión para una oferta. El agente primero mostrará el diagnóstico y esperará tus respuestas.',
+      use: 'Úsalo cuando quieras reescribir una versión para una oferta. El agente mostrará el diagnóstico, esperará tus respuestas y guardará el CV en los detalles de la oferta elegida.',
       requiresVacancy: true,
       skillPaths: [
         'AGENTS.md',
         'schemas/agent-format.md',
+        'schemas/vacancies.schema.json',
         '.agents/skills/ruthless-cv-optimizer/SKILL.md',
+        '.agents/skills/cv-optimizer/SKILL.md',
         '.agents/skills/job-fit-assessor/SKILL.md',
         '.agents/skills/cv-formatos/SKILL.md',
         '.agents/skills/cv-espana/SKILL.md',
         '.agents/skills/cv-europa/SKILL.md',
       ],
       text: [
-        'Quiero adaptar un CV a esta oferta: {{vacancy}}. Si te doy un identificador, busca la coincidencia exacta en private-data/vacancies.json con acceso local autorizado. Si te doy un puesto o una empresa y hay varias coincidencias, pídeme que elija. Lee la oferta completa y contrástala con private-data/cv.json y las evidencias confirmadas de private-data/profile.json, solo si tienes acceso local autorizado. Si falta el anuncio completo, el CV actual o el país cuando sea necesario, pregunta lo imprescindible.',
+        'Quiero adaptar un CV a la vacante cuyo identificador exacto es {{vacancy}}. Busca ese id en items de private-data/vacancies.json con acceso local autorizado. Si no lo encuentras o coincide con más de un registro, pregunta antes de continuar. Lee la oferta completa y contrástala con private-data/cv.json y las evidencias confirmadas de private-data/profile.json, solo si tienes acceso local autorizado. Si falta el anuncio completo, el CV actual o el país cuando sea necesario, pregunta lo imprescindible.',
         'Sigue literalmente el proceso de dos fases de ruthless-cv-optimizer. En la primera respuesta, presenta requisitos principales, evidencia que los respalda, carencias demostrables y hasta cinco preguntas importantes. Detente ahí y espera mi respuesta; no redactes aún el CV final.',
-        'Cuando responda, prepara únicamente la versión solicitada. Abre con un subtítulo de rol en lenguaje natural y un resumen de 3–6 líneas cuya primera frase conecte las tareas de la oferta con el diferenciador o hito confirmado más relevante. Si falta evidencia para una apertura distintiva, pregunta o marca la brecha; no escribas una frase genérica. Menciona trabajo en equipo, aprendizaje y comunicación solo si se demuestran. Prioriza pocas tareas y hard skills pertinentes, conserva los hechos esenciales y reserva para la entrevista el relato amplio. No inventes hechos, métricas, fechas ni motivaciones. Elige idioma y formato según mi petición, la vacante y el canal; no prometas resultados ATS. Conserva intactas las dos bases generales en cv.json y guarda el borrador en el chat. Solo crea un archivo privado si te lo pido expresamente y apruebo su destino; usa `Puesto_de_trabajo-Nombre_Apellido` con el puesto y el nombre confirmados, sustituyendo espacios por guiones bajos y quitando caracteres no válidos.',
-        'No envíes solicitudes ni contactes a la empresa. Si no tienes acceso local, dilo y trabaja solo con el contenido que te comparta; no afirmes haber leído o guardado archivos.',
+        'Cuando responda, prepara únicamente la versión solicitada. Abre con un subtítulo de rol en lenguaje natural y un resumen de 3–6 líneas cuya primera frase conecte las tareas de la oferta con el diferenciador o hito confirmado más relevante. Si falta evidencia para una apertura distintiva, pregunta o marca la brecha; no escribas una frase genérica. Menciona trabajo en equipo, aprendizaje y comunicación solo si se demuestran. Prioriza pocas tareas y hard skills pertinentes, conserva los hechos esenciales y reserva para la entrevista el relato amplio. No inventes hechos, métricas, fechas ni motivaciones. Elige idioma y formato según mi petición, la vacante y el canal; no prometas resultados ATS. Conserva intactas las dos bases generales en cv.json.',
+        'Una vez respondidas las preguntas y preparado el CV, te autorizo a guardar únicamente items[].adaptedCv de la vacante identificada en private-data/vacancies.json. Guarda en text el CV completo en Markdown limpio, sin el diagnóstico ni las notas de revisión. Usa language: "es" o "en". Usa layout: "single-column" para texto lineal, incluido el CV para ATS; para el formato español de dos columnas, usa "two-columns" y divide el Markdown con los encabezados "## Columna lateral" y "## Columna principal", en ese orden. Confirma conmigo antes de reemplazar un CV adaptado existente. Si aún falta una respuesta imprescindible, conserva el documento anterior.',
+        'Antes de escribir, vuelve a leer vacancies.json, comprueba el id exacto y valida el archivo con schemas/vacancies.schema.json. Conserva las demás vacantes, cvAdvice y propiedades desconocidas. Valida el resultado antes de escribir y vuelve a leerlo después. Si el archivo está mal formado o no valida, déjalo intacto y entrega el borrador en el chat. Si el guardado se confirma, indícame que puedo volver a los detalles de la vacante y recargar el archivo para ver el CV adaptado.',
+        'No envíes solicitudes ni contactes a la empresa. Si no tienes acceso local, entrega el borrador en el chat con el material que te comparta e indica que no se guardó en la vacante.',
       ].join('\n\n'),
     },
     {
@@ -301,7 +305,7 @@ export const PROMPT_INBOX_ES = {
         'Investiga vacantes actuales que encajen con mis objetivos y preferencias expresas. Si tienes acceso local autorizado, consulta private-data/profile.json y usa careerPreferences (familias de puestos, tareas, sectores, modalidad, ubicación, condiciones y aspectos que quiero evitar) para orientar la búsqueda; usa las evidencias profesionales confirmadas solo para valorar encaje. No presupongas preferencias ausentes ni un puesto, ciudad, salario mínimo o modalidad que no haya confirmado. No uses personalContext o contentDirection como hechos profesionales.',
         'Busca de forma amplia por tareas y responsabilidades y por varios nombres de rol, en varias fuentes públicas, páginas de empresas y portales de empleo. Revisa cada resultado prometedor y confirma que el anuncio sigue publicado y acepta candidaturas. Añade todas las ofertas verificadas que cumplan mis criterios, no solo una selección corta. No añadas nuevas ofertas duplicadas o caducadas. Si un anuncio parece encajar pero no puedes verificar que siga activo, no lo guardes como vacante vigente; puedes mencionarlo aparte como no verificado.',
         'Valora cada oferta que cumpla los criterios con job-fit-assessor y separa hechos, inferencias, incógnitas y carencias confirmadas. Compara requisitos con evidencias reales, no solo con el título. Para los datos del empleador, cita fuentes actuales; los comentarios de empleados son señales anecdóticas. Ordena todas las ofertas elegibles de mayor a menor atractivo para mis preferencias y encaje, sin inventar puntuaciones. Asigna preference consecutivo desde 1 (la más atractiva) y featured: true a las tres mejores como máximo, porque Inicio solo muestra esas tres; en las demás usa featured: false.',
-        'Guarda en private-data/vacancies.json todas las ofertas activas verificadas que cumplan mis criterios, incluidas las menos atractivas pero válidas. Para cada una conserva o registra ID estable, puesto, empresa, enlace directo, fuente, ubicación, modalidad, nivel, tipo de contrato, descripción completa disponible, salario, salaryVerified, searchedAt, verifiedAt, assessment, matchingEvidenceIds, gaps, blockers, preference y featured. Actualiza los registros activos existentes sin cambiar sus IDs ni eliminar cvAdvice u otras propiedades desconocidas. Valida el JSON antes y después de escribir; no solicites empleo ni contactes a nadie.',
+        'Guarda en private-data/vacancies.json todas las ofertas activas verificadas que cumplan mis criterios, incluidas las menos atractivas pero válidas. Para cada una conserva o registra ID estable, puesto, empresa, enlace directo, fuente, ubicación, modalidad, nivel, tipo de contrato, descripción completa disponible, salario, salaryVerified, searchedAt, verifiedAt, assessment, matchingEvidenceIds, gaps, blockers, preference y featured. Actualiza los registros activos existentes sin cambiar sus IDs ni eliminar cvAdvice, adaptedCv u otras propiedades desconocidas. Valida el JSON antes y después de escribir; no solicites empleo ni contactes a nadie.',
         'Devuélveme la lista completa de las ofertas vigentes guardadas, ordenada por atractivo y con las mejores destacadas; no la limites a una shortlist. Resume para cada oferta puesto, empresa, ubicación/modalidad, salario o si no se publica, encaje y brecha principal, con enlace directo. Indica aparte las ofertas guardadas cuyo cierre confirmaste, las que no pudiste verificar y los límites de la búsqueda. No presentes un resultado de búsqueda como oferta verificada. Si no tienes búsqueda web actual, dilo claramente y no inventes resultados.',
       ].join('\n\n'),
     },
@@ -656,7 +660,7 @@ export const PROMPT_REQUIREMENTS = {
       'private-data/cv.json',
     ],
     access:
-      'Acceso local si quieres usar tus archivos; el borrador final se entrega en el chat.',
+      'Acceso local para consultar el CV base y guardar la adaptación dentro de la vacante elegida. Sin acceso local, el borrador se entrega en el chat.',
   },
   'research-vacancies': {
     files: [

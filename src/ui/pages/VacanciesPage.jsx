@@ -14,6 +14,7 @@ import {
 import { STRINGS as s } from '../../i18n/es.js'
 import { id, pretty } from '../utils.js'
 import { collectProfileEvidence } from '../profile-evidence.js'
+import { CVDocument } from './CVDocument.jsx'
 import './vacancy-comparison.css'
 
 const vacancyCopy = s.vacancyPage
@@ -192,75 +193,129 @@ function vacancyLabel(vacancy) {
 }
 
 function VacancyComparison({ items, evidence, onClear }) {
-  const rows = [
-    ['Ubicación', (item) => item.location],
-    ['Modalidad', (item) => item.modality],
-    [
-      'Salario',
-      (item) =>
-        item.salary &&
-        `${item.salary} · ${item.salaryVerified ? 'verificado' : 'sin verificar'}`,
-    ],
-    ['Fecha de verificación', (item) => item.verifiedAt],
-    ['Valoración', (item) => item.assessment],
-    [
-      'Evidencias de encaje',
-      (item) =>
-        (item.matchingEvidenceIds || [])
-          .map((id) => evidenceLabel(evidence, id))
-          .join('\n'),
-    ],
-    ['Carencias', (item) => item.gaps],
-    ['Bloqueos', (item) => item.blockers],
-    [
-      'CV recomendado',
-      (item) =>
-        s.vacancyCvAdvice[item.cvAdvice?.recommendedVersion] ||
-        s.vacancyCvAdvice.pending,
-    ],
+  const copy = s.vacancyComparison
+  const groups = [
+    {
+      title: copy.conditions,
+      rows: [
+        [
+          copy.salary,
+          (item) => (
+            <>
+              <strong className="comparison-salary">
+                {pretty(item.salary)}
+              </strong>
+              {item.salary && (
+                <span
+                  className="comparison-badge"
+                  data-verified={item.salaryVerified === true}
+                >
+                  {item.salaryVerified ? copy.verified : copy.unverified}
+                </span>
+              )}
+            </>
+          ),
+        ],
+        [copy.modality, (item) => pretty(item.modality)],
+        [copy.location, (item) => pretty(item.location)],
+        [copy.verificationDate, (item) => pretty(item.verifiedAt)],
+      ],
+    },
+    {
+      title: copy.fit,
+      rows: [
+        [copy.assessment, (item) => pretty(item.assessment)],
+        [
+          copy.evidence,
+          (item) =>
+            item.matchingEvidenceIds?.length ? (
+              <ul className="comparison-evidence">
+                {item.matchingEvidenceIds.map((id, index) => (
+                  <li key={`${id}-${index}`}>{evidenceLabel(evidence, id)}</li>
+                ))}
+              </ul>
+            ) : (
+              pretty('')
+            ),
+        ],
+        [copy.gaps, (item) => pretty(item.gaps)],
+        [copy.blockers, (item) => pretty(item.blockers)],
+        [
+          copy.cv,
+          (item) =>
+            s.vacancyCvAdvice[item.cvAdvice?.recommendedVersion] ||
+            s.vacancyCvAdvice.pending,
+        ],
+      ],
+    },
   ]
+
   return (
     <section
       className="panel vacancy-comparison"
       aria-labelledby="comparison-heading"
     >
-      <div className="panel-heading">
-        <h2 id="comparison-heading">Comparación de vacantes</h2>
+      <header className="comparison-heading">
+        <div>
+          <span className="eyebrow">
+            {copy.eyebrow.replace('{count}', items.length)}
+          </span>
+          <h2 id="comparison-heading">{copy.title}</h2>
+          <p>{copy.description}</p>
+        </div>
         <button
           type="button"
           className="button secondary small"
           onClick={onClear}
         >
-          Limpiar selección
+          {copy.clear}
         </button>
-      </div>
+      </header>
+      <p className="comparison-scroll-hint">{copy.scrollHint}</p>
       <div
         className="vacancy-comparison-scroll"
         tabIndex={0}
         role="region"
-        aria-label="Tabla de comparación"
+        aria-label={copy.tableLabel}
       >
-        <table aria-labelledby="comparison-heading">
+        <table aria-labelledby="comparison-heading" data-count={items.length}>
           <thead>
             <tr>
-              <th scope="col">Criterio</th>
+              <th scope="col" className="comparison-criterion">
+                {copy.criterion}
+              </th>
               {items.map((item) => (
-                <th key={item.id} scope="col">
-                  {vacancyLabel(item)}
+                <th key={item.id} scope="col" className="comparison-offer">
+                  <div className="comparison-offer-header">
+                    <span className="comparison-company">
+                      {item.company || copy.unknownCompany}
+                    </span>
+                    <strong>{item.role || copy.unknownRole}</strong>
+                    <VacancyLink item={item} />
+                  </div>
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody>
-            {rows.map(([label, getValue]) => (
-              <tr key={label}>
-                <th scope="row">{label}</th>
-                {items.map((item) => (
-                  <td key={item.id}>{pretty(getValue(item))}</td>
-                ))}
+          {groups.map(({ title, rows }) => (
+            <tbody key={title}>
+              <tr className="comparison-group">
+                <th scope="rowgroup" colSpan={items.length + 1}>
+                  <span>{title}</span>
+                </th>
               </tr>
-            ))}
-          </tbody>
+              {rows.map(([label, renderValue]) => (
+                <tr key={label} className="comparison-value-row">
+                  <th scope="row" className="comparison-criterion">
+                    {label}
+                  </th>
+                  {items.map((item) => (
+                    <td key={item.id}>{renderValue(item)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          ))}
         </table>
       </div>
     </section>
@@ -731,90 +786,123 @@ function VacancyDetail({ value, profile, onOpenAdaptation }) {
     advice.spanishAdjustments.some((item) => item.trim()) ||
     advice.englishAdjustments.some((item) => item.trim())
   const recommendedLabel = copy[advice.recommendedVersion] || copy.pending
+  const adaptedCv = value.adaptedCv
   return (
-    <div className="detail-grid">
-      <section className="panel detail-panel">
-        <div className="detail-tags">
-          <span>{value.modality || 'Modalidad sin registrar'}</span>
-          <span>Preferencia {value.preference || '—'}</span>
-        </div>
-        <h2>Descripción</h2>
-        <p className="preline">{value.description || 'Sin registrar'}</p>
-        <h2>Valoración</h2>
-        <p className="preline">{value.assessment || 'Sin registrar'}</p>
-        <h2>Evidencias de encaje</h2>
-        <p>
-          {value.matchingEvidenceIds
-            ?.map((id) => evidenceLabel(evidence, id))
-            .join(', ') || 'Sin registrar'}
-        </p>
-        <h2>Carencias y bloqueos</h2>
-        <p className="preline">
-          {[value.gaps, value.blockers].filter(Boolean).join('\n') ||
-            'Sin registrar'}
-        </p>
-        <section
-          className="cv-advice-detail"
-          aria-labelledby="cv-advice-heading"
-        >
-          <div className="cv-advice-heading">
-            <div>
-              <span className="eyebrow">CV PARA ESTA OFERTA</span>
-              <h2 id="cv-advice-heading">{copy.title}</h2>
-            </div>
-            <span className="cv-recommendation-tag">{recommendedLabel}</span>
-          </div>
-          <p className="cv-advice-reason">
-            {advice.reason ||
-              (hasAssessment ? copy.noAdjustments : copy.noAssessment)}
-          </p>
-          {advice.assessedAt && (
-            <small className="cv-advice-date">
-              {copy.assessmentDate}: {advice.assessedAt}
-            </small>
-          )}
+    <>
+      <section
+        className="panel vacancy-adapted-cv"
+        aria-labelledby="vacancy-adapted-cv-heading"
+      >
+        <div className="panel-heading">
+          <h2 id="vacancy-adapted-cv-heading">{vacancyCopy.adaptedCv}</h2>
           {onOpenAdaptation && (
             <button
               type="button"
               className="button secondary"
               onClick={() => onOpenAdaptation(value.id)}
             >
-              Abrir prompt de adaptación del CV
+              {adaptedCv ? vacancyCopy.reviseCv : vacancyCopy.prepareCv}
             </button>
           )}
-          <div className="cv-adjustment-columns">
-            <CvAdjustmentList
-              title={copy.spanishAdjustments}
-              items={advice.spanishAdjustments}
-              emptyLabel={copy.noAdjustments}
+        </div>
+        {adaptedCv ? (
+          <details className="vacancy-cv-preview">
+            <summary>
+              <span>{vacancyCopy.viewAdaptedCv}</span>
+              <small>
+                {adaptedCv.language === 'es'
+                  ? vacancyCopy.spanishCv
+                  : vacancyCopy.englishCv}
+              </small>
+            </summary>
+            <CVDocument
+              text={adaptedCv.text}
+              spanish={adaptedCv.language === 'es'}
+              singleColumn={
+                adaptedCv.language !== 'es' ||
+                adaptedCv.layout !== 'two-columns'
+              }
             />
-            <CvAdjustmentList
-              title={copy.englishAdjustments}
-              items={advice.englishAdjustments}
-              emptyLabel={copy.noAdjustments}
-            />
-          </div>
-        </section>
+          </details>
+        ) : (
+          <p>{vacancyCopy.emptyAdaptedCv}</p>
+        )}
       </section>
-      <aside className="legend-card">
-        <h3>Datos de la oferta</h3>
-        <dl>
-          <dt>Salario</dt>
-          <dd>
-            {value.salary
-              ? `${value.salary} · ${value.salaryVerified ? 'verificado' : 'sin verificar'}`
-              : 'Sin registrar'}
-          </dd>
-          <dt>Nivel</dt>
-          <dd>{pretty(value.level)}</dd>
-          <dt>Tipo</dt>
-          <dd>{pretty(value.jobType)}</dd>
-          <dt>Fuente</dt>
-          <dd>{pretty(value.source)}</dd>
-          <dt>Verificada</dt>
-          <dd>{pretty(value.verifiedAt)}</dd>
-        </dl>
-      </aside>
-    </div>
+      <div className="detail-grid">
+        <section className="panel detail-panel">
+          <div className="detail-tags">
+            <span>{value.modality || 'Modalidad sin registrar'}</span>
+            <span>Preferencia {value.preference || '—'}</span>
+          </div>
+          <h2>Descripción</h2>
+          <p className="preline">{value.description || 'Sin registrar'}</p>
+          <h2>Valoración</h2>
+          <p className="preline">{value.assessment || 'Sin registrar'}</p>
+          <h2>Evidencias de encaje</h2>
+          <p>
+            {value.matchingEvidenceIds
+              ?.map((id) => evidenceLabel(evidence, id))
+              .join(', ') || 'Sin registrar'}
+          </p>
+          <h2>Carencias y bloqueos</h2>
+          <p className="preline">
+            {[value.gaps, value.blockers].filter(Boolean).join('\n') ||
+              'Sin registrar'}
+          </p>
+          <section
+            className="cv-advice-detail"
+            aria-labelledby="cv-advice-heading"
+          >
+            <div className="cv-advice-heading">
+              <div>
+                <span className="eyebrow">CV PARA ESTA OFERTA</span>
+                <h2 id="cv-advice-heading">{copy.title}</h2>
+              </div>
+              <span className="cv-recommendation-tag">{recommendedLabel}</span>
+            </div>
+            <p className="cv-advice-reason">
+              {advice.reason ||
+                (hasAssessment ? copy.noAdjustments : copy.noAssessment)}
+            </p>
+            {advice.assessedAt && (
+              <small className="cv-advice-date">
+                {copy.assessmentDate}: {advice.assessedAt}
+              </small>
+            )}
+            <div className="cv-adjustment-columns">
+              <CvAdjustmentList
+                title={copy.spanishAdjustments}
+                items={advice.spanishAdjustments}
+                emptyLabel={copy.noAdjustments}
+              />
+              <CvAdjustmentList
+                title={copy.englishAdjustments}
+                items={advice.englishAdjustments}
+                emptyLabel={copy.noAdjustments}
+              />
+            </div>
+          </section>
+        </section>
+        <aside className="legend-card">
+          <h3>Datos de la oferta</h3>
+          <dl>
+            <dt>Salario</dt>
+            <dd>
+              {value.salary
+                ? `${value.salary} · ${value.salaryVerified ? 'verificado' : 'sin verificar'}`
+                : 'Sin registrar'}
+            </dd>
+            <dt>Nivel</dt>
+            <dd>{pretty(value.level)}</dd>
+            <dt>Tipo</dt>
+            <dd>{pretty(value.jobType)}</dd>
+            <dt>Fuente</dt>
+            <dd>{pretty(value.source)}</dd>
+            <dt>Verificada</dt>
+            <dd>{pretty(value.verifiedAt)}</dd>
+          </dl>
+        </aside>
+      </div>
+    </>
   )
 }

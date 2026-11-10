@@ -35,7 +35,8 @@
           "blockers": { "type": "string" },
           "preference": { "type": "integer" },
           "featured": { "type": "boolean" },
-          "cvAdvice": { "$ref": "#/$defs/cvAdvice" }
+          "cvAdvice": { "$ref": "#/$defs/cvAdvice" },
+          "adaptedCv": { "$ref": "#/$defs/adaptedCv" }
         },
         "additionalProperties": true
       }
@@ -43,6 +44,16 @@
   },
   "additionalProperties": true,
   "$defs": {
+    "adaptedCv": {
+      "type": "object",
+      "required": ["text", "language"],
+      "properties": {
+        "text": { "type": "string", "pattern": "\\S" },
+        "language": { "enum": ["es", "en"] },
+        "layout": { "enum": ["single-column", "two-columns"] }
+      },
+      "additionalProperties": true
+    },
     "cvAdvice": {
       "type": "object",
       "required": [
