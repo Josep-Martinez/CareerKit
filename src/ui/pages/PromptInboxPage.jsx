@@ -13,6 +13,7 @@ export function PromptInboxPage({
   onCheckLinkedIn,
   onConfirmLinkedIn,
   adaptationVacancyId,
+  focusedPromptId,
 }) {
   const copy = s.promptInbox
   const pendingCv = Boolean(pending?.cv)
@@ -28,14 +29,16 @@ export function PromptInboxPage({
   )
   const [copyMessages, setCopyMessages] = useState({})
   useEffect(() => {
-    if (!adaptationVacancyId) return
-    const summary = document.querySelector('#prompt-tailor-cv-vacancy summary')
+    if (!focusedPromptId) return
+    const summary = document
+      .getElementById(`prompt-${focusedPromptId}`)
+      ?.querySelector('summary')
     const frame = requestAnimationFrame(() => {
       summary?.focus({ preventScroll: true })
       summary?.scrollIntoView({ block: 'start' })
     })
     return () => cancelAnimationFrame(frame)
-  }, [adaptationVacancyId])
+  }, [focusedPromptId])
 
   const query = search.trim().toLocaleLowerCase('es')
   const prompts = copy.prompts.filter((prompt) =>
@@ -88,10 +91,7 @@ export function PromptInboxPage({
       >
         <details
           className="prompt-details"
-          open={
-            isPending ||
-            (Boolean(adaptationVacancyId) && prompt.id === 'tailor-cv-vacancy')
-          }
+          open={isPending || prompt.id === focusedPromptId}
         >
           <summary className="prompt-card-heading">
             <div>

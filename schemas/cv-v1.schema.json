@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://careerkit.invalid/schemas/cv-v1.schema.json",
+  "title": "CareerKit legacy CV",
+  "type": "object",
+  "required": ["schemaVersion", "masterText", "lastUpdated", "lastReviewed"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "masterText": { "type": "string" },
+    "lastUpdated": { "type": "string" },
+    "lastReviewed": { "type": "string" },
+    "versions": false,
+    "previousVersion": false
+  },
+  "additionalProperties": true
+}

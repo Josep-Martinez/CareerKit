@@ -57,6 +57,7 @@ export default function App() {
   const { page, vacancyId } = route
   const pageContent = useRef(null)
   const [notice, setNotice] = useState('')
+  const [focusedPromptId, setFocusedPromptId] = useState(null)
   const [adaptationVacancyId, setAdaptationVacancyId] = useState(null)
   const [noticeAction, setNoticeAction] = useState(null)
   const [fallbackOpen, setFallbackOpen] = useState(false)
@@ -135,6 +136,7 @@ export default function App() {
     }
     setMobileNavOpen(false)
     setAdaptationVacancyId(null)
+    setFocusedPromptId(null)
     return true
   }
 
@@ -582,6 +584,7 @@ export default function App() {
   function openVacancyAdaptation(id) {
     if (!navigateTo('prompts')) return
     setAdaptationVacancyId(id)
+    setFocusedPromptId('tailor-cv-vacancy')
     showNotice('')
   }
 
@@ -937,6 +940,11 @@ export default function App() {
             ) : (
               <VacanciesPage
                 {...draftProps('vacancies')}
+                onOpenResearch={() => {
+                  if (!navigateTo('prompts')) return
+                  setFocusedPromptId('research-vacancies')
+                  showNotice('')
+                }}
                 value={store.data.vacancies}
                 profile={store.data.profile}
                 onOpenAdaptation={openVacancyAdaptation}
@@ -950,7 +958,8 @@ export default function App() {
             ))}
           {page === 'prompts' && (
             <PromptInboxPage
-              key={adaptationVacancyId || 'catalog'}
+              key={adaptationVacancyId || focusedPromptId || 'catalog'}
+              focusedPromptId={focusedPromptId}
               adaptationVacancyId={adaptationVacancyId}
               pending={{
                 cv: cvPromptPending,

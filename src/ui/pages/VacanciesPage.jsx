@@ -248,6 +248,7 @@ export function VacanciesPage({
   value,
   profile,
   onOpenAdaptation,
+  onOpenResearch,
   onDirtyChange,
   onDraftChange,
   saving,
@@ -266,14 +267,29 @@ export function VacanciesPage({
   })
   const [selected, setSelected] = useState(null)
   const [comparison, setComparison] = useState([])
+  const [search, setSearch] = useState('')
   const evidence = collectProfileEvidence(profile)
   const items = [...draft.items].sort(
     (a, b) => (a.preference || 999) - (b.preference || 999),
   )
 
   const comparedItems = items.filter((item) => comparison.includes(item.id))
+  const normalizeSearch = (value) =>
+    value.toLocaleLowerCase('es').normalize('NFD').replace(/\p{M}/gu, '')
+  const terms = normalizeSearch(search).trim().split(/\s+/).filter(Boolean)
+  const results = items
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => {
+      const searchable = normalizeSearch(
+        [item.role, item.company, item.location, item.modality]
+          .filter(Boolean)
+          .join(' '),
+      )
+      return terms.every((term) => searchable.includes(term))
+    })
 
   function add() {
+    setSearch('')
     const item = {
       id: id(),
       role: '',
@@ -318,9 +334,18 @@ export function VacanciesPage({
         title="Vacantes"
         subtitle="Registra oportunidades investigadas y ordénalas por preferencia."
         action={
-          <button className="button primary" onClick={add}>
-            ＋ Añadir vacante
-          </button>
+          <div className="modal-actions">
+            <button
+              type="button"
+              className="button secondary"
+              onClick={onOpenResearch}
+            >
+              Buscar nuevas ofertas con el agente
+            </button>
+            <button type="button" className="button primary" onClick={add}>
+              ＋ Añadir vacante
+            </button>
+          </div>
         }
       />
       <Status
@@ -339,14 +364,27 @@ export function VacanciesPage({
       )}
       <div className="vacancies-layout">
         <section className="vacancy-list">
+          {items.length > 0 && (
+            <TextField
+              label="Buscar en todas tus vacantes"
+              value={search}
+              onChange={setSearch}
+              placeholder="Puesto, empresa, ubicación o modalidad"
+            />
+          )}
+          {terms.length > 0 && (
+            <p role="status">
+              {results.length} de {items.length} ofertas
+            </p>
+          )}
           {items.length >= 2 && (
             <p>
               Selecciona entre dos y tres ofertas para compararlas (
               {comparedItems.length}/3).
             </p>
           )}
-          {items.length ? (
-            items.map((item, index) => (
+          {results.length ? (
+            results.map(({ item, index }) => (
               <div key={item.id}>
                 <button
                   className={`vacancy-card ${selected === item.id ? 'selected' : ''}`}
@@ -406,6 +444,12 @@ export function VacanciesPage({
                 )}
               </div>
             ))
+          ) : items.length ? (
+            <EmptyState
+              text="No hay ofertas que coincidan con la búsqueda."
+              action="Limpiar búsqueda"
+              onClick={() => setSearch('')}
+            />
           ) : (
             <EmptyState
               text="Añade ofertas cuando tú o un agente las hayáis investigado."
