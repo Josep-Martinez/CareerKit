@@ -34,3 +34,38 @@
 .vacancy-list .vacancy-card {
   width: 100%;
 }
+
+.vacancies-workspace {
+  max-width: 70rem;
+}
+
+.vacancy-card-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.vacancy-card-actions .vacancy-compare-option {
+  margin-block: 0;
+}
+
+.vacancy-expanded,
+.vacancy-card .vacancy-form {
+  margin-top: 1rem;
+}
+
+.vacancy-expanded > .detail-grid {
+  margin-top: 0.75rem;
+}
+
+.vacancy-card-title,
+.vacancy-card-bottom {
+  overflow-wrap: anywhere;
+}
+
+.vacancy-card-bottom {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

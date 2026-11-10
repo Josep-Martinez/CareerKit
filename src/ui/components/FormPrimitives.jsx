@@ -52,9 +52,10 @@ export function TextField({
   rows,
   hint,
   lang,
+  className = '',
 }) {
   return (
-    <label className="field">
+    <label className={`field ${className}`.trim()}>
       <span>{label}</span>
       {rows ? (
         <textarea

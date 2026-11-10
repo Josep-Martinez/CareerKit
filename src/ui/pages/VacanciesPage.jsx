@@ -16,6 +16,29 @@ import { id, pretty } from '../utils.js'
 import { collectProfileEvidence } from '../profile-evidence.js'
 import './vacancy-comparison.css'
 
+const vacancyCopy = s.vacancyPage
+
+function VacancyLink({ item }) {
+  let url
+  try {
+    url = new URL(item.link?.trim())
+  } catch {
+    // Older or unfinished records can have no usable link.
+  }
+  return url && ['https:', 'http:'].includes(url.protocol) ? (
+    <a
+      className="button secondary"
+      href={url.href}
+      target="_blank"
+      rel="noreferrer"
+    >
+      {vacancyCopy.openOffer} ↗
+    </a>
+  ) : (
+    <small className="muted">{vacancyCopy.noLink}</small>
+  )
+}
+
 function emptyCvAdvice() {
   return {
     recommendedVersion: 'pending',
@@ -258,14 +281,15 @@ export function VacanciesPage({
   savedAt,
   onSave,
   onReload,
-  onSelect,
+  initialVacancyId,
 }) {
   const [draft, setDraft] = useDraft(value, {
     onDirtyChange,
     onDraftChange,
     savedDraft,
   })
-  const [selected, setSelected] = useState(null)
+  const [selected, setSelected] = useState(initialVacancyId ?? null)
+  const [editing, setEditing] = useState(false)
   const [comparison, setComparison] = useState([])
   const [search, setSearch] = useState('')
   const evidence = collectProfileEvidence(profile)
@@ -285,7 +309,10 @@ export function VacanciesPage({
           .filter(Boolean)
           .join(' '),
       )
-      return terms.every((term) => searchable.includes(term))
+      return (
+        (editing && item.id === selected) ||
+        terms.every((term) => searchable.includes(term))
+      )
     })
 
   function add() {
@@ -315,6 +342,7 @@ export function VacanciesPage({
     }
     setDraft({ ...draft, items: [...draft.items, item] })
     setSelected(item.id)
+    setEditing(true)
   }
 
   function patch(idValue, part) {
@@ -326,7 +354,170 @@ export function VacanciesPage({
     })
   }
 
+  function remove(item) {
+    const message = vacancyCopy.confirmRemoval.replace(
+      '{offer}',
+      vacancyLabel(item),
+    )
+    if (!window.confirm(message)) return
+    setDraft((current) => ({
+      ...current,
+      items: current.items.filter((candidate) => candidate.id !== item.id),
+    }))
+    setSelected(null)
+    setEditing(false)
+  }
+
+  const hasChanges = JSON.stringify(draft) !== JSON.stringify(value)
   const detail = draft.items.find((item) => item.id === selected)
+  const editor =
+    detail && editing ? (
+      <section className="panel form-panel vacancy-form">
+        <div className="panel-heading">
+          <div>
+            <span className="eyebrow">DETALLE DE LA OFERTA</span>
+            <h2>{detail.role || 'Nueva vacante'}</h2>
+          </div>
+        </div>
+        <div className="form-two">
+          <TextField
+            label="Puesto"
+            value={detail.role}
+            onChange={(text) => patch(detail.id, { role: text })}
+          />
+          <TextField
+            label="Empresa"
+            value={detail.company}
+            onChange={(text) => patch(detail.id, { company: text })}
+          />
+        </div>
+        <div className="form-two">
+          <TextField
+            label="Ubicación"
+            value={detail.location}
+            onChange={(text) => patch(detail.id, { location: text })}
+          />
+          <TextField
+            label="Modalidad"
+            value={detail.modality}
+            onChange={(text) => patch(detail.id, { modality: text })}
+          />
+        </div>
+        <div className="form-two">
+          <TextField
+            label="Enlace"
+            value={detail.link}
+            onChange={(text) => patch(detail.id, { link: text })}
+          />
+          <TextField
+            label="Fuente"
+            value={detail.source}
+            onChange={(text) => patch(detail.id, { source: text })}
+          />
+        </div>
+        <div className="form-two">
+          <TextField
+            label="Fecha de búsqueda"
+            value={detail.searchedAt}
+            onChange={(text) => patch(detail.id, { searchedAt: text })}
+          />
+          <TextField
+            label="Fecha de verificación"
+            value={detail.verifiedAt}
+            onChange={(text) => patch(detail.id, { verifiedAt: text })}
+          />
+        </div>
+        <TextField
+          label="Descripción completa"
+          rows={7}
+          value={detail.description}
+          onChange={(text) => patch(detail.id, { description: text })}
+        />
+        <div className="form-two">
+          <TextField
+            label="Salario o banda"
+            value={detail.salary}
+            onChange={(text) => patch(detail.id, { salary: text })}
+          />
+          <Check
+            label="Salario verificado"
+            checked={detail.salaryVerified}
+            onChange={(checked) =>
+              patch(detail.id, { salaryVerified: checked })
+            }
+          />
+        </div>
+        <div className="form-two">
+          <TextField
+            label="Nivel"
+            value={detail.level}
+            onChange={(text) => patch(detail.id, { level: text })}
+          />
+          <TextField
+            label="Tipo de puesto"
+            value={detail.jobType}
+            onChange={(text) => patch(detail.id, { jobType: text })}
+          />
+        </div>
+        <TextField
+          label="Valoración del agente"
+          rows={3}
+          value={detail.assessment}
+          onChange={(text) => patch(detail.id, { assessment: text })}
+        />
+        <EvidencePicker
+          evidence={evidence}
+          selected={detail.matchingEvidenceIds || []}
+          onChange={(matchingEvidenceIds) =>
+            patch(detail.id, { matchingEvidenceIds })
+          }
+        />
+        <TextField
+          label="Carencias demostrables"
+          rows={2}
+          value={detail.gaps}
+          onChange={(text) => patch(detail.id, { gaps: text })}
+        />
+        <TextField
+          label="Posibles bloqueos"
+          rows={2}
+          value={detail.blockers}
+          onChange={(text) => patch(detail.id, { blockers: text })}
+        />
+        <div className="form-two">
+          <TextField
+            label="Orden de preferencia"
+            value={detail.preference}
+            onChange={(text) => patch(detail.id, { preference: Number(text) })}
+          />
+          <Check
+            label="Destacar en Inicio"
+            checked={detail.featured}
+            onChange={(checked) => patch(detail.id, { featured: checked })}
+          />
+        </div>
+        <CvAdviceEditor
+          value={detail.cvAdvice}
+          onChange={(cvAdvice) => patch(detail.id, { cvAdvice })}
+        />
+        {value.items.some((item) => item.id === detail.id) && (
+          <button
+            type="button"
+            className="button secondary"
+            onClick={() => onOpenAdaptation?.(detail.id)}
+          >
+            Abrir prompt de adaptación del CV
+          </button>
+        )}
+        <button
+          className="button secondary"
+          disabled={saving}
+          onClick={() => onSave(draft)}
+        >
+          Guardar cambios
+        </button>
+      </section>
+    ) : null
   return (
     <>
       <PageHeading
@@ -345,6 +536,16 @@ export function VacanciesPage({
             <button type="button" className="button primary" onClick={add}>
               ＋ Añadir vacante
             </button>
+            {hasChanges && (
+              <button
+                type="button"
+                className="button primary"
+                disabled={saving}
+                onClick={() => onSave(draft)}
+              >
+                {vacancyCopy.saveOffers}
+              </button>
+            )}
           </div>
         }
       />
@@ -362,7 +563,7 @@ export function VacanciesPage({
           onClear={() => setComparison([])}
         />
       )}
-      <div className="vacancies-layout">
+      <div className="vacancies-workspace">
         <section className="vacancy-list">
           {items.length > 0 && (
             <TextField
@@ -385,64 +586,110 @@ export function VacanciesPage({
           )}
           {results.length ? (
             results.map(({ item, index }) => (
-              <div key={item.id}>
-                <button
-                  className={`vacancy-card ${selected === item.id ? 'selected' : ''}`}
-                  onClick={() => {
-                    setSelected(item.id)
-                    onSelect(item.id)
-                  }}
-                >
-                  <div className="vacancy-card-top">
-                    <span className="rank">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <span className="vacancy-logo">
-                      {(item.company || '·')[0].toUpperCase()}
-                    </span>
-                    <span className="vacancy-card-title">
-                      <b>{item.role || 'Puesto sin título'}</b>
-                      <small>{item.company || 'Empresa sin registrar'}</small>
-                    </span>
-                    <span className="row-arrow">↗</span>
-                  </div>
-                  <div className="vacancy-tags">
-                    <span>{item.location || 'Ubicación sin registrar'}</span>
-                    <span>{item.modality || 'Modalidad sin registrar'}</span>
-                    {item.featured && (
-                      <span className="highlight-tag">Destacada</span>
+              <article
+                key={item.id}
+                className={`vacancy-card ${selected === item.id ? 'selected' : ''}`}
+              >
+                <div className="vacancy-card-top">
+                  <span className="rank">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span className="vacancy-logo">
+                    {(item.company || '·')[0].toUpperCase()}
+                  </span>
+                  <span className="vacancy-card-title">
+                    <b>{item.role || 'Puesto sin título'}</b>
+                    <small>{item.company || 'Empresa sin registrar'}</small>
+                  </span>
+                </div>
+                <div className="vacancy-tags">
+                  <span>{item.location || 'Ubicación sin registrar'}</span>
+                  <span>{item.modality || 'Modalidad sin registrar'}</span>
+                  {item.featured && (
+                    <span className="highlight-tag">Destacada</span>
+                  )}
+                </div>
+                <div className="vacancy-card-bottom">
+                  <span>Preferencia {item.preference || '—'}</span>
+                  <span>{item.salary || 'Salario sin registrar'}</span>
+                </div>
+                <div className="vacancy-card-actions">
+                  <VacancyLink item={item} />
+                  <button
+                    type="button"
+                    className="button secondary"
+                    aria-expanded={selected === item.id}
+                    onClick={() => {
+                      setSelected(selected === item.id ? null : item.id)
+                      setEditing(false)
+                    }}
+                  >
+                    {selected === item.id
+                      ? vacancyCopy.closeDetails
+                      : vacancyCopy.viewDetails}
+                  </button>
+                  {items.length >= 2 && (
+                    <label className="check vacancy-compare-option">
+                      <input
+                        type="checkbox"
+                        aria-label={`Comparar ${vacancyLabel(item)}`}
+                        checked={comparison.includes(item.id)}
+                        disabled={
+                          comparedItems.length >= 3 &&
+                          !comparison.includes(item.id)
+                        }
+                        onChange={(event) =>
+                          setComparison((current) => {
+                            const available = current.filter((id) =>
+                              items.some((candidate) => candidate.id === id),
+                            )
+                            return event.target.checked
+                              ? [...available, item.id]
+                              : available.filter((id) => id !== item.id)
+                          })
+                        }
+                      />
+                      <span>Comparar</span>
+                    </label>
+                  )}
+                </div>
+                {selected === item.id && (
+                  <div className="vacancy-expanded">
+                    <div className="vacancy-card-actions">
+                      {!editing && (
+                        <button
+                          type="button"
+                          className="button secondary"
+                          onClick={() => setEditing(true)}
+                        >
+                          {vacancyCopy.editOffer}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="button danger"
+                        disabled={saving}
+                        onClick={() => remove(item)}
+                      >
+                        {vacancyCopy.removeOffer}
+                      </button>
+                    </div>
+                    {editing ? (
+                      editor
+                    ) : (
+                      <VacancyDetail
+                        value={item}
+                        profile={profile}
+                        onOpenAdaptation={
+                          value.items.some((saved) => saved.id === item.id)
+                            ? onOpenAdaptation
+                            : undefined
+                        }
+                      />
                     )}
                   </div>
-                  <div className="vacancy-card-bottom">
-                    <span>Preferencia {item.preference || '—'}</span>
-                    <span>{item.salary || 'Salario sin registrar'}</span>
-                  </div>
-                </button>
-                {items.length >= 2 && (
-                  <label className="check vacancy-compare-option">
-                    <input
-                      type="checkbox"
-                      aria-label={`Comparar ${vacancyLabel(item)}`}
-                      checked={comparison.includes(item.id)}
-                      disabled={
-                        comparedItems.length >= 3 &&
-                        !comparison.includes(item.id)
-                      }
-                      onChange={(event) =>
-                        setComparison((current) => {
-                          const available = current.filter((id) =>
-                            items.some((candidate) => candidate.id === id),
-                          )
-                          return event.target.checked
-                            ? [...available, item.id]
-                            : available.filter((id) => id !== item.id)
-                        })
-                      }
-                    />
-                    <span>Comparar</span>
-                  </label>
                 )}
-              </div>
+              </article>
             ))
           ) : items.length ? (
             <EmptyState
@@ -457,200 +704,23 @@ export function VacanciesPage({
               onClick={add}
             />
           )}
-          <button
-            className="button primary save-button"
-            disabled={saving}
-            onClick={() => onSave(draft)}
-          >
-            Guardar vacantes
-          </button>
-        </section>
-        {detail ? (
-          <section className="panel form-panel vacancy-form">
-            <div className="panel-heading">
-              <div>
-                <span className="eyebrow">DETALLE DE LA OFERTA</span>
-                <h2>{detail.role || 'Nueva vacante'}</h2>
-              </div>
-              <button
-                className="icon-button"
-                aria-label="Eliminar vacante"
-                onClick={() => {
-                  setDraft({
-                    ...draft,
-                    items: draft.items.filter((item) => item.id !== detail.id),
-                  })
-                  setSelected(null)
-                }}
-              >
-                ×
-              </button>
-            </div>
-            <div className="form-two">
-              <TextField
-                label="Puesto"
-                value={detail.role}
-                onChange={(text) => patch(detail.id, { role: text })}
-              />
-              <TextField
-                label="Empresa"
-                value={detail.company}
-                onChange={(text) => patch(detail.id, { company: text })}
-              />
-            </div>
-            <div className="form-two">
-              <TextField
-                label="Ubicación"
-                value={detail.location}
-                onChange={(text) => patch(detail.id, { location: text })}
-              />
-              <TextField
-                label="Modalidad"
-                value={detail.modality}
-                onChange={(text) => patch(detail.id, { modality: text })}
-              />
-            </div>
-            <div className="form-two">
-              <TextField
-                label="Enlace"
-                value={detail.link}
-                onChange={(text) => patch(detail.id, { link: text })}
-              />
-              <TextField
-                label="Fuente"
-                value={detail.source}
-                onChange={(text) => patch(detail.id, { source: text })}
-              />
-            </div>
-            <div className="form-two">
-              <TextField
-                label="Fecha de búsqueda"
-                value={detail.searchedAt}
-                onChange={(text) => patch(detail.id, { searchedAt: text })}
-              />
-              <TextField
-                label="Fecha de verificación"
-                value={detail.verifiedAt}
-                onChange={(text) => patch(detail.id, { verifiedAt: text })}
-              />
-            </div>
-            <TextField
-              label="Descripción completa"
-              rows={7}
-              value={detail.description}
-              onChange={(text) => patch(detail.id, { description: text })}
-            />
-            <div className="form-two">
-              <TextField
-                label="Salario o banda"
-                value={detail.salary}
-                onChange={(text) => patch(detail.id, { salary: text })}
-              />
-              <Check
-                label="Salario verificado"
-                checked={detail.salaryVerified}
-                onChange={(checked) =>
-                  patch(detail.id, { salaryVerified: checked })
-                }
-              />
-            </div>
-            <div className="form-two">
-              <TextField
-                label="Nivel"
-                value={detail.level}
-                onChange={(text) => patch(detail.id, { level: text })}
-              />
-              <TextField
-                label="Tipo de puesto"
-                value={detail.jobType}
-                onChange={(text) => patch(detail.id, { jobType: text })}
-              />
-            </div>
-            <TextField
-              label="Valoración del agente"
-              rows={3}
-              value={detail.assessment}
-              onChange={(text) => patch(detail.id, { assessment: text })}
-            />
-            <EvidencePicker
-              evidence={evidence}
-              selected={detail.matchingEvidenceIds || []}
-              onChange={(matchingEvidenceIds) =>
-                patch(detail.id, { matchingEvidenceIds })
-              }
-            />
-            <TextField
-              label="Carencias demostrables"
-              rows={2}
-              value={detail.gaps}
-              onChange={(text) => patch(detail.id, { gaps: text })}
-            />
-            <TextField
-              label="Posibles bloqueos"
-              rows={2}
-              value={detail.blockers}
-              onChange={(text) => patch(detail.id, { blockers: text })}
-            />
-            <div className="form-two">
-              <TextField
-                label="Orden de preferencia"
-                value={detail.preference}
-                onChange={(text) =>
-                  patch(detail.id, { preference: Number(text) })
-                }
-              />
-              <Check
-                label="Destacar en Inicio"
-                checked={detail.featured}
-                onChange={(checked) => patch(detail.id, { featured: checked })}
-              />
-            </div>
-            <CvAdviceEditor
-              value={detail.cvAdvice}
-              onChange={(cvAdvice) => patch(detail.id, { cvAdvice })}
-            />
-            {value.items.some((item) => item.id === detail.id) && (
-              <button
-                type="button"
-                className="button secondary"
-                onClick={() => onOpenAdaptation?.(detail.id)}
-              >
-                Abrir prompt de adaptación del CV
-              </button>
-            )}
+          {hasChanges && (
             <button
-              className="button secondary"
+              type="button"
+              className="button primary save-button"
               disabled={saving}
               onClick={() => onSave(draft)}
             >
-              Guardar cambios
+              {vacancyCopy.saveOffers}
             </button>
-          </section>
-        ) : (
-          <aside className="vacancy-aside">
-            <div className="tip-card">
-              <span className="tip-icon">◎</span>
-              <h3>Tu lista, a tu ritmo</h3>
-              <p>
-                Las ofertas no se buscan automáticamente. Añade una cuando la
-                hayas investigado.
-              </p>
-            </div>
-            <div className="legend-card">
-              <h3>Relación con el perfil</h3>
-              <p>
-                Relaciona cada valoración con evidencias de Perfil
-                seleccionándolas por título.
-              </p>
-            </div>
-          </aside>
-        )}
+          )}
+        </section>
       </div>
     </>
   )
 }
 
-export function VacancyDetail({ value, profile, onBack, onOpenAdaptation }) {
+function VacancyDetail({ value, profile, onOpenAdaptation }) {
   const evidence = collectProfileEvidence(profile)
   const copy = s.vacancyCvAdvice
   const advice = { ...emptyCvAdvice(), ...value.cvAdvice }
@@ -662,107 +732,89 @@ export function VacancyDetail({ value, profile, onBack, onOpenAdaptation }) {
     advice.englishAdjustments.some((item) => item.trim())
   const recommendedLabel = copy[advice.recommendedVersion] || copy.pending
   return (
-    <>
-      <button className="back-link" onClick={onBack}>
-        ← Volver a vacantes
-      </button>
-      <PageHeading
-        eyebrow="DETALLE DE LA OFERTA"
-        title={value.role || 'Vacante'}
-        subtitle={`${value.company || 'Empresa sin registrar'} · ${value.location || 'Ubicación sin registrar'}`}
-      />
-      <div className="detail-grid">
-        <section className="panel detail-panel">
-          <div className="detail-tags">
-            <span>{value.modality || 'Modalidad sin registrar'}</span>
-            <span>Preferencia {value.preference || '—'}</span>
-          </div>
-          <h2>Descripción</h2>
-          <p className="preline">{value.description || 'Sin registrar'}</p>
-          <h2>Valoración</h2>
-          <p className="preline">{value.assessment || 'Sin registrar'}</p>
-          <h2>Evidencias de encaje</h2>
-          <p>
-            {value.matchingEvidenceIds
-              ?.map((id) => evidenceLabel(evidence, id))
-              .join(', ') || 'Sin registrar'}
-          </p>
-          <h2>Carencias y bloqueos</h2>
-          <p className="preline">
-            {[value.gaps, value.blockers].filter(Boolean).join('\n') ||
-              'Sin registrar'}
-          </p>
-          <section
-            className="cv-advice-detail"
-            aria-labelledby="cv-advice-heading"
-          >
-            <div className="cv-advice-heading">
-              <div>
-                <span className="eyebrow">CV PARA ESTA OFERTA</span>
-                <h2 id="cv-advice-heading">{copy.title}</h2>
-              </div>
-              <span className="cv-recommendation-tag">{recommendedLabel}</span>
+    <div className="detail-grid">
+      <section className="panel detail-panel">
+        <div className="detail-tags">
+          <span>{value.modality || 'Modalidad sin registrar'}</span>
+          <span>Preferencia {value.preference || '—'}</span>
+        </div>
+        <h2>Descripción</h2>
+        <p className="preline">{value.description || 'Sin registrar'}</p>
+        <h2>Valoración</h2>
+        <p className="preline">{value.assessment || 'Sin registrar'}</p>
+        <h2>Evidencias de encaje</h2>
+        <p>
+          {value.matchingEvidenceIds
+            ?.map((id) => evidenceLabel(evidence, id))
+            .join(', ') || 'Sin registrar'}
+        </p>
+        <h2>Carencias y bloqueos</h2>
+        <p className="preline">
+          {[value.gaps, value.blockers].filter(Boolean).join('\n') ||
+            'Sin registrar'}
+        </p>
+        <section
+          className="cv-advice-detail"
+          aria-labelledby="cv-advice-heading"
+        >
+          <div className="cv-advice-heading">
+            <div>
+              <span className="eyebrow">CV PARA ESTA OFERTA</span>
+              <h2 id="cv-advice-heading">{copy.title}</h2>
             </div>
-            <p className="cv-advice-reason">
-              {advice.reason ||
-                (hasAssessment ? copy.noAdjustments : copy.noAssessment)}
-            </p>
-            {advice.assessedAt && (
-              <small className="cv-advice-date">
-                {copy.assessmentDate}: {advice.assessedAt}
-              </small>
-            )}
+            <span className="cv-recommendation-tag">{recommendedLabel}</span>
+          </div>
+          <p className="cv-advice-reason">
+            {advice.reason ||
+              (hasAssessment ? copy.noAdjustments : copy.noAssessment)}
+          </p>
+          {advice.assessedAt && (
+            <small className="cv-advice-date">
+              {copy.assessmentDate}: {advice.assessedAt}
+            </small>
+          )}
+          {onOpenAdaptation && (
             <button
               type="button"
               className="button secondary"
-              onClick={() => onOpenAdaptation?.(value.id)}
+              onClick={() => onOpenAdaptation(value.id)}
             >
               Abrir prompt de adaptación del CV
             </button>
-            <div className="cv-adjustment-columns">
-              <CvAdjustmentList
-                title={copy.spanishAdjustments}
-                items={advice.spanishAdjustments}
-                emptyLabel={copy.noAdjustments}
-              />
-              <CvAdjustmentList
-                title={copy.englishAdjustments}
-                items={advice.englishAdjustments}
-                emptyLabel={copy.noAdjustments}
-              />
-            </div>
-          </section>
-        </section>
-        <aside className="legend-card">
-          <h3>Datos de la oferta</h3>
-          <dl>
-            <dt>Salario</dt>
-            <dd>
-              {value.salary
-                ? `${value.salary} · ${value.salaryVerified ? 'verificado' : 'sin verificar'}`
-                : 'Sin registrar'}
-            </dd>
-            <dt>Nivel</dt>
-            <dd>{pretty(value.level)}</dd>
-            <dt>Tipo</dt>
-            <dd>{pretty(value.jobType)}</dd>
-            <dt>Fuente</dt>
-            <dd>{pretty(value.source)}</dd>
-            <dt>Verificada</dt>
-            <dd>{pretty(value.verifiedAt)}</dd>
-          </dl>
-          {value.link && (
-            <a
-              className="button secondary"
-              href={value.link}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Abrir fuente ↗
-            </a>
           )}
-        </aside>
-      </div>
-    </>
+          <div className="cv-adjustment-columns">
+            <CvAdjustmentList
+              title={copy.spanishAdjustments}
+              items={advice.spanishAdjustments}
+              emptyLabel={copy.noAdjustments}
+            />
+            <CvAdjustmentList
+              title={copy.englishAdjustments}
+              items={advice.englishAdjustments}
+              emptyLabel={copy.noAdjustments}
+            />
+          </div>
+        </section>
+      </section>
+      <aside className="legend-card">
+        <h3>Datos de la oferta</h3>
+        <dl>
+          <dt>Salario</dt>
+          <dd>
+            {value.salary
+              ? `${value.salary} · ${value.salaryVerified ? 'verificado' : 'sin verificar'}`
+              : 'Sin registrar'}
+          </dd>
+          <dt>Nivel</dt>
+          <dd>{pretty(value.level)}</dd>
+          <dt>Tipo</dt>
+          <dd>{pretty(value.jobType)}</dd>
+          <dt>Fuente</dt>
+          <dd>{pretty(value.source)}</dd>
+          <dt>Verificada</dt>
+          <dd>{pretty(value.verifiedAt)}</dd>
+        </dl>
+      </aside>
+    </div>
   )
 }

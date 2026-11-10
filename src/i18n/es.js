@@ -463,6 +463,17 @@ export const STRINGS = {
       'Perfil y LinkedIn ya contienen información. Copia el prompt para que tu asistente prepare las dos bases generales. La aplicación no genera el CV automáticamente.',
     morePrompts: 'Ver más prompts en el Buzón',
   },
+  vacancyPage: {
+    openOffer: 'Abrir oferta',
+    noLink: 'Enlace sin registrar',
+    viewDetails: 'Ver detalles',
+    closeDetails: 'Cerrar detalles',
+    editOffer: 'Editar vacante',
+    removeOffer: 'Eliminar vacante',
+    saveOffers: 'Guardar vacantes',
+    confirmRemoval:
+      '¿Quitar «{offer}» de tu lista? Pulsa «Guardar vacantes» para aplicar la eliminación al archivo.',
+  },
   vacancyCvAdvice: {
     title: 'Qué adaptar en los CV',
     description:
@@ -499,6 +510,10 @@ export const STRINGS = {
     previewButton: 'Vista previa',
     separationNotice: 'La copia publicada y las notas se guardan por separado.',
     unsavedChangesLabel: 'Cambios sin guardar',
+    recentlySavedLegend:
+      'En rojo se muestran los cambios del último guardado. El próximo guardado sustituirá este resaltado.',
+    recentlyChangedEmpty:
+      'Este apartado cambió en el último guardado y ahora no tiene contenido para mostrar.',
     unsavedChangesConfirmation:
       'Hay cambios de LinkedIn sin guardar. Si sales de esta sección o recargas ahora, se perderán. ¿Quieres continuar?',
     sectionIndexTitle: 'Ir a una sección',

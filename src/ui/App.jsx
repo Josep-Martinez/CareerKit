@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useCvReviewTask } from '../data/cv-review-task.js'
 import { EMPTY } from '../data/catalog.js'
 import { hasCvRelevantLinkedInChanges } from '../data/linkedin-changes.js'
+import { getLinkedInRecentChanges } from '../data/linkedin-recent-changes.js'
 import { hasCvRelevantProfileChanges } from '../data/profile-changes.js'
 import { NAV, STRINGS as s, TITLES } from '../i18n/es.js'
 import {
@@ -24,7 +25,7 @@ import { HomePage } from './pages/HomePage.jsx'
 import { ProfilePage } from './pages/ProfilePage.jsx'
 import { LinkedInPage } from './pages/LinkedInPage.jsx'
 import { CVPage } from './pages/CVPage.jsx'
-import { VacancyDetail, VacanciesPage } from './pages/VacanciesPage.jsx'
+import { VacanciesPage } from './pages/VacanciesPage.jsx'
 import { PromptInboxPage } from './pages/PromptInboxPage.jsx'
 
 function readRoute() {
@@ -106,6 +107,7 @@ export default function App() {
   const observedCv = useRef(null)
   const [connecting, setConnecting] = useState(false)
   const [savedAt, setSavedAt] = useState({})
+  const [linkedinRecentChanges, setLinkedinRecentChanges] = useState(null)
   const [externalLinkedinPending, setExternalLinkedinPending] = useState(null)
   const externalRevisions = useRef({})
   const observedSources = useRef({})
@@ -168,6 +170,7 @@ export default function App() {
   }
 
   async function reload(module, { remind = true } = {}) {
+    const previousData = store.data[module]
     const result = await store.reload(module)
     if (result.error && store.folder) setFolderDialog(await store.recheck())
     if (result.ok && module === 'linkedin') setExternalLinkedinPending(null)
@@ -177,6 +180,14 @@ export default function App() {
     }
     const seen = observedSources.current[module]
     const alreadyObserved = result.ok && seen === JSON.stringify(result.data)
+    if (
+      result.ok &&
+      module === 'linkedin' &&
+      JSON.stringify(previousData) !== JSON.stringify(result.data)
+    )
+      setLinkedinRecentChanges(
+        getLinkedInRecentChanges(previousData, result.data),
+      )
     if (
       remind &&
       !alreadyObserved &&
@@ -425,6 +436,7 @@ export default function App() {
       else if (result.cancelled)
         showNotice(s.workspaceGate.connectCancelled, 'open-data-files')
       else if (result.connected) {
+        setLinkedinRecentChanges(null)
         setExternalLinkedinPending(null)
         const needsHelp = result.missing.length || result.invalid.length
         setFolderDialog(needsHelp ? result : null)
@@ -456,6 +468,7 @@ export default function App() {
         return
       }
       resetEditor(page)
+      setLinkedinRecentChanges(null)
       setFallbackConnectOpen(false)
       showNotice(
         result.invalid.length || result.missing.length
@@ -498,7 +511,7 @@ export default function App() {
     showNotice('')
   }
   async function save(module, value) {
-    if (pendingSave.current) return
+    if (pendingSave.current) return false
     const snapshot =
       page === module ? editorSnapshots.current[module] : undefined
     if (snapshot && snapshot.base !== store.data[module]) {
@@ -508,7 +521,7 @@ export default function App() {
     pendingSave.current = module
     setSavingModule(module)
     try {
-      await saveModule(module, value, snapshot)
+      return await saveModule(module, value, snapshot)
     } finally {
       pendingSave.current = null
       setSavingModule(null)
@@ -524,7 +537,7 @@ export default function App() {
             ? 'No se pudo comprobar si Vacantes usa las evidencias eliminadas. Revisa o vuelve a abrir vacancies.json y conserva el borrador.'
             : 'Hay vacantes que todavía usan las evidencias eliminadas. Conserva las evidencias o retira sus referencias desde Vacantes antes de guardar.',
         )
-        return
+        return false
       }
     }
     const cvRelevantProfileChange =
@@ -534,6 +547,10 @@ export default function App() {
       module === 'linkedin' &&
       hasCvRelevantLinkedInChanges(store.data.linkedin, value)
     const result = await store.save(module, value)
+    if (module === 'linkedin' && result.saved)
+      setLinkedinRecentChanges(
+        getLinkedInRecentChanges(store.data.linkedin, value),
+      )
     if (snapshot && (result.saved || result.fallback))
       setSavedDrafts((previous) => ({
         ...previous,
@@ -580,6 +597,7 @@ export default function App() {
       setFallbackSavedModule(null)
       showNotice(`${module}.json guardado.`)
     } else if (result.error) showNotice(result.error)
+    return result.saved === true
   }
   function openVacancyAdaptation(id) {
     if (!navigateTo('prompts')) return
@@ -624,6 +642,7 @@ export default function App() {
 
   async function disconnectWorkspace(clear) {
     const result = await store.disconnect(clear)
+    setLinkedinRecentChanges(null)
     setHasUnsavedChanges(false)
     observedCv.current = null
     if (clear) cvReview.clear()
@@ -639,10 +658,6 @@ export default function App() {
         : s.workspaceGate.disconnectPersistenceNotice,
     )
   }
-
-  const activeVacancy = store.data.vacancies.items.find(
-    (v) => v.id === vacancyId,
-  )
 
   useEffect(() => {
     if (!hasUnsavedChanges && !savingModule) return undefined
@@ -895,6 +910,7 @@ export default function App() {
             <LinkedInPage
               {...draftProps('linkedin')}
               value={store.data.linkedin}
+              recentChanges={linkedinRecentChanges}
               profile={store.data.profile}
               languagesPending={linkedinLanguagesPending}
               state={store.states.linkedin}
@@ -929,33 +945,26 @@ export default function App() {
               onPromptCopied={handlePromptCopied}
             />
           )}
-          {page === 'vacancies' &&
-            (activeVacancy ? (
-              <VacancyDetail
-                value={activeVacancy}
-                profile={store.data.profile}
-                onOpenAdaptation={openVacancyAdaptation}
-                onBack={() => navigateTo('vacancies')}
-              />
-            ) : (
-              <VacanciesPage
-                {...draftProps('vacancies')}
-                onOpenResearch={() => {
-                  if (!navigateTo('prompts')) return
-                  setFocusedPromptId('research-vacancies')
-                  showNotice('')
-                }}
-                value={store.data.vacancies}
-                profile={store.data.profile}
-                onOpenAdaptation={openVacancyAdaptation}
-                state={store.states.vacancies}
-                warning={store.warnings.vacancies}
-                savedAt={savedAt.vacancies}
-                onSave={(v) => save('vacancies', v)}
-                onReload={() => reloadWithUnsavedGuard('vacancies')}
-                onSelect={() => {}}
-              />
-            ))}
+          {page === 'vacancies' && (
+            <VacanciesPage
+              {...draftProps('vacancies')}
+              key={`${editorReset.vacancies || 0}:${vacancyId || ''}`}
+              onOpenResearch={() => {
+                if (!navigateTo('prompts')) return
+                setFocusedPromptId('research-vacancies')
+                showNotice('')
+              }}
+              value={store.data.vacancies}
+              profile={store.data.profile}
+              onOpenAdaptation={openVacancyAdaptation}
+              state={store.states.vacancies}
+              warning={store.warnings.vacancies}
+              savedAt={savedAt.vacancies}
+              onSave={(v) => save('vacancies', v)}
+              onReload={() => reloadWithUnsavedGuard('vacancies')}
+              initialVacancyId={vacancyId}
+            />
+          )}
           {page === 'prompts' && (
             <PromptInboxPage
               key={adaptationVacancyId || focusedPromptId || 'catalog'}
