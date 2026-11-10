@@ -13,6 +13,12 @@ Find current vacancies and verify the work and employer. A search snippet is a l
 - Follow the user's stated goals and constraints. If the target role, location, seniority, language, salary, or work mode is unclear and could change results, ask a focused question or show the uncertainty.
 - Keep role families separate. Derive role names from recurring responsibilities and compare them with evidence; do not promote an unsupported title or imply that a title guarantees an interview.
 
+## LinkedIn connector preflight
+
+- Before searching, inspect the current assistant's available apps, components, and MCP tools for a LinkedIn integration that can search publicly listed jobs. A generic browser or web-search tool is not proof that this integration exists.
+- If the requested workflow requires LinkedIn and no suitable integration is available, stop before researching. Ask the user to connect or install one and give steps that match the current assistant, using its official help when available. Never invent menu paths, MCP server names, commands, or credential requirements. If the host is unknown or setup guidance cannot be verified, ask which assistant they use or explain that you cannot give exact setup steps yet.
+- Use the integration only to discover public job listings. Never use a signed-in account, private profile data, messages, applications, or contacts. Verify every promising listing on a current public page, preferably the employer's careers site. If the integration cannot search public jobs, state that clearly and stop to ask how the user wants to proceed.
+
 ## Search and verify
 
 1. Translate the user's goal into a small set of search clusters: task phrases, common role-title variants, seniority, location, and work mode. Include adjacent titles only when the duties align with the user's confirmed evidence.

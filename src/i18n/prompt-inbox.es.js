@@ -280,7 +280,7 @@ export const PROMPT_INBOX_ES = {
       id: 'research-vacancies',
       category: 'career',
       title: 'Buscar y verificar vacantes actuales',
-      use: 'Úsalo cuando quieras buscar ofertas por tareas y familias de puestos. Requiere acceso del asistente a fuentes actuales.',
+      use: 'Busca ofertas por tareas y familias de puestos. Requiere una integración de LinkedIn para ofertas públicas y acceso a fuentes actuales. Si falta, te pedirá conectarla y explicará cómo.',
       skillPaths: [
         'AGENTS.md',
         'schemas/agent-format.md',
@@ -289,6 +289,8 @@ export const PROMPT_INBOX_ES = {
         '.agents/skills/job-fit-assessor/SKILL.md',
       ],
       text: [
+        'Antes de buscar, revisa las herramientas, apps, componentes y servidores MCP disponibles en este asistente. Comprueba si hay una integración de LinkedIn capaz de buscar ofertas públicas. No des por conectado LinkedIn porque exista un navegador o una búsqueda web general. Si no encuentras una integración con esa capacidad, detente antes de investigar, explica que hace falta conectar o instalarla y ofrece instrucciones concretas para el asistente actual. Consulta su ayuda oficial si está disponible; no inventes nombres de menús, comandos, servidores MCP ni credenciales. Si no puedes determinar los pasos exactos, di qué dato necesitas (por ejemplo, qué asistente está usando el usuario) y espera. Después de conectarla, pide que vuelva a ejecutar el prompt.',
+        'Si la integración está disponible, úsala solo para descubrir anuncios de empleo publicados públicamente. No abras una cuenta iniciada, mensajes, datos privados ni realices solicitudes o contactos. Si la integración no permite buscar ofertas públicas, dilo y pide que se configure una que sí pueda. No presentes resultados de LinkedIn como verificados hasta comprobar cada anuncio en una fuente pública actual, preferiblemente la página del empleador.',
         'Investiga vacantes actuales que encajen con mis objetivos y preferencias expresas. Si tienes permiso y acceso local, consulta private-data/profile.json y usa careerPreferences (familias de puestos, tareas, sectores, modalidad, ubicación, condiciones y aspectos que quiero evitar) para orientar la búsqueda; usa las evidencias profesionales confirmadas solo para valorar encaje. No presupongas preferencias ausentes ni un puesto, ciudad, salario mínimo o modalidad que no haya confirmado. No uses personalContext o contentDirection como hechos profesionales.',
         'Busca por tareas y responsabilidades, además de por varios nombres de rol. Abre cada anuncio prometedor y comprueba que sigue publicado en la página del empleador o en una fuente fiable. Anota enlace directo, empresa, puesto, ubicación, modalidad, nivel, descripción completa, salario y si está verificado, fecha de búsqueda y fecha de comprobación. Elimina duplicados y descarta anuncios caducados.',
         'Valora cada oferta con job-fit-assessor y separa hechos, inferencias, incógnitas y carencias confirmadas. Compara requisitos con evidencias reales, no solo con el título. Para los datos del empleador, cita fuentes actuales; los comentarios de empleados son señales anecdóticas. Si una página no es accesible, marca la oferta como no verificada.',
@@ -649,8 +651,14 @@ export const PROMPT_REQUIREMENTS = {
       'Acceso local si quieres usar tus archivos; el borrador final se entrega en el chat.',
   },
   'research-vacancies': {
-    files: ['private-data/profile.json', 'private-data/vacancies.json'],
-    access: 'Búsqueda web actual y acceso local si quieres registrar ofertas.',
+    files: [
+      'integración de LinkedIn para ofertas públicas',
+      'herramienta de búsqueda web actual para verificar anuncios',
+      'private-data/profile.json (opcional)',
+      'private-data/vacancies.json (si autorizas guardar)',
+    ],
+    access:
+      'App/componente o MCP de LinkedIn con búsqueda de ofertas públicas, y herramienta web para verificar fuentes. Acceso local opcional para leer Perfil o guardar ofertas.',
   },
   'review-priorities': {
     files: [
