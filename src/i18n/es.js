@@ -587,15 +587,15 @@ export const STRINGS = {
       'Elige la sección de LinkedIn, la acción y la prioridad.',
       'Si propones un texto para una lista, selecciona la entrada y el campo exactos. Para Titular o Acerca de, basta con elegir la sección.',
       'Explica qué se observa y por qué conviene cambiarlo; vincula las evidencias de Perfil con las casillas.',
-      'Escribe la recomendación y, si procede, el texto propuesto. En Vista previa, abre el marcador para aceptar un cambio o descartar una anotación; arriba puedes descartar todas las pendientes. Pulsa Guardar para conservar tus decisiones.',
+      'Escribe la recomendación y, si procede, el texto propuesto. En Vista previa, aceptar aplica el texto y elimina su anotación; descartar también la elimina. Arriba puedes eliminar las anotaciones restantes y guardar el perfil cuando acabes.',
     ],
     addAudit: 'Añadir anotación',
     emptyAudit: 'Aún no hay anotaciones de revisión.',
-    save: 'Guardar contenido y anotaciones',
+    save: 'Guardar cambios de LinkedIn',
     previewEyebrow: 'VISTA DE CONSULTA',
     previewTitle: 'Tu perfil',
     previewDescription:
-      'Abre los marcadores para revisar sugerencias. Acepta las que quieras; se aplicarán a esta vista y se guardarán juntas al pulsar «Guardar contenido y anotaciones».',
+      'Abre los marcadores para revisar sugerencias. Aceptar cambia el texto de esta vista y elimina su anotación. Guarda el perfil cuando acabes.',
     emptyPreviewTitle: 'Aún no hay contenido para previsualizar',
     emptyPreviewBody:
       'Añade la copia de tu perfil en Editar. Se mostrará aquí tal como la escribas.',
@@ -684,7 +684,7 @@ export const STRINGS = {
       date: 'Fecha de auditoría',
       status: 'Estado',
       statusHint:
-        'En Vista previa, aceptar o descartar una anotación actualiza este estado.',
+        'Al aceptar o descartar desde Vista previa, la anotación se elimina del borrador.',
       actions: { corregir: 'Corregir', anadir: 'Añadir', aclarar: 'Aclarar' },
       priorities: { alta: 'Alta', media: 'Media', baja: 'Baja' },
       statuses: {
@@ -712,20 +712,20 @@ export const STRINGS = {
       acceptProposal: 'Aceptar cambio',
       proposalApplied: 'Propuesta aplicada al borrador.',
       discardSuggestion: 'Descartar anotación',
-      discardPendingAudits: 'Descartar auditoría pendiente ({count})',
-      discardPendingConfirmation:
-        'Se descartarán todas las anotaciones pendientes de esta versión. Las propuestas aceptadas no se revertirán. ¿Continuar?',
-      discardPendingSuccess:
-        'Se descartó la auditoría pendiente en el borrador. Las propuestas aceptadas siguen intactas. Pulsa Guardar para conservar esta decisión.',
+      discardAudit: 'Eliminar anotaciones restantes ({count})',
+      discardAuditConfirmation:
+        'Se eliminarán las {count} anotaciones que quedan en esta versión. Los textos ya aceptados no se revertirán. ¿Continuar?',
+      discardAuditSuccess:
+        'Se eliminaron las anotaciones restantes del borrador. Los cambios aceptados siguen intactos; pulsa Guardar para conservar el resultado.',
       discardSuccess:
-        'Sugerencia descartada y retirada de Vista previa. La anotación permanece en Editar; pulsa Guardar para conservar esta decisión.',
+        'Anotación eliminada del borrador; no se guardará. Pulsa Guardar para conservar los cambios del perfil.',
       applyConfirmation:
         'Se sustituirá únicamente el campo seleccionado. ¿Quieres aplicar el cambio?',
       currentText: 'Texto actual',
       applyTargetUnavailable:
         'No se aplicó la propuesta: el destino ya no está disponible o no es válido.',
       applySuccess:
-        'Propuesta aplicada al campo seleccionado. Guarda los cambios para escribirlos en linkedin.json.',
+        'Propuesta aplicada al borrador y anotación eliminada. Pulsa Guardar para conservar el cambio en linkedin.json.',
     },
     evidenceLabels: {
       experience: 'Experiencia',

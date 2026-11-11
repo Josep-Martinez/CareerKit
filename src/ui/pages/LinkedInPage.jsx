@@ -314,9 +314,7 @@ export function LinkedInPage({
     setDraft({
       ...draft,
       published: withSelectedPublished(rootPublished, result.published),
-      audits: draft.audits.map((audit, auditIndex) =>
-        auditIndex === index ? { ...audit, status: 'aplicada' } : audit,
-      ),
+      audits: draft.audits.filter((_, auditIndex) => auditIndex !== index),
     })
     setApplyNotice(copy.auditCard.applySuccess)
   }
@@ -327,9 +325,7 @@ export function LinkedInPage({
   const discardAuditFromPreview = (auditId) => {
     setDraft({
       ...draft,
-      audits: draft.audits.map((item) =>
-        item.id === auditId ? { ...item, status: 'descartada' } : item,
-      ),
+      audits: draft.audits.filter((item) => item.id !== auditId),
     })
     setApplyNotice(copy.auditCard.discardSuccess)
   }
@@ -361,27 +357,20 @@ export function LinkedInPage({
   const activeAudits = draft.audits.filter((item) =>
     isEditingVariant(item.variantId),
   )
-  const pendingAudits = activeAudits.filter(
-    (item) => (item.status || 'pendiente') === 'pendiente',
-  )
-  const discardPendingAudits = () => {
-    if (!pendingAudits.length) return
-    const count = pendingAudits.length
-    const confirmation = copy.auditCard.discardPendingConfirmation.replace(
+  const discardRemainingAudit = () => {
+    if (!activeAudits.length) return
+    const count = activeAudits.length
+    const confirmation = copy.auditCard.discardAuditConfirmation.replace(
       '{count}',
       String(count),
     )
     if (!window.confirm(confirmation)) return
-    const pendingIds = new Set(pendingAudits.map((item) => item.id))
+    const auditIds = new Set(activeAudits.map((item) => item.id))
     setDraft({
       ...draft,
-      audits: draft.audits.map((item) =>
-        pendingIds.has(item.id) ? { ...item, status: 'descartada' } : item,
-      ),
+      audits: draft.audits.filter((item) => !auditIds.has(item.id)),
     })
-    setApplyNotice(
-      copy.auditCard.discardPendingSuccess.replace('{count}', String(count)),
-    )
+    setApplyNotice(copy.auditCard.discardAuditSuccess)
   }
   const auditNotes = (section, sectionId) =>
     draft.audits.filter(
@@ -552,16 +541,16 @@ export function LinkedInPage({
               {copy.previewButton}
             </button>
           </div>
-          {pendingAudits.length > 0 && (
+          {activeAudits.length > 0 && (
             <button
               className="button secondary small linkedin-mode-discard"
               type="button"
-              onClick={discardPendingAudits}
+              onClick={discardRemainingAudit}
               disabled={saving}
             >
-              {copy.auditCard.discardPendingAudits.replace(
+              {copy.auditCard.discardAudit.replace(
                 '{count}',
-                String(pendingAudits.length),
+                String(activeAudits.length),
               )}
             </button>
           )}
