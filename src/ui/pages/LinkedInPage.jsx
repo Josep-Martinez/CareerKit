@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import {
   ArrayText,
@@ -19,6 +19,7 @@ import {
   markLinkedInLanguageSyncPending,
 } from '../../data/linkedin-variants.js'
 import { hasLinkedInRecentChanges } from '../../data/linkedin-recent-changes.js'
+import { summarizeAuditNotes } from '../linkedin-audit-popover.js'
 
 const copy = s.linkedinPage
 const languageBase = (language = '') => language.toLowerCase().split(/[-_]/)[0]
@@ -859,35 +860,43 @@ export function LinkedInPage({
                   <div className="linkedin-avatar" aria-hidden="true">
                     {initials}
                   </div>
-                  <div
-                    className={
-                      hasRecentField('name') || hasRecentField('headline')
-                        ? 'linkedin-recently-saved-content'
-                        : ''
-                    }
-                  >
-                    <h3>{pub.name || copy.nameFallback}</h3>
-                    {pub.headline && <p>{pub.headline}</p>}
-                  </div>
-                </div>
-                <AuditPoints
-                  notes={auditNotes('headline')}
-                  evidence={evidenceItems}
-                  recentlySavedIds={recentAuditIds}
-                  onOpenEvidence={onOpenEvidence}
-                />
-                {(pub.about.trim() || auditNotes('about').length > 0) && (
-                  <PreviewSection
-                    title={copy.sectionLabels.about}
-                    recentlySaved={hasRecentField('about')}
-                  >
-                    {pub.about.trim() && <p>{pub.about}</p>}
+                  <div className="linkedin-preview-profile-copy">
+                    <div
+                      className={
+                        hasRecentField('name') || hasRecentField('headline')
+                          ? 'linkedin-recently-saved-content'
+                          : ''
+                      }
+                    >
+                      <h3>{pub.name || copy.nameFallback}</h3>
+                      {pub.headline && <p>{pub.headline}</p>}
+                    </div>
                     <AuditPoints
-                      notes={auditNotes('about')}
+                      sectionKey="headline"
+                      sectionTitle={copy.sectionLabels.headline}
+                      notes={auditNotes('headline')}
                       evidence={evidenceItems}
                       recentlySavedIds={recentAuditIds}
                       onOpenEvidence={onOpenEvidence}
                     />
+                  </div>
+                </div>
+                {(pub.about.trim() || auditNotes('about').length > 0) && (
+                  <PreviewSection
+                    title={copy.sectionLabels.about}
+                    recentlySaved={hasRecentField('about')}
+                    action={
+                      <AuditPoints
+                        sectionKey="about"
+                        sectionTitle={copy.sectionLabels.about}
+                        notes={auditNotes('about')}
+                        evidence={evidenceItems}
+                        recentlySavedIds={recentAuditIds}
+                        onOpenEvidence={onOpenEvidence}
+                      />
+                    }
+                  >
+                    {pub.about.trim() && <p>{pub.about}</p>}
                   </PreviewSection>
                 )}
                 {!pub.about.trim() &&
@@ -914,6 +923,16 @@ export function LinkedInPage({
                       key={key}
                       title={copy.sectionLabels[key]}
                       recentlySaved={hasRecentSection(key)}
+                      action={
+                        <AuditPoints
+                          sectionKey={key}
+                          sectionTitle={copy.sectionLabels[key]}
+                          notes={auditNotes(key)}
+                          evidence={evidenceItems}
+                          recentlySavedIds={recentAuditIds}
+                          onOpenEvidence={onOpenEvidence}
+                        />
+                      }
                     >
                       {!!pub[key]?.length && (
                         <ul>
@@ -941,12 +960,6 @@ export function LinkedInPage({
                             {copy.recentlyChangedEmpty}
                           </p>
                         )}
-                      <AuditPoints
-                        notes={auditNotes(key)}
-                        evidence={evidenceItems}
-                        recentlySavedIds={recentAuditIds}
-                        onOpenEvidence={onOpenEvidence}
-                      />
                     </PreviewSection>
                   ))}
                 {additionalSections.map((section, index) => {
@@ -959,18 +972,24 @@ export function LinkedInPage({
                       recentlySaved={(
                         recentVersion.additionalSections || []
                       ).includes(String(section.id || `index:${index}`))}
+                      action={
+                        <AuditPoints
+                          sectionKey={`additional-${section.id || index}`}
+                          sectionTitle={
+                            section.title || copy.additionalSectionFallback
+                          }
+                          notes={notes}
+                          evidence={evidenceItems}
+                          recentlySavedIds={recentAuditIds}
+                          onOpenEvidence={onOpenEvidence}
+                        />
+                      }
                     >
                       {section.content && (
                         <p className="linkedin-additional-preview-content">
                           {section.content}
                         </p>
                       )}
-                      <AuditPoints
-                        notes={notes}
-                        evidence={evidenceItems}
-                        recentlySavedIds={recentAuditIds}
-                        onOpenEvidence={onOpenEvidence}
-                      />
                     </PreviewSection>
                   )
                 })}
@@ -1133,6 +1152,33 @@ function hasEntryContent(item) {
   )
 }
 
+function ExpandablePreviewField({ label, value }) {
+  const [expanded, setExpanded] = useState(false)
+  const text = String(value)
+  const shouldExpand = text.length > 320
+
+  return (
+    <div className="linkedin-preview-expandable-field">
+      <p>
+        <b>{label}:</b>{' '}
+        {shouldExpand && !expanded
+          ? `${text.slice(0, 320).trimEnd()}…`
+          : text}
+      </p>
+      {shouldExpand && (
+        <button
+          className="text-button linkedin-preview-expand-button"
+          type="button"
+          aria-expanded={expanded}
+          onClick={() => setExpanded((current) => !current)}
+        >
+          {expanded ? copy.descriptionShowLess : copy.descriptionShowMore}
+        </button>
+      )}
+    </div>
+  )
+}
+
 function LinkedInEntryPreview({ section, item, recentlySaved }) {
   if (typeof item === 'string')
     return (
@@ -1165,11 +1211,19 @@ function LinkedInEntryPreview({ section, item, recentlySaved }) {
       className={`linkedin-preview-entry${recentlySaved ? ' linkedin-recently-saved-content' : ''}`}
     >
       {hasEntryContent(item[titleKey]) && <h5>{item[titleKey]}</h5>}
-      {fields.map((key) => (
-        <p key={key}>
-          <b>{copy.entryFieldLabels[key]}:</b> {renderValue(key, item[key])}
-        </p>
-      ))}
+      {fields.map((key) =>
+        key === 'description' && typeof item[key] === 'string' ? (
+          <ExpandablePreviewField
+            key={key}
+            label={copy.entryFieldLabels[key]}
+            value={item[key]}
+          />
+        ) : (
+          <p key={key}>
+            <b>{copy.entryFieldLabels[key]}:</b> {renderValue(key, item[key])}
+          </p>
+        ),
+      )}
       {item.descriptionTruncated === true && (
         <p className="linkedin-truncation-note">
           {copy.descriptionTruncatedNotice}
@@ -1185,91 +1239,204 @@ function LinkedInEntryPreview({ section, item, recentlySaved }) {
   )
 }
 
-function PreviewSection({ title, children, recentlySaved }) {
+function PreviewSection({ title, children, recentlySaved, action }) {
   return (
     <section
       className={`linkedin-preview-section${recentlySaved ? ' linkedin-recently-saved-section' : ''}`}
     >
-      <h4>{title}</h4>
+      <div className="linkedin-preview-section-head">
+        <h4>{title}</h4>
+        {action}
+      </div>
       {children}
     </section>
   )
 }
 
 function AuditPoints({
+  sectionKey,
+  sectionTitle,
   notes,
   evidence,
   onOpenEvidence,
   recentlySavedIds = new Set(),
 }) {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef(null)
+  const triggerRef = useRef(null)
+  const popupId = `linkedin-audit-popup-${encodeURIComponent(sectionKey)}`
+  const headingId = `${popupId}-heading`
+  const summary = summarizeAuditNotes(notes)
+
+  useEffect(() => {
+    if (!open) return undefined
+    const closeOnOutsideClick = (event) => {
+      if (!containerRef.current?.contains(event.target)) setOpen(false)
+    }
+    const closeOnEscape = (event) => {
+      if (event.key !== 'Escape') return
+      setOpen(false)
+      triggerRef.current?.focus()
+    }
+    document.addEventListener('pointerdown', closeOnOutsideClick)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [open])
+
   if (!notes.length) return null
+
+  const closePopup = () => {
+    setOpen(false)
+    triggerRef.current?.focus()
+  }
+
   return (
-    <div className="preview-audit-points">
-      <span>{copy.auditLabel}</span>
-      <ul>
-        {notes.map((note) => {
-          const linked = evidence.filter((item) =>
-            (note.profileEvidenceIds || []).includes(item.id),
-          )
-          const basis = (note.profileEvidenceIds || []).join(' · ')
-          return (
-            <li
-              key={note.id}
-              className={
-                recentlySavedIds.has(String(note.id))
-                  ? 'linkedin-recently-saved-content'
-                  : ''
-              }
+    <div
+      ref={containerRef}
+      className={`preview-audit-anchor${open ? ' is-open' : ''}`}
+    >
+      <button
+        ref={triggerRef}
+        className="preview-audit-trigger"
+        type="button"
+        aria-expanded={open}
+        aria-controls={popupId}
+        aria-label={copy.auditMarkerLabel
+          .replace('{count}', String(summary.count))
+          .replace('{priority}', copy.auditCard.priorities[summary.priority])}
+        data-priority={summary.priority}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span className="preview-audit-trigger-mark" aria-hidden="true">
+          ✳
+        </span>
+        <span>{summary.count}</span>
+        <span className="preview-audit-trigger-priority">
+          {copy.auditCard.priorities[summary.priority]}
+        </span>
+      </button>
+      {open && (
+        <div
+          className="preview-audit-popover"
+          id={popupId}
+          role="region"
+          aria-labelledby={headingId}
+        >
+          <div className="preview-audit-popover-topline">
+            <span>{copy.auditPopoverEyebrow}</span>
+            <button
+              type="button"
+              className="preview-audit-popover-close"
+              aria-label={copy.auditPopoverClose}
+              onClick={closePopup}
             >
-              <b>
-                {copy.auditActions[note.action] || copy.auditActions.fallback}:
-              </b>{' '}
-              {note.recommendation || note.problem || copy.auditPending}
-              {note.proposedText && (
-                <small>
-                  {copy.proposedTextPrefix}: {note.proposedText}
-                </small>
-              )}
-              <small>
-                {note.reasonEvidence ? `${note.reasonEvidence} · ` : ''}
-                {basis ? (
-                  <>
-                    {copy.evidenceBasePrefix}:{' '}
-                    {linked.length ? (
-                      <span className="preview-audit-evidence-links">
-                        {linked.map((item, index) => (
-                          <span key={item.id}>
-                            {index > 0 && ' · '}
-                            {onOpenEvidence ? (
-                              <button
-                                className="preview-audit-evidence-link"
-                                type="button"
-                                onClick={() => onOpenEvidence(item.id)}
-                              >
-                                {item.title || item.name || item.id}
-                              </button>
-                            ) : (
-                              item.title || item.name || item.id
-                            )}
-                          </span>
-                        ))}
+              ×
+            </button>
+          </div>
+          <h5 id={headingId}>{sectionTitle}</h5>
+          <p className="preview-audit-popover-subtitle">
+            {notes.length === 1
+              ? copy.auditPopoverCountOne
+              : copy.auditPopoverCountMany.replace(
+                  '{count}',
+                  String(notes.length),
+                )}
+          </p>
+          <div className="preview-audit-note-list">
+            <ul>
+              {notes.map((note) => {
+                const linked = evidence.filter((item) =>
+                  (note.profileEvidenceIds || []).includes(item.id),
+                )
+                const basis = (note.profileEvidenceIds || []).join(' · ')
+                return (
+                  <li
+                    key={note.id}
+                    className={`preview-audit-note${recentlySavedIds.has(String(note.id)) ? ' linkedin-recently-saved-content' : ''}`}
+                  >
+                    <div className="preview-audit-note-meta">
+                      <span className="preview-audit-note-action">
+                        {copy.auditActions[note.action] ||
+                          copy.auditActions.fallback}
                       </span>
-                    ) : (
-                      basis
+                      <span
+                        className="preview-audit-note-priority"
+                        data-priority={note.priority || 'media'}
+                      >
+                        {copy.auditCard.priorities[note.priority] ||
+                          copy.auditCard.priorities.media}
+                      </span>
+                      <span className="preview-audit-note-status">
+                        {copy.auditStatuses[note.status] || note.status}
+                      </span>
+                    </div>
+                    {note.problem && (
+                      <p>
+                        <b>{copy.auditPopoverProblem}:</b> {note.problem}
+                      </p>
                     )}
-                  </>
-                ) : (
-                  copy.missingEvidenceHint
-                )}{' '}
-                · {copy.auditPriority}{' '}
-                {copy.auditCard.priorities[note.priority] ||
-                  copy.auditCard.priorities.media}{' '}
-                · {copy.auditStatuses[note.status] || note.status}
-              </small>
-            </li>
-          )
-        })}
-      </ul>
+                    {note.reasonEvidence && (
+                      <p>
+                        <b>{copy.auditPopoverReason}:</b> {note.reasonEvidence}
+                      </p>
+                    )}
+                    {(linked.length > 0 ||
+                      (!basis && !note.reasonEvidence)) && (
+                      <p>
+                        <b>{copy.evidenceBasePrefix}:</b>{' '}
+                        {linked.length ? (
+                          <span className="preview-audit-evidence-links">
+                            {linked.map((item, index) => (
+                              <span key={item.id}>
+                                {index > 0 && ' · '}
+                                {onOpenEvidence ? (
+                                  <button
+                                    className="preview-audit-evidence-link"
+                                    type="button"
+                                    onClick={() => onOpenEvidence(item.id)}
+                                  >
+                                    {item.title || item.name || item.id}
+                                  </button>
+                                ) : (
+                                  item.title || item.name || item.id
+                                )}
+                              </span>
+                            ))}
+                          </span>
+                        ) : (
+                          copy.missingEvidenceHint
+                        )}
+                      </p>
+                    )}
+                    {basis && !linked.length && (
+                      <p>
+                        <b>{copy.evidenceBasePrefix}:</b> {basis}
+                      </p>
+                    )}
+                    <p className="preview-audit-note-recommendation">
+                      <b>{copy.auditPopoverRecommendation}:</b>{' '}
+                      {note.recommendation || note.problem || copy.auditPending}
+                    </p>
+                    {note.proposedText && (
+                      <blockquote>
+                        <b>{copy.auditPopoverProposed}:</b> {note.proposedText}
+                      </blockquote>
+                    )}
+                    {note.date && (
+                      <small className="preview-audit-note-date">
+                        {copy.auditPopoverDate}: {note.date}
+                      </small>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

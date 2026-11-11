@@ -513,38 +513,197 @@ select {
   display: grid;
   gap: 5px;
 }
-.preview-audit-points {
-  margin: 7px 0 2px;
-  padding: 8px 9px;
-  background: #f2f2e8;
-  border-left: 2px solid #b36b49;
+.preview-audit-anchor {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
 }
-.preview-audit-points > span {
-  color: #7e6243;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-.preview-audit-points ul {
-  margin: 5px 0 0;
-  padding-left: 13px;
-  display: grid;
+.preview-audit-trigger {
+  display: inline-flex;
+  align-items: center;
   gap: 7px;
+  min-height: 34px;
+  padding: 5px 10px 5px 6px;
+  border: 1px solid #e7c5bb;
+  border-radius: 999px;
+  background: #fff7f3;
+  color: #794338;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
 }
-.preview-audit-points li {
-  color: #344238;
+.preview-audit-trigger:hover {
+  transform: translateY(-1px);
+  background: #fff0e9;
+  box-shadow: 0 5px 13px rgba(118, 57, 45, 0.12);
+}
+.preview-audit-trigger:focus-visible,
+.preview-audit-popover-close:focus-visible {
+  outline: 3px solid rgba(49, 92, 71, 0.32);
+  outline-offset: 2px;
+}
+.preview-audit-trigger[data-priority='alta'] {
+  border-color: #d79484;
+  color: #8d302b;
+}
+.preview-audit-trigger-mark {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  background: #f0d4cc;
+  color: #893c34;
+  font-size: 13px;
+  line-height: 1;
+}
+.preview-audit-trigger-priority {
+  padding-left: 7px;
+  border-left: 1px solid #e9d3cc;
+  font-size: 10px;
+}
+.preview-audit-popover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(380px, calc(100vw - 48px));
+  max-height: min(440px, 65vh);
+  overflow: auto;
+  padding: 16px 17px 17px;
+  border: 1px solid #e5c9c0;
+  border-top: 3px solid #b34d3d;
+  border-radius: 13px 13px 13px 5px;
+  background: #fffefa;
+  box-shadow: 0 18px 46px rgba(44, 43, 34, 0.2);
+  color: var(--ink);
+  text-align: left;
+}
+.preview-audit-popover-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.preview-audit-popover-topline > span {
+  color: #8b5546;
   font-size: 9px;
-  line-height: 1.45;
+  font-weight: 750;
+  letter-spacing: 1.4px;
 }
-.preview-audit-points li b {
+.preview-audit-popover-close {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #f4eee6;
+  color: #5c685e;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.preview-audit-popover h5 {
+  margin: 7px 0 2px;
+  color: var(--ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  font-weight: 500;
+}
+.preview-audit-popover-subtitle {
+  margin: 0 0 13px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.preview-audit-note-list ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.preview-audit-note {
+  padding: 12px;
+  border: 1px solid #ece4d8;
+  border-radius: 10px;
+  background: #faf8f1;
+  color: #344238;
+}
+.preview-audit-note.linkedin-recently-saved-content {
+  border-color: #dca49a;
+  background: #fff4f1;
+  color: #893c34;
+}
+.preview-audit-note-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.preview-audit-note-action,
+.preview-audit-note-priority,
+.preview-audit-note-status {
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+}
+.preview-audit-note-action {
+  background: #e8eee7;
   color: #315c47;
 }
-.preview-audit-points li small {
+.preview-audit-note-priority {
+  background: #f5e8d6;
+  color: #795b31;
+}
+.preview-audit-note-priority[data-priority='alta'] {
+  background: #f7e1dc;
+  color: #943a31;
+}
+.preview-audit-note-status {
+  background: #efeee8;
+  color: #60685e;
+}
+.preview-audit-note p {
+  margin: 6px 0 0;
+  color: #4b564d;
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.preview-audit-note p b,
+.preview-audit-note blockquote b {
+  color: #315c47;
+}
+.preview-audit-note-recommendation {
+  padding-top: 7px;
+  border-top: 1px dashed #ded4c6;
+}
+.preview-audit-note blockquote {
+  margin: 9px 0 0;
+  padding: 9px 10px;
+  border-left: 2px solid #8b9c7d;
+  background: #f1f3eb;
+  color: #4b564d;
+  font-size: 11px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.preview-audit-note-date {
   display: block;
-  color: #68736b;
-  font-size: 8px;
-  line-height: 1.45;
-  margin-top: 3px;
+  margin-top: 8px;
+  color: #7a8178;
+  font-size: 10px;
 }
 .preview-audit-evidence-links {
   display: inline;
@@ -2757,8 +2916,13 @@ select {
   background: var(--paper);
   box-shadow: var(--shadow);
 }
+.linkedin-preview-card {
+  position: relative;
+  overflow: visible;
+}
 .linkedin-preview-cover {
   height: 142px;
+  border-radius: 14px 14px 0 0;
   background:
     radial-gradient(
       ellipse at 75% 22%,
@@ -2793,6 +2957,17 @@ select {
   min-width: 0;
   padding-bottom: 5px;
 }
+.linkedin-preview-profile-copy {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+}
+.linkedin-preview-profile-copy > div:first-child {
+  min-width: 0;
+}
 .linkedin-preview-identity h3 {
   margin: 0 0 5px;
   color: var(--ink);
@@ -2810,6 +2985,13 @@ select {
 .linkedin-preview-section {
   padding: 20px 0;
   border-top: 1px solid var(--line);
+}
+.linkedin-preview-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 .linkedin-preview-section.linkedin-recently-saved-section {
   padding-left: 14px;
@@ -2837,10 +3019,6 @@ select {
 .linkedin-preview-entry.linkedin-recently-saved-content p {
   color: #893c34;
 }
-.preview-audit-points li.linkedin-recently-saved-content {
-  padding-left: 9px;
-}
-
 .linkedin-additional-preview-content {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -2850,7 +3028,8 @@ select {
   margin-top: 0;
 }
 .linkedin-preview-section h4 {
-  margin: 0 0 10px;
+  min-width: 0;
+  margin: 0;
   color: var(--ink);
   font-size: 16px;
 }
@@ -2869,7 +3048,22 @@ select {
   margin-top: 8px;
   color: #8b5e43;
   font-size: 12px;
-  font-style: italic;
+  line-height: 1.55;
+}
+.linkedin-preview-expandable-field {
+  margin-bottom: 10px;
+}
+.linkedin-preview-expand-button {
+  margin-top: 3px;
+  padding: 3px 0;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.linkedin-preview-expand-button:focus-visible {
+  outline: 2px solid #315c47;
+  outline-offset: 2px;
 }
 .linkedin-preview-section ul {
   display: grid;
@@ -2915,23 +3109,6 @@ select {
   font-size: 13px;
   line-height: 1.6;
 }
-.linkedin-preview-section .preview-audit-points {
-  margin-top: 13px;
-  padding: 12px 14px;
-  border-left-width: 3px;
-  border-radius: 0 8px 8px 0;
-}
-.linkedin-preview-section .preview-audit-points > span {
-  font-size: 9px;
-}
-.linkedin-preview-section .preview-audit-points li {
-  font-size: 12px;
-  line-height: 1.55;
-}
-.linkedin-preview-section .preview-audit-points li small {
-  font-size: 11px;
-}
-
 .profile-main {
   display: grid;
   min-width: 0;
@@ -3115,6 +3292,19 @@ select {
   .linkedin-preview-heading p {
     text-align: left;
   }
+  .linkedin-preview-profile-copy {
+    align-items: flex-start;
+  }
+  .preview-audit-trigger {
+    gap: 5px;
+    min-height: 32px;
+    padding-right: 8px;
+    font-size: 10px;
+  }
+  .preview-audit-popover {
+    width: min(360px, calc(100vw - 38px));
+    max-height: 58vh;
+  }
 }
 @media (max-width: 520px) {
   .linkedin-mode-controls {
@@ -3162,5 +3352,27 @@ select {
     flex-direction: column;
     gap: 8px;
     margin-top: -40px;
+  }
+  .linkedin-preview-profile-copy {
+    width: 100%;
+    align-items: flex-start;
+    gap: 9px;
+  }
+  .linkedin-preview-profile-copy > div:first-child {
+    flex: 1 1 auto;
+  }
+  .linkedin-preview-profile-copy .preview-audit-trigger-priority {
+    display: none;
+  }
+  .linkedin-preview-section-head {
+    align-items: flex-start;
+  }
+  .linkedin-preview-section-head h4 {
+    padding-top: 5px;
+  }
+  .preview-audit-popover {
+    right: -2px;
+    width: min(330px, calc(100vw - 34px));
+    max-height: 55vh;
   }
 }

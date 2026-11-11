@@ -576,7 +576,8 @@ export const STRINGS = {
     save: 'Guardar contenido y anotaciones',
     previewEyebrow: 'VISTA DE CONSULTA',
     previewTitle: 'Tu perfil',
-    previewDescription: 'Las notas de revisión aparecen debajo de su sección.',
+    previewDescription:
+      'Pulsa los marcadores para consultar sugerencias privadas sin cambiar el contenido publicado.',
     emptyPreviewTitle: 'Aún no hay contenido para previsualizar',
     emptyPreviewBody:
       'Añade la copia de tu perfil en Editar. Se mostrará aquí tal como la escribas.',
@@ -600,8 +601,21 @@ export const STRINGS = {
     removeAdditionalSection: 'Eliminar sección adicional',
     additionalSectionFallback: 'Otra sección',
     descriptionTruncatedNotice:
-      'La fuente indica que la descripción está truncada; el texto conservado es parcial.',
+      'LinkedIn solo dejó guardar una parte. Si aquí falta texto, vuelve a LinkedIn, pulsa «Ver más» y actualiza la copia.',
+    descriptionShowMore: 'Ver más',
+    descriptionShowLess: 'Ver menos',
     auditLabel: 'PARA REVISAR',
+    auditMarkerLabel:
+      'Ver {count} sugerencias de LinkedIn. Prioridad {priority}.',
+    auditPopoverEyebrow: 'ANOTACIONES · PRIVADAS',
+    auditPopoverClose: 'Cerrar sugerencias',
+    auditPopoverCountOne: '1 sugerencia para esta sección',
+    auditPopoverCountMany: '{count} sugerencias para esta sección',
+    auditPopoverProblem: 'Qué se observa',
+    auditPopoverReason: 'Motivo y evidencia',
+    auditPopoverRecommendation: 'Qué mejorar',
+    auditPopoverProposed: 'Texto propuesto',
+    auditPopoverDate: 'Fecha de auditoría',
     auditActions: {
       corregir: 'Corregir',
       anadir: 'Añadir',
@@ -696,8 +710,8 @@ export const STRINGS = {
       location: 'Ubicación',
       workplaceType: 'Modalidad del puesto',
       dates: 'Fechas',
-      description: 'Descripción completa',
-      descriptionTruncated: 'La fuente muestra la descripción truncada',
+      description: 'Descripción',
+      descriptionTruncated: 'Falta parte del texto',
       skills: 'Aptitudes asociadas',
       institution: 'Institución',
       degree: 'Titulación',
