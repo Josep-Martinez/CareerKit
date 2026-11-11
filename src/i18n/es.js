@@ -595,7 +595,9 @@ export const STRINGS = {
     previewEyebrow: 'VISTA DE CONSULTA',
     previewTitle: 'Tu perfil',
     previewDescription:
-      'Abre los marcadores para revisar sugerencias. Aceptar cambia el texto de esta vista y elimina su anotación. Guarda el perfil cuando acabes.',
+      'Edita cada apartado desde aquí o abre sus marcadores para revisar sugerencias. Los cambios quedan como borrador y solo se guardan al pulsar Guardar.',
+    editPreviewAction: 'Editar',
+    editPreviewSection: 'Editar {section} en el formulario',
     emptyPreviewTitle: 'Aún no hay contenido para previsualizar',
     emptyPreviewBody:
       'Añade la copia de tu perfil en Editar. Se mostrará aquí tal como la escribas.',

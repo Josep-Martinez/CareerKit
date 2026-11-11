@@ -3034,6 +3034,14 @@ select {
   gap: 12px;
   margin-bottom: 10px;
 }
+.linkedin-preview-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.linkedin-preview-edit-button {
+  flex: 0 0 auto;
+}
 .linkedin-preview-section.linkedin-recently-saved-section {
   padding-left: 14px;
   border-left: 3px solid #b6483f;
@@ -3414,6 +3422,10 @@ select {
   }
   .linkedin-preview-section-head {
     align-items: flex-start;
+  }
+  .linkedin-preview-section-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
   .linkedin-preview-section-head h4 {
     padding-top: 5px;

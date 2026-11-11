@@ -123,8 +123,16 @@ export function LinkedInPage({
   })
   const hasUnsavedChanges = hasLinkedInUnsavedChanges(draft, value)
   const [view, setView] = useState('edit')
+  const [previewEditTarget, setPreviewEditTarget] = useState('')
   const [applyNotice, setApplyNotice] = useState('')
   const [requestedLanguage, setRequestedLanguage] = useState('')
+  useEffect(() => {
+    if (view !== 'edit' || !previewEditTarget) return
+    const target = document.getElementById(previewEditTarget)
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    target?.focus({ preventScroll: true })
+    setPreviewEditTarget('')
+  }, [view, previewEditTarget])
   const rootPublished = draft.published
   const variants = rootPublished.variants || []
   const primaryLanguage = languageBase(rootPublished.language)
@@ -338,6 +346,10 @@ export function LinkedInPage({
     'projects',
     'featured',
   ]
+  const editPreviewSection = (sectionId) => {
+    setPreviewEditTarget(sectionId)
+    setView('edit')
+  }
   const editorSections = [
     {
       id: 'linkedin-section-presentation',
@@ -923,29 +935,15 @@ export function LinkedInPage({
                       <h3>{pub.name || copy.nameFallback}</h3>
                       {pub.headline && <p>{pub.headline}</p>}
                     </div>
-                    <AuditPoints
-                      sectionKey="headline"
-                      sectionTitle={copy.sectionLabels.headline}
-                      notes={auditNotes('headline')}
-                      evidence={evidenceItems}
-                      published={pub}
-                      recentlySavedIds={recentAuditIds}
-                      saving={saving}
-                      onApplyProposal={applyAuditFromPreview}
-                      onDiscardAudit={discardAuditFromPreview}
-                      onOpenEvidence={onOpenEvidence}
-                    />
-                  </div>
-                </div>
-                {(pub.about.trim() || auditNotes('about').length > 0) && (
-                  <PreviewSection
-                    title={copy.sectionLabels.about}
-                    recentlySaved={hasRecentField('about')}
-                    action={
+                    <PreviewSectionActions
+                      sectionId="linkedin-section-presentation"
+                      sectionTitle={copy.sectionIndexPresentation}
+                      onEdit={editPreviewSection}
+                    >
                       <AuditPoints
-                        sectionKey="about"
-                        sectionTitle={copy.sectionLabels.about}
-                        notes={auditNotes('about')}
+                        sectionKey="headline"
+                        sectionTitle={copy.sectionLabels.headline}
+                        notes={auditNotes('headline')}
                         evidence={evidenceItems}
                         published={pub}
                         recentlySavedIds={recentAuditIds}
@@ -954,6 +952,32 @@ export function LinkedInPage({
                         onDiscardAudit={discardAuditFromPreview}
                         onOpenEvidence={onOpenEvidence}
                       />
+                    </PreviewSectionActions>
+                  </div>
+                </div>
+                {(pub.about.trim() || auditNotes('about').length > 0) && (
+                  <PreviewSection
+                    title={copy.sectionLabels.about}
+                    recentlySaved={hasRecentField('about')}
+                    action={
+                      <PreviewSectionActions
+                        sectionId="linkedin-section-presentation"
+                        sectionTitle={copy.sectionLabels.about}
+                        onEdit={editPreviewSection}
+                      >
+                        <AuditPoints
+                          sectionKey="about"
+                          sectionTitle={copy.sectionLabels.about}
+                          notes={auditNotes('about')}
+                          evidence={evidenceItems}
+                          published={pub}
+                          recentlySavedIds={recentAuditIds}
+                          saving={saving}
+                          onApplyProposal={applyAuditFromPreview}
+                          onDiscardAudit={discardAuditFromPreview}
+                          onOpenEvidence={onOpenEvidence}
+                        />
+                      </PreviewSectionActions>
                     }
                   >
                     {pub.about.trim() && <p>{pub.about}</p>}
@@ -965,6 +989,13 @@ export function LinkedInPage({
                     <PreviewSection
                       title={copy.sectionLabels.about}
                       recentlySaved
+                      action={
+                        <PreviewSectionActions
+                          sectionId="linkedin-section-presentation"
+                          sectionTitle={copy.sectionLabels.about}
+                          onEdit={editPreviewSection}
+                        />
+                      }
                     >
                       <p className="linkedin-recently-saved-content">
                         {copy.recentlyChangedEmpty}
@@ -984,18 +1015,24 @@ export function LinkedInPage({
                       title={copy.sectionLabels[key]}
                       recentlySaved={hasRecentSection(key)}
                       action={
-                        <AuditPoints
-                          sectionKey={key}
+                        <PreviewSectionActions
+                          sectionId={`linkedin-section-${key}`}
                           sectionTitle={copy.sectionLabels[key]}
-                          notes={auditNotes(key)}
-                          evidence={evidenceItems}
-                          published={pub}
-                          recentlySavedIds={recentAuditIds}
-                          saving={saving}
-                          onApplyProposal={applyAuditFromPreview}
-                          onDiscardAudit={discardAuditFromPreview}
-                          onOpenEvidence={onOpenEvidence}
-                        />
+                          onEdit={editPreviewSection}
+                        >
+                          <AuditPoints
+                            sectionKey={key}
+                            sectionTitle={copy.sectionLabels[key]}
+                            notes={auditNotes(key)}
+                            evidence={evidenceItems}
+                            published={pub}
+                            recentlySavedIds={recentAuditIds}
+                            saving={saving}
+                            onApplyProposal={applyAuditFromPreview}
+                            onDiscardAudit={discardAuditFromPreview}
+                            onOpenEvidence={onOpenEvidence}
+                          />
+                        </PreviewSectionActions>
                       }
                     >
                       {!!pub[key]?.length && (
@@ -1037,20 +1074,28 @@ export function LinkedInPage({
                         recentVersion.additionalSections || []
                       ).includes(String(section.id || `index:${index}`))}
                       action={
-                        <AuditPoints
-                          sectionKey={`additional-${section.id || index}`}
+                        <PreviewSectionActions
+                          sectionId="linkedin-section-additional"
                           sectionTitle={
                             section.title || copy.additionalSectionFallback
                           }
-                          notes={notes}
-                          evidence={evidenceItems}
-                          published={pub}
-                          recentlySavedIds={recentAuditIds}
-                          saving={saving}
-                          onApplyProposal={applyAuditFromPreview}
-                          onDiscardAudit={discardAuditFromPreview}
-                          onOpenEvidence={onOpenEvidence}
-                        />
+                          onEdit={editPreviewSection}
+                        >
+                          <AuditPoints
+                            sectionKey={`additional-${section.id || index}`}
+                            sectionTitle={
+                              section.title || copy.additionalSectionFallback
+                            }
+                            notes={notes}
+                            evidence={evidenceItems}
+                            published={pub}
+                            recentlySavedIds={recentAuditIds}
+                            saving={saving}
+                            onApplyProposal={applyAuditFromPreview}
+                            onDiscardAudit={discardAuditFromPreview}
+                            onOpenEvidence={onOpenEvidence}
+                          />
+                        </PreviewSectionActions>
                       }
                     >
                       {section.content && (
@@ -1066,6 +1111,13 @@ export function LinkedInPage({
                     <PreviewSection
                       title={copy.additionalSectionsTitle}
                       recentlySaved
+                      action={
+                        <PreviewSectionActions
+                          sectionId="linkedin-section-additional"
+                          sectionTitle={copy.additionalSectionsTitle}
+                          onEdit={editPreviewSection}
+                        />
+                      }
                     >
                       <p className="linkedin-recently-saved-content">
                         {copy.recentlyChangedEmpty}
@@ -1316,6 +1368,22 @@ function PreviewSection({ title, children, recentlySaved, action }) {
       </div>
       {children}
     </section>
+  )
+}
+
+function PreviewSectionActions({ sectionId, sectionTitle, onEdit, children }) {
+  return (
+    <div className="linkedin-preview-section-actions">
+      <button
+        className="button secondary small linkedin-preview-edit-button"
+        type="button"
+        aria-label={copy.editPreviewSection.replace('{section}', sectionTitle)}
+        onClick={() => onEdit(sectionId)}
+      >
+        {copy.editPreviewAction}
+      </button>
+      {children}
+    </div>
   )
 }
 
