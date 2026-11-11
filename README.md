@@ -58,6 +58,7 @@ A partir de ahí usa el acceso directo. Si mueves la carpeta del proyecto, actua
 | **LinkedIn** | Guarda una copia de tu perfil publicado. Alterna **Editar** y **Vista previa** y elige el idioma que quieres consultar. Usa las anotaciones de auditoría para ver propuestas junto a la sección correspondiente. Guarda después de aplicar o descartar propuestas. Los cambios se guardan en CareerKit. |
 | **CV** | Consulta la base española en dos columnas o la inglesa en una columna. Puedes imprimir la vista o guardarla como PDF desde el cuadro de impresión del navegador. Los cambios en las bases se hacen mediante prompts. |
 | **Vacantes** | Añade o abre una oferta, consulta su enlace y fecha de verificación, vincula evidencias de Perfil y compara hasta tres ofertas. En los detalles puedes consultar las recomendaciones de adaptación y el CV específico cuando esté guardado. |
+| **Contenido de LinkedIn** | Descubre lecturas según tus intereses, revisa propuestas y prepara prompts para publicaciones y comentarios. |
 | **Buzón** | Busca y copia prompts para el asistente. Las tareas destacadas indican qué conviene revisar según tus cambios recientes. |
 
 ### Qué prompt usar
@@ -70,9 +71,9 @@ Un **prompt** es un texto de instrucciones. Abre el Buzón, elige la tarea, puls
 - **Buscar y valorar vacantes.** Guarda primero tus roles, tareas, lugares y condiciones en Perfil. El prompt de búsqueda pide fuentes públicas y verifica la vigencia de cada oferta. Para adaptar el CV, abre una oferta concreta y usa su prompt. El asistente puede pedirte datos antes de redactar. La adaptación queda asociada a esa vacante.
 - **Preparar otros materiales.** El Buzón también ofrece tareas para cartas, historias STAR, publicaciones, comentarios y otros borradores de LinkedIn. Revísalos en el chat antes de utilizarlos.
 
-### Contenido de LinkedIn en la rama mejoras
+### Contenido de LinkedIn
 
-Si en el menú aparece **Contenido de LinkedIn**, tu versión incluye esta pantalla adicional. El Buzón sigue disponible como catálogo de prompts.
+Abre **Contenido de LinkedIn** para trabajar con lecturas, publicaciones y comentarios. El Buzón sigue disponible como catálogo de prompts.
 
 1. En **Perfil → Intereses y voz para publicaciones**, indica temas que quieres explorar, voces profesionales y empresas u organizaciones que quieres seguir.
 2. En **Contenido de LinkedIn → Artículos**, copia el prompt de búsqueda. El asistente consulta tus preferencias cuando tiene acceso local, busca en fuentes públicas como revistas, publicaciones especializadas, centros de investigación y LinkedIn, y comprueba las afiliaciones que cita.
@@ -105,7 +106,7 @@ Cuando usas archivos individuales, **Guardar** prepara una descarga. Sustituye m
 | `cv.json` | Bases generales del CV y fechas. |
 | `vacancies.json` | Ofertas, valoración y adaptaciones por vacante. |
 | `priorities.json` | Prioridades que aparecen en Inicio. |
-| `linkedin-content.json` | Cola de lectura y opiniones en las versiones con Contenido de LinkedIn. |
+| `linkedin-content.json` | Cola de lectura y opiniones de Contenido de LinkedIn. |
 
 En el modo local, CareerKit puede detectar la carpeta del proyecto y recuerda la conexión cuando el navegador lo permite. Tu selección manual tiene prioridad. Puedes usar **Desconectar carpeta** y, si quieres, confirmar que la web limpie los datos que tiene cargados. Los archivos del disco se conservan. Para cambiar de ordenador, copia la carpeta de datos por un medio que controles y conéctala en el nuevo equipo.
 

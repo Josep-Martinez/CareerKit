@@ -66,6 +66,8 @@ const objectFields = {
   contentDirection: [
     'themes',
     'viewpoints',
+    'preferredVoices',
+    'preferredOrganizations',
     'tone',
     'avoid',
     'languages',

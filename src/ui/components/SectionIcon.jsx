@@ -34,6 +34,14 @@ export function SectionIcon({ name }) {
         <path d="M7.2 11v5.6M10.8 16.6v-3.1a2 2 0 0 1 4 0v3.1M10.8 12.5V11" />
       </svg>
     )
+  if (name === 'linkedin-content')
+    return (
+      <svg {...common}>
+        <path d="M4 5.5h16v14H4z" />
+        <path d="M7.5 9h9M7.5 12h5.5M7.5 15h7" />
+        <path d="m18.5 3 .45 1.35L20.3 4.8l-1.35.45-.45 1.35-.45-1.35L16.7 4.8l1.35-.45L18.5 3Z" />
+      </svg>
+    )
   if (name === 'cv')
     return (
       <svg {...common}>

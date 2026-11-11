@@ -18,7 +18,7 @@ import {
 const personalFields = [
   { key: 'aboutMe', rows: 4, hint: s.profilePage.aboutMeHint },
   { key: 'values', list: true },
-  { key: 'interests', list: true },
+  { key: 'interests', list: true, hint: s.profilePage.interestsHint },
   { key: 'motivations', rows: 3 },
   { key: 'thinkingStyle', rows: 3 },
   { key: 'learningStyle', rows: 3 },
@@ -38,8 +38,18 @@ const careerFields = [
   { key: 'avoid', list: true },
 ]
 const contentFields = [
-  { key: 'themes', list: true },
+  { key: 'themes', list: true, hint: s.profilePage.themesHint },
   { key: 'viewpoints', list: true },
+  {
+    key: 'preferredVoices',
+    list: true,
+    hint: s.profilePage.preferredVoicesHint,
+  },
+  {
+    key: 'preferredOrganizations',
+    list: true,
+    hint: s.profilePage.preferredOrganizationsHint,
+  },
   { key: 'tone', rows: 3 },
   { key: 'languages', list: true },
   { key: 'versionPreference', rows: 2 },
@@ -207,6 +217,7 @@ export function ProfilePage({
             title={fieldLabel}
             items={values[key] || []}
             onChange={(next) => updateNested(objectKey, key, next)}
+            hint={hint}
           />
         )
       return (

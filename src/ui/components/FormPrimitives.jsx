@@ -87,7 +87,7 @@ export function Check({ label, checked, onChange }) {
   )
 }
 
-export function ArrayText({ title, items = [], onChange, lang }) {
+export function ArrayText({ title, items = [], onChange, lang, hint }) {
   return (
     <div className="collection">
       <CardTitle title={title} onAdd={() => onChange([...(items || []), ''])} />
@@ -110,6 +110,7 @@ export function ArrayText({ title, items = [], onChange, lang }) {
           </button>
         </div>
       ))}
+      {hint && <small className="collection-hint">{hint}</small>}
     </div>
   )
 }

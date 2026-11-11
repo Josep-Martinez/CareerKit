@@ -27,6 +27,7 @@ import { LinkedInPage } from './pages/LinkedInPage.jsx'
 import { CVPage } from './pages/CVPage.jsx'
 import { VacanciesPage } from './pages/VacanciesPage.jsx'
 import { PromptInboxPage } from './pages/PromptInboxPage.jsx'
+import { LinkedInContentPage } from './pages/LinkedInContentPage.jsx'
 
 function readRoute() {
   const [section, vacancy] = window.location.hash.slice(1).split('/')
@@ -920,6 +921,19 @@ export default function App() {
               onOpenPrompts={openCvPrompt}
               onSave={(v) => save('linkedin', v)}
               onReload={() => reloadWithUnsavedGuard('linkedin')}
+            />
+          )}
+          {page === 'linkedin-content' && (
+            <LinkedInContentPage
+              {...draftProps('linkedin-content')}
+              value={store.data['linkedin-content']}
+              profile={store.data.profile}
+              state={store.states['linkedin-content']}
+              warning={store.warnings['linkedin-content']}
+              savedAt={savedAt['linkedin-content']}
+              onSave={(v) => save('linkedin-content', v)}
+              onReload={() => reloadWithUnsavedGuard('linkedin-content')}
+              onPromptCopied={handlePromptCopied}
             />
           )}
           {page === 'cv' && (

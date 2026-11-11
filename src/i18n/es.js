@@ -4,6 +4,7 @@ export const NAV = [
   ['home', 'Inicio', '⌂'],
   ['profile', 'Perfil y aprendizajes', '◈'],
   ['linkedin', 'LinkedIn', '↗'],
+  ['linkedin-content', 'Contenido de LinkedIn', '✳'],
   ['cv', 'CV', '▤'],
   ['vacancies', 'Vacantes', '◎'],
   ['prompts', 'Buzón', '▣'],
@@ -18,7 +19,7 @@ export const STRINGS = {
     priority: 'ALTA PRIORIDAD · PRIMER PASO',
     eyebrow: 'TUS ARCHIVOS SE QUEDAN EN TU DISPOSITIVO',
     title: 'Crea o conecta tu carpeta privada',
-    body: 'CareerKit necesita una carpeta local para mostrar y guardar información. Crea private-data/ en la raíz de este proyecto con los cinco JSON vacíos de templates/, o conecta la carpeta si ya la tienes. Al conectar, la web solicitará permiso para leer y guardar. También puedes pedirle a tu asistente local que prepare la carpeta; solo podrá editar esos archivos si tiene acceso local al proyecto.',
+    body: 'CareerKit necesita una carpeta local para mostrar y guardar información. Crea private-data/ en la raíz de este proyecto con los JSON vacíos de templates/, o conecta la carpeta si ya la tienes. Al conectar, la web solicitará permiso para leer y guardar. También puedes pedirle a tu asistente local que prepare la carpeta; solo podrá editar esos archivos si tiene acceso local al proyecto.',
     checkingTitle: 'Buscando tu carpeta guardada',
     checkingBody:
       'Comprobando si este navegador ya recuerda la carpeta que conectaste anteriormente.',
@@ -68,7 +69,7 @@ export const STRINGS = {
     title: 'Abre los JSON de private-data',
     body: 'Si este navegador no completa la selección de carpeta, puedes abrir aquí los archivos directamente. CareerKit valida cada módulo por separado y mantiene los datos solo en esta sesión del navegador.',
     files:
-      'Selecciona uno o varios de estos archivos: profile.json, linkedin.json, cv.json, vacancies.json y priorities.json.',
+      'Selecciona uno o varios de estos archivos: profile.json, linkedin.json, linkedin-content.json, cv.json, vacancies.json y priorities.json.',
     choose: 'Seleccionar archivos JSON',
     opening: 'Abriendo archivos…',
     noRecognized:
@@ -209,7 +210,7 @@ export const STRINGS = {
       'Ayuda a priorizar vacantes por roles, tareas y condiciones que indiques; el agente no supone lo que falte.',
     contentTitle: 'Intereses y voz para publicaciones',
     contentDescription:
-      'Guía ideas y tono de borradores; no se publica una opinión personal sin tu aprobación.',
+      'Orienta temas, voces y empresas que quieres seguir. El agente comprueba las afiliaciones; tus preferencias son privadas y no se publican sin tu aprobación.',
     journeyTitle: 'Trayectoria y evidencias',
     journeyDescription:
       'Conserva hechos y aprendizajes. Tus marcas indican qué está confirmado y si se utiliza en el CV o aparece en LinkedIn.',
@@ -221,6 +222,8 @@ export const STRINGS = {
       'Qué te interesa, qué te mueve o qué te gustaría que el asistente entendiera de ti.',
     values: 'Valores importantes',
     interests: 'Intereses y curiosidades',
+    interestsHint:
+      'Temas y actividades que disfrutas seguir; pueden orientar ideas y búsquedas como contexto privado.',
     motivations: 'Qué te motiva',
     thinkingStyle: 'Cómo piensas y resuelves problemas',
     learningStyle: 'Cómo aprendes mejor',
@@ -244,7 +247,15 @@ export const STRINGS = {
     mediumTerm: 'Medio plazo',
     longTerm: 'Largo plazo',
     themes: 'Temas sobre los que te interesa hablar',
+    themesHint:
+      'Añade temas concretos que el agente pueda buscar. No supondrá intereses que no hayas indicado.',
     viewpoints: 'Ideas, preguntas u opiniones que quieres explorar',
+    preferredVoices: 'Voces o perfiles profesionales que quieres leer',
+    preferredVoicesHint:
+      'Describe los perfiles, experiencia o perspectivas que valoras. El agente no usará solo la popularidad ni asumirá afiliaciones sin comprobarlas.',
+    preferredOrganizations: 'Empresas u organizaciones que quieres seguir',
+    preferredOrganizationsHint:
+      'El agente las priorizará como fuentes y comprobará la relación actual de cada autor cuando sea posible.',
     tone: 'Tono que te representa',
     languages: 'Idiomas en los que quieres publicar',
     versionPreference: 'Preferencia para preparar versiones',
@@ -570,13 +581,23 @@ export const STRINGS = {
     lastUpdatedHint: 'Fecha manual; déjala vacía si no está registrada.',
     auditTitle: 'Anotaciones de revisión',
     auditDescription:
-      'Añade recomendaciones con evidencia concreta de Perfil y aprendizajes.',
+      'Cada tarjeta es una recomendación privada. Completa lo que aplique; nada se escribe en el archivo hasta que pulses Guardar.',
+    auditGuideTitle: 'Cómo revisar una anotación',
+    auditGuideSteps: [
+      'Elige la sección de LinkedIn, la acción y la prioridad.',
+      'Si propones un texto para una lista, selecciona la entrada y el campo exactos. Para Titular o Acerca de, basta con elegir la sección.',
+      'Explica qué se observa y por qué conviene cambiarlo; vincula las evidencias de Perfil con las casillas.',
+      'Escribe la recomendación y, si procede, el texto propuesto. En Vista previa, aceptar aplica el texto y elimina su anotación; descartar también la elimina. Arriba puedes eliminar las anotaciones restantes y guardar el perfil cuando acabes.',
+    ],
     addAudit: 'Añadir anotación',
     emptyAudit: 'Aún no hay anotaciones de revisión.',
-    save: 'Guardar contenido y anotaciones',
+    save: 'Guardar cambios de LinkedIn',
     previewEyebrow: 'VISTA DE CONSULTA',
     previewTitle: 'Tu perfil',
-    previewDescription: 'Las notas de revisión aparecen debajo de su sección.',
+    previewDescription:
+      'Edita cada apartado desde aquí o abre sus marcadores para revisar sugerencias. Los cambios quedan como borrador y solo se guardan al pulsar Guardar.',
+    editPreviewAction: 'Editar',
+    editPreviewSection: 'Editar {section} en el formulario',
     emptyPreviewTitle: 'Aún no hay contenido para previsualizar',
     emptyPreviewBody:
       'Añade la copia de tu perfil en Editar. Se mostrará aquí tal como la escribas.',
@@ -600,8 +621,21 @@ export const STRINGS = {
     removeAdditionalSection: 'Eliminar sección adicional',
     additionalSectionFallback: 'Otra sección',
     descriptionTruncatedNotice:
-      'La fuente indica que la descripción está truncada; el texto conservado es parcial.',
+      'La copia guardada contiene solo un fragmento de esta descripción.',
+    descriptionShowMore: 'Mostrar texto completo',
+    descriptionShowLess: 'Ocultar texto',
     auditLabel: 'PARA REVISAR',
+    auditMarkerLabel:
+      'Ver {count} sugerencias de LinkedIn. Prioridad {priority}.',
+    auditPopoverEyebrow: 'ANOTACIONES · PRIVADAS',
+    auditPopoverClose: 'Cerrar sugerencias',
+    auditPopoverCountOne: '1 sugerencia para esta sección',
+    auditPopoverCountMany: '{count} sugerencias para esta sección',
+    auditPopoverProblem: 'Qué se observa',
+    auditPopoverReason: 'Motivo y evidencia',
+    auditPopoverRecommendation: 'Qué mejorar',
+    auditPopoverProposed: 'Texto propuesto',
+    auditPopoverDate: 'Fecha de auditoría',
     auditActions: {
       corregir: 'Corregir',
       anadir: 'Añadir',
@@ -630,18 +664,29 @@ export const STRINGS = {
       unlinkedAdditionalSectionHint:
         'Vincula esta anotación a una sección adicional concreta para que aparezca junto al contenido correspondiente.',
       action: 'Acción',
+      actionHint:
+        'Corregir = sustituir; añadir = incorporar contenido; aclarar = hacerlo más preciso.',
       problem: 'Qué se observa',
+      problemHint: 'Describe el problema o la información que falta.',
       reasonEvidence: 'Por qué, según el perfil o los aprendizajes',
+      reasonEvidenceHint:
+        'Explica qué hecho confirmado respalda esta recomendación.',
       relatedEvidence: 'Evidencias relacionadas',
       untitledEvidence: 'Sin título',
       noEvidence: 'Añade primero evidencias o aprendizajes en Perfil.',
       openInProfile: 'Abrir en Perfil',
       otherEvidenceIds: 'Otros IDs de perfil/aprendizajes',
-      evidenceIdsHint: 'Los IDs deben existir en profile.json.',
+      evidenceIdsHint:
+        'Úsalo solo para evidencias que no aparezcan en las casillas de arriba. Separa los IDs de profile.json con comas.',
       recommendation: 'Qué corregir o añadir',
+      recommendationHint: 'Resume el cambio que recomiendas.',
       proposedText: 'Texto propuesto (opcional)',
+      proposedTextHint:
+        'Si lo escribes, podrás probarlo desde Vista previa. Para listas, selecciona arriba la entrada y el campo exactos.',
       date: 'Fecha de auditoría',
       status: 'Estado',
+      statusHint:
+        'Al aceptar o descartar desde Vista previa, la anotación se elimina del borrador.',
       actions: { corregir: 'Corregir', anadir: 'Añadir', aclarar: 'Aclarar' },
       priorities: { alta: 'Alta', media: 'Media', baja: 'Baja' },
       statuses: {
@@ -649,7 +694,11 @@ export const STRINGS = {
         aplicada: 'Aplicada',
         descartada: 'Descartada',
       },
-      proposalTarget: 'Campo al que se aplicará el texto',
+      proposalTarget: 'Campo que reemplazará el texto propuesto',
+      additionalTargetHint:
+        'Elige si el texto propuesto reemplaza el título o el contenido de esta sección.',
+      targetHint:
+        'Esto se usa al aceptar la propuesta en Vista previa. Selecciona primero la entrada y luego el campo exacto que quieres cambiar.',
       additionalContent: 'Contenido',
       additionalTitle: 'Título de la sección',
       targetEntry: 'Entrada concreta',
@@ -659,14 +708,26 @@ export const STRINGS = {
       plainTextValue: 'Texto completo de esta entrada',
       chooseExactTarget:
         'Selecciona la entrada y el campo exactos para poder aplicar este texto con seguridad.',
-      applyProposal: 'Revisar y aplicar propuesta',
+      applyProposal: 'Aplicar al borrador',
+      applyProposalHint:
+        'Esto cambia solo el borrador. Guarda al final para escribirlo en linkedin.json.',
+      acceptProposal: 'Aceptar cambio',
+      proposalApplied: 'Propuesta aplicada al borrador.',
+      discardSuggestion: 'Descartar anotación',
+      discardAudit: 'Eliminar anotaciones restantes ({count})',
+      discardAuditConfirmation:
+        'Se eliminarán las {count} anotaciones que quedan en esta versión. Los textos ya aceptados no se revertirán. ¿Continuar?',
+      discardAuditSuccess:
+        'Se eliminaron las anotaciones restantes del borrador. Los cambios aceptados siguen intactos; pulsa Guardar para conservar el resultado.',
+      discardSuccess:
+        'Anotación eliminada del borrador; no se guardará. Pulsa Guardar para conservar los cambios del perfil.',
       applyConfirmation:
         'Se sustituirá únicamente el campo seleccionado. ¿Quieres aplicar el cambio?',
       currentText: 'Texto actual',
       applyTargetUnavailable:
         'No se aplicó la propuesta: el destino ya no está disponible o no es válido.',
       applySuccess:
-        'Propuesta aplicada al campo seleccionado. Guarda los cambios para escribirlos en linkedin.json.',
+        'Propuesta aplicada al borrador y anotación eliminada. Pulsa Guardar para conservar el cambio en linkedin.json.',
     },
     evidenceLabels: {
       experience: 'Experiencia',
@@ -696,8 +757,7 @@ export const STRINGS = {
       location: 'Ubicación',
       workplaceType: 'Modalidad del puesto',
       dates: 'Fechas',
-      description: 'Descripción completa',
-      descriptionTruncated: 'La fuente muestra la descripción truncada',
+      description: 'Descripción',
       skills: 'Aptitudes asociadas',
       institution: 'Institución',
       degree: 'Titulación',
@@ -718,6 +778,132 @@ export const STRINGS = {
       mediaType: 'Tipo de contenido',
     },
   },
+  linkedinContentPage: {
+    flowTabsLabel: 'Flujos de contenido',
+    eyebrow: 'IDEAS PARA CONVERSACIONES PROFESIONALES',
+    title: 'Contenido de LinkedIn',
+    subtitle:
+      'Descubre lecturas que te interesan, prepara publicaciones con tu enfoque y escribe comentarios con algo propio que aportar.',
+    flows: {
+      articles: 'Artículos',
+      posts: 'Publicaciones',
+      comments: 'Comentarios',
+    },
+    profileTitle: 'Una búsqueda guiada por tus intereses',
+    profileDescription:
+      'El agente consulta tus intereses, temas y preferencias de voces y empresas en cada búsqueda, y comprueba las afiliaciones actuales.',
+    profileReady: '{count} intereses, temas y preferencias de fuente en Perfil',
+    profileEmpty:
+      'Aún no hay intereses, temas ni preferencias de fuente en Perfil. Puedes añadirlos allí o indicar el enfoque de esta búsqueda.',
+    searchEyebrow: 'LECTURAS CON HILO PROPIO',
+    queueEyebrow: 'TU SIGUIENTE LECTURA',
+    postsEyebrow: 'DE LA EXPERIENCIA A LA IDEA',
+    commentsEyebrow: 'UNA RESPUESTA CON ALGO QUE APORTAR',
+    searchFocus: '¿Qué te gustaría explorar esta vez? (opcional)',
+    searchFocusHint:
+      'El agente combina este enfoque con los temas actuales de Perfil.',
+    discoverTitle: 'Descubrir lecturas',
+    discoverDescription:
+      'El agente buscará en publicaciones especializadas, revistas, fuentes de investigación y contenido público de LinkedIn, y guardará las propuestas verificadas como pendientes.',
+    discoverCopy: 'Copiar prompt de búsqueda',
+    discoveryPrompt: 'Prompt de búsqueda',
+    discoveryPromptCopied: 'Prompt de búsqueda copiado.',
+    promptCopied: 'Prompt copiado. Pégalo en tu asistente.',
+    copyFailed: 'No se pudo copiar. Selecciona el prompt y cópialo.',
+    queueTitle: 'Tu cola de lectura',
+    queueDescription:
+      'Decide qué artículos te interesan. Los rechazados se conservan en su pestaña y no vuelven a aparecer como nuevos.',
+    queueTabs: {
+      pending: 'Por revisar',
+      accepted: 'Aceptados',
+      rejected: 'Descartados',
+    },
+    noArticles: {
+      pending: 'Aquí aparecerán los artículos que el agente encuentre para ti.',
+      accepted: 'Aún no has aceptado ningún artículo.',
+      rejected: 'Aquí se conservarán los artículos que descartes.',
+    },
+    addManually: 'Añadir artículo manualmente',
+    addArticle: 'Añadir a pendientes',
+    articleTitle: 'Título del artículo',
+    articleSource: 'Revista o fuente',
+    articleUrl: 'Enlace directo',
+    articleDate: 'Fecha de publicación (si consta)',
+    verifiedArticle: 'Fuente verificada',
+    unverifiedArticle: 'Añadido manualmente · sin verificar',
+    articleRelevance: 'Por qué puede interesarte',
+    articleTopics: 'Temas (separados por comas)',
+    articleInvalid: 'Añade título, fuente y un enlace http o https válido.',
+    acceptArticle: 'Me interesa',
+    rejectArticle: 'Descartar',
+    backToPending: 'Devolver a pendientes',
+    restoreArticle: 'Volver a revisar',
+    pendingLabel: 'Por revisar',
+    acceptedLabel: 'Aceptado',
+    rejectedLabel: 'Descartado',
+    opinionLabel: '¿Qué opinas tú?',
+    opinionHint:
+      'Escribe tu postura antes de pedir una publicación. El agente no inventará tu opinión.',
+    opinionRequired: 'Añade tu opinión para preparar el prompt.',
+    preparePost: 'Preparar publicación sobre este artículo',
+    openArticle: 'Leer fuente ↗',
+    postTitle: 'Crear una publicación',
+    postDescription:
+      'Parte de una experiencia, un proyecto, un aprendizaje, un logro o una opinión. Solo se preparará el prompt; el borrador queda en la conversación con tu asistente.',
+    postType: 'Tipo de publicación',
+    postTypes: {
+      achievement: 'Logro o título',
+      project: 'Proyecto',
+      learning: 'Experiencia o aprendizaje',
+      article: 'Opinión sobre un artículo',
+      source: 'Reutilizar un material',
+    },
+    postIdea: 'Idea, experiencia o enfoque que quieres contar',
+    postIdeaHint:
+      'Cuéntalo con tus palabras. El agente preguntará si falta un dato importante.',
+    relatedArticle: 'Artículo aceptado',
+    noAcceptedArticles: 'Todavía no hay artículos aceptados.',
+    selectedEvidence:
+      'Evidencias confirmadas que quieres considerar (opcional)',
+    noEvidence: 'No hay evidencias confirmadas guardadas en Perfil.',
+    evidenceHint:
+      'Se compartirán solo los identificadores seleccionados. El agente comprobará esos hechos en el archivo local.',
+    copyPostPrompt: 'Copiar prompt para crear publicación',
+    commentTitle: 'Preparar un comentario',
+    commentDescription:
+      'Pega el texto de la publicación y añade qué piensas o qué quieres aportar. El agente no abrirá cuentas ni buscará la publicación.',
+    commentSource: 'Texto de la publicación que quieres comentar',
+    commentPoint: 'Tu opinión o aportación',
+    commentPointHint:
+      'Una pregunta, matiz, experiencia o idea concreta que sí compartes.',
+    copyCommentPrompt: 'Copiar prompt para redactar comentarios',
+    promptPreview: 'Ver prompt que copiarás',
+    promptContext: {
+      extraSearchFocus: 'Enfoque adicional para esta búsqueda',
+      title: 'Información concreta para esta solicitud',
+      type: 'Tipo',
+      idea: 'Idea y enfoque',
+      acceptedArticle: 'Artículo aceptado',
+      articleId: 'ID',
+      articleTitle: 'Título',
+      articleSource: 'Fuente',
+      articleLink: 'Enlace',
+      articleDate: 'Fecha',
+      articleRelevance: 'Relevancia',
+      userOpinion: 'Mi opinión',
+      evidenceIds: 'IDs de evidencias confirmadas seleccionadas en Perfil',
+      commentMaterial: 'Material y aportación para esta solicitud',
+      postText: 'Texto de la publicación',
+      commentOpinion: 'Mi opinión o aportación',
+      profileTone:
+        'Usa el tono de contentDirection de Perfil solo si tienes acceso local; no infieras que comparto ideas que no he indicado.',
+    },
+    save: 'Guardar cambios en la cola',
+    saved: 'Cambios guardados en linkedin-content.json.',
+    prepared: 'Archivo preparado para guardar manualmente.',
+    saving: 'Guardando…',
+    saveFailed: 'No se pudo guardar. Conserva tu borrador y revisa el archivo.',
+  },
   promptInbox: PROMPT_INBOX_ES,
   linkedinDates: 'LinkedIn',
   conflict:
@@ -729,6 +915,7 @@ export const STRINGS = {
 export const TITLES = {
   profile: 'Perfil y aprendizajes',
   linkedin: 'LinkedIn',
+  'linkedin-content': 'Contenido de LinkedIn',
   cv: 'CV base',
   vacancies: 'Vacantes',
   prompts: 'Buzón',

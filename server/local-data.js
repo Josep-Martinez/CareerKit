@@ -9,6 +9,7 @@ export function localDataPlugin() {
     'cv.json',
     'vacancies.json',
     'priorities.json',
+    'linkedin-content.json',
   ])
   let root
   let queue = Promise.resolve()
