@@ -3276,6 +3276,13 @@ select {
   margin-top: 0;
   margin-bottom: 14px;
 }
+.profile-fields-grid .collection-hint {
+  display: block;
+  margin-top: -5px;
+  color: #6f786e;
+  font-size: 10px;
+  line-height: 1.5;
+}
 .profile-fields-grid .array-row input {
   min-width: 0;
 }

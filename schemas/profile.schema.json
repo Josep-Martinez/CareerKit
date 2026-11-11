@@ -83,6 +83,8 @@
       "properties": {
         "themes": { "$ref": "#/$defs/stringList" },
         "viewpoints": { "$ref": "#/$defs/stringList" },
+        "preferredVoices": { "$ref": "#/$defs/stringList" },
+        "preferredOrganizations": { "$ref": "#/$defs/stringList" },
         "tone": { "type": "string" },
         "avoid": { "$ref": "#/$defs/stringList" },
         "languages": { "$ref": "#/$defs/stringList" },

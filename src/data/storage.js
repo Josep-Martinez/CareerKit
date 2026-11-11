@@ -306,7 +306,14 @@ const validators = {
     optionalContext(
       d.contentDirection,
       ['tone', 'versionPreference'],
-      ['themes', 'viewpoints', 'avoid', 'languages'],
+      [
+        'themes',
+        'viewpoints',
+        'preferredVoices',
+        'preferredOrganizations',
+        'avoid',
+        'languages',
+      ],
       ['internal'],
     ) &&
     isRecord(d.objectives) &&

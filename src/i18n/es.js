@@ -210,7 +210,7 @@ export const STRINGS = {
       'Ayuda a priorizar vacantes por roles, tareas y condiciones que indiques; el agente no supone lo que falte.',
     contentTitle: 'Intereses y voz para publicaciones',
     contentDescription:
-      'Guía ideas y tono de borradores; no se publica una opinión personal sin tu aprobación.',
+      'Orienta temas, voces y empresas que quieres seguir. El agente comprueba las afiliaciones; tus preferencias son privadas y no se publican sin tu aprobación.',
     journeyTitle: 'Trayectoria y evidencias',
     journeyDescription:
       'Conserva hechos y aprendizajes. Tus marcas indican qué está confirmado y si se utiliza en el CV o aparece en LinkedIn.',
@@ -222,6 +222,8 @@ export const STRINGS = {
       'Qué te interesa, qué te mueve o qué te gustaría que el asistente entendiera de ti.',
     values: 'Valores importantes',
     interests: 'Intereses y curiosidades',
+    interestsHint:
+      'Temas y actividades que disfrutas seguir; pueden orientar ideas y búsquedas como contexto privado.',
     motivations: 'Qué te motiva',
     thinkingStyle: 'Cómo piensas y resuelves problemas',
     learningStyle: 'Cómo aprendes mejor',
@@ -245,7 +247,15 @@ export const STRINGS = {
     mediumTerm: 'Medio plazo',
     longTerm: 'Largo plazo',
     themes: 'Temas sobre los que te interesa hablar',
+    themesHint:
+      'Añade temas concretos que el agente pueda buscar. No supondrá intereses que no hayas indicado.',
     viewpoints: 'Ideas, preguntas u opiniones que quieres explorar',
+    preferredVoices: 'Voces o perfiles profesionales que quieres leer',
+    preferredVoicesHint:
+      'Describe los perfiles, experiencia o perspectivas que valoras. El agente no usará solo la popularidad ni asumirá afiliaciones sin comprobarlas.',
+    preferredOrganizations: 'Empresas u organizaciones que quieres seguir',
+    preferredOrganizationsHint:
+      'El agente las priorizará como fuentes y comprobará la relación actual de cada autor cuando sea posible.',
     tone: 'Tono que te representa',
     languages: 'Idiomas en los que quieres publicar',
     versionPreference: 'Preferencia para preparar versiones',
@@ -577,7 +587,7 @@ export const STRINGS = {
       'Elige la sección de LinkedIn, la acción y la prioridad.',
       'Si propones un texto para una lista, selecciona la entrada y el campo exactos. Para Titular o Acerca de, basta con elegir la sección.',
       'Explica qué se observa y por qué conviene cambiarlo; vincula las evidencias de Perfil con las casillas.',
-      'Escribe la recomendación y, si procede, el texto propuesto. En Vista previa, abre el marcador para aceptar el cambio o descartar la anotación; pulsa Guardar para conservar tus decisiones.',
+      'Escribe la recomendación y, si procede, el texto propuesto. En Vista previa, abre el marcador para aceptar un cambio o descartar una anotación; arriba puedes descartar todas las pendientes. Pulsa Guardar para conservar tus decisiones.',
     ],
     addAudit: 'Añadir anotación',
     emptyAudit: 'Aún no hay anotaciones de revisión.',
@@ -702,6 +712,11 @@ export const STRINGS = {
       acceptProposal: 'Aceptar cambio',
       proposalApplied: 'Propuesta aplicada al borrador.',
       discardSuggestion: 'Descartar anotación',
+      discardPendingAudits: 'Descartar auditoría pendiente ({count})',
+      discardPendingConfirmation:
+        'Se descartarán todas las anotaciones pendientes de esta versión. Las propuestas aceptadas no se revertirán. ¿Continuar?',
+      discardPendingSuccess:
+        'Se descartó la auditoría pendiente en el borrador. Las propuestas aceptadas siguen intactas. Pulsa Guardar para conservar esta decisión.',
       discardSuccess:
         'Sugerencia descartada y retirada de Vista previa. La anotación permanece en Editar; pulsa Guardar para conservar esta decisión.',
       applyConfirmation:
@@ -775,10 +790,10 @@ export const STRINGS = {
     },
     profileTitle: 'Una búsqueda guiada por tus intereses',
     profileDescription:
-      'El agente volverá a leer tus intereses y temas de Perfil cada vez que busques. No se usan como hechos ni se publican sin tu confirmación.',
-    profileReady: '{count} temas e intereses disponibles en Perfil',
+      'El agente consulta tus intereses, temas y preferencias de voces y empresas en cada búsqueda, y comprueba las afiliaciones actuales.',
+    profileReady: '{count} intereses, temas y preferencias de fuente en Perfil',
     profileEmpty:
-      'Aún no hay intereses o temas en Perfil. Puedes añadirlos allí o indicar el enfoque de esta búsqueda.',
+      'Aún no hay intereses, temas ni preferencias de fuente en Perfil. Puedes añadirlos allí o indicar el enfoque de esta búsqueda.',
     searchEyebrow: 'LECTURAS CON HILO PROPIO',
     queueEyebrow: 'TU SIGUIENTE LECTURA',
     postsEyebrow: 'DE LA EXPERIENCIA A LA IDEA',

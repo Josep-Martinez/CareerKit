@@ -29,7 +29,7 @@ La app ofrece abrir o editar un JSON individual y descargar la versión actualiz
 
 ### Contenido de LinkedIn
 
-La sección **Contenido de LinkedIn** reúne tres flujos: descubrir artículos públicos, preparar publicaciones y redactar comentarios. La búsqueda usa los intereses y temas actuales de Perfil en cada ejecución del prompt; también puedes añadir un enfoque puntual. El agente busca y verifica fuentes con las herramientas disponibles. La web no busca ni redacta por su cuenta.
+La sección **Contenido de LinkedIn** reúne tres flujos: descubrir artículos públicos, preparar publicaciones y redactar comentarios. La búsqueda usa los intereses, temas, voces profesionales y organizaciones que indiques en Perfil; también puedes añadir un enfoque puntual. El agente verifica públicamente las afiliaciones actuales cuando prioriza autores de una empresa. La web no busca ni redacta por su cuenta.
 
 Las lecturas encontradas se guardan como pendientes en `private-data/linkedin-content.json`. Puedes aceptarlas o descartarlas; ambas decisiones se conservan. Al aceptar una lectura puedes escribir tu opinión y copiar un prompt para preparar una publicación. Los borradores no se guardan en CareerKit. Sin acceso local a la carpeta, el agente puede presentarte resultados en el chat y tú puedes añadirlos manualmente, pero no debe decir que los guardó.
 

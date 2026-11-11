@@ -40,6 +40,16 @@ const careerFields = [
 const contentFields = [
   { key: 'themes', list: true },
   { key: 'viewpoints', list: true },
+  {
+    key: 'preferredVoices',
+    list: true,
+    hint: s.profilePage.preferredVoicesHint,
+  },
+  {
+    key: 'preferredOrganizations',
+    list: true,
+    hint: s.profilePage.preferredOrganizationsHint,
+  },
   { key: 'tone', rows: 3 },
   { key: 'languages', list: true },
   { key: 'versionPreference', rows: 2 },
@@ -207,6 +217,7 @@ export function ProfilePage({
             title={fieldLabel}
             items={values[key] || []}
             onChange={(next) => updateNested(objectKey, key, next)}
+            hint={hint}
           />
         )
       return (

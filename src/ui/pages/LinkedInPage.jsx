@@ -361,6 +361,28 @@ export function LinkedInPage({
   const activeAudits = draft.audits.filter((item) =>
     isEditingVariant(item.variantId),
   )
+  const pendingAudits = activeAudits.filter(
+    (item) => (item.status || 'pendiente') === 'pendiente',
+  )
+  const discardPendingAudits = () => {
+    if (!pendingAudits.length) return
+    const count = pendingAudits.length
+    const confirmation = copy.auditCard.discardPendingConfirmation.replace(
+      '{count}',
+      String(count),
+    )
+    if (!window.confirm(confirmation)) return
+    const pendingIds = new Set(pendingAudits.map((item) => item.id))
+    setDraft({
+      ...draft,
+      audits: draft.audits.map((item) =>
+        pendingIds.has(item.id) ? { ...item, status: 'descartada' } : item,
+      ),
+    })
+    setApplyNotice(
+      copy.auditCard.discardPendingSuccess.replace('{count}', String(count)),
+    )
+  }
   const auditNotes = (section, sectionId) =>
     draft.audits.filter(
       (item) =>
@@ -530,6 +552,19 @@ export function LinkedInPage({
               {copy.previewButton}
             </button>
           </div>
+          {pendingAudits.length > 0 && (
+            <button
+              className="button secondary small linkedin-mode-discard"
+              type="button"
+              onClick={discardPendingAudits}
+              disabled={saving}
+            >
+              {copy.auditCard.discardPendingAudits.replace(
+                '{count}',
+                String(pendingAudits.length),
+              )}
+            </button>
+          )}
           {hasUnsavedChanges && (
             <button
               className="button primary small linkedin-mode-save"

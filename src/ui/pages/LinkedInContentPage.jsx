@@ -82,9 +82,11 @@ export function LinkedInContentPage({
   const selectedArticle = acceptedArticles.find(
     (article) => article.id === selectedArticleId,
   )
-  const profileTopics = fieldLines([
+  const profileSearchPreferences = fieldLines([
     ...(profile?.personalContext?.interests || []),
     ...(profile?.contentDirection?.themes || []),
+    ...(profile?.contentDirection?.preferredVoices || []),
+    ...(profile?.contentDirection?.preferredOrganizations || []),
   ])
   const evidence = [...collectProfileEvidence(profile).entries()].filter(
     ([, { item }]) => item.confirmed === true,
@@ -299,8 +301,11 @@ export function LinkedInContentPage({
               <h2>{copy.discoverTitle}</h2>
               <p>{copy.discoverDescription}</p>
               <p className="content-linkedin-profile-context">
-                {profileTopics.length
-                  ? copy.profileReady.replace('{count}', profileTopics.length)
+                {profileSearchPreferences.length
+                  ? copy.profileReady.replace(
+                      '{count}',
+                      profileSearchPreferences.length,
+                    )
                   : copy.profileEmpty}
               </p>
             </div>
