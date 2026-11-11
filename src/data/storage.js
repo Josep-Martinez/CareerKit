@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { EMPTY, FILES } from './catalog.js'
 import { detectLocalFolder } from './local-folder.js'
 import {
+  getFolderPreference,
+  saveFolderPreference,
+} from './folder-preference.js'
+import {
   findUnknownProfileFields,
   hasProfileContent,
 } from './profile-fields.js'
@@ -521,41 +525,6 @@ export function normalizeModule(name, value) {
   if (masterText || lastUpdated || lastReviewed)
     data.previousVersion = { masterText, lastUpdated, lastReviewed }
   return { data, migrated: true }
-}
-
-const folderPreferenceKey = 'careerkit-folder-preference'
-
-function getFolderPreference() {
-  try {
-    const session = sessionStorage.getItem(folderPreferenceKey)
-    if (session) return session
-    if (sessionStorage.getItem('careerkit-disconnected')) return 'disconnected'
-  } catch {
-    // A restricted session may still allow persistent storage.
-  }
-  try {
-    return localStorage.getItem(folderPreferenceKey)
-  } catch {
-    return null
-  }
-}
-
-function saveFolderPreference(value) {
-  let persisted = false
-  try {
-    localStorage.setItem(folderPreferenceKey, value)
-    persisted = true
-  } catch {
-    // Use a session marker when persistent storage is not available.
-  }
-  try {
-    if (persisted) sessionStorage.removeItem(folderPreferenceKey)
-    else sessionStorage.setItem(folderPreferenceKey, value)
-    sessionStorage.removeItem('careerkit-disconnected')
-  } catch {
-    // The in-memory preference still applies to this page.
-  }
-  return persisted
 }
 
 export function useStorageState() {
