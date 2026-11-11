@@ -16,6 +16,7 @@ CareerKit mantiene datos profesionales en archivos JSON locales. Las guías de `
 
 - Para completar o corregir datos de Perfil o registrar una copia de LinkedIn que el usuario haya proporcionado: `.agents/skills/careerkit-data-entry/SKILL.md`.
 - Para auditar el perfil de LinkedIn contra Perfil y aprendizajes: `.agents/skills/li-profile/SKILL.md` y `.agents/skills/li-bilingual/SKILL.md` si propones texto en ambos idiomas. Mantén `published` intacto; guarda solo anotaciones separadas cuando el usuario lo pida.
+  En el informe para el usuario, muestra las secciones con nombres claros en el idioma de la respuesta (por ejemplo, «Objetivo a corto plazo» en vez de `objectives.shortTerm`); conserva las claves del esquema al guardar las anotaciones.
 - Para analizar métricas de publicaciones ya compartidas por el usuario: `.agents/skills/li-audit/SKILL.md`. No accedas a la cuenta.
 - Para crear ambas bases generales del CV a petición: `.agents/skills/cv-optimizer/SKILL.md` y `.agents/skills/cv-formatos/SKILL.md`. Compara `profile.json`, la copia literal de `linkedin.json` y las versiones actuales de `cv.json`; usa hechos confirmados y aptos para CV. Si difieren, pregunta antes de resolverlo. No cambies LinkedIn.
 - Para valorar una vacante: `.agents/skills/job-fit-assessor/SKILL.md`. Para encontrar ofertas actuales, añade `.agents/skills/job-search/SKILL.md` y verifica las fuentes públicas actuales.
