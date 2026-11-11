@@ -1,7 +1,5 @@
 import { useLayoutEffect, useState } from 'react'
-
-const sameDraft = (left, right) =>
-  JSON.stringify(left) === JSON.stringify(right)
+import { reconcileSavedDraft, sameDraft } from '../draft-state.js'
 
 export function useDraft(
   value,
@@ -9,40 +7,23 @@ export function useDraft(
 ) {
   const [editor, setEditor] = useState(() => ({ draft: value, base: value }))
   const { draft, base } = editor
+  const dirty = !sameDraft(draft, base)
 
   useLayoutEffect(() => {
-    setEditor((current) => {
-      if (current.base === value) return current
-      if (sameDraft(current.base, value)) return { ...current, base: value }
-      if (
-        savedDraft &&
-        current.base === savedDraft.base &&
-        sameDraft(savedDraft.submitted, value)
-      ) {
-        return {
-          base: value,
-          draft: sameDraft(current.draft, savedDraft.draft)
-            ? value
-            : current.draft,
-        }
-      }
-      if (sameDraft(current.base, current.draft))
-        return { base: value, draft: value }
-      return current
-    })
+    setEditor((current) => reconcileSavedDraft(current, value, savedDraft))
   }, [value, savedDraft])
 
   useLayoutEffect(() => {
-    onDirtyChange?.(!sameDraft(draft, base))
+    onDirtyChange?.(dirty)
     onDraftChange?.({ draft, base })
-  }, [draft, base, onDirtyChange, onDraftChange])
+  }, [draft, base, dirty, onDirtyChange, onDraftChange])
 
   const setDraft = (next) =>
     setEditor((current) => ({
       ...current,
       draft: typeof next === 'function' ? next(current.draft) : next,
     }))
-  return [draft, setDraft]
+  return [draft, setDraft, dirty]
 }
 export function TextField({
   label,

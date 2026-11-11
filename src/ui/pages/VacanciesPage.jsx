@@ -338,7 +338,7 @@ export function VacanciesPage({
   onReload,
   initialVacancyId,
 }) {
-  const [draft, setDraft] = useDraft(value, {
+  const [draft, setDraft, draftDirty] = useDraft(value, {
     onDirtyChange,
     onDraftChange,
     savedDraft,
@@ -423,7 +423,7 @@ export function VacanciesPage({
     setEditing(false)
   }
 
-  const hasChanges = JSON.stringify(draft) !== JSON.stringify(value)
+  const hasChanges = draftDirty
   const detail = draft.items.find((item) => item.id === selected)
   const editor =
     detail && editing ? (
@@ -607,6 +607,7 @@ export function VacanciesPage({
       <Status
         fileName="vacancies"
         state={state}
+        dirty={draftDirty}
         warning={warning}
         savedAt={savedAt}
         onReload={onReload}

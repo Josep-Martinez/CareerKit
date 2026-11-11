@@ -105,6 +105,8 @@ export const STRINGS = {
   connected: 'Carpeta conectada',
   saveStatus: {
     saving: 'Guardando {file}…',
+    draftPending:
+      'Hay cambios nuevos sin guardar en {file}. El guardado anterior terminó; guarda otra vez para conservarlos.',
     saved: '{file} guardado · {time}',
     manualSaved:
       '{file} descargado. Sustitúyelo en private-data para guardar el cambio.',

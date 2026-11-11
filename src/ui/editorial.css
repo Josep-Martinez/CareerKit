@@ -362,6 +362,16 @@ select {
 .save-state {
   color: #3e7651;
 }
+
+.draft-pending {
+  margin: 0.45rem 0 1rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--amber) 35%, var(--line));
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--green-soft) 68%, white);
+  color: var(--ink);
+  font-size: 0.95rem;
+}
 .save-state.is-saving {
   color: #8a6d3b;
 }
