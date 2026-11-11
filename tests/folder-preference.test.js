@@ -49,6 +49,7 @@ test('persistent disconnect remains authoritative when stale session cleanup fai
   const session = new MemoryStorage()
   local.setItem('careerkit-folder-preference', 'picked')
   session.setItem('careerkit-folder-preference', 'local')
+  session.setItem('careerkit-folder-preference-mode', 'session')
   session.failRemove = true
 
   assert.equal(saveFolderPreference('disconnected', local, session), true)
