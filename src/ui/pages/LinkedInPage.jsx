@@ -1190,14 +1190,7 @@ function LinkedInListEditor({
           ) : (
             <div className="linkedin-item-fields">
               {fields.map((field) =>
-                LINKEDIN_BOOLEAN_FIELDS.includes(field) ? (
-                  <Check
-                    key={field}
-                    label={copy.entryFieldLabels[field]}
-                    checked={item[field]}
-                    onChange={(value) => updateField(index, field, value)}
-                  />
-                ) : field === 'skills' ? (
+                field === 'skills' ? (
                   <ArrayText
                     key={field}
                     title={copy.entryFieldLabels[field]}
