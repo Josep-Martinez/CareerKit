@@ -296,19 +296,21 @@ export function LinkedInPage({
   }
   const removeAudit = (index) =>
     setDraft({ ...draft, audits: draft.audits.filter((_, n) => n !== index) })
-  const applyAudit = (index) => {
+  const applyAudit = (index, { confirm = true } = {}) => {
     const item = draft.audits[index]
     const result = applyLinkedInAuditProposal(pub, item)
     if (result.error) {
       setApplyNotice(copy.auditCard.applyTargetUnavailable)
       return
     }
-    const confirmation = [
-      copy.auditCard.applyConfirmation,
-      `${copy.auditCard.currentText}: ${result.beforeValue || '—'}`,
-      `${copy.proposedTextPrefix}: ${item.proposedText}`,
-    ].join('\n\n')
-    if (!window.confirm(confirmation)) return
+    if (confirm) {
+      const confirmation = [
+        copy.auditCard.applyConfirmation,
+        `${copy.auditCard.currentText}: ${result.beforeValue || '—'}`,
+        `${copy.proposedTextPrefix}: ${item.proposedText}`,
+      ].join('\n\n')
+      if (!window.confirm(confirmation)) return
+    }
     setDraft({
       ...draft,
       published: withSelectedPublished(rootPublished, result.published),
@@ -317,6 +319,19 @@ export function LinkedInPage({
       ),
     })
     setApplyNotice(copy.auditCard.applySuccess)
+  }
+  const applyAuditFromPreview = (auditId) => {
+    const index = draft.audits.findIndex((item) => item.id === auditId)
+    if (index >= 0) applyAudit(index, { confirm: false })
+  }
+  const discardAuditFromPreview = (auditId) => {
+    setDraft({
+      ...draft,
+      audits: draft.audits.map((item) =>
+        item.id === auditId ? { ...item, status: 'descartada' } : item,
+      ),
+    })
+    setApplyNotice(copy.auditCard.discardSuccess)
   }
   const previewKeys = [
     'experience',
@@ -515,7 +530,7 @@ export function LinkedInPage({
               {copy.previewButton}
             </button>
           </div>
-          {view === 'edit' && hasUnsavedChanges && (
+          {hasUnsavedChanges && (
             <button
               className="button primary small linkedin-mode-save"
               type="button"
@@ -777,6 +792,14 @@ export function LinkedInPage({
                 {copy.addAudit}
               </button>
             </div>
+            <div className="linkedin-audit-guide">
+              <strong>{copy.auditGuideTitle}</strong>
+              <ol>
+                {copy.auditGuideSteps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </div>
             {activeAudits.map((item) => {
               const index = draft.audits.indexOf(item)
               return (
@@ -835,6 +858,11 @@ export function LinkedInPage({
             </div>
             <p>{copy.previewDescription}</p>
           </div>
+          {applyNotice && (
+            <p className="linkedin-apply-notice" role="status">
+              {applyNotice}
+            </p>
+          )}
           {!hasPublishedContent &&
           !hasActiveAudits &&
           !hasRecentChangesForCurrentVersion ? (
@@ -876,7 +904,11 @@ export function LinkedInPage({
                       sectionTitle={copy.sectionLabels.headline}
                       notes={auditNotes('headline')}
                       evidence={evidenceItems}
+                      published={pub}
                       recentlySavedIds={recentAuditIds}
+                      saving={saving}
+                      onApplyProposal={applyAuditFromPreview}
+                      onDiscardAudit={discardAuditFromPreview}
                       onOpenEvidence={onOpenEvidence}
                     />
                   </div>
@@ -891,7 +923,11 @@ export function LinkedInPage({
                         sectionTitle={copy.sectionLabels.about}
                         notes={auditNotes('about')}
                         evidence={evidenceItems}
+                        published={pub}
                         recentlySavedIds={recentAuditIds}
+                        saving={saving}
+                        onApplyProposal={applyAuditFromPreview}
+                        onDiscardAudit={discardAuditFromPreview}
                         onOpenEvidence={onOpenEvidence}
                       />
                     }
@@ -929,7 +965,11 @@ export function LinkedInPage({
                           sectionTitle={copy.sectionLabels[key]}
                           notes={auditNotes(key)}
                           evidence={evidenceItems}
+                          published={pub}
                           recentlySavedIds={recentAuditIds}
+                          saving={saving}
+                          onApplyProposal={applyAuditFromPreview}
+                          onDiscardAudit={discardAuditFromPreview}
                           onOpenEvidence={onOpenEvidence}
                         />
                       }
@@ -980,7 +1020,11 @@ export function LinkedInPage({
                           }
                           notes={notes}
                           evidence={evidenceItems}
+                          published={pub}
                           recentlySavedIds={recentAuditIds}
+                          saving={saving}
+                          onApplyProposal={applyAuditFromPreview}
+                          onDiscardAudit={discardAuditFromPreview}
                           onOpenEvidence={onOpenEvidence}
                         />
                       }
@@ -1161,9 +1205,7 @@ function ExpandablePreviewField({ label, value }) {
     <div className="linkedin-preview-expandable-field">
       <p>
         <b>{label}:</b>{' '}
-        {shouldExpand && !expanded
-          ? `${text.slice(0, 320).trimEnd()}…`
-          : text}
+        {shouldExpand && !expanded ? `${text.slice(0, 320).trimEnd()}…` : text}
       </p>
       {shouldExpand && (
         <button
@@ -1258,6 +1300,10 @@ function AuditPoints({
   sectionTitle,
   notes,
   evidence,
+  published,
+  onApplyProposal,
+  onDiscardAudit,
+  saving,
   onOpenEvidence,
   recentlySavedIds = new Set(),
 }) {
@@ -1424,6 +1470,53 @@ function AuditPoints({
                       <blockquote>
                         <b>{copy.auditPopoverProposed}:</b> {note.proposedText}
                       </blockquote>
+                    )}
+                    {(onApplyProposal || onDiscardAudit) && (
+                      <div className="preview-audit-actions">
+                        {onApplyProposal &&
+                          note.proposedText &&
+                          (note.status === 'aplicada' ? (
+                            <span role="status">
+                              {copy.auditCard.proposalApplied}
+                            </span>
+                          ) : (
+                            <>
+                              <button
+                                className="button secondary small"
+                                type="button"
+                                disabled={
+                                  saving ||
+                                  !published ||
+                                  !note.proposedText.trim() ||
+                                  Boolean(
+                                    resolveLinkedInAuditTarget(published, note)
+                                      .error,
+                                  )
+                                }
+                                onClick={() => onApplyProposal(note.id)}
+                              >
+                                {copy.auditCard.acceptProposal}
+                              </button>
+                              {published &&
+                                resolveLinkedInAuditTarget(published, note)
+                                  .error && (
+                                  <p className="quiet-empty">
+                                    {copy.auditCard.chooseExactTarget}
+                                  </p>
+                                )}
+                            </>
+                          ))}
+                        {onDiscardAudit && note.status !== 'descartada' && (
+                          <button
+                            className="button quiet small"
+                            type="button"
+                            disabled={saving}
+                            onClick={() => onDiscardAudit(note.id)}
+                          >
+                            {copy.auditCard.discardSuggestion}
+                          </button>
+                        )}
+                      </div>
                     )}
                     {note.date && (
                       <small className="preview-audit-note-date">
@@ -1598,19 +1691,25 @@ function AuditCard({
               </option>
             ))}
           </select>
+          <small>{labels.actionHint}</small>
         </label>
       </div>
       {item.section === 'additionalSections' && selectedAdditionalSection && (
-        <label className="field">
-          <span>{labels.proposalTarget}</span>
-          <select
-            value={item.targetField || 'content'}
-            onChange={(e) => onChange({ targetField: e.target.value })}
-          >
-            <option value="content">{labels.additionalContent}</option>
-            <option value="title">{labels.additionalTitle}</option>
-          </select>
-        </label>
+        <>
+          <label className="field">
+            <span>{labels.proposalTarget}</span>
+            <select
+              value={item.targetField || 'content'}
+              onChange={(e) => onChange({ targetField: e.target.value })}
+            >
+              <option value="content">{labels.additionalContent}</option>
+              <option value="title">{labels.additionalTitle}</option>
+            </select>
+          </label>
+          <p className="quiet-empty audit-target-hint">
+            {labels.additionalTargetHint}
+          </p>
+        </>
       )}
       {LINKEDIN_AUDIT_FIELDS[item.section] || item.section === 'skills' ? (
         <div className="form-two audit-target-fields">
@@ -1692,6 +1791,9 @@ function AuditCard({
           </label>
         </div>
       ) : null}
+      {(LINKEDIN_AUDIT_FIELDS[item.section] || item.section === 'skills') && (
+        <p className="quiet-empty audit-target-hint">{labels.targetHint}</p>
+      )}
       <label className="field">
         <span>{copy.auditPriority}</span>
         <select
@@ -1707,11 +1809,13 @@ function AuditCard({
       </label>
       <TextField
         label={labels.problem}
+        hint={labels.problemHint}
         value={item.problem}
         onChange={(v) => onChange({ problem: v })}
       />
       <TextField
         label={labels.reasonEvidence}
+        hint={labels.reasonEvidenceHint}
         rows={2}
         value={item.reasonEvidence}
         onChange={(v) => onChange({ reasonEvidence: v })}
@@ -1780,12 +1884,14 @@ function AuditCard({
         )}
       <TextField
         label={labels.recommendation}
+        hint={labels.recommendationHint}
         rows={2}
         value={item.recommendation}
         onChange={(v) => onChange({ recommendation: v })}
       />
       <TextField
         label={labels.proposedText}
+        hint={labels.proposedTextHint}
         rows={3}
         value={item.proposedText}
         onChange={(v) => onChange({ proposedText: v })}
@@ -1799,6 +1905,7 @@ function AuditCard({
         >
           {labels.applyProposal}
         </button>
+        {canApply && <p className="quiet-empty">{labels.applyProposalHint}</p>}
         {!canApply &&
           item.proposedText?.trim() &&
           item.status !== 'aplicada' && (
@@ -1823,6 +1930,7 @@ function AuditCard({
               </option>
             ))}
           </select>
+          <small>{labels.statusHint}</small>
         </label>
       </div>
     </div>

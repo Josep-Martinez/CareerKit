@@ -571,14 +571,21 @@ export const STRINGS = {
     lastUpdatedHint: 'Fecha manual; déjala vacía si no está registrada.',
     auditTitle: 'Anotaciones de revisión',
     auditDescription:
-      'Añade recomendaciones con evidencia concreta de Perfil y aprendizajes.',
+      'Cada tarjeta es una recomendación privada. Completa lo que aplique; nada se escribe en el archivo hasta que pulses Guardar.',
+    auditGuideTitle: 'Cómo revisar una anotación',
+    auditGuideSteps: [
+      'Elige la sección de LinkedIn, la acción y la prioridad.',
+      'Si propones un texto para una lista, selecciona la entrada y el campo exactos. Para Titular o Acerca de, basta con elegir la sección.',
+      'Explica qué se observa y por qué conviene cambiarlo; vincula las evidencias de Perfil con las casillas.',
+      'Escribe la recomendación y, si procede, el texto propuesto. En Vista previa, abre el marcador para aceptar el cambio o descartar la anotación; pulsa Guardar para conservar tus decisiones.',
+    ],
     addAudit: 'Añadir anotación',
     emptyAudit: 'Aún no hay anotaciones de revisión.',
     save: 'Guardar contenido y anotaciones',
     previewEyebrow: 'VISTA DE CONSULTA',
     previewTitle: 'Tu perfil',
     previewDescription:
-      'Pulsa los marcadores para consultar sugerencias privadas sin cambiar el contenido publicado.',
+      'Abre los marcadores para revisar sugerencias. Acepta las que quieras; se aplicarán a esta vista y se guardarán juntas al pulsar «Guardar contenido y anotaciones».',
     emptyPreviewTitle: 'Aún no hay contenido para previsualizar',
     emptyPreviewBody:
       'Añade la copia de tu perfil en Editar. Se mostrará aquí tal como la escribas.',
@@ -645,18 +652,29 @@ export const STRINGS = {
       unlinkedAdditionalSectionHint:
         'Vincula esta anotación a una sección adicional concreta para que aparezca junto al contenido correspondiente.',
       action: 'Acción',
+      actionHint:
+        'Corregir = sustituir; añadir = incorporar contenido; aclarar = hacerlo más preciso.',
       problem: 'Qué se observa',
+      problemHint: 'Describe el problema o la información que falta.',
       reasonEvidence: 'Por qué, según el perfil o los aprendizajes',
+      reasonEvidenceHint:
+        'Explica qué hecho confirmado respalda esta recomendación.',
       relatedEvidence: 'Evidencias relacionadas',
       untitledEvidence: 'Sin título',
       noEvidence: 'Añade primero evidencias o aprendizajes en Perfil.',
       openInProfile: 'Abrir en Perfil',
       otherEvidenceIds: 'Otros IDs de perfil/aprendizajes',
-      evidenceIdsHint: 'Los IDs deben existir en profile.json.',
+      evidenceIdsHint:
+        'Úsalo solo para evidencias que no aparezcan en las casillas de arriba. Separa los IDs de profile.json con comas.',
       recommendation: 'Qué corregir o añadir',
+      recommendationHint: 'Resume el cambio que recomiendas.',
       proposedText: 'Texto propuesto (opcional)',
+      proposedTextHint:
+        'Si lo escribes, podrás probarlo desde Vista previa. Para listas, selecciona arriba la entrada y el campo exactos.',
       date: 'Fecha de auditoría',
       status: 'Estado',
+      statusHint:
+        'En Vista previa, aceptar o descartar una anotación actualiza este estado.',
       actions: { corregir: 'Corregir', anadir: 'Añadir', aclarar: 'Aclarar' },
       priorities: { alta: 'Alta', media: 'Media', baja: 'Baja' },
       statuses: {
@@ -664,7 +682,11 @@ export const STRINGS = {
         aplicada: 'Aplicada',
         descartada: 'Descartada',
       },
-      proposalTarget: 'Campo al que se aplicará el texto',
+      proposalTarget: 'Campo que reemplazará el texto propuesto',
+      additionalTargetHint:
+        'Elige si el texto propuesto reemplaza el título o el contenido de esta sección.',
+      targetHint:
+        'Esto se usa al aceptar la propuesta en Vista previa. Selecciona primero la entrada y luego el campo exacto que quieres cambiar.',
       additionalContent: 'Contenido',
       additionalTitle: 'Título de la sección',
       targetEntry: 'Entrada concreta',
@@ -674,7 +696,14 @@ export const STRINGS = {
       plainTextValue: 'Texto completo de esta entrada',
       chooseExactTarget:
         'Selecciona la entrada y el campo exactos para poder aplicar este texto con seguridad.',
-      applyProposal: 'Revisar y aplicar propuesta',
+      applyProposal: 'Aplicar al borrador',
+      applyProposalHint:
+        'Esto cambia solo el borrador. Guarda al final para escribirlo en linkedin.json.',
+      acceptProposal: 'Aceptar cambio',
+      proposalApplied: 'Propuesta aplicada al borrador.',
+      discardSuggestion: 'Descartar anotación',
+      discardSuccess:
+        'Sugerencia descartada y retirada de Vista previa. La anotación permanece en Editar; pulsa Guardar para conservar esta decisión.',
       applyConfirmation:
         'Se sustituirá únicamente el campo seleccionado. ¿Quieres aplicar el cambio?',
       currentText: 'Texto actual',
