@@ -18,6 +18,7 @@ import {
   hasLinkedInUnsavedChanges,
   markLinkedInLanguageSyncPending,
 } from '../../data/linkedin-variants.js'
+import { hasLinkedInRecentChanges } from '../../data/linkedin-recent-changes.js'
 
 const copy = s.linkedinPage
 const languageBase = (language = '') => language.toLowerCase().split(/[-_]/)[0]
@@ -104,6 +105,7 @@ export function LinkedInPage({
   state,
   warning,
   savedAt,
+  recentChanges,
   onOpenEvidence,
   onOpenPrompts,
   onDirtyChange,
@@ -138,6 +140,31 @@ export function LinkedInPage({
         )
   const activeVariantId = activeVariant?.id || ''
   const pub = activeVariant || rootPublished
+  const recentVersion = recentChanges?.byLanguage?.[selectedLanguage] ||
+    recentChanges?.byLanguage?.[languageBase(pub.language) || 'main'] || {
+      fields: [],
+      sections: [],
+      entries: {},
+      additionalSections: [],
+    }
+  const recentAuditIds = new Set(recentChanges?.auditIds || [])
+  const hasRecentChanges = hasLinkedInRecentChanges(recentChanges)
+  const hasRecentField = (field) => recentVersion.fields.includes(field)
+  const hasRecentSection = (section) => recentVersion.sections.includes(section)
+  const hasRecentChangesForLanguage = (language) => {
+    const changes = recentChanges?.byLanguage?.[language]
+    return Boolean(
+      changes?.fields.length ||
+      changes?.sections.length ||
+      (language === selectedLanguage && recentAuditIds.size),
+    )
+  }
+  const hasRecentEntry = (section, item, index) =>
+    (recentVersion.entries[section] || []).includes(
+      item && typeof item === 'object' && item.id
+        ? String(item.id)
+        : `index:${index}`,
+    )
   const missingLanguage =
     requestedLanguage && primaryLanguage !== requestedLanguage && !activeVariant
       ? requestedLanguage
@@ -337,6 +364,11 @@ export function LinkedInPage({
   const hasActiveAudits = activeAudits.some(
     (item) => item.status !== 'descartada',
   )
+  const hasRecentChangesForCurrentVersion = Boolean(
+    recentVersion.fields.length ||
+    recentVersion.sections.length ||
+    activeAudits.some((item) => recentAuditIds.has(String(item.id))),
+  )
   const profileText = (profile) => {
     if (!profile) return null
     const content = { ...profile }
@@ -429,6 +461,12 @@ export function LinkedInPage({
                       {language.toUpperCase()}
                     </span>
                     <span>{copy.variantLanguageNames[language]}</span>
+                    {hasRecentChangesForLanguage(language) && (
+                      <span
+                        className="linkedin-language-change-dot"
+                        aria-hidden="true"
+                      />
+                    )}
                   </button>
                 )
               })}
@@ -491,6 +529,12 @@ export function LinkedInPage({
           {hasUnsavedChanges ? copy.unsavedChangesLabel : copy.separationNotice}
         </span>
       </div>
+      {hasRecentChanges && (
+        <p className="linkedin-recent-change-legend" role="status">
+          <span aria-hidden="true" />
+          {copy.recentlySavedLegend}
+        </p>
+      )}
       {missingLanguage ? (
         <section className="panel linkedin-preview-panel">
           <div className="linkedin-preview-empty">
@@ -559,11 +603,17 @@ export function LinkedInPage({
               {copy.sectionIndexPresentation}
             </h3>
             <TextField
+              className={
+                hasRecentField('name') ? 'linkedin-recently-saved' : ''
+              }
               label={copy.nameLabel}
               value={pub.name || ''}
               onChange={(v) => setPub('name', v)}
             />
             <TextField
+              className={
+                hasRecentField('headline') ? 'linkedin-recently-saved' : ''
+              }
               label={copy.sectionLabels.headline}
               value={pub.headline}
               onChange={(v) => setPub('headline', v)}
@@ -574,6 +624,9 @@ export function LinkedInPage({
               onOpenEvidence={onOpenEvidence}
             />
             <TextField
+              className={
+                hasRecentField('about') ? 'linkedin-recently-saved' : ''
+              }
               label={copy.sectionLabels.about}
               rows={7}
               value={pub.about}
@@ -593,6 +646,8 @@ export function LinkedInPage({
                 section={key}
                 title={copy.sectionLabels[key]}
                 items={pub[key]}
+                recentlySavedSection={hasRecentSection(key)}
+                recentlySavedEntries={new Set(recentVersion.entries[key] || [])}
                 onChange={(v) => setPub(key, v)}
               >
                 <AuditPoints
@@ -604,7 +659,7 @@ export function LinkedInPage({
             ))}
           </div>
           <section
-            className="linkedin-additional-editor"
+            className={`linkedin-additional-editor${hasRecentSection('additionalSections') ? ' linkedin-recently-saved-section' : ''}`}
             id="linkedin-section-additional"
             tabIndex={-1}
             aria-labelledby="linkedin-additional-title"
@@ -634,10 +689,17 @@ export function LinkedInPage({
             )}
             {additionalSections.map((section, index) => (
               <div
-                className="linkedin-additional-entry"
+                className={`linkedin-additional-entry${(recentVersion.additionalSections || []).includes(String(section.id || `index:${index}`)) ? ' linkedin-recently-saved' : ''}`}
                 key={section.id || index}
               >
                 <TextField
+                  className={
+                    (recentVersion.additionalSections || []).includes(
+                      String(section.id || `index:${index}`),
+                    )
+                      ? 'linkedin-recently-saved'
+                      : ''
+                  }
                   label={copy.additionalSectionTitleLabel}
                   value={section.title}
                   onChange={(title) =>
@@ -645,6 +707,13 @@ export function LinkedInPage({
                   }
                 />
                 <TextField
+                  className={
+                    (recentVersion.additionalSections || []).includes(
+                      String(section.id || `index:${index}`),
+                    )
+                      ? 'linkedin-recently-saved'
+                      : ''
+                  }
                   label={copy.additionalSectionContentLabel}
                   rows={6}
                   value={section.content}
@@ -675,6 +744,9 @@ export function LinkedInPage({
             tabIndex={-1}
           >
             <TextField
+              className={
+                hasRecentField('lastUpdated') ? 'linkedin-recently-saved' : ''
+              }
               label={copy.lastUpdatedLabel}
               value={activeVariant ? pub.lastUpdated || '' : draft.lastUpdated}
               onChange={(v) =>
@@ -686,7 +758,7 @@ export function LinkedInPage({
             />
           </section>
           <section
-            className="linkedin-audit-editor"
+            className={`linkedin-audit-editor${recentAuditIds.size ? ' linkedin-recently-saved-section' : ''}`}
             id="linkedin-section-audits"
             tabIndex={-1}
             aria-labelledby="linkedin-audit-title"
@@ -707,17 +779,26 @@ export function LinkedInPage({
             {activeAudits.map((item) => {
               const index = draft.audits.indexOf(item)
               return (
-                <AuditCard
+                <div
+                  className={
+                    recentAuditIds.has(String(item.id))
+                      ? 'linkedin-recently-saved'
+                      : ''
+                  }
                   key={item.id || index}
-                  item={item}
-                  evidence={evidenceItems}
-                  additionalSections={additionalSections}
-                  published={pub}
-                  onOpenEvidence={onOpenEvidence}
-                  onApply={() => applyAudit(index)}
-                  onChange={(part) => updateAudit(index, part)}
-                  onDelete={() => removeAudit(index)}
-                />
+                >
+                  <AuditCard
+                    key={item.id || index}
+                    item={item}
+                    evidence={evidenceItems}
+                    additionalSections={additionalSections}
+                    published={pub}
+                    onOpenEvidence={onOpenEvidence}
+                    onApply={() => applyAudit(index)}
+                    onChange={(part) => updateAudit(index, part)}
+                    onDelete={() => removeAudit(index)}
+                  />
+                </div>
               )
             })}
             {!activeAudits.length && (
@@ -753,7 +834,9 @@ export function LinkedInPage({
             </div>
             <p>{copy.previewDescription}</p>
           </div>
-          {!hasPublishedContent && !hasActiveAudits ? (
+          {!hasPublishedContent &&
+          !hasActiveAudits &&
+          !hasRecentChangesForCurrentVersion ? (
             <div className="linkedin-preview-empty">
               <span className="linkedin-empty-mark" aria-hidden="true">
                 in
@@ -776,7 +859,13 @@ export function LinkedInPage({
                   <div className="linkedin-avatar" aria-hidden="true">
                     {initials}
                   </div>
-                  <div>
+                  <div
+                    className={
+                      hasRecentField('name') || hasRecentField('headline')
+                        ? 'linkedin-recently-saved-content'
+                        : ''
+                    }
+                  >
                     <h3>{pub.name || copy.nameFallback}</h3>
                     {pub.headline && <p>{pub.headline}</p>}
                   </div>
@@ -784,40 +873,78 @@ export function LinkedInPage({
                 <AuditPoints
                   notes={auditNotes('headline')}
                   evidence={evidenceItems}
+                  recentlySavedIds={recentAuditIds}
                   onOpenEvidence={onOpenEvidence}
                 />
                 {(pub.about.trim() || auditNotes('about').length > 0) && (
-                  <PreviewSection title={copy.sectionLabels.about}>
+                  <PreviewSection
+                    title={copy.sectionLabels.about}
+                    recentlySaved={hasRecentField('about')}
+                  >
                     {pub.about.trim() && <p>{pub.about}</p>}
                     <AuditPoints
                       notes={auditNotes('about')}
                       evidence={evidenceItems}
+                      recentlySavedIds={recentAuditIds}
                       onOpenEvidence={onOpenEvidence}
                     />
                   </PreviewSection>
                 )}
+                {!pub.about.trim() &&
+                  !auditNotes('about').length &&
+                  hasRecentField('about') && (
+                    <PreviewSection
+                      title={copy.sectionLabels.about}
+                      recentlySaved
+                    >
+                      <p className="linkedin-recently-saved-content">
+                        {copy.recentlyChangedEmpty}
+                      </p>
+                    </PreviewSection>
+                  )}
                 {previewKeys
                   .filter(
                     (key) =>
-                      pub[key]?.some(hasEntryContent) || auditNotes(key).length,
+                      pub[key]?.some(hasEntryContent) ||
+                      auditNotes(key).length ||
+                      hasRecentSection(key),
                   )
                   .map((key) => (
-                    <PreviewSection key={key} title={copy.sectionLabels[key]}>
+                    <PreviewSection
+                      key={key}
+                      title={copy.sectionLabels[key]}
+                      recentlySaved={hasRecentSection(key)}
+                    >
                       {!!pub[key]?.length && (
                         <ul>
-                          {pub[key].filter(hasEntryContent).map((entry, i) => (
-                            <li key={entry.id || i}>
-                              <LinkedInEntryPreview
-                                section={key}
-                                item={entry}
-                              />
-                            </li>
-                          ))}
+                          {pub[key]
+                            .map((entry, index) => ({ entry, index }))
+                            .filter(({ entry }) => hasEntryContent(entry))
+                            .map(({ entry, index }) => (
+                              <li key={entry.id || index}>
+                                <LinkedInEntryPreview
+                                  section={key}
+                                  item={entry}
+                                  recentlySaved={hasRecentEntry(
+                                    key,
+                                    entry,
+                                    index,
+                                  )}
+                                />
+                              </li>
+                            ))}
                         </ul>
                       )}
+                      {!pub[key]?.some(hasEntryContent) &&
+                        hasRecentSection(key) && (
+                          <p className="linkedin-recently-saved-content">
+                            {copy.recentlyChangedEmpty}
+                          </p>
+                        )}
                       <AuditPoints
                         notes={auditNotes(key)}
                         evidence={evidenceItems}
+                        recentlySavedIds={recentAuditIds}
                         onOpenEvidence={onOpenEvidence}
                       />
                     </PreviewSection>
@@ -829,6 +956,9 @@ export function LinkedInPage({
                     <PreviewSection
                       key={section.id || index}
                       title={section.title || copy.additionalSectionFallback}
+                      recentlySaved={(
+                        recentVersion.additionalSections || []
+                      ).includes(String(section.id || `index:${index}`))}
                     >
                       {section.content && (
                         <p className="linkedin-additional-preview-content">
@@ -838,11 +968,30 @@ export function LinkedInPage({
                       <AuditPoints
                         notes={notes}
                         evidence={evidenceItems}
+                        recentlySavedIds={recentAuditIds}
                         onOpenEvidence={onOpenEvidence}
                       />
                     </PreviewSection>
                   )
                 })}
+                {!additionalSections.length &&
+                  hasRecentSection('additionalSections') && (
+                    <PreviewSection
+                      title={copy.additionalSectionsTitle}
+                      recentlySaved
+                    >
+                      <p className="linkedin-recently-saved-content">
+                        {copy.recentlyChangedEmpty}
+                      </p>
+                    </PreviewSection>
+                  )}
+                {!hasPublishedContent &&
+                  !hasActiveAudits &&
+                  hasRecentChangesForCurrentVersion && (
+                    <p className="linkedin-recently-saved-content">
+                      {copy.recentlyChangedEmpty}
+                    </p>
+                  )}
                 {hasActiveAudits && !hasPublishedContent && (
                   <p className="linkedin-audit-only-note">
                     {copy.auditOnlyNote}
@@ -862,6 +1011,8 @@ function LinkedInListEditor({
   section,
   title,
   items = [],
+  recentlySavedSection,
+  recentlySavedEntries = new Set(),
   onChange,
   children,
 }) {
@@ -873,7 +1024,11 @@ function LinkedInListEditor({
     update(index, { ...items[index], [field]: value })
   const fields = LINKEDIN_OBJECT_FIELDS[section] || []
   return (
-    <section id={sectionId} className="linkedin-list-editor" tabIndex={-1}>
+    <section
+      id={sectionId}
+      className={`linkedin-list-editor${recentlySavedSection ? ' linkedin-recently-saved-section' : ''}`}
+      tabIndex={-1}
+    >
       <div className="linkedin-list-heading">
         <h3>{title}</h3>
         <button
@@ -901,7 +1056,10 @@ function LinkedInListEditor({
       </div>
       {!items.length && <p className="quiet-empty">{copy.emptyList}</p>}
       {items.map((item, index) => (
-        <div className="linkedin-list-entry" key={index}>
+        <div
+          className={`linkedin-list-entry${recentlySavedEntries.has(itemKeyForDisplay(item, index)) ? ' linkedin-recently-saved' : ''}`}
+          key={index}
+        >
           {typeof item === 'string' || section === 'skills' ? (
             <TextField
               label={`${title} ${index + 1}`}
@@ -959,6 +1117,12 @@ function LinkedInListEditor({
   )
 }
 
+function itemKeyForDisplay(item, index) {
+  return item && typeof item === 'object' && item.id
+    ? String(item.id)
+    : `index:${index}`
+}
+
 function hasEntryContent(item) {
   if (typeof item === 'string') return Boolean(item.trim())
   if (typeof item === 'boolean') return item
@@ -969,8 +1133,13 @@ function hasEntryContent(item) {
   )
 }
 
-function LinkedInEntryPreview({ section, item }) {
-  if (typeof item === 'string') return <span>{item}</span>
+function LinkedInEntryPreview({ section, item, recentlySaved }) {
+  if (typeof item === 'string')
+    return (
+      <span className={recentlySaved ? 'linkedin-recently-saved-content' : ''}>
+        {item}
+      </span>
+    )
   const titleKey = {
     experience: 'title',
     education: 'degree',
@@ -992,7 +1161,9 @@ function LinkedInEntryPreview({ section, item }) {
   const renderValue = (key, value) =>
     Array.isArray(value) ? value.join(' · ') : String(value)
   return (
-    <div className="linkedin-preview-entry">
+    <div
+      className={`linkedin-preview-entry${recentlySaved ? ' linkedin-recently-saved-content' : ''}`}
+    >
       {hasEntryContent(item[titleKey]) && <h5>{item[titleKey]}</h5>}
       {fields.map((key) => (
         <p key={key}>
@@ -1014,16 +1185,23 @@ function LinkedInEntryPreview({ section, item }) {
   )
 }
 
-function PreviewSection({ title, children }) {
+function PreviewSection({ title, children, recentlySaved }) {
   return (
-    <section className="linkedin-preview-section">
+    <section
+      className={`linkedin-preview-section${recentlySaved ? ' linkedin-recently-saved-section' : ''}`}
+    >
       <h4>{title}</h4>
       {children}
     </section>
   )
 }
 
-function AuditPoints({ notes, evidence, onOpenEvidence }) {
+function AuditPoints({
+  notes,
+  evidence,
+  onOpenEvidence,
+  recentlySavedIds = new Set(),
+}) {
   if (!notes.length) return null
   return (
     <div className="preview-audit-points">
@@ -1035,7 +1213,14 @@ function AuditPoints({ notes, evidence, onOpenEvidence }) {
           )
           const basis = (note.profileEvidenceIds || []).join(' · ')
           return (
-            <li key={note.id}>
+            <li
+              key={note.id}
+              className={
+                recentlySavedIds.has(String(note.id))
+                  ? 'linkedin-recently-saved-content'
+                  : ''
+              }
+            >
               <b>
                 {copy.auditActions[note.action] || copy.auditActions.fallback}:
               </b>{' '}

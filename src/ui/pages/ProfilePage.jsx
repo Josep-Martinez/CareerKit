@@ -97,7 +97,7 @@ export function ProfilePage({
   onSave,
   onReload,
 }) {
-  const [draft, setDraft] = useDraft(value, {
+  const [draft, setDraft, draftDirty] = useDraft(value, {
     onDirtyChange,
     onDraftChange,
     savedDraft,
@@ -131,6 +131,14 @@ export function ProfilePage({
       )
       return
     }
+    const title =
+      item.title || item.name || item.organization || 'esta evidencia'
+    if (
+      !window.confirm(
+        s.profilePage.confirmRemoveEvidence.replace('{title}', title),
+      )
+    )
+      return
     update(
       key,
       draft[key].filter((_, position) => position !== index),
@@ -244,6 +252,7 @@ export function ProfilePage({
       <Status
         fileName="profile"
         state={state}
+        dirty={draftDirty}
         warning={warning}
         savedAt={savedAt}
         onReload={onReload}

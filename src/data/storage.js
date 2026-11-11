@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { EMPTY, FILES } from './catalog.js'
 import { detectLocalFolder } from './local-folder.js'
 import {
+  getFolderPreference,
+  saveFolderPreference,
+} from './folder-preference.js'
+import {
   findUnknownProfileFields,
   hasProfileContent,
 } from './profile-fields.js'
@@ -215,6 +219,13 @@ const validProfileEntry = (item) =>
   ['confirmed', 'cvEvidence', 'onLinkedIn', 'internal'].every(
     (field) => item[field] === undefined || typeof item[field] === 'boolean',
   )
+const validAdaptedCv = (value) =>
+  isRecord(value) &&
+  typeof value.text === 'string' &&
+  /\S/.test(value.text) &&
+  ['es', 'en'].includes(value.language) &&
+  (value.layout === undefined ||
+    ['single-column', 'two-columns'].includes(value.layout))
 const validVacancyItem = (item) =>
   isRecord(item) &&
   typeof item.id === 'string' &&
@@ -241,7 +252,8 @@ const validVacancyItem = (item) =>
     typeof item.salaryVerified === 'boolean') &&
   (item.featured === undefined || typeof item.featured === 'boolean') &&
   (item.preference === undefined || Number.isInteger(item.preference)) &&
-  (item.cvAdvice === undefined || validCvAdvice(item.cvAdvice))
+  (item.cvAdvice === undefined || validCvAdvice(item.cvAdvice)) &&
+  (item.adaptedCv === undefined || validAdaptedCv(item.adaptedCv))
 const validators = {
   profile: (d) =>
     typeof d.professionalProfile === 'string' &&
@@ -456,6 +468,7 @@ export function hasModuleContent(name, value) {
           'gaps',
           'blockers',
           'matchingEvidenceIds',
+          'adaptedCv',
         ].some((key) => hasMeaningfulValue(item[key])) ||
         item.featured === true ||
         Number.isInteger(item.preference),
@@ -512,41 +525,6 @@ export function normalizeModule(name, value) {
   if (masterText || lastUpdated || lastReviewed)
     data.previousVersion = { masterText, lastUpdated, lastReviewed }
   return { data, migrated: true }
-}
-
-const folderPreferenceKey = 'careerkit-folder-preference'
-
-function getFolderPreference() {
-  try {
-    const session = sessionStorage.getItem(folderPreferenceKey)
-    if (session) return session
-    if (sessionStorage.getItem('careerkit-disconnected')) return 'disconnected'
-  } catch {
-    // A restricted session may still allow persistent storage.
-  }
-  try {
-    return localStorage.getItem(folderPreferenceKey)
-  } catch {
-    return null
-  }
-}
-
-function saveFolderPreference(value) {
-  let persisted = false
-  try {
-    localStorage.setItem(folderPreferenceKey, value)
-    persisted = true
-  } catch {
-    // Use a session marker when persistent storage is not available.
-  }
-  try {
-    if (persisted) sessionStorage.removeItem(folderPreferenceKey)
-    else sessionStorage.setItem(folderPreferenceKey, value)
-    sessionStorage.removeItem('careerkit-disconnected')
-  } catch {
-    // The in-memory preference still applies to this page.
-  }
-  return persisted
 }
 
 export function useStorageState() {
@@ -1222,7 +1200,9 @@ function findUnknown(name, data) {
         'preference',
         'featured',
         'cvAdvice',
+        'adaptedCv',
       ],
+      adaptedCv: ['text', 'language', 'layout'],
       cvAdvice: [
         'recommendedVersion',
         'reason',
@@ -1285,6 +1265,7 @@ function findUnknown(name, data) {
     (data.items || []).forEach((item, index) => {
       inspect(item, rules.item, `items[${index}]`)
       inspect(item.cvAdvice, rules.cvAdvice, `items[${index}].cvAdvice`)
+      inspect(item.adaptedCv, rules.adaptedCv, `items[${index}].adaptedCv`)
     })
   if (name === 'priorities')
     (data.items || []).forEach((item, index) =>

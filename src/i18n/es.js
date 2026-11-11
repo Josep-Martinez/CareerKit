@@ -105,6 +105,8 @@ export const STRINGS = {
   connected: 'Carpeta conectada',
   saveStatus: {
     saving: 'Guardando {file}…',
+    draftPending:
+      'Hay cambios nuevos sin guardar en {file}. El guardado anterior terminó; guarda otra vez para conservarlos.',
     saved: '{file} guardado · {time}',
     manualSaved:
       '{file} descargado. Sustitúyelo en private-data para guardar el cambio.',
@@ -259,6 +261,8 @@ export const STRINGS = {
     },
     itemLabel: 'Elemento',
     deleteItem: 'Eliminar elemento',
+    confirmRemoveEvidence:
+      '¿Quitar «{title}» de este borrador? El cambio solo llegará a profile.json cuando lo guardes.',
     noItems: 'Aún no hay elementos. Añade uno cuando quieras.',
     titleLabel: 'Título',
     nameLabel: 'Nombre',
@@ -463,6 +467,54 @@ export const STRINGS = {
       'Perfil y LinkedIn ya contienen información. Copia el prompt para que tu asistente prepare las dos bases generales. La aplicación no genera el CV automáticamente.',
     morePrompts: 'Ver más prompts en el Buzón',
   },
+  vacancyPage: {
+    openOffer: 'Abrir oferta',
+    noLink: 'Enlace sin registrar',
+    viewDetails: 'Ver detalles',
+    closeDetails: 'Cerrar detalles',
+    editOffer: 'Editar vacante',
+    removeOffer: 'Eliminar vacante',
+    saveOffers: 'Guardar vacantes',
+    selectForCv: 'Vacante para adaptar el CV',
+    chooseOffer: 'Elige una oferta guardada',
+    noOffersForCv: 'Guarda una vacante para poder seleccionarla.',
+    returnToOffer: 'Volver a la vacante',
+    adaptedCv: 'CV adaptado',
+    prepareCv: 'Preparar CV con el agente',
+    reviseCv: 'Revisar CV con el agente',
+    emptyAdaptedCv:
+      'El CV que prepare el agente aparecerá aquí. Si acabas de guardarlo, recarga el archivo de vacantes.',
+    viewAdaptedCv: 'Ver CV adaptado',
+    spanishCv: 'Español',
+    englishCv: 'Inglés',
+    confirmRemoval:
+      '¿Quitar «{offer}» de tu lista? Pulsa «Guardar vacantes» para aplicar la eliminación al archivo.',
+  },
+  vacancyComparison: {
+    eyebrow: '{count} VACANTES SELECCIONADAS',
+    title: 'Comparación de vacantes',
+    description:
+      'Revisa las condiciones y el encaje de cada oferta en paralelo.',
+    clear: 'Limpiar selección',
+    scrollHint: 'Desliza la tabla para ver todas las ofertas.',
+    tableLabel: 'Tabla de comparación',
+    criterion: 'Criterio',
+    unknownCompany: 'Empresa sin registrar',
+    unknownRole: 'Puesto sin título',
+    conditions: 'Condiciones',
+    salary: 'Salario',
+    verified: 'Verificado',
+    unverified: 'Sin verificar',
+    modality: 'Modalidad',
+    location: 'Ubicación',
+    verificationDate: 'Fecha de verificación',
+    fit: 'Encaje y preparación',
+    assessment: 'Valoración',
+    evidence: 'Evidencias de encaje',
+    gaps: 'Carencias',
+    blockers: 'Bloqueos',
+    cv: 'CV recomendado',
+  },
   vacancyCvAdvice: {
     title: 'Qué adaptar en los CV',
     description:
@@ -499,6 +551,10 @@ export const STRINGS = {
     previewButton: 'Vista previa',
     separationNotice: 'La copia publicada y las notas se guardan por separado.',
     unsavedChangesLabel: 'Cambios sin guardar',
+    recentlySavedLegend:
+      'En rojo se muestran los cambios del último guardado. El próximo guardado sustituirá este resaltado.',
+    recentlyChangedEmpty:
+      'Este apartado cambió en el último guardado y ahora no tiene contenido para mostrar.',
     unsavedChangesConfirmation:
       'Hay cambios de LinkedIn sin guardar. Si sales de esta sección o recargas ahora, se perderán. ¿Quieres continuar?',
     sectionIndexTitle: 'Ir a una sección',

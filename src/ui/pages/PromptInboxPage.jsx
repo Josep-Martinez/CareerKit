@@ -13,6 +13,9 @@ export function PromptInboxPage({
   onCheckLinkedIn,
   onConfirmLinkedIn,
   adaptationVacancyId,
+  vacancies,
+  onReturnToVacancy,
+  focusedPromptId,
 }) {
   const copy = s.promptInbox
   const pendingCv = Boolean(pending?.cv)
@@ -23,19 +26,25 @@ export function PromptInboxPage({
     ...(pendingLinkedinLanguages ? ['sync-linkedin-languages'] : []),
   ])
   const [search, setSearch] = useState('')
-  const [vacancyReference, setVacancyReference] = useState(
+  const [vacancyReference, setVacancyReference] = useState('')
+  const [selectedVacancyId, setSelectedVacancyId] = useState(
     adaptationVacancyId || '',
+  )
+  const selectedVacancy = vacancies.find(
+    (item) => item.id === selectedVacancyId,
   )
   const [copyMessages, setCopyMessages] = useState({})
   useEffect(() => {
-    if (!adaptationVacancyId) return
-    const summary = document.querySelector('#prompt-tailor-cv-vacancy summary')
+    if (!focusedPromptId) return
+    const summary = document
+      .getElementById(`prompt-${focusedPromptId}`)
+      ?.querySelector('summary')
     const frame = requestAnimationFrame(() => {
       summary?.focus({ preventScroll: true })
       summary?.scrollIntoView({ block: 'start' })
     })
     return () => cancelAnimationFrame(frame)
-  }, [adaptationVacancyId])
+  }, [focusedPromptId])
 
   const query = search.trim().toLocaleLowerCase('es')
   const prompts = copy.prompts.filter((prompt) =>
@@ -52,8 +61,15 @@ export function PromptInboxPage({
       .includes(query),
   )
 
+  function referenceFor(prompt) {
+    return prompt.id === 'tailor-cv-vacancy'
+      ? selectedVacancy?.id || ''
+      : vacancyReference.trim()
+  }
+
   async function copyPrompt(prompt) {
-    if (prompt.requiresVacancy && !vacancyReference.trim()) {
+    const reference = referenceFor(prompt)
+    if (prompt.requiresVacancy && !reference) {
       setCopyMessages((previous) => ({
         ...previous,
         [prompt.id]: copy.copyMissingVacancy,
@@ -61,7 +77,7 @@ export function PromptInboxPage({
       return
     }
     const text = buildPromptText(prompt, {
-      vacancyReference: vacancyReference.trim(),
+      vacancyReference: referenceFor(prompt),
     })
     try {
       await navigator.clipboard.writeText(text)
@@ -77,8 +93,9 @@ export function PromptInboxPage({
 
   function renderPromptCard(prompt, isPending) {
     const requirements = PROMPT_REQUIREMENTS[prompt.id]
+    const isTailoring = prompt.id === 'tailor-cv-vacancy'
     const renderedText = buildPromptText(prompt, {
-      vacancyReference: vacancyReference.trim(),
+      vacancyReference: referenceFor(prompt),
     })
     return (
       <article
@@ -88,10 +105,7 @@ export function PromptInboxPage({
       >
         <details
           className="prompt-details"
-          open={
-            isPending ||
-            (Boolean(adaptationVacancyId) && prompt.id === 'tailor-cv-vacancy')
-          }
+          open={isPending || prompt.id === focusedPromptId}
         >
           <summary className="prompt-card-heading">
             <div>
@@ -124,7 +138,45 @@ export function PromptInboxPage({
                 </li>
               ))}
             </ul>
-            {prompt.requiresVacancy && (
+            {isTailoring && (
+              <div className="tailoring-vacancy-picker">
+                <label className="field">
+                  <span>{s.vacancyPage.selectForCv}</span>
+                  <select
+                    value={selectedVacancy?.id || ''}
+                    onChange={(event) => {
+                      setSelectedVacancyId(event.target.value)
+                      setCopyMessages((previous) => ({
+                        ...previous,
+                        [prompt.id]: '',
+                      }))
+                    }}
+                  >
+                    <option value="">{s.vacancyPage.chooseOffer}</option>
+                    {vacancies.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {[item.role, item.company, item.location]
+                          .filter(Boolean)
+                          .join(' · ') || item.id}
+                      </option>
+                    ))}
+                  </select>
+                  {!vacancies.length && (
+                    <small>{s.vacancyPage.noOffersForCv}</small>
+                  )}
+                </label>
+                {selectedVacancy && (
+                  <button
+                    type="button"
+                    className="button secondary small"
+                    onClick={() => onReturnToVacancy(selectedVacancy.id)}
+                  >
+                    {s.vacancyPage.returnToOffer}
+                  </button>
+                )}
+              </div>
+            )}
+            {prompt.requiresVacancy && !isTailoring && (
               <TextField
                 label={copy.vacancyReference}
                 value={vacancyReference}
@@ -149,7 +201,7 @@ export function PromptInboxPage({
             <div className="prompt-card-footer">
               <button
                 className="button secondary small"
-                disabled={prompt.requiresVacancy && !vacancyReference.trim()}
+                disabled={prompt.requiresVacancy && !referenceFor(prompt)}
                 onClick={() => copyPrompt(prompt)}
               >
                 {copy.copyButton}

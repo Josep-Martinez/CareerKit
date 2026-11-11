@@ -32,7 +32,7 @@ export function EmptyState({ text, action, onClick }) {
     </div>
   )
 }
-export function Status({ state, warning, onReload, fileName, savedAt }) {
+export function Status({ state, warning, onReload, fileName, savedAt, dirty }) {
   const file = fileName ? `private-data/${fileName}.json` : ''
   const format = (template, replacements) =>
     Object.entries(replacements).reduce(
@@ -67,6 +67,11 @@ export function Status({ state, warning, onReload, fileName, savedAt }) {
         >
           <span>●</span> {label}
         </div>
+      )}
+      {dirty && (
+        <p className="draft-pending" role="status" aria-live="polite">
+          {format(s.saveStatus.draftPending, { file })}
+        </p>
       )}
       {warning && (
         <div className="warning-box">
