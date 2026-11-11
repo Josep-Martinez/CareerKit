@@ -131,6 +131,14 @@ export function ProfilePage({
       )
       return
     }
+    const title =
+      item.title || item.name || item.organization || 'esta evidencia'
+    if (
+      !window.confirm(
+        s.profilePage.confirmRemoveEvidence.replace('{title}', title),
+      )
+    )
+      return
     update(
       key,
       draft[key].filter((_, position) => position !== index),

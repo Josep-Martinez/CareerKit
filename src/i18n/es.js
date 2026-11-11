@@ -261,6 +261,8 @@ export const STRINGS = {
     },
     itemLabel: 'Elemento',
     deleteItem: 'Eliminar elemento',
+    confirmRemoveEvidence:
+      '¿Quitar «{title}» de este borrador? El cambio solo llegará a profile.json cuando lo guardes.',
     noItems: 'Aún no hay elementos. Añade uno cuando quieras.',
     titleLabel: 'Título',
     nameLabel: 'Nombre',

@@ -57,8 +57,7 @@ export function saveFolderPreference(value, localProvided, sessionProvided) {
     try {
       session?.removeItem(folderPreferenceKey)
       session?.removeItem(legacyDisconnectedKey)
-      if (!persistentModeRecorded)
-        session?.removeItem(folderPreferenceModeKey)
+      if (!persistentModeRecorded) session?.removeItem(folderPreferenceModeKey)
     } catch {
       // The persistent mode marker makes an old session value harmless.
     }

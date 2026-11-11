@@ -12,9 +12,7 @@ export function reconcileSavedDraft(current, value, savedDraft) {
   ) {
     return {
       base: value,
-      draft: sameDraft(current.draft, savedDraft.draft)
-        ? value
-        : current.draft,
+      draft: sameDraft(current.draft, savedDraft.draft) ? value : current.draft,
     }
   }
   if (sameDraft(current.base, current.draft))
