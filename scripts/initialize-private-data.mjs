@@ -6,7 +6,14 @@ import { fileURLToPath } from 'node:url'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const templateDir = path.join(root, 'templates')
 const privateDir = path.join(root, 'private-data')
-const modules = ['profile', 'linkedin', 'cv', 'vacancies', 'priorities']
+const modules = [
+  'profile',
+  'linkedin',
+  'cv',
+  'vacancies',
+  'priorities',
+  'linkedin-content',
+]
 
 await mkdir(privateDir, { recursive: true })
 for (const module of modules) {

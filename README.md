@@ -1,6 +1,6 @@
 # CareerKit
 
-Aplicación web estática, local-first y en español para organizar perfil profesional, aprendizajes, LinkedIn, CV, vacantes y prioridades. No incluye cuentas, backend, sincronización, telemetría, analítica ni conexión a modelos. No busca ofertas ni genera recomendaciones automáticamente; un agente local puede guardar una valoración cuando se lo pidas.
+Aplicación web estática, local-first y en español para organizar perfil profesional, aprendizajes, LinkedIn, contenido, CV, vacantes y prioridades. No incluye cuentas, backend, sincronización, telemetría, analítica ni conexión a modelos. No busca ofertas ni genera recomendaciones automáticamente; un agente local puede guardar una valoración cuando se lo pidas.
 
 ## Abrir CareerKit por primera vez
 
@@ -17,7 +17,7 @@ El asistente puede preparar y editar los archivos porque tiene abierto este repo
 
 La app queda en `http://127.0.0.1:5173/`. Usa siempre esa misma dirección y el mismo navegador: así CareerKit puede recordar la selección de carpeta en este ordenador. El servidor debe seguir activo mientras la usas; puedes pedirle al asistente que lo inicie o lo detenga. No hace falta desplegar ni publicar el proyecto.
 
-La primera apertura está vacía. No se incluyen ejemplos personales. `pnpm data:init` prepara `private-data/` y copia `profile.json`, `linkedin.json`, `cv.json`, `vacancies.json` y `priorities.json` desde las plantillas vacías, solo cuando cada archivo aún no existe. Conserva los archivos existentes sin leerlos ni sobrescribirlos. `private-data/` está ignorada por Git y no forma parte del build.
+La primera apertura está vacía. No se incluyen ejemplos personales. `pnpm data:init` prepara `private-data/` y copia los seis JSON —incluido `linkedin-content.json`— desde las plantillas vacías, solo cuando cada archivo aún no existe. Conserva los archivos existentes sin leerlos ni sobrescribirlos. `private-data/` está ignorada por Git y no forma parte del build.
 
 Si todavía no has conectado una carpeta, verás una franja que explica cómo conectar tus archivos y abrir el prompt de preparación. Al seleccionar una carpeta sin los JSON, CareerKit muestra una ventana que permite crear solo las plantillas que faltan, tras tu confirmación. Si los JSON existen y tienen el formato correcto pero están vacíos, aparece una ventana que te lleva a **Perfil y aprendizajes** para empezar a rellenarlos. Si un archivo está vacío, mal formado o no coincide con su plantilla, CareerKit lo deja intacto, señala el nombre y te indica cuál archivo de `templates/` revisar. Los demás módulos siguen disponibles. También puedes pedir al asistente local que prepare la carpeta con el prompt del buzón.
 
@@ -26,6 +26,12 @@ Los datos permanecen en esos archivos locales. La web necesita permiso para leer
 ### Si el navegador no permite conectar una carpeta
 
 La app ofrece abrir o editar un JSON individual y descargar la versión actualizada. Después, sustituye manualmente el fichero correspondiente dentro de `private-data/` y vuelve a conectar o recargarlo. El CV base solo se muestra en modo de consulta; para actualizarlo, pide al agente local que revise Perfil y LinkedIn. Este modo no sincroniza el archivo mientras editas, no vigila cambios externos y no resuelve conflictos automáticamente. No es una función de exportación general; es una alternativa de guardado para navegadores sin acceso directo.
+
+### Contenido de LinkedIn
+
+La sección **Contenido de LinkedIn** reúne tres flujos: descubrir artículos públicos, preparar publicaciones y redactar comentarios. La búsqueda usa los intereses y temas actuales de Perfil en cada ejecución del prompt; también puedes añadir un enfoque puntual. El agente busca y verifica fuentes con las herramientas disponibles. La web no busca ni redacta por su cuenta.
+
+Las lecturas encontradas se guardan como pendientes en `private-data/linkedin-content.json`. Puedes aceptarlas o descartarlas; ambas decisiones se conservan. Al aceptar una lectura puedes escribir tu opinión y copiar un prompt para preparar una publicación. Los borradores no se guardan en CareerKit. Sin acceso local a la carpeta, el agente puede presentarte resultados en el chat y tú puedes añadirlos manualmente, pero no debe decir que los guardó.
 
 Para desconectar, usa **Desconectar carpeta**. Puedes borrar los datos cargados de la sesión solo mediante la segunda acción confirmada. Esto no borra ficheros locales.
 
@@ -96,6 +102,6 @@ La web solo trabaja con datos que selecciones localmente y autorices. No los env
 
 ## Conexión automática en localhost
 
-Al ejecutar `pnpm local`, el servidor local conecta `private-data/` automáticamente, incluso si los cinco JSON son plantillas vacías. Si la carpeta todavía no existe, puedes pedir a tu asistente local que la prepare; la web vuelve a comprobar su existencia cada tres segundos. Los archivos inválidos se señalan por separado y no se sustituyen.
+Al ejecutar `pnpm local`, el servidor local conecta `private-data/` automáticamente, incluso si los seis JSON son plantillas vacías. Si la carpeta todavía no existe, puedes pedir a tu asistente local que la prepare; la web vuelve a comprobar su existencia cada tres segundos. Los archivos inválidos se señalan por separado y no se sustituyen.
 
-Este acceso usa un servicio exclusivo del servidor de desarrollo, limitado a `127.0.0.1` y a los cinco JSON. No forma parte de la web estática publicada. En GitHub Pages sigue siendo necesario seleccionar una carpeta mediante el navegador. Al desconectar, se suspende la conexión automática durante esa sesión de pestaña.
+Este acceso usa un servicio exclusivo del servidor de desarrollo, limitado a `127.0.0.1` y a los seis JSON. No forma parte de la web estática publicada. En GitHub Pages sigue siendo necesario seleccionar una carpeta mediante el navegador. Al desconectar, se suspende la conexión automática durante esa sesión de pestaña.

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://careerkit.invalid/schemas/linkedin-content.schema.json",
+  "title": "CareerKit LinkedIn content queue",
+  "type": "object",
+  "required": ["schemaVersion", "articles"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "articles": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/article" }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "article": {
+      "type": "object",
+      "required": ["id", "title", "source", "url", "status"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "format": "uri" },
+        "publishedAt": { "type": "string" },
+        "verified": { "type": "boolean" },
+        "verifiedAt": { "type": "string" },
+        "relevance": { "type": "string" },
+        "topics": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "status": { "enum": ["pending", "accepted", "rejected"] },
+        "opinion": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  }
+}
