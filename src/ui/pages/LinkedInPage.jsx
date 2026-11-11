@@ -44,9 +44,7 @@ const PROFILE_EVIDENCE_KEYS = [
   'evidence',
   'learnings',
 ]
-const LINKEDIN_BOOLEAN_FIELDS = ['descriptionTruncated']
-const initialLinkedInField = (field) =>
-  field === 'skills' ? [] : LINKEDIN_BOOLEAN_FIELDS.includes(field) ? false : ''
+const initialLinkedInField = (field) => (field === 'skills' ? [] : '')
 const LINKEDIN_OBJECT_FIELDS = {
   experience: [
     'title',
@@ -56,7 +54,6 @@ const LINKEDIN_OBJECT_FIELDS = {
     'workplaceType',
     'dates',
     'description',
-    'descriptionTruncated',
     'skills',
   ],
   education: [
@@ -67,7 +64,6 @@ const LINKEDIN_OBJECT_FIELDS = {
     'grade',
     'activities',
     'description',
-    'descriptionTruncated',
     'skills',
   ],
   languages: ['language', 'proficiency', 'details'],
@@ -79,25 +75,10 @@ const LINKEDIN_OBJECT_FIELDS = {
     'credentialId',
     'credentialUrl',
     'description',
-    'descriptionTruncated',
     'skills',
   ],
-  projects: [
-    'name',
-    'associatedWith',
-    'dates',
-    'description',
-    'descriptionTruncated',
-    'skills',
-    'url',
-  ],
-  featured: [
-    'title',
-    'description',
-    'descriptionTruncated',
-    'url',
-    'mediaType',
-  ],
+  projects: ['name', 'associatedWith', 'dates', 'description', 'skills', 'url'],
+  featured: ['title', 'description', 'url', 'mediaType'],
 }
 export function LinkedInPage({
   value,
@@ -1268,7 +1249,8 @@ function hasEntryContent(item) {
   if (Array.isArray(item)) return item.some(hasEntryContent)
   if (!item || typeof item !== 'object') return false
   return Object.entries(item).some(
-    ([key, value]) => key !== 'id' && hasEntryContent(value),
+    ([key, value]) =>
+      !['id', 'descriptionTruncated'].includes(key) && hasEntryContent(value),
   )
 }
 
@@ -1312,15 +1294,15 @@ function LinkedInEntryPreview({ section, item, recentlySaved }) {
     projects: 'name',
     featured: 'title',
   }[section]
-  const known = new Set(LINKEDIN_OBJECT_FIELDS[section] || [])
+  const known = new Set([
+    ...(LINKEDIN_OBJECT_FIELDS[section] || []),
+    'descriptionTruncated',
+  ])
   const extras = Object.entries(item).filter(
     ([key, value]) => key !== 'id' && !known.has(key) && hasEntryContent(value),
   )
   const fields = (LINKEDIN_OBJECT_FIELDS[section] || []).filter(
-    (key) =>
-      key !== titleKey &&
-      key !== 'descriptionTruncated' &&
-      hasEntryContent(item[key]),
+    (key) => key !== titleKey && hasEntryContent(item[key]),
   )
   const renderValue = (key, value) =>
     Array.isArray(value) ? value.join(' · ') : String(value)

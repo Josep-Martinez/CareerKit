@@ -621,9 +621,9 @@ export const STRINGS = {
     removeAdditionalSection: 'Eliminar sección adicional',
     additionalSectionFallback: 'Otra sección',
     descriptionTruncatedNotice:
-      'LinkedIn solo dejó guardar una parte. Si aquí falta texto, vuelve a LinkedIn, pulsa «Ver más» y actualiza la copia.',
-    descriptionShowMore: 'Ver más',
-    descriptionShowLess: 'Ver menos',
+      'La copia guardada contiene solo un fragmento de esta descripción.',
+    descriptionShowMore: 'Mostrar texto completo',
+    descriptionShowLess: 'Ocultar texto',
     auditLabel: 'PARA REVISAR',
     auditMarkerLabel:
       'Ver {count} sugerencias de LinkedIn. Prioridad {priority}.',
@@ -758,7 +758,6 @@ export const STRINGS = {
       workplaceType: 'Modalidad del puesto',
       dates: 'Fechas',
       description: 'Descripción',
-      descriptionTruncated: 'Falta parte del texto',
       skills: 'Aptitudes asociadas',
       institution: 'Institución',
       degree: 'Titulación',
