@@ -1,4 +1,5 @@
 import './cv-document.css'
+import { plainText } from '../plain-text.js'
 
 const sectionHeadings =
   /^(?:perfil(?: profesional)?|resumen(?: profesional)?|sobre mí|experiencia(?: laboral| profesional| académica)?|formación(?: académica)?|educación|proyectos(?: personales| destacados)?|certificaciones|aptitudes|competencias(?: técnicas| clave)?|habilidades(?: técnicas| clave)?|conocimientos técnicos|idiomas|contacto(?: y enlaces)?|datos de contacto|enlaces|profile(?: summary)?|(?:professional )?summary|(?:professional |work )?experience|education|(?:selected |personal )?projects|certifications|skills|languages|contact(?: details)?)$/i
@@ -104,17 +105,6 @@ function extractExplicitColumns(text) {
     before: lines.slice(0, Math.min(sideIndex, mainIndex)).join('<br>'),
     after: '',
   }
-}
-
-function plainText(value) {
-  return value
-    .replace(/<br\s*\/?>/gi, ' ')
-    .replace(/<[^>]*>/g, '')
-    .replace(/\*\*(.*?)\*\*/g, '$1')
-    .replace(/__(.*?)__/g, '$1')
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/\\\|/g, '|')
-    .trim()
 }
 
 function inlineContent(value, keyPrefix) {
