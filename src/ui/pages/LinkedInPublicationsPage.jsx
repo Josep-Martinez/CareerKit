@@ -8,6 +8,7 @@ import { TextField, useDraft } from '../components/FormPrimitives.jsx'
 
 const emptyForm = () => ({
   id: id(),
+  confirmed: false,
   type: 'project',
   text: '',
   language: '',
@@ -34,6 +35,7 @@ function publicationPrompt(form, sourceArticle) {
     '---',
     'Datos para registrar',
     `id: ${form.id}`,
+    'Confirmación: ya está publicada en LinkedIn.',
     `Tipo: ${form.type}`,
     form.language ? `Idioma: ${form.language}` : '',
     form.publishedAt ? `Fecha publicada: ${form.publishedAt}` : '',
@@ -109,6 +111,10 @@ export function LinkedInPublicationsPage({
 
   async function savePublication() {
     setNotice('')
+    if (!form.confirmed) {
+      setNotice(copy.confirmBeforeSave)
+      return
+    }
     const url = safeUrl(form.url.trim())
     if (!form.text.trim() || (form.url.trim() && !url)) {
       setNotice(copy.invalid)
@@ -308,11 +314,26 @@ export function LinkedInPublicationsPage({
             onChange={(text) => updateForm('text', text)}
             hint={copy.contentHint}
           />
+          <label className="check publication-confirmation">
+            <input
+              type="checkbox"
+              checked={form.confirmed}
+              onChange={(event) =>
+                updateForm('confirmed', event.target.checked)
+              }
+            />
+            <span>{copy.confirmPublished}</span>
+          </label>
           <div className="publication-register-actions">
             <button
               type="button"
               className="button primary"
-              disabled={savingPublication || saving || !form.text.trim()}
+              disabled={
+                savingPublication ||
+                saving ||
+                !form.confirmed ||
+                !form.text.trim()
+              }
               onClick={savePublication}
             >
               {savingPublication || saving ? copy.saving : copy.save}
@@ -320,7 +341,7 @@ export function LinkedInPublicationsPage({
             <button
               type="button"
               className="button secondary"
-              disabled={!form.text.trim()}
+              disabled={!form.confirmed || !form.text.trim()}
               onClick={copyRegistrationPrompt}
             >
               {copy.copyPrompt}

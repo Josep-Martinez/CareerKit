@@ -974,6 +974,9 @@ export const STRINGS = {
     contentLabel: 'Texto exacto publicado en LinkedIn',
     contentHint:
       'Pega el texto tal como aparece publicado, con sus saltos de línea. No se reescribe.',
+    confirmPublished: 'Confirmo que este texto ya está publicado en LinkedIn.',
+    confirmBeforeSave:
+      'Confirma que ya publicaste este texto antes de registrarlo.',
     typeLabel: 'Tipo de publicación',
     languageLabel: 'Idioma (opcional)',
     languageNone: 'No indicado',

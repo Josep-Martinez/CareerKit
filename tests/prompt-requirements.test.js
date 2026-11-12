@@ -63,6 +63,7 @@ test('published post prompt records exact text and links its accepted article', 
   assert.match(prompt.text, /ni reescribas|no reescribas/i)
   assert.match(prompt.text, /publicationId/)
   assert.match(prompt.text, /usa ese id tal como lo proporcioné/i)
+  assert.match(prompt.text, /si no confirmo que ya está publicada/i)
   assert.match(prompt.text, /no publiques/i)
 })
 
