@@ -12,6 +12,7 @@ import {
   useDraft,
 } from '../components/FormPrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
+import { buildPromptText, PROMPT_INBOX_ES } from '../../i18n/prompt-inbox.es.js'
 import { id, pretty } from '../utils.js'
 import { collectProfileEvidence } from '../profile-evidence.js'
 import { CVDocument } from './CVDocument.jsx'
@@ -110,6 +111,106 @@ function HiringContactEditor({ value, onChange }) {
         onChange={(text) => update('sourceUrl', text)}
       />
       <small className="muted">{copy.contactPrivacyHint}</small>
+    </section>
+  )
+}
+
+function PeopleToFollowEditor({ value, onChange }) {
+  const people = Array.isArray(value) ? value : []
+  const updatePerson = (personId, part) =>
+    onChange(
+      people.map((person) =>
+        person.id === personId ? { ...person, ...part } : person,
+      ),
+    )
+  return (
+    <section className="panel vacancy-people-editor">
+      <CardTitle
+        title={vacancyCopy.peopleToFollow}
+        description={vacancyCopy.peopleToFollowDescription}
+      />
+      {people.map((person, index) => (
+        <div className="vacancy-person-editor" key={person.id}>
+          <div className="panel-heading">
+            <h4>{person.name || `${vacancyCopy.publicPerson} ${index + 1}`}</h4>
+            <button
+              type="button"
+              className="text-button"
+              onClick={() =>
+                onChange(
+                  people.filter((candidate) => candidate.id !== person.id),
+                )
+              }
+            >
+              {vacancyCopy.removePublicPerson}
+            </button>
+          </div>
+          <div className="form-two">
+            <TextField
+              label={vacancyCopy.contactName}
+              value={person.name}
+              onChange={(name) => updatePerson(person.id, { name })}
+            />
+            <TextField
+              label={vacancyCopy.contactRole}
+              value={person.role}
+              onChange={(role) => updatePerson(person.id, { role })}
+            />
+          </div>
+          <div className="form-two">
+            <TextField
+              label={vacancyCopy.contactLinkedIn}
+              value={person.linkedinUrl}
+              onChange={(linkedinUrl) =>
+                updatePerson(person.id, { linkedinUrl })
+              }
+            />
+            <TextField
+              label={vacancyCopy.contactOtherUrl}
+              value={person.contactUrl}
+              onChange={(contactUrl) => updatePerson(person.id, { contactUrl })}
+            />
+          </div>
+          <TextField
+            label={vacancyCopy.personReason}
+            value={person.reason}
+            onChange={(reason) => updatePerson(person.id, { reason })}
+          />
+          <div className="form-two">
+            <TextField
+              label={vacancyCopy.contactSourceUrl}
+              value={person.sourceUrl}
+              onChange={(sourceUrl) => updatePerson(person.id, { sourceUrl })}
+            />
+            <TextField
+              label={vacancyCopy.contactVerifiedAt}
+              value={person.verifiedAt}
+              onChange={(verifiedAt) => updatePerson(person.id, { verifiedAt })}
+            />
+          </div>
+        </div>
+      ))}
+      <button
+        type="button"
+        className="button secondary"
+        onClick={() =>
+          onChange([
+            ...people,
+            {
+              id: id(),
+              name: '',
+              role: '',
+              linkedinUrl: '',
+              contactUrl: '',
+              reason: '',
+              sourceUrl: '',
+              verifiedAt: '',
+            },
+          ])
+        }
+      >
+        ＋ {vacancyCopy.addPublicPerson}
+      </button>
     </section>
   )
 }
@@ -477,6 +578,7 @@ export function VacanciesPage({
   const [editing, setEditing] = useState(false)
   const [comparison, setComparison] = useState([])
   const [search, setSearch] = useState('')
+  const [promptNotice, setPromptNotice] = useState('')
   const evidence = collectProfileEvidence(profile)
   const items = [...draft.items].sort(
     (a, b) => (a.preference || 999) - (b.preference || 999),
@@ -553,6 +655,32 @@ export function VacanciesPage({
     setEditing(false)
   }
 
+  async function copyVacancyPrompt(promptId) {
+    const prompt = PROMPT_INBOX_ES.prompts.find((item) => item.id === promptId)
+    if (!prompt) return
+    const text = buildPromptText(prompt)
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+      } else {
+        const textarea = document.createElement('textarea')
+        textarea.value = text
+        textarea.setAttribute('readonly', '')
+        textarea.style.position = 'fixed'
+        textarea.style.opacity = '0'
+        document.body.append(textarea)
+        textarea.select()
+        const copied = document.execCommand('copy')
+        textarea.remove()
+        if (!copied) throw new Error('Clipboard unavailable')
+      }
+      setPromptNotice(vacancyCopy.promptCopied)
+    } catch {
+      setPromptNotice(vacancyCopy.promptCopyFailed)
+      onOpenResearch?.(promptId)
+    }
+  }
+
   const hasChanges = draftDirty
   const detail = draft.items.find((item) => item.id === selected)
   const editor =
@@ -619,6 +747,10 @@ export function VacanciesPage({
         <HiringContactEditor
           value={detail.hiringContact}
           onChange={(hiringContact) => patch(detail.id, { hiringContact })}
+        />
+        <PeopleToFollowEditor
+          value={detail.peopleToFollow}
+          onChange={(peopleToFollow) => patch(detail.id, { peopleToFollow })}
         />
         <TextField
           label="Descripción completa"
@@ -718,13 +850,20 @@ export function VacanciesPage({
         title="Vacantes"
         subtitle="Registra oportunidades investigadas y ordénalas por preferencia."
         action={
-          <div className="modal-actions">
+          <div className="vacancy-page-actions">
             <button
               type="button"
               className="button secondary"
-              onClick={onOpenResearch}
+              onClick={() => copyVacancyPrompt('research-vacancies')}
             >
-              Buscar nuevas ofertas con el agente
+              {vacancyCopy.copySearchPrompt}
+            </button>
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => copyVacancyPrompt('verify-vacancies')}
+            >
+              {vacancyCopy.copyReviewPrompt}
             </button>
             <button type="button" className="button primary" onClick={add}>
               ＋ Añadir vacante
@@ -742,6 +881,11 @@ export function VacanciesPage({
           </div>
         }
       />
+      {promptNotice && (
+        <p className="vacancy-prompt-notice" role="status" aria-live="polite">
+          {promptNotice}
+        </p>
+      )}
       <Status
         fileName="vacancies"
         state={state}
@@ -938,6 +1082,9 @@ function VacancyDetail({ value, profile, onOpenAdaptation }) {
   const adaptedCv = value.adaptedCv
   const availability = value.availability || {}
   const hiringContact = value.hiringContact || {}
+  const peopleToFollow = Array.isArray(value.peopleToFollow)
+    ? value.peopleToFollow
+    : []
   return (
     <>
       <section
@@ -1109,6 +1256,39 @@ function VacancyDetail({ value, profile, onOpenAdaptation }) {
               </>
             ) : (
               <p>{vacancyCopy.noHiringContact}</p>
+            )}
+          </section>
+          <section className="vacancy-people-to-follow">
+            <h3>{vacancyCopy.peopleToFollow}</h3>
+            {peopleToFollow.length ? (
+              peopleToFollow.map((person) => (
+                <article className="vacancy-public-person" key={person.id}>
+                  <strong>{person.name || vacancyCopy.publicPerson}</strong>
+                  {person.role && <p>{person.role}</p>}
+                  {person.reason && <p className="preline">{person.reason}</p>}
+                  <div className="vacancy-public-links">
+                    <PublicContactLink
+                      href={person.linkedinUrl}
+                      label={vacancyCopy.openLinkedInProfile}
+                    />
+                    <PublicContactLink
+                      href={person.contactUrl}
+                      label={vacancyCopy.openPublicContact}
+                    />
+                    <PublicContactLink
+                      href={person.sourceUrl}
+                      label={vacancyCopy.openContactSource}
+                    />
+                  </div>
+                  {person.verifiedAt && (
+                    <small>
+                      {vacancyCopy.contactVerifiedAt}: {person.verifiedAt}
+                    </small>
+                  )}
+                </article>
+              ))
+            ) : (
+              <p>{vacancyCopy.noPeopleToFollow}</p>
             )}
           </section>
         </aside>

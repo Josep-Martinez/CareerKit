@@ -12,6 +12,7 @@ import {
 import {
   validVacancyAvailability,
   validVacancyHiringContact,
+  validVacancyPeopleToFollow,
 } from './vacancy-data.js'
 import {
   forgetDirectoryHandle,
@@ -285,6 +286,7 @@ const validVacancyItem = (item) =>
   (item.preference === undefined || Number.isInteger(item.preference)) &&
   validVacancyAvailability(item.availability) &&
   validVacancyHiringContact(item.hiringContact) &&
+  validVacancyPeopleToFollow(item.peopleToFollow) &&
   (item.cvAdvice === undefined || validCvAdvice(item.cvAdvice)) &&
   (item.adaptedCv === undefined || validAdaptedCv(item.adaptedCv))
 const validators = {
@@ -513,6 +515,7 @@ export function hasModuleContent(name, value) {
           'adaptedCv',
           'availability',
           'hiringContact',
+          'peopleToFollow',
         ].some((key) => hasMeaningfulValue(item[key])) ||
         item.featured === true ||
         Number.isInteger(item.preference),
@@ -1260,6 +1263,7 @@ function findUnknown(name, data) {
         'featured',
         'availability',
         'hiringContact',
+        'peopleToFollow',
         'cvAdvice',
         'adaptedCv',
       ],
@@ -1270,6 +1274,16 @@ function findUnknown(name, data) {
         'linkedinUrl',
         'contactUrl',
         'publicEmail',
+        'sourceUrl',
+        'verifiedAt',
+      ],
+      publicPerson: [
+        'id',
+        'name',
+        'role',
+        'linkedinUrl',
+        'contactUrl',
+        'reason',
         'sourceUrl',
         'verifiedAt',
       ],
@@ -1359,6 +1373,13 @@ function findUnknown(name, data) {
         item.hiringContact,
         rules.hiringContact,
         `items[${index}].hiringContact`,
+      )
+      ;(item.peopleToFollow || []).forEach((person, personIndex) =>
+        inspect(
+          person,
+          rules.publicPerson,
+          `items[${index}].peopleToFollow[${personIndex}]`,
+        ),
       )
       inspect(item.cvAdvice, rules.cvAdvice, `items[${index}].cvAdvice`)
       inspect(item.adaptedCv, rules.adaptedCv, `items[${index}].adaptedCv`)

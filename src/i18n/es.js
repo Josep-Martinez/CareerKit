@@ -507,6 +507,14 @@ export const STRINGS = {
     contactVerifiedAt: 'Fecha de comprobación',
     contactPrivacyHint:
       'No adivines datos ni guardes teléfonos personales. La app no envía mensajes.',
+    peopleToFollow: 'Perfiles públicos para seguir',
+    peopleToFollowDescription:
+      'Añade perfiles de dirección, responsables del área o miembros clave del equipo con una relación verificada con la empresa. Guardarlos aquí no significa seguirles ni contactarles.',
+    noPeopleToFollow: 'Aún no hay perfiles públicos de interés registrados.',
+    publicPerson: 'Persona de interés',
+    addPublicPerson: 'Añadir perfil público',
+    removePublicPerson: 'Quitar perfil',
+    personReason: 'Por qué es relevante seguir este perfil',
     openLinkedInProfile: 'Ver perfil profesional',
     openPublicContact: 'Abrir contacto público',
     openContactSource: 'Ver fuente',
@@ -520,8 +528,14 @@ export const STRINGS = {
     noOffersForCv: 'Guarda una vacante para poder seleccionarla.',
     returnToOffer: 'Volver a la vacante',
     adaptedCv: 'CV adaptado',
-    prepareCv: 'Preparar CV con el agente',
-    reviseCv: 'Revisar CV con el agente',
+    prepareCv: 'Preparar CV para esta oferta',
+    reviseCv: 'Revisar CV para esta oferta',
+    copySearchPrompt: 'Copiar prompt para buscar vacantes',
+    copyReviewPrompt: 'Copiar prompt para revisar vacantes guardadas',
+    promptCopied:
+      'Prompt copiado. Pégalo en tu asistente para empezar esta tarea.',
+    promptCopyFailed:
+      'No se pudo copiar automáticamente. Abrí el Buzón para que puedas copiarlo allí.',
     emptyAdaptedCv:
       'El CV que prepare el agente aparecerá aquí. Si acabas de guardarlo, recarga el archivo de vacantes.',
     viewAdaptedCv: 'Ver CV adaptado',

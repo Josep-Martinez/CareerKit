@@ -24,3 +24,22 @@ export const validVacancyHiringContact = (value) =>
       'sourceUrl',
       'verifiedAt',
     ]))
+
+export const validVacancyPeopleToFollow = (value) =>
+  value === undefined ||
+  (Array.isArray(value) &&
+    value.every(
+      (person) =>
+        isRecord(person) &&
+        typeof person.id === 'string' &&
+        person.id.trim().length > 0 &&
+        optionalStrings(person, [
+          'name',
+          'role',
+          'linkedinUrl',
+          'contactUrl',
+          'reason',
+          'sourceUrl',
+          'verifiedAt',
+        ]),
+    ))
