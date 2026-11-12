@@ -40,6 +40,136 @@ function VacancyLink({ item }) {
   )
 }
 
+function publicUrl(value) {
+  try {
+    const url = new URL(value?.trim())
+    return ['https:', 'http:'].includes(url.protocol) ? url.href : null
+  } catch {
+    return null
+  }
+}
+
+function PublicContactLink({ href, label }) {
+  const safeHref = publicUrl(href)
+  return safeHref ? (
+    <a href={safeHref} target="_blank" rel="noreferrer">
+      {label} ↗
+    </a>
+  ) : null
+}
+
+function HiringContactEditor({ value, onChange }) {
+  const copy = vacancyCopy
+  const contact = value || {}
+  const update = (field, text) => onChange({ ...contact, [field]: text })
+  return (
+    <section className="panel vacancy-contact-editor">
+      <CardTitle
+        title={copy.hiringContact}
+        description={copy.hiringContactDescription}
+      />
+      <div className="form-two">
+        <TextField
+          label={copy.contactName}
+          value={contact.name}
+          onChange={(text) => update('name', text)}
+        />
+        <TextField
+          label={copy.contactRole}
+          value={contact.role}
+          onChange={(text) => update('role', text)}
+        />
+      </div>
+      <div className="form-two">
+        <TextField
+          label={copy.contactLinkedIn}
+          value={contact.linkedinUrl}
+          onChange={(text) => update('linkedinUrl', text)}
+        />
+        <TextField
+          label={copy.contactOtherUrl}
+          value={contact.contactUrl}
+          onChange={(text) => update('contactUrl', text)}
+        />
+      </div>
+      <div className="form-two">
+        <TextField
+          label={copy.contactPublicEmail}
+          value={contact.publicEmail}
+          onChange={(text) => update('publicEmail', text)}
+        />
+        <TextField
+          label={copy.contactVerifiedAt}
+          value={contact.verifiedAt}
+          onChange={(text) => update('verifiedAt', text)}
+        />
+      </div>
+      <TextField
+        label={copy.contactSourceUrl}
+        value={contact.sourceUrl}
+        onChange={(text) => update('sourceUrl', text)}
+      />
+      <small className="muted">{copy.contactPrivacyHint}</small>
+    </section>
+  )
+}
+
+function VacancyAvailabilityEditor({ value, onChange }) {
+  const availability = value || {}
+  const update = (field, text) => onChange({ ...availability, [field]: text })
+  return (
+    <section className="panel vacancy-availability-editor">
+      <CardTitle
+        title={vacancyCopy.availability}
+        description="El estado se puede revisar desde el Buzón y corregir aquí si es necesario."
+      />
+      <label className="field">
+        <span>{vacancyCopy.availabilityStatus}</span>
+        <select
+          value={availability.status || ''}
+          onChange={(event) => {
+            const status = event.target.value
+            onChange(status ? { ...availability, status } : undefined)
+          }}
+        >
+          <option value="">{vacancyCopy.availabilityPlaceholder}</option>
+          <option value="active">
+            {vacancyCopy.availabilityLabels.active}
+          </option>
+          <option value="closed">
+            {vacancyCopy.availabilityLabels.closed}
+          </option>
+          <option value="uncertain">
+            {vacancyCopy.availabilityLabels.uncertain}
+          </option>
+        </select>
+      </label>
+      {availability.status && (
+        <>
+          <div className="form-two">
+            <TextField
+              label={vacancyCopy.checkedAt}
+              value={availability.checkedAt}
+              onChange={(text) => update('checkedAt', text)}
+            />
+            <TextField
+              label={vacancyCopy.availabilitySourceUrl}
+              value={availability.sourceUrl}
+              onChange={(text) => update('sourceUrl', text)}
+            />
+          </div>
+          <TextField
+            label={vacancyCopy.availabilityNotes}
+            value={availability.notes}
+            rows={2}
+            onChange={(text) => update('notes', text)}
+          />
+        </>
+      )}
+    </section>
+  )
+}
+
 function emptyCvAdvice() {
   return {
     recommendedVersion: 'pending',
@@ -482,6 +612,14 @@ export function VacanciesPage({
             onChange={(text) => patch(detail.id, { verifiedAt: text })}
           />
         </div>
+        <VacancyAvailabilityEditor
+          value={detail.availability}
+          onChange={(availability) => patch(detail.id, { availability })}
+        />
+        <HiringContactEditor
+          value={detail.hiringContact}
+          onChange={(hiringContact) => patch(detail.id, { hiringContact })}
+        />
         <TextField
           label="Descripción completa"
           rows={7}
@@ -661,6 +799,16 @@ export function VacanciesPage({
                 <div className="vacancy-tags">
                   <span>{item.location || 'Ubicación sin registrar'}</span>
                   <span>{item.modality || 'Modalidad sin registrar'}</span>
+                  {item.availability?.status && (
+                    <span
+                      className="availability-tag"
+                      data-status={item.availability.status}
+                    >
+                      {vacancyCopy.availabilityLabels[
+                        item.availability.status
+                      ] || vacancyCopy.availabilityNotChecked}
+                    </span>
+                  )}
                   {item.featured && (
                     <span className="highlight-tag">Destacada</span>
                   )}
@@ -788,6 +936,8 @@ function VacancyDetail({ value, profile, onOpenAdaptation }) {
     advice.englishAdjustments.some((item) => item.trim())
   const recommendedLabel = copy[advice.recommendedVersion] || copy.pending
   const adaptedCv = value.adaptedCv
+  const availability = value.availability || {}
+  const hiringContact = value.hiringContact || {}
   return (
     <>
       <section
@@ -902,6 +1052,65 @@ function VacancyDetail({ value, profile, onOpenAdaptation }) {
             <dt>Verificada</dt>
             <dd>{pretty(value.verifiedAt)}</dd>
           </dl>
+          <section className="vacancy-availability-detail">
+            <h3>{vacancyCopy.availability}</h3>
+            <span
+              className="availability-tag"
+              data-status={availability.status || 'unchecked'}
+            >
+              {vacancyCopy.availabilityLabels[availability.status] ||
+                vacancyCopy.availabilityNotChecked}
+            </span>
+            {availability.checkedAt && (
+              <p>
+                {vacancyCopy.checkedAt}: {availability.checkedAt}
+              </p>
+            )}
+            {availability.notes && (
+              <p className="preline">{availability.notes}</p>
+            )}
+            <PublicContactLink
+              href={availability.sourceUrl}
+              label={vacancyCopy.openContactSource}
+            />
+          </section>
+          <section className="vacancy-hiring-contact">
+            <h3>{vacancyCopy.hiringContact}</h3>
+            {hiringContact.name || hiringContact.role ? (
+              <>
+                {hiringContact.name && <p>{hiringContact.name}</p>}
+                {hiringContact.role && <p>{hiringContact.role}</p>}
+                <div className="vacancy-public-links">
+                  <PublicContactLink
+                    href={hiringContact.linkedinUrl}
+                    label={vacancyCopy.openLinkedInProfile}
+                  />
+                  <PublicContactLink
+                    href={hiringContact.contactUrl}
+                    label={vacancyCopy.openPublicContact}
+                  />
+                  {hiringContact.publicEmail && (
+                    <a
+                      href={`mailto:${encodeURIComponent(hiringContact.publicEmail)}`}
+                    >
+                      {hiringContact.publicEmail}
+                    </a>
+                  )}
+                  <PublicContactLink
+                    href={hiringContact.sourceUrl}
+                    label={vacancyCopy.openContactSource}
+                  />
+                </div>
+                {hiringContact.verifiedAt && (
+                  <small>
+                    {vacancyCopy.contactVerifiedAt}: {hiringContact.verifiedAt}
+                  </small>
+                )}
+              </>
+            ) : (
+              <p>{vacancyCopy.noHiringContact}</p>
+            )}
+          </section>
         </aside>
       </div>
     </>

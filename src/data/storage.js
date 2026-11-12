@@ -10,6 +10,10 @@ import {
   hasProfileContent,
 } from './profile-fields.js'
 import {
+  validVacancyAvailability,
+  validVacancyHiringContact,
+} from './vacancy-data.js'
+import {
   forgetDirectoryHandle,
   loadDirectoryHandle,
   rememberDirectoryHandle,
@@ -279,6 +283,8 @@ const validVacancyItem = (item) =>
     typeof item.salaryVerified === 'boolean') &&
   (item.featured === undefined || typeof item.featured === 'boolean') &&
   (item.preference === undefined || Number.isInteger(item.preference)) &&
+  validVacancyAvailability(item.availability) &&
+  validVacancyHiringContact(item.hiringContact) &&
   (item.cvAdvice === undefined || validCvAdvice(item.cvAdvice)) &&
   (item.adaptedCv === undefined || validAdaptedCv(item.adaptedCv))
 const validators = {
@@ -505,6 +511,8 @@ export function hasModuleContent(name, value) {
           'blockers',
           'matchingEvidenceIds',
           'adaptedCv',
+          'availability',
+          'hiringContact',
         ].some((key) => hasMeaningfulValue(item[key])) ||
         item.featured === true ||
         Number.isInteger(item.preference),
@@ -1250,8 +1258,20 @@ function findUnknown(name, data) {
         'blockers',
         'preference',
         'featured',
+        'availability',
+        'hiringContact',
         'cvAdvice',
         'adaptedCv',
+      ],
+      availability: ['status', 'checkedAt', 'sourceUrl', 'notes'],
+      hiringContact: [
+        'name',
+        'role',
+        'linkedinUrl',
+        'contactUrl',
+        'publicEmail',
+        'sourceUrl',
+        'verifiedAt',
       ],
       adaptedCv: ['text', 'language', 'layout'],
       cvAdvice: [
@@ -1330,6 +1350,16 @@ function findUnknown(name, data) {
   if (name === 'vacancies')
     (data.items || []).forEach((item, index) => {
       inspect(item, rules.item, `items[${index}]`)
+      inspect(
+        item.availability,
+        rules.availability,
+        `items[${index}].availability`,
+      )
+      inspect(
+        item.hiringContact,
+        rules.hiringContact,
+        `items[${index}].hiringContact`,
+      )
       inspect(item.cvAdvice, rules.cvAdvice, `items[${index}].cvAdvice`)
       inspect(item.adaptedCv, rules.adaptedCv, `items[${index}].adaptedCv`)
     })

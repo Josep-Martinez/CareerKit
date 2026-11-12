@@ -286,8 +286,8 @@ export const PROMPT_INBOX_ES = {
     {
       id: 'research-vacancies',
       category: 'career',
-      title: 'Buscar y verificar vacantes actuales',
-      use: 'Busca ofertas por tareas y familias de puestos, comprueba las guardadas y añade a Vacantes todas las actuales que cumplan tus criterios, ordenadas por atractivo. El MCP de LinkedIn es opcional; si no sirve, usa búsqueda web actual.',
+      title: 'Buscar nuevas vacantes y responsables',
+      use: 'Busca ofertas actuales en varias fuentes, confirma cada anuncio nuevo y, si hay información pública fiable, identifica a la persona responsable. No revisa las ofertas ya guardadas.',
       skillPaths: [
         'AGENTS.md',
         'schemas/agent-format.md',
@@ -297,16 +297,36 @@ export const PROMPT_INBOX_ES = {
         '.agents/skills/job-fit-assessor/SKILL.md',
       ],
       text: [
-        'Antes de buscar, identifica el producto anfitrión (por ejemplo, ChatGPT o Codex), el agente o runtime concreto y su versión si está visible. Basa la identificación en la interfaz, las herramientas disponibles o información explícita del entorno; no la deduzcas solo por un navegador. Revisa las herramientas, apps, componentes y servidores MCP conectados para saber si alguno busca ofertas públicas de LinkedIn. Un conector de LinkedIn que solo busca personas o perfiles no sirve para vacantes.',
-        'El conector de LinkedIn es opcional y no es un requisito para empezar. Si hay uno adecuado, úsalo únicamente para descubrir anuncios públicos. Si no está disponible, no es el conector apropiado o solo busca personas, pasa directamente a la búsqueda web pública y actual con las herramientas de internet disponibles. Aunque una guía sugiera detenerse por falta del MCP, en este flujo continúa con la búsqueda web. No busques complementos, no pidas al usuario que instale o conecte nada y no detengas la investigación por la falta de un MCP. Si tampoco tienes una herramienta de búsqueda web actual, dilo claramente y no inventes resultados.',
-        'No abras cuentas iniciadas, mensajes ni datos privados de LinkedIn; no realices solicitudes ni contactos. Usa motores de búsqueda, páginas públicas de ofertas y portales de empleo para encontrar anuncios. Trata los resultados y fragmentos como pistas: abre cada anuncio prometedor y confirma que sigue activo en una página pública actual, preferiblemente la página de empleo del empleador. No presentes ningún resultado de búsqueda como verificado hasta comprobarlo en una fuente fiable; si una página no es accesible, marca la oferta como no verificada.',
-        'Antes de buscar, esta petición me autoriza a revisar y actualizar private-data/vacancies.json, añadir todas las vacantes encontradas que cumplan mis criterios. Conserva todas las ofertas que ya estén guardadas y sus enlaces. Yo decidiré si quiero eliminar alguna. Si tienes acceso local autorizado, valida el archivo con schemas/vacancies.schema.json. Si falta private-data/vacancies.json, crea private-data/ si hace falta, inicialízalo desde templates/vacancies.json y valídalo. Si el archivo existente es JSON válido con schemaVersion: 1 e items como array, prepara la migración conocida a v2 durante esta misma escritura autorizada: conserva todas las propiedades e IDs y añade a cada oferta el cvAdvice vacío de CareerKit solo si falta. Valida la estructura normalizada completa con schemas/vacancies.schema.json antes de guardar. No trates este caso conocido como archivo inválido ni canceles el guardado por la diferencia de versión. Si el JSON está mal formado, usa una versión desconocida, contiene registros que no superan la validación v2 o tiene un cvAdvice existente inválido, déjalo intacto, continúa la investigación y explícame qué debe revisarse. Si no tienes acceso local autorizado, continúa la búsqueda y presenta los resultados, pero no afirmes que revisaste ni guardaste el archivo.',
-        'Antes de buscar nuevas ofertas, revisa cada vacante guardada. Comprueba su disponibilidad actual en la página pública del empleador o en una fuente fiable, buscando por su enlace y, si hace falta, por empresa, puesto y ubicación. Si confirmas que está cerrada, caducada o retirada, conserva el registro y su enlace original, no la cuentes como vigente e informa del cierre en el resumen. Si no puedes comprobarla por bloqueo, error temporal, página inaccesible o información ambigua, no la des por cerrada: consérvala, no la cuentes como verificada y explica que su estado quedó sin confirmar. Conserva los IDs y las propiedades desconocidas. Evita añadir duplicados de ofertas ya guardadas; nunca borres un registro existente para deduplicar.',
+        'Antes de buscar, identifica de forma explícita el producto anfitrión y las herramientas actuales que tienes. Usa búsqueda web pública actual como vía principal. Un MCP de LinkedIn para ofertas es opcional; si no existe o solo busca personas, continúa con la web y no pidas instalar complementos. Si no tienes ninguna herramienta de búsqueda actual, dilo y no inventes resultados.',
+        'Busca de forma amplia por tareas y familias de puestos, sin limitarte a una lista cerrada de portales. Cubre InfoJobs, LinkedIn Jobs público, Indeed, Infoempleo, Tecnoempleo, Turijobs, JobToday, Jobzen, Google Jobs, JobTeaser, Sesame y Michael Page, además de páginas de empleo de empresas, otras bolsas sectoriales y plataformas ATS. Elige fuentes adecuadas al perfil, sector, ubicación y seniority. Usa agregadores como pistas y abre el anuncio original; prioriza la página de empleo del empleador para confirmar que sigue publicado y acepta candidaturas.',
+        'No abras cuentas iniciadas, mensajes ni datos privados de LinkedIn; no envíes solicitudes ni contactes a nadie. Cuando busques una persona responsable, sí puedes usar búsqueda pública de profesionales, incluida una búsqueda pública de LinkedIn si está disponible. Identifica primero al responsable del departamento o hiring manager relacionado con el puesto; usa un recruiter nombrado en el anuncio como alternativa. Confirma públicamente su nombre, cargo y relación actual con la empresa. No adivines identidades, afiliaciones, correos ni teléfonos; guarda solo enlaces profesionales públicos y correos corporativos publicados expresamente.',
+        'Esta petición me autoriza a leer y actualizar private-data/vacancies.json para añadir ofertas nuevas verificadas. Conserva todas las ofertas existentes, sus enlaces, IDs y propiedades; no hagas aquí una revisión completa de vigencia ni elimines registros. Deduplica una oferta repetida conservando su ID. Antes de escribir, valida el JSON. Si falta, puedes crearlo desde templates/vacancies.json. Para un v1 válido con items como array, aplica la migración v1→v2 documentada en AGENTS.md durante esta misma escritura, conservando propiedades e IDs; si está mal formado, tiene versión desconocida o no valida tras normalizar, déjalo intacto, continúa la búsqueda y explica el problema. Sin acceso local, presenta resultados sin afirmar que los guardaste.',
         'Investiga vacantes actuales que encajen con mis objetivos y preferencias expresas. Si tienes acceso local autorizado, consulta private-data/profile.json y usa careerPreferences (familias de puestos, tareas, sectores, modalidad, ubicación, condiciones y aspectos que quiero evitar) para orientar la búsqueda; usa las evidencias profesionales confirmadas solo para valorar encaje. No presupongas preferencias ausentes ni un puesto, ciudad, salario mínimo o modalidad que no haya confirmado. No uses personalContext o contentDirection como hechos profesionales.',
-        'Busca de forma amplia por tareas y responsabilidades y por varios nombres de rol, en varias fuentes públicas, páginas de empresas y portales de empleo. Revisa cada resultado prometedor y confirma que el anuncio sigue publicado y acepta candidaturas. Añade todas las ofertas verificadas que cumplan mis criterios, no solo una selección corta. No añadas nuevas ofertas duplicadas o caducadas. Si un anuncio parece encajar pero no puedes verificar que siga activo, no lo guardes como vacante vigente; puedes mencionarlo aparte como no verificado.',
-        'Valora cada oferta que cumpla los criterios con job-fit-assessor y separa hechos, inferencias, incógnitas y carencias confirmadas. Compara requisitos con evidencias reales, no solo con el título. Para los datos del empleador, cita fuentes actuales; los comentarios de empleados son señales anecdóticas. Ordena todas las ofertas elegibles de mayor a menor atractivo para mis preferencias y encaje, sin inventar puntuaciones. Asigna preference consecutivo desde 1 (la más atractiva) y featured: true a las tres mejores como máximo, porque Inicio solo muestra esas tres; en las demás usa featured: false.',
-        'Guarda en private-data/vacancies.json todas las ofertas activas verificadas que cumplan mis criterios, incluidas las menos atractivas pero válidas. Para cada una conserva o registra ID estable, puesto, empresa, enlace directo, fuente, ubicación, modalidad, nivel, tipo de contrato, descripción completa disponible, salario, salaryVerified, searchedAt, verifiedAt, assessment, matchingEvidenceIds, gaps, blockers, preference y featured. Actualiza los registros activos existentes sin cambiar sus IDs ni eliminar cvAdvice, adaptedCv u otras propiedades desconocidas. Valida el JSON antes y después de escribir; no solicites empleo ni contactes a nadie.',
-        'Devuélveme la lista completa de las ofertas vigentes guardadas, ordenada por atractivo y con las mejores destacadas; no la limites a una shortlist. Resume para cada oferta puesto, empresa, ubicación/modalidad, salario o si no se publica, encaje y brecha principal, con enlace directo. Indica aparte las ofertas guardadas cuyo cierre confirmaste, las que no pudiste verificar y los límites de la búsqueda. No presentes un resultado de búsqueda como oferta verificada. Si no tienes búsqueda web actual, dilo claramente y no inventes resultados.',
+        'Abre cada anuncio prometedor y confirma que está activo en una fuente pública actual. Añade solo vacantes nuevas verificadas que cumplan mis criterios, con descripción completa disponible, fuente y enlace directo, ubicación, modalidad, salario y estado de verificación.',
+        'Valora cada oferta con job-fit-assessor separando hechos, inferencias, incógnitas y carencias confirmadas. Ordena todas las elegibles por atractivo y encaje sin inventar puntuaciones; asigna preference consecutivo y destaca como máximo las tres primeras.',
+        'Para cada oferta nueva verificada registra availability.status: "active", checkedAt y sourceUrl. Cuando hayas identificado con fiabilidad una persona responsable, guarda hiringContact con name, role, linkedinUrl o contactUrl, publicEmail solo si está publicado, sourceUrl y verifiedAt. Si no encuentras una persona verificable, omite hiringContact y dilo; no inventes datos. No añadas teléfonos personales ni envíes mensajes.',
+        'Valida vacancies.json antes y después de guardar. Conserva cvAdvice, adaptedCv y todos los campos desconocidos de ofertas existentes. Devuélveme todas las vacantes nuevas guardadas, no una selección corta, con enlace directo, salario o su ausencia, encaje, brecha principal y contacto público verificado si se encontró. Separa los resultados no verificados y explica los límites de búsqueda. No solicites empleo ni contactes a nadie.',
+      ].join('\n\n'),
+    },
+    {
+      id: 'verify-vacancies',
+      category: 'career',
+      title: 'Revisar si tus vacantes siguen disponibles',
+      use: 'Comprueba las ofertas guardadas y actualiza su estado. Las que hayan cerrado permanecen en Vacantes hasta que decidas eliminarlas.',
+      skillPaths: [
+        'AGENTS.md',
+        'schemas/agent-format.md',
+        'schemas/vacancies.schema.json',
+        '.agents/skills/job-search/SKILL.md',
+        '.agents/skills/job-search/portals.md',
+      ],
+      text: [
+        'Usa una herramienta de búsqueda web actual y fuentes públicas. Si no tienes búsqueda actual, dilo claramente; no inventes ni supongas que una oferta sigue abierta.',
+        'Esta petición me autoriza a revisar private-data/vacancies.json y actualizar únicamente el estado de disponibilidad de las ofertas existentes. No elimines ninguna oferta, aunque confirmes que está cerrada; conserva siempre su enlace, ID, valoración, contacto, cvAdvice, adaptedCv y propiedades desconocidas. Yo decidiré si quiero borrarla.',
+        'Lee cada oferta guardada y vuelve a comprobarla. Empieza por su enlace y la página pública del empleador. Si no se puede abrir, busca por empresa, puesto y ubicación en una fuente pública fiable. Un resultado de búsqueda o una publicación agregada no basta para marcarla activa; confirma que el anuncio original sigue publicado y acepta candidaturas. No confundas una página genérica de empleo con esa vacante concreta.',
+        'Actualiza availability con status "active" solo cuando confirmes que aún acepta candidaturas; usa "closed" solo si una fuente fiable confirma que fue retirada, cerró o caducó; usa "uncertain" si hay bloqueo, página inaccesible, anuncio ambiguo o no puedes confirmar el estado. Registra checkedAt con la fecha real de hoy y sourceUrl con la fuente consultada. Añade notes breves para explicar cierres o dudas. Actualiza verifiedAt solo si confirmaste la oferta activa. No cambies hiringContact en esta revisión.',
+        'Si tienes acceso local autorizado, valida vacancies.json con schemas/vacancies.schema.json antes y después. Si falta el archivo, no lo crees para esta tarea; informa de que no hay una lista que revisar. Si el archivo está mal formado, usa una versión desconocida o no valida tras aplicar la migración v1→v2 documentada en AGENTS.md, déjalo intacto y explica el problema. Sin acceso local, revisa lo que el usuario comparta, entrega el informe y no afirmes que guardaste cambios.',
+        'Devuélveme cada oferta con su enlace original, empresa y puesto, agrupada como Activa, Cerrada o Sin confirmar. Explica brevemente la evidencia y enlaza la fuente comprobada. Conserva los registros cerrados en el JSON y recuérdame que puedo eliminarlos manualmente si quiero. No envíes solicitudes ni contactes a empresas o personas.',
       ].join('\n\n'),
     },
     {
@@ -683,13 +703,21 @@ export const PROMPT_REQUIREMENTS = {
   },
   'research-vacancies': {
     files: [
-      'integración de LinkedIn para ofertas públicas',
-      'herramienta de búsqueda web actual para verificar anuncios',
+      'herramienta de búsqueda web pública actual',
+      'búsqueda pública de perfiles profesionales (opcional)',
       'private-data/profile.json (opcional)',
       'private-data/vacancies.json (si autorizas guardar)',
     ],
     access:
-      'App/componente o MCP de LinkedIn con búsqueda de ofertas públicas, y herramienta web para verificar fuentes. Acceso local opcional para leer Perfil o guardar ofertas.',
+      'Búsqueda web actual; búsqueda pública de profesionales opcional. Acceso local para leer Perfil y guardar las ofertas. No necesita una integración de LinkedIn para buscar empleos.',
+  },
+  'verify-vacancies': {
+    files: [
+      'herramienta de búsqueda web pública actual',
+      'private-data/vacancies.json',
+    ],
+    access:
+      'Búsqueda web actual para comprobar anuncios y acceso local para guardar los estados. Sin acceso local, el agente entrega el informe sin modificar el archivo.',
   },
   'review-priorities': {
     files: [

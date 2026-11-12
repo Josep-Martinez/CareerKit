@@ -13,3 +13,28 @@ test('every Buzón prompt explains its files and required access', () => {
     assert.ok(requirements.access.trim(), `Missing access for ${prompt.id}`)
   }
 })
+
+test('vacancy discovery and availability review are separate prompts', () => {
+  const discovery = PROMPT_INBOX_ES.prompts.find(
+    (prompt) => prompt.id === 'research-vacancies',
+  )
+  const review = PROMPT_INBOX_ES.prompts.find(
+    (prompt) => prompt.id === 'verify-vacancies',
+  )
+
+  assert.ok(discovery)
+  assert.ok(review)
+  assert.match(discovery.text, /InfoJobs/)
+  assert.match(discovery.text, /JobToday/)
+  assert.match(discovery.text, /JobTeaser/)
+  assert.match(discovery.text, /Jobzen/)
+  assert.match(discovery.text, /responsable|responsable del departamento/i)
+  assert.match(discovery.text, /linkedinUrl/)
+  assert.match(discovery.text, /no .*contactes|no envíes mensajes/i)
+  assert.match(review.text, /availability/)
+  assert.match(review.text, /no elimines|conserva todas las ofertas/i)
+  assert.doesNotMatch(
+    discovery.text,
+    /Antes de buscar nuevas ofertas, revisa cada vacante guardada/,
+  )
+})

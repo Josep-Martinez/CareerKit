@@ -220,6 +220,77 @@
   gap: 0.5rem;
 }
 
+.vacancy-tags .availability-tag,
+.availability-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.86em;
+  font-weight: 650;
+  background: #eeeee8;
+  color: #566259;
+}
+
+.availability-tag[data-status='active'] {
+  background: #e5eee5;
+  color: #315c47;
+}
+
+.availability-tag[data-status='closed'] {
+  background: #f5e5e1;
+  color: #913f35;
+}
+
+.availability-tag[data-status='uncertain'] {
+  background: #f6eedc;
+  color: #805b20;
+}
+
+.vacancy-contact-editor {
+  display: grid;
+  gap: 0.8rem;
+  padding: clamp(0.85rem, 2.5vw, 1.25rem);
+  background: #f8f7f1;
+}
+
+.vacancy-contact-editor .card-title {
+  margin-bottom: 0;
+}
+
+.vacancy-availability-detail,
+.vacancy-hiring-contact {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.vacancy-availability-detail h3,
+.vacancy-hiring-contact h3 {
+  margin: 0;
+}
+
+.vacancy-availability-detail p,
+.vacancy-hiring-contact p {
+  margin: 0;
+}
+
+.vacancy-public-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.vacancy-public-links a,
+.vacancy-availability-detail a {
+  color: var(--green);
+  font-weight: 600;
+}
+
 .vacancy-adapted-cv {
   margin-top: 0.75rem;
   padding: clamp(0.85rem, 2.5vw, 1.4rem);
