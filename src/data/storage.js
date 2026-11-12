@@ -11,8 +11,14 @@ import {
 } from './profile-fields.js'
 import {
   validVacancyAvailability,
+  validVacancyCompanyProfile,
   validVacancyHiringContact,
+  validVacancyPeopleToFollow,
 } from './vacancy-data.js'
+import {
+  hasLinkedInContent,
+  validLinkedInContentData,
+} from './linkedin-content-data.js'
 import {
   forgetDirectoryHandle,
   loadDirectoryHandle,
@@ -230,33 +236,6 @@ const validAdaptedCv = (value) =>
   ['es', 'en'].includes(value.language) &&
   (value.layout === undefined ||
     ['single-column', 'two-columns'].includes(value.layout))
-const validLinkedInContentArticle = (item) => {
-  if (!isRecord(item)) return false
-  let url
-  try {
-    url = new URL(item.url)
-  } catch {
-    return false
-  }
-  return (
-    typeof item.id === 'string' &&
-    item.id.length > 0 &&
-    typeof item.title === 'string' &&
-    Boolean(item.title.trim()) &&
-    typeof item.source === 'string' &&
-    Boolean(item.source.trim()) &&
-    ['http:', 'https:'].includes(url.protocol) &&
-    optionalStrings(item, [
-      'publishedAt',
-      'verifiedAt',
-      'relevance',
-      'opinion',
-    ]) &&
-    (item.verified === undefined || typeof item.verified === 'boolean') &&
-    (item.topics === undefined || isStringList(item.topics)) &&
-    ['pending', 'accepted', 'rejected'].includes(item.status)
-  )
-}
 const validVacancyItem = (item) =>
   isRecord(item) &&
   typeof item.id === 'string' &&
@@ -284,7 +263,9 @@ const validVacancyItem = (item) =>
   (item.featured === undefined || typeof item.featured === 'boolean') &&
   (item.preference === undefined || Number.isInteger(item.preference)) &&
   validVacancyAvailability(item.availability) &&
+  validVacancyCompanyProfile(item.companyProfile) &&
   validVacancyHiringContact(item.hiringContact) &&
+  validVacancyPeopleToFollow(item.peopleToFollow) &&
   (item.cvAdvice === undefined || validCvAdvice(item.cvAdvice)) &&
   (item.adaptedCv === undefined || validAdaptedCv(item.adaptedCv))
 const validators = {
@@ -407,8 +388,7 @@ const validators = {
         ['profile', 'linkedin', 'cv', 'vacancies'].includes(item.section) &&
         (item.order === undefined || Number.isInteger(item.order)),
     ),
-  'linkedin-content': (d) =>
-    Array.isArray(d.articles) && d.articles.every(validLinkedInContentArticle),
+  'linkedin-content': validLinkedInContentData,
 }
 export const validateModule = (name, value) => {
   try {
@@ -513,6 +493,7 @@ export function hasModuleContent(name, value) {
           'adaptedCv',
           'availability',
           'hiringContact',
+          'peopleToFollow',
         ].some((key) => hasMeaningfulValue(item[key])) ||
         item.featured === true ||
         Number.isInteger(item.preference),
@@ -521,20 +502,7 @@ export function hasModuleContent(name, value) {
     hasContent = value.items.some((item) =>
       ['title', 'reason', 'date'].some((key) => hasMeaningfulValue(item[key])),
     )
-  else if (name === 'linkedin-content')
-    hasContent = value.articles.some((article) =>
-      [
-        'title',
-        'source',
-        'url',
-        'publishedAt',
-        'verified',
-        'verifiedAt',
-        'relevance',
-        'topics',
-        'opinion',
-      ].some((key) => hasMeaningfulValue(article[key])),
-    )
+  else if (name === 'linkedin-content') hasContent = hasLinkedInContent(value)
   return Boolean(hasContent || findUnknown(name, value).length)
 }
 
@@ -1177,7 +1145,13 @@ function findUnknown(name, data) {
     cv: ['schemaVersion', 'versions', 'previousVersion'],
     vacancies: ['schemaVersion', 'items'],
     priorities: ['schemaVersion', 'items'],
-    'linkedin-content': ['schemaVersion', 'articles'],
+    'linkedin-content': [
+      'schemaVersion',
+      'articles',
+      'publications',
+      'drafts',
+      'excludedArticleUrls',
+    ],
   }[name]
   const unknown = Object.keys(data).filter((key) => !known.includes(key))
   const rules = {
@@ -1259,17 +1233,38 @@ function findUnknown(name, data) {
         'preference',
         'featured',
         'availability',
+        'companyProfile',
         'hiringContact',
+        'peopleToFollow',
         'cvAdvice',
         'adaptedCv',
       ],
       availability: ['status', 'checkedAt', 'sourceUrl', 'notes'],
+      companyProfile: [
+        'name',
+        'linkedinUrl',
+        'websiteUrl',
+        'summary',
+        'sourceUrl',
+        'verifiedAt',
+      ],
       hiringContact: [
+        'contactType',
         'name',
         'role',
         'linkedinUrl',
         'contactUrl',
         'publicEmail',
+        'sourceUrl',
+        'verifiedAt',
+      ],
+      publicPerson: [
+        'id',
+        'name',
+        'role',
+        'linkedinUrl',
+        'contactUrl',
+        'reason',
         'sourceUrl',
         'verifiedAt',
       ],
@@ -1298,7 +1293,18 @@ function findUnknown(name, data) {
         'topics',
         'status',
         'opinion',
+        'publicationId',
       ],
+      publication: [
+        'id',
+        'type',
+        'language',
+        'text',
+        'publishedAt',
+        'url',
+        'sourceArticleId',
+      ],
+      draft: ['id', 'type', 'language', 'text', 'status', 'sourceArticleId'],
     },
     cv: { version: ['masterText', 'lastUpdated', 'lastReviewed'] },
   }[name]
@@ -1356,9 +1362,21 @@ function findUnknown(name, data) {
         `items[${index}].availability`,
       )
       inspect(
+        item.companyProfile,
+        rules.companyProfile,
+        `items[${index}].companyProfile`,
+      )
+      inspect(
         item.hiringContact,
         rules.hiringContact,
         `items[${index}].hiringContact`,
+      )
+      ;(item.peopleToFollow || []).forEach((person, personIndex) =>
+        inspect(
+          person,
+          rules.publicPerson,
+          `items[${index}].peopleToFollow[${personIndex}]`,
+        ),
       )
       inspect(item.cvAdvice, rules.cvAdvice, `items[${index}].cvAdvice`)
       inspect(item.adaptedCv, rules.adaptedCv, `items[${index}].adaptedCv`)
@@ -1370,6 +1388,14 @@ function findUnknown(name, data) {
   if (name === 'linkedin-content')
     (data.articles || []).forEach((article, index) =>
       inspect(article, rules.article, `articles[${index}]`),
+    )
+  if (name === 'linkedin-content')
+    (data.publications || []).forEach((publication, index) =>
+      inspect(publication, rules.publication, `publications[${index}]`),
+    )
+  if (name === 'linkedin-content')
+    (data.drafts || []).forEach((draft, index) =>
+      inspect(draft, rules.draft, `drafts[${index}]`),
     )
   return unknown
 }

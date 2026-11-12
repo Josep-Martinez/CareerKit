@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://careerkit.invalid/schemas/linkedin-content.schema.json",
-  "title": "CareerKit LinkedIn content queue",
+  "title": "CareerKit LinkedIn content and publication archive",
   "type": "object",
   "required": ["schemaVersion", "articles"],
   "properties": {
@@ -9,6 +9,19 @@
     "articles": {
       "type": "array",
       "items": { "$ref": "#/$defs/article" }
+    },
+    "publications": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/publication" }
+    },
+    "drafts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/draft" }
+    },
+    "excludedArticleUrls": {
+      "type": "array",
+      "items": { "type": "string", "format": "uri" },
+      "uniqueItems": true
     }
   },
   "additionalProperties": true,
@@ -29,8 +42,64 @@
           "type": "array",
           "items": { "type": "string" }
         },
-        "status": { "enum": ["pending", "accepted", "rejected"] },
-        "opinion": { "type": "string" }
+        "status": {
+          "enum": ["pending", "accepted", "rejected", "published"]
+        },
+        "opinion": { "type": "string" },
+        "publicationId": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "published" } } },
+          "then": { "required": ["publicationId"] }
+        }
+      ],
+      "additionalProperties": true
+    },
+    "publication": {
+      "type": "object",
+      "required": ["id", "type", "text"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": {
+          "enum": [
+            "achievement",
+            "new-role",
+            "promotion",
+            "project",
+            "learning",
+            "article",
+            "source"
+          ]
+        },
+        "language": { "enum": ["es", "en"] },
+        "text": { "type": "string", "minLength": 1 },
+        "publishedAt": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "sourceArticleId": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "draft": {
+      "type": "object",
+      "required": ["id", "type", "language", "text", "status"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": {
+          "enum": [
+            "achievement",
+            "new-role",
+            "promotion",
+            "project",
+            "learning",
+            "article",
+            "source"
+          ]
+        },
+        "language": { "const": "en" },
+        "text": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["needs-review", "ready-to-post"] },
+        "sourceArticleId": { "type": "string", "minLength": 1 }
       },
       "additionalProperties": true
     }

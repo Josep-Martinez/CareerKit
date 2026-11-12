@@ -5,6 +5,7 @@ export const NAV = [
   ['profile', 'Perfil y aprendizajes', '◈'],
   ['linkedin', 'LinkedIn', '↗'],
   ['linkedin-content', 'Contenido de LinkedIn', '✳'],
+  ['linkedin-publications', 'Tus publicaciones', '▤'],
   ['cv', 'CV', '▤'],
   ['vacancies', 'Vacantes', '◎'],
   ['prompts', 'Buzón', '▣'],
@@ -493,11 +494,29 @@ export const STRINGS = {
     availabilityPlaceholder: 'Elige un estado',
     checkedAt: 'Comprobada el',
     availabilityNotes: 'Nota de comprobación',
-    hiringContact: 'Responsable o contacto de selección',
+    hiringContact: 'Recruiter o contacto de selección',
     hiringContactDescription:
-      'Guarda solo datos profesionales publicados y una fuente que confirme la relación con esta oferta o empresa.',
+      'Prioriza a quien participa en selección o filtrado de candidaturas. Guarda el contacto solo si una fuente pública confirma su vínculo; no supongas que revisará tu CV.',
     noHiringContact:
-      'No se ha encontrado una persona responsable con datos públicos verificables.',
+      'No se ha encontrado un recruiter o contacto de selección verificable. Los perfiles de dirección y del equipo se guardan por separado.',
+    contactType: 'Relación con selección',
+    contactTypePlaceholder: 'Elige una relación confirmada',
+    contactTypeLabels: {
+      recruiter: 'Recruiter vinculado a la vacante',
+      'talent-acquisition': 'Talent acquisition / selección',
+      'human-resources': 'Recursos humanos',
+      unknown: 'Relación sin confirmar',
+    },
+    companyProfile: 'Perfil público de la empresa',
+    companyProfileDescription:
+      'Guarda el perfil oficial de la empresa y una descripción respaldada por fuentes públicas.',
+    companyProfileName: 'Nombre público de la empresa',
+    companyLinkedInUrl: 'Perfil oficial de empresa en LinkedIn',
+    companyWebsiteUrl: 'Web oficial de la empresa',
+    companySummary: 'Descripción pública de la empresa',
+    companySourceUrl: 'Fuente de la descripción o el perfil',
+    companyVerifiedAt: 'Fecha de comprobación',
+    noCompanyProfile: 'Aún no hay un perfil público verificado de la empresa.',
     contactName: 'Nombre público',
     contactRole: 'Cargo o departamento',
     contactLinkedIn: 'Perfil público de LinkedIn',
@@ -507,6 +526,14 @@ export const STRINGS = {
     contactVerifiedAt: 'Fecha de comprobación',
     contactPrivacyHint:
       'No adivines datos ni guardes teléfonos personales. La app no envía mensajes.',
+    peopleToFollow: 'Perfiles públicos para seguir',
+    peopleToFollowDescription:
+      'Perfiles públicos de dirección, responsables del área o miembros clave del equipo. Prioriza recruiters en el bloque de selección; guarda aquí hasta tres perfiles adicionales y explica su relevancia. Guardarlos no significa seguirles ni contactarles.',
+    noPeopleToFollow: 'Aún no hay perfiles públicos de interés registrados.',
+    publicPerson: 'Persona de interés',
+    addPublicPerson: 'Añadir perfil público',
+    removePublicPerson: 'Quitar perfil',
+    personReason: 'Por qué es relevante seguir este perfil',
     openLinkedInProfile: 'Ver perfil profesional',
     openPublicContact: 'Abrir contacto público',
     openContactSource: 'Ver fuente',
@@ -520,8 +547,14 @@ export const STRINGS = {
     noOffersForCv: 'Guarda una vacante para poder seleccionarla.',
     returnToOffer: 'Volver a la vacante',
     adaptedCv: 'CV adaptado',
-    prepareCv: 'Preparar CV con el agente',
-    reviseCv: 'Revisar CV con el agente',
+    prepareCv: 'Preparar CV para esta oferta',
+    reviseCv: 'Revisar CV para esta oferta',
+    copySearchPrompt: 'Copiar prompt para buscar vacantes',
+    copyReviewPrompt: 'Copiar prompt para revisar vacantes guardadas',
+    promptCopied:
+      'Prompt copiado. Pégalo en tu asistente para empezar esta tarea.',
+    promptCopyFailed:
+      'No se pudo copiar automáticamente. Abrí el Buzón para que puedas copiarlo allí.',
     emptyAdaptedCv:
       'El CV que prepare el agente aparecerá aquí. Si acabas de guardarlo, recarga el archivo de vacantes.',
     viewAdaptedCv: 'Ver CV adaptado',
@@ -846,11 +879,14 @@ export const STRINGS = {
       pending: 'Por revisar',
       accepted: 'Aceptados',
       rejected: 'Descartados',
+      published: 'Publicados',
     },
     noArticles: {
       pending: 'Aquí aparecerán los artículos que el agente encuentre para ti.',
       accepted: 'Aún no has aceptado ningún artículo.',
       rejected: 'Aquí se conservarán los artículos que descartes.',
+      published:
+        'Aquí verás los artículos que ya dieron lugar a una publicación registrada.',
     },
     addManually: 'Añadir artículo manualmente',
     addArticle: 'Añadir a pendientes',
@@ -865,31 +901,96 @@ export const STRINGS = {
     articleInvalid: 'Añade título, fuente y un enlace http o https válido.',
     acceptArticle: 'Me interesa',
     rejectArticle: 'Descartar',
-    backToPending: 'Devolver a pendientes',
     restoreArticle: 'Volver a revisar',
     pendingLabel: 'Por revisar',
     acceptedLabel: 'Aceptado',
     rejectedLabel: 'Descartado',
+    publishedLabel: 'Publicado',
+    articleDecisionSaving: 'Guardando tu decisión en linkedin-content.json…',
+    articleDecisionSaved: 'Decisión guardada en linkedin-content.json.',
+    articleDecisionFailed:
+      'No se pudo guardar la decisión. Se conserva en el formulario para que puedas intentarlo de nuevo.',
+    savingOpinion: 'Guardando tu opinión antes de preparar el prompt…',
+    opinionSaveFailed:
+      'No se pudo guardar la opinión. Conserva el borrador y revisa el archivo antes de continuar.',
+    publishedArticleMessage:
+      'La publicación ya está registrada en Tus publicaciones.',
+    viewPublishedPost: 'Ver publicación registrada',
     opinionLabel: '¿Qué opinas tú?',
     opinionHint:
       'Escribe tu postura antes de pedir una publicación. El agente no inventará tu opinión.',
     opinionRequired: 'Añade tu opinión para preparar el prompt.',
     preparePost: 'Preparar publicación sobre este artículo',
+    registerPublication: 'Registrar publicación',
     openArticle: 'Leer fuente ↗',
     postTitle: 'Crear una publicación',
     postDescription:
-      'Parte de una experiencia, un proyecto, un aprendizaje, un logro o una opinión. Solo se preparará el prompt; el borrador queda en la conversación con tu asistente.',
+      'El agente redactará una propuesta completa siempre en inglés y la guardará como borrador. Después podrás revisarla y editarla en Tus publicaciones antes de decidir si la compartes.',
+    postDraftsEyebrow: 'PROPUESTAS DEL AGENTE',
+    postDraftsTitle: 'Borradores para revisar',
+    postDraftsDescription:
+      'Los borradores guardados aparecen en Tus publicaciones, separados de los textos ya publicados.',
+    noPostDrafts:
+      'Aún no hay borradores guardados. Cuando el agente ejecute el prompt y lo guarde, aparecerá en Tus publicaciones.',
+    postDraftsPending:
+      '{count} borrador(es) pendiente(s) de revisión. Abre Tus publicaciones para editarlos, confirmarlos o eliminarlos.',
+    postDraftsSaved:
+      '{count} borrador(es) guardado(s). Abre Tus publicaciones para revisarlos o editarlos.',
+    openPublicationDrafts: 'Abrir Tus publicaciones',
+    postPromptNextStepEyebrow: 'DESPUÉS DE EJECUTAR EL PROMPT',
+    postPromptNextStep:
+      'Cuando el agente confirme que guardó el texto, ve a Tus publicaciones → Borradores. Si CareerKit indica un cambio externo, recarga linkedin-content.json para ver la propuesta.',
+    postDraftNeedsReviewLabel: 'Pendiente de revisión',
+    postDraftReadyLabel: 'Listo para publicar',
+    postDraftSource: 'Basado en',
+    postDraftTextLabel: 'Texto de la publicación (en inglés)',
+    postDraftTextHint:
+      'Puedes editarlo aquí. Guardar conserva los cambios en el borrador; confirmar lo deja listo para publicar. Ninguna acción lo comparte en LinkedIn.',
+    postDraftSave: 'Guardar edición',
+    postDraftConfirm: 'Confirmar texto',
+    postDraftSaving: 'Guardando el borrador…',
+    postDraftSaved: 'Edición guardada en linkedin-content.json.',
+    postDraftConfirmed:
+      'Texto confirmado y listo para publicar. Aún no se ha publicado ni archivado.',
+    postDraftSaveFailed:
+      'No se pudo guardar el borrador. Conserva el texto y vuelve a intentarlo.',
+    postDraftCopy: 'Copiar texto',
+    postDraftCopied: 'Texto del borrador copiado.',
     postType: 'Tipo de publicación',
     postTypes: {
       achievement: 'Logro o título',
+      'new-role': 'Nuevo trabajo o puesto',
+      promotion: 'Ascenso o promoción',
       project: 'Proyecto',
       learning: 'Experiencia o aprendizaje',
       article: 'Opinión sobre un artículo',
       source: 'Reutilizar un material',
     },
-    postIdea: 'Idea, experiencia o enfoque que quieres contar',
-    postIdeaHint:
-      'Cuéntalo con tus palabras. El agente preguntará si falta un dato importante.',
+    postIdeaLabels: {
+      achievement: 'Qué logro o título quieres compartir',
+      'new-role': 'Qué nuevo puesto quieres anunciar',
+      promotion: 'Qué ascenso o promoción quieres compartir',
+      project: 'Qué quieres contar de tu proyecto',
+      learning: 'Qué experiencia o aprendizaje quieres compartir',
+      article: '¿Qué opinas tú sobre este artículo?',
+      source: 'Qué material quieres reutilizar y qué enfoque aportarás',
+    },
+    postIdeaHints: {
+      achievement:
+        'Añade por qué es importante para ti y qué hecho concreto puede respaldarlo. El asistente preparará una publicación completa.',
+      'new-role':
+        'Indica el puesto, la empresa y qué puedes confirmar sobre el cambio. Añade qué te ilusiona si quieres; el asistente no inventará fechas ni motivos.',
+      promotion:
+        'Cuenta cuál es el nuevo puesto o responsabilidad y qué puedes compartir del recorrido. El asistente evitará exagerar o atribuirte méritos no confirmados.',
+      project:
+        'Describe el problema, tu aportación y el resultado que puedas confirmar. El asistente preparará una publicación completa.',
+      learning:
+        'Cuenta la experiencia y el aprendizaje que te gustaría compartir. El asistente preparará una publicación completa.',
+      article:
+        'Aquí aparece la opinión que escribiste en la lectura aceptada. Puedes editarla antes de preparar el prompt.',
+      source:
+        'Pega o describe el material y añade tu propia perspectiva. El asistente preparará una publicación completa.',
+    },
     relatedArticle: 'Artículo aceptado',
     noAcceptedArticles: 'Todavía no hay artículos aceptados.',
     selectedEvidence:
@@ -897,7 +998,7 @@ export const STRINGS = {
     noEvidence: 'No hay evidencias confirmadas guardadas en Perfil.',
     evidenceHint:
       'Se compartirán solo los identificadores seleccionados. El agente comprobará esos hechos en el archivo local.',
-    copyPostPrompt: 'Copiar prompt para crear publicación',
+    copyPostPrompt: 'Copiar prompt para crear borrador en inglés',
     commentTitle: 'Preparar un comentario',
     commentDescription:
       'Pega el texto de la publicación y añade qué piensas o qué quieres aportar. El agente no abrirá cuentas ni buscará la publicación.',
@@ -911,7 +1012,6 @@ export const STRINGS = {
       extraSearchFocus: 'Enfoque adicional para esta búsqueda',
       title: 'Información concreta para esta solicitud',
       type: 'Tipo',
-      idea: 'Idea y enfoque',
       acceptedArticle: 'Artículo aceptado',
       articleId: 'ID',
       articleTitle: 'Título',
@@ -924,14 +1024,102 @@ export const STRINGS = {
       commentMaterial: 'Material y aportación para esta solicitud',
       postText: 'Texto de la publicación',
       commentOpinion: 'Mi opinión o aportación',
-      profileTone:
-        'Usa el tono de contentDirection de Perfil solo si tienes acceso local; no infieras que comparto ideas que no he indicado.',
     },
     save: 'Guardar cambios en la cola',
     saved: 'Cambios guardados en linkedin-content.json.',
     prepared: 'Archivo preparado para guardar manualmente.',
     saving: 'Guardando…',
     saveFailed: 'No se pudo guardar. Conserva tu borrador y revisa el archivo.',
+  },
+  linkedinPublicationsPage: {
+    eyebrow: 'ARCHIVO DE LO QUE YA COMPARTISTE',
+    title: 'Tus publicaciones',
+    subtitle:
+      'Revisa primero los borradores en rojo y conserva debajo el texto exacto de lo que ya compartiste en LinkedIn.',
+    introTitle: 'Registra una publicación ya publicada',
+    intro:
+      'Pega la versión final después de compartirla en LinkedIn. CareerKit no publica ni guarda borradores como si ya fueran públicos.',
+    contentLabel: 'Texto exacto publicado en LinkedIn',
+    contentHint:
+      'Pega el texto tal como aparece publicado, con sus saltos de línea. No se reescribe.',
+    confirmPublished: 'Confirmo que este texto ya está publicado en LinkedIn.',
+    confirmBeforeSave:
+      'Confirma que ya publicaste este texto antes de registrarlo.',
+    confirmBeforePrompt:
+      'Confirma que el texto ya está publicado antes de copiar el prompt de registro.',
+    typeLabel: 'Tipo de publicación',
+    languageLabel: 'Idioma (opcional)',
+    languageNone: 'No indicado',
+    dateLabel: 'Fecha de publicación (opcional)',
+    urlLabel: 'Enlace a la publicación (opcional)',
+    sourceLabel: 'Artículo relacionado (opcional)',
+    noSource: 'Sin artículo relacionado',
+    sourceContext: 'Tu opinión guardada sobre el artículo',
+    sourceContextHint:
+      'Se conservará como referencia; aquí pegas el texto que realmente publicaste.',
+    save: 'Guardar publicación publicada',
+    saved: 'Publicación guardada en linkedin-content.json.',
+    saveFailed:
+      'No se pudo guardar. El texto permanece en el formulario para que puedas reintentarlo.',
+    invalid: 'Añade el texto publicado y corrige cualquier enlace no válido.',
+    articleNotAccepted:
+      'El artículo relacionado ya no está aceptado. Actualiza la cola antes de enlazarlo.',
+    idConflict:
+      'No se guardó porque ya existe una publicación distinta con ese identificador.',
+    duplicate: 'Esta publicación ya estaba guardada.',
+    archiveTitle: 'Publicaciones registradas',
+    archiveDescription:
+      'Los borradores aparecen primero. Debajo, los textos ya compartidos se ordenan por fecha; los que no tienen fecha van al final en orden alfabético.',
+    empty: 'Todavía no has registrado publicaciones.',
+    publishedBadge: 'PUBLICADA',
+    draftsEyebrow: 'PROPUESTAS SIN PUBLICAR',
+    draftsTitle: 'Borradores para revisar',
+    draftsDescription:
+      'Revisa y edita cada propuesta. «Listo para publicar» solo confirma el texto; el registro como publicada requiere que ya la hayas compartido.',
+    draftReviewBadge: 'BORRADOR · REVISAR',
+    draftReadyBadge: 'BORRADOR · LISTO',
+    englishDraft: 'English',
+    draftTextLabel: 'Texto del borrador en inglés',
+    draftEditHint:
+      'Los cambios se guardan al pulsar Guardar edición. Si cambias el texto, vuelve a quedar pendiente de revisión.',
+    saveDraftEdit: 'Guardar edición',
+    confirmDraftText: 'Confirmar texto',
+    markDraftPublished: 'Ya la publiqué · registrar',
+    deleteDraft: 'Eliminar borrador',
+    deleteDraftConfirm:
+      '¿Eliminar este borrador de CareerKit? No afecta a ninguna publicación de LinkedIn.',
+    markDraftPublishedConfirm:
+      '¿Confirmas que este texto ya está compartido en LinkedIn? Se moverá de Borradores a Publicaciones registradas. No se publicará nada desde CareerKit.',
+    draftSaved: 'Edición del borrador guardada en linkedin-content.json.',
+    draftConfirmed:
+      'Texto confirmado y listo para publicar. Sigue siendo un borrador.',
+    draftDeleted: 'Borrador eliminado de CareerKit.',
+    draftPublished: 'Texto registrado como publicado y retirado de Borradores.',
+    draftInvalid:
+      'No se pudo guardar el borrador; revisa el archivo y su formato.',
+    pendingDraftCount: '{count} borrador(es) por revisar',
+    editPublication: 'Editar registro',
+    deletePublication: 'Eliminar registro',
+    deletePublicationConfirm:
+      '¿Eliminar esta copia del archivo local? Esto no borra la publicación de LinkedIn. Si estaba vinculada a un artículo, este volverá a Aceptados.',
+    publicationEdited: 'Cambios guardados en la copia local de la publicación.',
+    publicationDeleted: 'Registro eliminado de CareerKit.',
+    savePublicationEdit: 'Guardar cambios',
+    cancelEdit: 'Cancelar edición',
+    publishedTextLabel: 'Texto registrado',
+    languageEditHint: 'Código de idioma opcional: es o en.',
+    editLocalOnly:
+      'Esto actualiza la copia de CareerKit, no el texto que ya aparece en LinkedIn.',
+    sourcePrefix: 'Basada en',
+    openLink: 'Ver en LinkedIn ↗',
+    copyPrompt: 'Copiar prompt para registrar publicaciones',
+    promptPreview: 'Ver prompt que copiarás',
+    promptCopied:
+      'Prompt copiado. Si el texto de alguna publicación no está incluido, pégalo también en el chat.',
+    copyFailed:
+      'No se pudo copiar. Abre «Ver prompt que copiarás» y selecciona el texto para copiarlo.',
+    savedPublicationTitle: 'Publicación ya registrada',
+    backToContent: 'Volver a Contenido de LinkedIn',
   },
   promptInbox: PROMPT_INBOX_ES,
   linkedinDates: 'LinkedIn',
@@ -945,6 +1133,7 @@ export const TITLES = {
   profile: 'Perfil y aprendizajes',
   linkedin: 'LinkedIn',
   'linkedin-content': 'Contenido de LinkedIn',
+  'linkedin-publications': 'Tus publicaciones',
   cv: 'CV base',
   vacancies: 'Vacantes',
   prompts: 'Buzón',

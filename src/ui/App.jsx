@@ -13,6 +13,7 @@ import {
 } from '../data/storage.js'
 import { isKnownEmpty, isKnownPopulated } from './utils.js'
 import { checkEvidenceRemoval } from './profile-evidence-guard.js'
+import { BrandIcon } from './components/BrandIcon.jsx'
 import { SectionIcon } from './components/SectionIcon.jsx'
 import { WorkspaceGate } from './components/WorkspaceGate.jsx'
 import {
@@ -28,35 +29,46 @@ import { CVPage } from './pages/CVPage.jsx'
 import { VacanciesPage } from './pages/VacanciesPage.jsx'
 import { PromptInboxPage } from './pages/PromptInboxPage.jsx'
 import { LinkedInContentPage } from './pages/LinkedInContentPage.jsx'
+import { LinkedInPublicationsPage } from './pages/LinkedInPublicationsPage.jsx'
 
 function readRoute() {
-  const [section, vacancy] = window.location.hash.slice(1).split('/')
+  const [section, detail] = window.location.hash.slice(1).split('/')
   const page = NAV.some(([key]) => key === section) ? section : 'home'
   let vacancyId = null
-  if (page === 'vacancies' && vacancy) {
+  let articleId = null
+  if (page === 'vacancies' && detail) {
     try {
-      vacancyId = decodeURIComponent(vacancy)
+      vacancyId = decodeURIComponent(detail)
     } catch {
       // A malformed link opens the vacancy list.
     }
   }
-  return { page, vacancyId }
+  if (page === 'linkedin-publications' && detail) {
+    try {
+      articleId = decodeURIComponent(detail)
+    } catch {
+      // A malformed link opens the publication archive.
+    }
+  }
+  return { page, vacancyId, articleId }
 }
 
-function routeHash(page, vacancyId) {
+function routeHash(page, vacancyId, articleId) {
   return (
     '#' +
     page +
     (page === 'vacancies' && vacancyId
       ? '/' + encodeURIComponent(vacancyId)
-      : '')
+      : page === 'linkedin-publications' && articleId
+        ? '/' + encodeURIComponent(articleId)
+        : '')
   )
 }
 
 export default function App() {
   const store = useStorageState()
   const [route, setRoute] = useState(readRoute)
-  const { page, vacancyId } = route
+  const { page, vacancyId, articleId } = route
   const pageContent = useRef(null)
   const [notice, setNotice] = useState('')
   const [focusedPromptId, setFocusedPromptId] = useState(null)
@@ -117,7 +129,15 @@ export default function App() {
     store.data.linkedin.languageSync?.status === 'pending'
   const pendingPromptCount =
     Number(cvPromptPending) + Number(linkedinLanguagesPending)
-  const currentModule = Object.hasOwn(store.data, page) ? page : null
+  const pendingPublicationDraftCount = (
+    store.data['linkedin-content'].drafts || []
+  ).filter((postDraft) => postDraft.status === 'needs-review').length
+  const currentModule =
+    page === 'linkedin-publications'
+      ? 'linkedin-content'
+      : Object.hasOwn(store.data, page)
+        ? page
+        : null
 
   function showNotice(message, action = null) {
     setNotice(message)
@@ -129,13 +149,31 @@ export default function App() {
     showNotice(message, 'cv-prompt')
   }
 
-  function navigateTo(nextPage, { vacancyId: nextVacancyId = null } = {}) {
-    const changing = nextPage !== page || nextVacancyId !== vacancyId
+  function navigateTo(
+    nextPage,
+    { vacancyId: nextVacancyId = null, articleId: nextArticleId = null } = {},
+  ) {
+    const changing =
+      nextPage !== page ||
+      nextVacancyId !== vacancyId ||
+      nextArticleId !== articleId
     if (changing && (pendingSave.current || !confirmDiscard())) return false
     if (changing) setHasUnsavedChanges(false)
-    if (nextPage !== page || nextVacancyId !== vacancyId) {
-      window.history.pushState(null, '', routeHash(nextPage, nextVacancyId))
-      setRoute({ page: nextPage, vacancyId: nextVacancyId })
+    if (
+      nextPage !== page ||
+      nextVacancyId !== vacancyId ||
+      nextArticleId !== articleId
+    ) {
+      window.history.pushState(
+        null,
+        '',
+        routeHash(nextPage, nextVacancyId, nextArticleId),
+      )
+      setRoute({
+        page: nextPage,
+        vacancyId: nextVacancyId,
+        articleId: nextArticleId,
+      })
     }
     setMobileNavOpen(false)
     setAdaptationVacancyId(null)
@@ -146,9 +184,18 @@ export default function App() {
   useEffect(() => {
     function restoreRoute() {
       const next = readRoute()
-      if (next.page === page && next.vacancyId === vacancyId) return
+      if (
+        next.page === page &&
+        next.vacancyId === vacancyId &&
+        next.articleId === articleId
+      )
+        return
       if (pendingSave.current || !confirmDiscard()) {
-        window.history.pushState(null, '', routeHash(page, vacancyId))
+        window.history.pushState(
+          null,
+          '',
+          routeHash(page, vacancyId, articleId),
+        )
         return
       }
       setHasUnsavedChanges(false)
@@ -157,13 +204,13 @@ export default function App() {
     }
     window.addEventListener('popstate', restoreRoute)
     return () => window.removeEventListener('popstate', restoreRoute)
-  }, [page, vacancyId, hasUnsavedChanges])
+  }, [page, vacancyId, articleId, hasUnsavedChanges])
 
   useEffect(() => {
     if (!pageContent.current) return
     pageContent.current.focus({ preventScroll: true })
     window.scrollTo(0, 0)
-  }, [page, vacancyId])
+  }, [page, vacancyId, articleId])
 
   function openProfileEvidence(evidenceId) {
     if (!navigateTo('profile')) return
@@ -513,8 +560,12 @@ export default function App() {
   }
   async function save(module, value) {
     if (pendingSave.current) return false
-    const snapshot =
-      page === module ? editorSnapshots.current[module] : undefined
+    const isModuleEditor =
+      page === module ||
+      (page === 'linkedin-publications' && module === 'linkedin-content')
+    const snapshot = isModuleEditor
+      ? editorSnapshots.current[module]
+      : undefined
     if (snapshot && snapshot.base !== store.data[module]) {
       await showConflict(module)
       return
@@ -709,7 +760,7 @@ export default function App() {
     <div className="app-shell">
       <aside className={`sidebar ${mobileNavOpen ? 'is-open' : ''}`}>
         <div className="brand">
-          <div className="brand-mark">C</div>
+          <BrandIcon />
           <div>
             <strong>CareerKit</strong>
             <span>Tu espacio profesional</span>
@@ -746,6 +797,18 @@ export default function App() {
                   {pendingPromptCount}
                 </span>
               )}
+              {key === 'linkedin-publications' &&
+                pendingPublicationDraftCount > 0 && (
+                  <span
+                    className="nav-badge nav-badge-alert"
+                    aria-label={s.linkedinPublicationsPage.pendingDraftCount.replace(
+                      '{count}',
+                      pendingPublicationDraftCount,
+                    )}
+                  >
+                    {pendingPublicationDraftCount}
+                  </span>
+                )}
               {page === key && <span className="nav-dot" />}
             </button>
           ))}
@@ -814,7 +877,7 @@ export default function App() {
                   ? s.fallbackFiles.manualStatus
                   : s.workspaceGate.previewOnly}
             </span>
-            <button className="avatar">C</button>
+            <BrandIcon size={30} />
           </div>
         </header>
         <section
@@ -934,6 +997,29 @@ export default function App() {
               onSave={(v) => save('linkedin-content', v)}
               onReload={() => reloadWithUnsavedGuard('linkedin-content')}
               onPromptCopied={handlePromptCopied}
+              onRegisterPublication={(sourceArticleId) =>
+                navigateTo('linkedin-publications', {
+                  articleId: sourceArticleId,
+                })
+              }
+              onNavigateToPublications={() =>
+                navigateTo('linkedin-publications')
+              }
+            />
+          )}
+          {page === 'linkedin-publications' && (
+            <LinkedInPublicationsPage
+              {...draftProps('linkedin-content')}
+              articleId={articleId}
+              value={store.data['linkedin-content']}
+              state={store.states['linkedin-content']}
+              warning={store.warnings['linkedin-content']}
+              savedAt={savedAt['linkedin-content']}
+              saving={savingModule === 'linkedin-content'}
+              onSave={(value) => save('linkedin-content', value)}
+              onReload={() => reloadWithUnsavedGuard('linkedin-content')}
+              onNavigate={navigateTo}
+              onPromptCopied={handlePromptCopied}
             />
           )}
           {page === 'cv' && (
@@ -963,9 +1049,9 @@ export default function App() {
             <VacanciesPage
               {...draftProps('vacancies')}
               key={`${editorReset.vacancies || 0}:${vacancyId || ''}`}
-              onOpenResearch={() => {
+              onOpenResearch={(promptId = 'research-vacancies') => {
                 if (!navigateTo('prompts')) return
-                setFocusedPromptId('research-vacancies')
+                setFocusedPromptId(promptId)
                 showNotice('')
               }}
               value={store.data.vacancies}

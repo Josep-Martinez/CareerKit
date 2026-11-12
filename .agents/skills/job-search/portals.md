@@ -24,7 +24,7 @@ Search across several relevant source types. Do not restrict a search to this li
 
 Also consider other regional boards, specialist communities, public-sector portals, professional associations, recruitment firms, and company-hosted applicant-tracking systems such as Greenhouse, Lever, Workday, and SmartRecruiters. Aggregators and search snippets are leads only; verify the opening on the employer's live page whenever possible.
 
-When asked to identify a hiring contact, search public professional sources separately from vacancy discovery. Prefer a named department lead or hiring manager whose current affiliation is confirmed; use a named recruiter tied to the vacancy only as a fallback. Save a profile or contact link only when publicly available and attributable to the person. Never guess contact details or send a message.
+When asked to identify people at the employer, find the official company profile first, then search public professional sources for recruiters, talent-acquisition staff, or HR people connected to the vacancy. Prioritize a recruiter named in the listing or a publicly verifiable member of the hiring/recruiting team. Save a person in `hiringContact` only when their identity and recruiting/selection relationship are verified; never claim they will review the CV unless a source confirms it. If no recruiter or selection contact can be verified, leave `hiringContact` empty. Keep up to three executives, department leaders, or relevant team members separately in `peopleToFollow`, with a reason for relevance. A hiring manager or CEO is not a substitute for a recruiter. Save only public profile links; never guess contact details or send a message.
 
 ## Search-engine patterns (via web search)
 

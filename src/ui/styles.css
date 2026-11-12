@@ -69,15 +69,8 @@ a:focus-visible {
   padding: 0 9px 38px;
 }
 .brand-mark {
-  width: 37px;
-  height: 37px;
-  border-radius: 12px;
-  background: #29293b;
-  color: #fff;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  font-size: 18px;
+  display: block;
+  flex: none;
 }
 .brand strong {
   display: block;
@@ -233,15 +226,6 @@ a:focus-visible {
 }
 .connection.is-connected i {
   background: #48ad80;
-}
-.avatar {
-  height: 30px;
-  width: 30px;
-  border: 0;
-  border-radius: 50%;
-  background: #eeeafd;
-  color: #6756bf;
-  font-weight: 700;
 }
 .page-content {
   max-width: 1260px;
