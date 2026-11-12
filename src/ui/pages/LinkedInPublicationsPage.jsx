@@ -86,6 +86,8 @@ export function LinkedInPublicationsPage({
         (publication) => publication.id === sourceArticle.publicationId,
       )
     : null
+  const canCopyRegistrationPrompt =
+    !savingPublication && !saving && form.confirmed && Boolean(form.text.trim())
   const formDirty = formTouched
   const dirty = JSON.stringify(draft) !== JSON.stringify(value)
 
@@ -188,14 +190,27 @@ export function LinkedInPublicationsPage({
         eyebrow={copy.eyebrow}
         title={copy.title}
         subtitle={copy.subtitle}
+        className="publication-page-heading"
         action={
-          <button
-            type="button"
-            className="button secondary"
-            onClick={() => onNavigate?.('linkedin-content')}
-          >
-            {copy.backToContent}
-          </button>
+          <div className="publication-page-actions">
+            {!existingPublication && (
+              <button
+                type="button"
+                className="button secondary"
+                disabled={!canCopyRegistrationPrompt}
+                onClick={copyRegistrationPrompt}
+              >
+                {copy.copyPrompt}
+              </button>
+            )}
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => onNavigate?.('linkedin-content')}
+            >
+              {copy.backToContent}
+            </button>
+          </div>
         }
       />
       <Status
@@ -341,7 +356,7 @@ export function LinkedInPublicationsPage({
             <button
               type="button"
               className="button secondary"
-              disabled={!form.confirmed || !form.text.trim()}
+              disabled={!canCopyRegistrationPrompt}
               onClick={copyRegistrationPrompt}
             >
               {copy.copyPrompt}

@@ -137,6 +137,14 @@ select {
   font-size: 13px;
   line-height: 1.65;
 }
+.publication-page-heading .publication-page-actions {
+  display: flex;
+  max-width: 52%;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+}
 .welcome-card {
   min-height: 258px;
   border-radius: 5px 16px 5px 16px;
@@ -1391,6 +1399,17 @@ select {
 @media (max-width: 780px) {
   .page-content {
     padding-top: 27px;
+  }
+  .publication-page-heading {
+    flex-wrap: wrap;
+  }
+  .publication-page-heading .publication-page-actions {
+    width: 100%;
+    max-width: none;
+    justify-content: flex-start;
+  }
+  .publication-page-heading .publication-page-actions .button {
+    flex: 1 1 220px;
   }
   .page-heading h1 {
     font-size: 30px;
