@@ -78,6 +78,7 @@ export function LinkedInContentPage({
   const postIdea = postIdeas[postType] || ''
 
   const articles = draft.articles || []
+  const postDrafts = (draft.drafts || []).slice().reverse()
   const currentArticles = articles.filter(
     (article) => article.status === queueView,
   )
@@ -228,6 +229,39 @@ export function LinkedInContentPage({
       await navigator.clipboard.writeText(text)
       onPromptCopied?.(promptId)
       setNotice(successMessage || copy.promptCopied)
+    } catch {
+      setNotice(copy.copyFailed)
+    }
+  }
+
+  async function saveGeneratedDraft(item, status) {
+    if (saving) return
+    const next = {
+      ...draft,
+      drafts: (draft.drafts || []).map((current) =>
+        current.id === item.id ? { ...current, ...item, status } : current,
+      ),
+    }
+    setDraft(next)
+    setNotice(copy.postDraftSaving)
+    try {
+      const saved = await onSave(next)
+      setNotice(
+        saved
+          ? status === 'ready-to-post'
+            ? copy.postDraftConfirmed
+            : copy.postDraftSaved
+          : copy.postDraftSaveFailed,
+      )
+    } catch {
+      setNotice(copy.postDraftSaveFailed)
+    }
+  }
+
+  async function copyGeneratedDraft(text) {
+    try {
+      await navigator.clipboard.writeText(text)
+      setNotice(copy.postDraftCopied)
     } catch {
       setNotice(copy.copyFailed)
     }
@@ -626,6 +660,112 @@ export function LinkedInContentPage({
           <span className="eyebrow">{copy.postsEyebrow}</span>
           <h2>{copy.postTitle}</h2>
           <p>{copy.postDescription}</p>
+          <section
+            className="content-linkedin-draft-review"
+            aria-labelledby="content-linkedin-drafts-title"
+          >
+            <div className="section-title-row">
+              <div>
+                <span className="eyebrow">{copy.postDraftsEyebrow}</span>
+                <h3 id="content-linkedin-drafts-title">
+                  {copy.postDraftsTitle}
+                </h3>
+                <p>{copy.postDraftsDescription}</p>
+              </div>
+            </div>
+            {postDrafts.length ? (
+              <div className="content-linkedin-draft-list">
+                {postDrafts.map((postDraft) => {
+                  const sourceArticle = articles.find(
+                    (article) => article.id === postDraft.sourceArticleId,
+                  )
+                  return (
+                    <article
+                      className="content-linkedin-generated-draft"
+                      key={postDraft.id}
+                    >
+                      <div className="content-linkedin-draft-topline">
+                        <span
+                          className={`content-linkedin-draft-status is-${postDraft.status}`}
+                        >
+                          {postDraft.status === 'ready-to-post'
+                            ? copy.postDraftReadyLabel
+                            : copy.postDraftNeedsReviewLabel}
+                        </span>
+                        <span>{copy.postTypes[postDraft.type]}</span>
+                      </div>
+                      {sourceArticle && (
+                        <p className="content-linkedin-draft-source">
+                          {copy.postDraftSource}: {sourceArticle.title}
+                        </p>
+                      )}
+                      <TextField
+                        label={copy.postDraftTextLabel}
+                        rows={10}
+                        lang="en"
+                        value={postDraft.text}
+                        onChange={(text) =>
+                          setDraft((current) => ({
+                            ...current,
+                            drafts: (current.drafts || []).map((item) =>
+                              item.id === postDraft.id
+                                ? {
+                                    ...item,
+                                    text,
+                                    status:
+                                      text !== postDraft.text
+                                        ? 'needs-review'
+                                        : item.status,
+                                  }
+                                : item,
+                            ),
+                          }))
+                        }
+                        hint={copy.postDraftTextHint}
+                      />
+                      <div className="content-linkedin-draft-actions">
+                        <button
+                          type="button"
+                          className="button secondary small"
+                          disabled={saving}
+                          onClick={() =>
+                            saveGeneratedDraft(postDraft, postDraft.status)
+                          }
+                        >
+                          {copy.postDraftSave}
+                        </button>
+                        <button
+                          type="button"
+                          className="button primary small"
+                          disabled={
+                            saving || postDraft.status === 'ready-to-post'
+                          }
+                          onClick={() =>
+                            saveGeneratedDraft(postDraft, 'ready-to-post')
+                          }
+                        >
+                          {postDraft.status === 'ready-to-post'
+                            ? copy.postDraftReadyLabel
+                            : copy.postDraftConfirm}
+                        </button>
+                        <button
+                          type="button"
+                          className="button quiet small"
+                          onClick={() => copyGeneratedDraft(postDraft.text)}
+                        >
+                          {copy.postDraftCopy}
+                        </button>
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="content-linkedin-drafts-empty">
+                {copy.noPostDrafts}
+              </p>
+            )}
+          </section>
           <div className="content-linkedin-form-grid">
             <label className="field">
               <span>{copy.postType}</span>

@@ -1147,6 +1147,7 @@ function findUnknown(name, data) {
       'schemaVersion',
       'articles',
       'publications',
+      'drafts',
       'excludedArticleUrls',
     ],
   }[name]
@@ -1291,6 +1292,7 @@ function findUnknown(name, data) {
         'url',
         'sourceArticleId',
       ],
+      draft: ['id', 'type', 'language', 'text', 'status', 'sourceArticleId'],
     },
     cv: { version: ['masterText', 'lastUpdated', 'lastReviewed'] },
   }[name]
@@ -1373,6 +1375,10 @@ function findUnknown(name, data) {
   if (name === 'linkedin-content')
     (data.publications || []).forEach((publication, index) =>
       inspect(publication, rules.publication, `publications[${index}]`),
+    )
+  if (name === 'linkedin-content')
+    (data.drafts || []).forEach((draft, index) =>
+      inspect(draft, rules.draft, `drafts[${index}]`),
     )
   return unknown
 }

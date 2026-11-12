@@ -14,6 +14,10 @@
       "type": "array",
       "items": { "$ref": "#/$defs/publication" }
     },
+    "drafts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/draft" }
+    },
     "excludedArticleUrls": {
       "type": "array",
       "items": { "type": "string", "format": "uri" },
@@ -73,6 +77,29 @@
         "publishedAt": { "type": "string" },
         "url": { "type": "string", "format": "uri" },
         "sourceArticleId": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "draft": {
+      "type": "object",
+      "required": ["id", "type", "language", "text", "status"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": {
+          "enum": [
+            "achievement",
+            "new-role",
+            "promotion",
+            "project",
+            "learning",
+            "article",
+            "source"
+          ]
+        },
+        "language": { "const": "en" },
+        "text": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["needs-review", "ready-to-post"] },
+        "sourceArticleId": { "type": "string", "minLength": 1 }
       },
       "additionalProperties": true
     }

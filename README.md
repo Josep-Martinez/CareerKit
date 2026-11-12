@@ -58,7 +58,7 @@ A partir de ahí usa el acceso directo. Si mueves la carpeta del proyecto, actua
 | **LinkedIn** | Guarda una copia de tu perfil publicado. Alterna **Editar** y **Vista previa** y elige el idioma que quieres consultar. Usa las anotaciones de auditoría para ver propuestas junto a la sección correspondiente. Guarda después de aplicar o descartar propuestas. Los cambios se guardan en CareerKit. |
 | **CV** | Consulta la base española en dos columnas o la inglesa en una columna. Puedes imprimir la vista o guardarla como PDF desde el cuadro de impresión del navegador. Los cambios en las bases se hacen mediante prompts. |
 | **Vacantes** | Añade o abre una oferta, consulta su enlace y fecha de verificación, vincula evidencias de Perfil y compara hasta tres ofertas. En los detalles puedes consultar las recomendaciones de adaptación y el CV específico cuando esté guardado. |
-| **Contenido de LinkedIn** | Descubre lecturas según tus intereses, revisa propuestas y prepara prompts para publicaciones y comentarios. |
+| **Contenido de LinkedIn** | Descubre lecturas según tus intereses, revisa propuestas y prepara borradores de publicaciones en inglés y comentarios. |
 | **Buzón** | Busca y copia prompts para el asistente. Las tareas destacadas indican qué conviene revisar según tus cambios recientes. |
 
 ### Qué prompt usar
@@ -78,9 +78,9 @@ Abre **Contenido de LinkedIn** para trabajar con lecturas, publicaciones y comen
 1. En **Perfil → Intereses y voz para publicaciones**, indica temas que quieres explorar, voces profesionales y empresas u organizaciones que quieres seguir.
 2. En **Contenido de LinkedIn → Artículos**, copia el prompt de búsqueda. El asistente consulta tus preferencias cuando tiene acceso local, busca en fuentes públicas como revistas, publicaciones especializadas, centros de investigación y LinkedIn, y comprueba las afiliaciones que cita.
 3. Si el asistente guardó las lecturas, recarga `linkedin-content.json` cuando la web te avise. **Me interesa** y **Descartar** guardan la decisión al instante. Al volver a buscar, el asistente consulta las lecturas pendientes, aceptadas, publicadas y descartadas para no repetirlas; después limpia las fichas descartadas y conserva sus enlaces en una lista de exclusión.
-4. En una lectura aceptada, escribe tu opinión. **Preparar publicación** la lleva al campo de opinión del flujo de publicaciones y copia ese texto al prompt. El prompt entrega una publicación completa, adaptada al tipo elegido, para que decidas si quieres modificarla antes de publicar.
-5. Tras publicar de verdad en LinkedIn, abre **Tus publicaciones**. Pega el texto final exacto y, si quieres, añade idioma, fecha, enlace y artículo relacionado; pulsa **Guardar publicación publicada**. También puedes copiar el prompt de registro con el mismo texto y datos. CareerKit no publica ni trata borradores como publicaciones. Al registrar una publicación derivada de un artículo aceptado, ese artículo pasa a **Publicado** y queda enlazado al texto guardado.
-6. En **Contenido de LinkedIn → Publicaciones**, puedes preparar textos sobre logros o títulos, proyectos, experiencias o aprendizajes, opiniones y material que aportes. El campo de entrada cambia según el tipo y el prompt prepara una versión completa; el borrador queda en la conversación con el asistente hasta que decidas publicarlo.
+4. En una lectura aceptada, escribe tu opinión. **Preparar publicación** la lleva al campo de opinión del flujo de publicaciones y la incluye en el prompt.
+5. En **Contenido de LinkedIn → Publicaciones**, puedes preparar textos sobre logros o títulos, nuevos trabajos, ascensos, proyectos, experiencias o aprendizajes, opiniones y material que aportes. El prompt pide al asistente una versión completa **siempre en inglés** y, si tiene acceso local autorizado, la guarda en `drafts[]` de `linkedin-content.json`. Si la web avisa de un cambio externo, recarga el archivo para verla. Edita el texto en la web y guárdalo o márcalo como listo para publicar. Eso solo confirma el borrador: no lo publica ni lo añade a **Tus publicaciones**.
+6. Tras compartirlo realmente en LinkedIn, abre **Tus publicaciones**. Pega el texto final exacto y, si quieres, añade idioma, fecha, enlace y artículo relacionado; pulsa **Guardar publicación publicada**. También puedes copiar el prompt de registro con el mismo texto y datos. CareerKit no publica ni trata borradores como publicaciones. Al registrar una publicación derivada de un artículo aceptado, ese artículo pasa a **Publicado** y queda enlazado al texto guardado.
 7. En **Comentarios**, pega el texto de la publicación y añade qué te gustaría aportar. Copia el prompt con ambos textos. CareerKit no envía comentarios.
 
 ## Si algo falla
@@ -108,7 +108,7 @@ Cuando usas archivos individuales, **Guardar** prepara una descarga. Sustituye m
 | `cv.json` | Bases generales del CV y fechas. |
 | `vacancies.json` | Ofertas, valoración y adaptaciones por vacante. |
 | `priorities.json` | Prioridades que aparecen en Inicio. |
-| `linkedin-content.json` | Cola de lecturas, enlaces para no repetir descartes y archivo del texto exacto de publicaciones que ya compartiste. |
+| `linkedin-content.json` | Cola de lecturas, borradores de publicaciones en inglés, enlaces para no repetir descartes y archivo del texto exacto de publicaciones que ya compartiste. |
 
 En el modo local, CareerKit puede detectar la carpeta del proyecto y recuerda la conexión cuando el navegador lo permite. Tu selección manual tiene prioridad. Puedes usar **Desconectar carpeta** y, si quieres, confirmar que la web limpie los datos que tiene cargados. Los archivos del disco se conservan. Para cambiar de ordenador, copia la carpeta de datos por un medio que controles y conéctala en el nuevo equipo.
 

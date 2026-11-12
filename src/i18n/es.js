@@ -907,7 +907,29 @@ export const STRINGS = {
     openArticle: 'Leer fuente ↗',
     postTitle: 'Crear una publicación',
     postDescription:
-      'Elige si quieres contar un logro, un nuevo trabajo, un ascenso, un proyecto, una experiencia o una opinión. Solo se prepara el prompt; tu asistente redactará un borrador para que lo revises.',
+      'El agente redactará una propuesta completa siempre en inglés y la guardará como borrador. Después podrás verla y editarla aquí antes de decidir si la compartes.',
+    postDraftsEyebrow: 'PROPUESTAS DEL AGENTE',
+    postDraftsTitle: 'Borradores para revisar',
+    postDraftsDescription:
+      'Al ejecutar el prompt, el agente guarda su propuesta en linkedin-content.json. Si la web avisa de un cambio externo, recarga el archivo para verla.',
+    noPostDrafts:
+      'Todavía no hay borradores. Copia el prompt y pídele a tu agente que prepare uno; aparecerá aquí si tiene acceso a la carpeta local.',
+    postDraftNeedsReviewLabel: 'Pendiente de revisión',
+    postDraftReadyLabel: 'Listo para publicar',
+    postDraftSource: 'Basado en',
+    postDraftTextLabel: 'Texto de la publicación (en inglés)',
+    postDraftTextHint:
+      'Puedes editarlo. Guardar o confirmar solo actualiza el borrador: no lo publica ni lo añade a Tus publicaciones.',
+    postDraftSave: 'Guardar edición',
+    postDraftConfirm: 'Confirmar texto',
+    postDraftSaving: 'Guardando el borrador…',
+    postDraftSaved: 'Edición guardada en linkedin-content.json.',
+    postDraftConfirmed:
+      'Texto confirmado y listo para publicar. Aún no se ha publicado ni archivado.',
+    postDraftSaveFailed:
+      'No se pudo guardar el borrador. Conserva el texto y vuelve a intentarlo.',
+    postDraftCopy: 'Copiar texto',
+    postDraftCopied: 'Texto del borrador copiado.',
     postType: 'Tipo de publicación',
     postTypes: {
       achievement: 'Logro o título',
@@ -950,7 +972,7 @@ export const STRINGS = {
     noEvidence: 'No hay evidencias confirmadas guardadas en Perfil.',
     evidenceHint:
       'Se compartirán solo los identificadores seleccionados. El agente comprobará esos hechos en el archivo local.',
-    copyPostPrompt: 'Copiar prompt para crear publicación',
+    copyPostPrompt: 'Copiar prompt para crear borrador en inglés',
     commentTitle: 'Preparar un comentario',
     commentDescription:
       'Pega el texto de la publicación y añade qué piensas o qué quieres aportar. El agente no abrirá cuentas ni buscará la publicación.',

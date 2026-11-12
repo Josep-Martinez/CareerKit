@@ -64,6 +64,17 @@ export const validLinkedInPublication = (item) =>
   (item.language === undefined || ['es', 'en'].includes(item.language)) &&
   (item.url === undefined || item.url === '' || isHttpUrl(item.url))
 
+export const validLinkedInDraft = (item) =>
+  isRecord(item) &&
+  typeof item.id === 'string' &&
+  item.id.trim().length > 0 &&
+  supportedTypes.includes(item.type) &&
+  item.language === 'en' &&
+  typeof item.text === 'string' &&
+  Boolean(item.text.trim()) &&
+  ['needs-review', 'ready-to-post'].includes(item.status) &&
+  optionalStrings(item, ['sourceArticleId'])
+
 export const validLinkedInContentData = (value) =>
   isRecord(value) &&
   value.schemaVersion === 1 &&
@@ -72,6 +83,8 @@ export const validLinkedInContentData = (value) =>
   (value.publications === undefined ||
     (Array.isArray(value.publications) &&
       value.publications.every(validLinkedInPublication))) &&
+  (value.drafts === undefined ||
+    (Array.isArray(value.drafts) && value.drafts.every(validLinkedInDraft))) &&
   (value.excludedArticleUrls === undefined ||
     (Array.isArray(value.excludedArticleUrls) &&
       value.excludedArticleUrls.every(isHttpUrl)))
@@ -149,4 +162,5 @@ export const hasLinkedInContent = (value) =>
     }),
   ) ||
   (value.publications || []).some((publication) => Boolean(publication.text)) ||
+  (value.drafts || []).some((draft) => Boolean(draft.text)) ||
   (value.excludedArticleUrls || []).length > 0

@@ -459,18 +459,23 @@ export const PROMPT_INBOX_ES = {
       id: 'draft-linkedin-post',
       category: 'linkedin',
       title: 'Redactar una publicación de LinkedIn',
-      use: 'Úsalo cuando tengas una idea o experiencia real y quieras convertirla en un borrador listo para revisar.',
+      use: 'Úsalo cuando tengas una idea o experiencia real y quieras recibir un borrador en inglés, guardado para revisarlo en Contenido de LinkedIn.',
       skillPaths: [
+        'AGENTS.md',
+        'schemas/agent-format.md',
+        'schemas/linkedin-content.schema.json',
+        'templates/linkedin-content.json',
         '.agents/skills/li-post/SKILL.md',
         '.agents/skills/li-post/hooks.json',
         '.agents/skills/li-bilingual/SKILL.md',
         '.agents/skills/li-human/SKILL.md',
       ],
       text: [
-        'Crea una publicación completa, pulida, atractiva y lista para publicar en LinkedIn; no te limites a dar ideas, un esquema o consejos. Entrégame una versión final que yo pueda revisar y modificar si quiero. El tipo y el campo que compartiré al final indican si se trata de un logro o título, un nuevo trabajo o puesto, un ascenso o promoción, un proyecto, una experiencia o aprendizaje, una opinión sobre un artículo o la reutilización de otro material. Adapta de verdad el enfoque y la estructura al tipo: para un logro cuenta qué representa y qué evidencia lo respalda; para un nuevo puesto anuncia el cambio con naturalidad y usa solo la empresa, el cargo, la fecha y los motivos que haya confirmado; para un ascenso explica el cambio de responsabilidades y el recorrido solo con los hechos aportados, sin atribuir méritos ni agradecimientos no expresados; para un proyecto explica el problema, mi aportación y el resultado confirmado; para una experiencia o aprendizaje desarrolla una idea concreta que pueda ser útil a otras personas; para un artículo presenta mi postura y atribuye la fuente; para material reutilizado aporta un ángulo nuevo sin apropiarte de las ideas ajenas. Evita una plantilla genérica, aperturas vacías, exageraciones, frases de gurú y llamadas a comentar forzadas. Usa solo hechos, opiniones y experiencias que yo haya confirmado; no leas otros proyectos ni inventes logros, métricas, clientes u opiniones en primera persona.',
-        'Si el material es un artículo, comprueba que figura como accepted en private-data/linkedin-content.json, atribuye las ideas y enlaza la fuente cuando corresponda; mi opinión es la que aporte explícitamente. Si tienes acceso local autorizado, puedes consultar contentDirection e intereses de profile.json como guía privada de temas y tono; no los presentes como hechos ni los copies literalmente al borrador. Si quieres incluir un detalle personal del contexto interno, muéstrame primero la propuesta y espera mi confirmación. Si se indican IDs de evidencias, comprueba que existan y estén confirmados en private-data/profile.json; no inventes ni completes el resto.',
-        'Usa li-post para construir la publicación y consulta hooks.json: muestra tres aperturas distintas solo si encajan de verdad, recomienda una con una razón breve y después entrega una publicación final completa, pulida y lista para publicar con esa apertura. Usa li-human para pulir claridad y naturalidad y li-bilingual para preparar versiones completas en español e inglés por separado con el mismo sentido, salvo que pida una sola lengua. Desarrolla una sola idea central y cierra con naturalidad. No pares para preguntarme detalles antes de ofrecer un borrador. Si falta un dato que no puedas afirmar, omítelo y añade después una nota breve indicando qué información opcional podría hacerlo más específico; nunca rellenes el hueco con una fórmula genérica o un hecho inventado.',
-        'No publiques ni programes y no guardes el borrador como una publicación ya compartida. Yo decidiré si lo modifico y cuándo lo publico. Si una o varias publicaciones ya se compartieron y quiero registrarlas, usaré el prompt «Registrar publicaciones ya publicadas».',
+        'Crea una publicación completa, pulida y lista para que yo la revise. Escribe únicamente en inglés, aunque el prompt, la idea o el material de origen estén en español. No incluyas una traducción española; esta petición explícita de una sola lengua sigue la excepción de li-bilingual. El tipo y el contexto que compartiré indican si se trata de un logro o título, un nuevo puesto, un ascenso, un proyecto, una experiencia o aprendizaje, una opinión sobre un artículo o la reutilización de otro material. Adapta el enfoque al tipo: para un logro explica qué representa y qué evidencia lo respalda; para un nuevo puesto anuncia el cambio con naturalidad y usa solo empresa, cargo, fecha y motivos confirmados; para un ascenso explica el cambio de responsabilidades con hechos aportados; para un proyecto explica problema, aportación y resultado confirmado; para una experiencia o aprendizaje desarrolla una idea concreta; para un artículo presenta mi postura y atribuye la fuente; para material reutilizado aporta un ángulo nuevo sin apropiarte de ideas ajenas. Evita aperturas vacías, exageraciones, frases de gurú y llamadas a comentar forzadas. Usa solo hechos, opiniones y experiencias confirmados; no inventes logros, métricas, clientes ni opiniones en primera persona.',
+        'Si el material es un artículo, comprueba que figura como accepted en private-data/linkedin-content.json, atribuye las ideas y conserva el enlace de fuente cuando corresponda. Usa intereses y contentDirection de profile.json solo como guía privada; no los presentes como hechos ni los copies literalmente. Antes de incluir un detalle personal interno, preséntame la propuesta y espera confirmación. Si se indican IDs de evidencias, comprueba que existan y estén confirmados en profile.json.',
+        'Lee li-post y hooks.json: presenta tres aperturas solo si son adecuadas, recomienda una brevemente y entrega una única versión final completa en inglés. Revisa claridad y naturalidad con li-human. No me preguntes antes de ofrecer un borrador. Omite datos que no puedas afirmar y señala después, fuera del texto, cualquier dato opcional que ayudaría a concretarlo.',
+        'Esta solicitud autoriza a añadir únicamente la nueva propuesta a drafts[] de private-data/linkedin-content.json cuando tengas acceso local a este proyecto. Lee el archivo y valídalo con schemas/linkedin-content.schema.json antes de editarlo. Si falta, inicialízalo desde templates/linkedin-content.json y valida la plantilla; no reemplaces un archivo mal formado o inválido. Conserva artículos, publicaciones, exclusiones, borradores, IDs y propiedades desconocidas. Añade el texto final recomendado con un ID único, el type correspondiente, language: "en", status: "needs-review" y sourceArticleId solo si se basa en un artículo aceptado. No sobrescribas otros borradores. Valida el archivo después de escribirlo y vuelve a leerlo. Si la web está abierta, avísame de que debo recargar el archivo para ver el nuevo borrador. Si no tienes acceso al JSON, entrégame el texto en el chat y di claramente que no quedó guardado.',
+        'El borrador no es una publicación compartida: no lo añadas a publications[], no marques el artículo como published y no publiques ni programes nada. La web mostrará el texto para que yo lo revise, edite y confirme. Solo cuando yo diga que ya lo publiqué, registra el texto final real con el prompt «Registrar publicaciones ya publicadas».',
       ].join('\n\n'),
     },
     {
@@ -794,10 +799,12 @@ export const PROMPT_REQUIREMENTS = {
     files: [
       'idea o experiencia que compartas',
       'private-data/profile.json (opcional)',
-      'private-data/linkedin-content.json (si se basa en un artículo)',
+      'private-data/linkedin-content.json',
+      'schemas/linkedin-content.schema.json',
+      'templates/linkedin-content.json (si falta el archivo local)',
     ],
     access:
-      'Texto en el chat; acceso local opcional para orientar el borrador.',
+      'Acceso local para guardar el borrador en inglés y verlo en Contenido de LinkedIn. Sin acceso local, devuelve el texto en el chat y no afirmes que se guardó.',
   },
   'record-linkedin-publication': {
     files: [
