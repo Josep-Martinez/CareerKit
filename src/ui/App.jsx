@@ -128,6 +128,9 @@ export default function App() {
     store.data.linkedin.languageSync?.status === 'pending'
   const pendingPromptCount =
     Number(cvPromptPending) + Number(linkedinLanguagesPending)
+  const pendingPublicationDraftCount = (
+    store.data['linkedin-content'].drafts || []
+  ).filter((postDraft) => postDraft.status === 'needs-review').length
   const currentModule =
     page === 'linkedin-publications'
       ? 'linkedin-content'
@@ -793,6 +796,18 @@ export default function App() {
                   {pendingPromptCount}
                 </span>
               )}
+              {key === 'linkedin-publications' &&
+                pendingPublicationDraftCount > 0 && (
+                  <span
+                    className="nav-badge nav-badge-alert"
+                    aria-label={s.linkedinPublicationsPage.pendingDraftCount.replace(
+                      '{count}',
+                      pendingPublicationDraftCount,
+                    )}
+                  >
+                    {pendingPublicationDraftCount}
+                  </span>
+                )}
               {page === key && <span className="nav-dot" />}
             </button>
           ))}
@@ -985,6 +1000,9 @@ export default function App() {
                 navigateTo('linkedin-publications', {
                   articleId: sourceArticleId,
                 })
+              }
+              onNavigateToPublications={() =>
+                navigateTo('linkedin-publications')
               }
             />
           )}

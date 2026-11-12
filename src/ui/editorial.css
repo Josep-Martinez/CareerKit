@@ -3878,6 +3878,11 @@ select {
   background: #eaf1e9;
   color: #315c47;
 }
+.content-linkedin-draft-status.is-needs-review {
+  border-color: #e2b6a8;
+  background: #fbebe6;
+  color: #9d4037;
+}
 .content-linkedin-draft-source {
   margin: -4px 0 0;
   color: #68736b;
@@ -3930,6 +3935,23 @@ select {
   background: #e9f0e9;
   color: #315c47;
   font-size: 11px;
+}
+.publication-next-step {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding: 15px 17px;
+  border: 1px solid #d4e1d2;
+  border-left: 3px solid #477556;
+  border-radius: 4px 10px 4px 10px;
+  background: #f1f5ee;
+  color: #315c47;
+}
+.publication-next-step p {
+  margin: 0;
+  color: #526158;
+  font-size: 13px;
+  line-height: 1.6;
 }
 .content-linkedin-error {
   border-color: #e8c9b8;
@@ -4007,6 +4029,37 @@ select {
   border-radius: 4px 14px 4px 14px;
   background: #fffefa;
   box-shadow: 0 6px 18px rgba(46, 50, 41, 0.04);
+}
+.publication-archive-card.is-draft {
+  border-color: #e7c9bd;
+  border-left-color: #aa4e43;
+  background: #fffaf7;
+}
+.publication-drafts {
+  margin: 22px 0 35px;
+}
+.publication-drafts > .section-title-row h2 {
+  margin: 5px 0 4px;
+  color: #26352d;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 25px;
+  font-weight: 500;
+}
+.publication-drafts > .section-title-row .muted {
+  max-width: 760px;
+  color: #68736b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.publication-edit-fields {
+  display: grid;
+  gap: 13px;
+}
+.publication-edit-note {
+  margin: 0;
+  color: #778174;
+  font-size: 12px;
+  line-height: 1.55;
 }
 .publication-archive-topline {
   display: flex;

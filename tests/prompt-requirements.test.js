@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  buildPromptText,
   PROMPT_INBOX_ES,
   PROMPT_REQUIREMENTS,
 } from '../src/i18n/prompt-inbox.es.js'
@@ -11,6 +12,18 @@ test('every Buzón prompt explains its files and required access', () => {
     assert.ok(requirements, `Missing requirements for ${prompt.id}`)
     assert.ok(requirements.files.length, `Missing files for ${prompt.id}`)
     assert.ok(requirements.access.trim(), `Missing access for ${prompt.id}`)
+  }
+})
+
+test('every copied prompt checks CareerKit availability and local data access', () => {
+  for (const prompt of PROMPT_INBOX_ES.prompts) {
+    const copied = buildPromptText(prompt)
+    assert.match(copied, /127\.0\.0\.1:5173/)
+    assert.match(copied, /pnpm local/)
+    assert.match(copied, /private-data\//)
+    assert.match(copied, /navegador de CareerKit tiene conectada esa carpeta/i)
+    assert.match(copied, /no concede acceso local/i)
+    assert.match(copied, /no bloquees el trabajo/i)
   }
 })
 
@@ -59,11 +72,12 @@ test('published post prompt records exact text and links its accepted article', 
 
   assert.ok(prompt)
   assert.ok(requirements)
-  assert.match(prompt.text, /texto exacto/i)
+  assert.match(prompt.text, /conserva literalmente cada texto/i)
   assert.match(prompt.text, /ni reescribas|no reescribas/i)
   assert.match(prompt.text, /publicationId/)
-  assert.match(prompt.text, /usa ese id tal como lo proporcioné/i)
-  assert.match(prompt.text, /si no confirmo que ya está publicada/i)
+  assert.match(prompt.text, /ya está publicado en LinkedIn/i)
+  assert.match(prompt.text, /no me pidas una confirmación adicional/i)
+  assert.match(prompt.text, /publications\[\]/)
   assert.match(prompt.text, /no publiques/i)
 })
 
@@ -73,10 +87,11 @@ test('post creation prompt prepares a strong draft for user review', () => {
   )
 
   assert.match(prompt.text, /publicación completa/i)
-  assert.match(prompt.text, /lista para publicar/i)
+  assert.match(prompt.text, /lista para que yo la revise/i)
   assert.match(prompt.text, /tres aperturas/i)
-  assert.match(prompt.text, /no pares para preguntarme/i)
+  assert.match(prompt.text, /no me preguntes antes de ofrecer un borrador/i)
   assert.match(prompt.text, /revise|revisar/i)
   assert.match(prompt.text, /logro|proyecto|experiencia|artículo/i)
   assert.match(prompt.text, /no publiques/i)
+  assert.match(prompt.text, /Tus publicaciones/)
 })

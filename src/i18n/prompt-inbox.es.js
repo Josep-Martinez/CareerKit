@@ -8,7 +8,7 @@ export const PROMPT_INBOX_ES = {
     'Elige una tarea y copia el prompt en el asistente adecuado: uno local para leer o guardar tus JSON, o uno con el complemento de LinkedIn cuando se indique. CareerKit no ejecuta prompts ni se conecta a modelos.',
   usageTitle: 'Cómo usarlo',
   usageBody:
-    'Para guardar cambios, el asistente debe tener acceso local a private-data. El prompt del complemento requiere que LinkedIn esté conectado en ese asistente; no sustituye el acceso local a los JSON. Las guías indicadas en cada prompt explican el proceso.',
+    'Antes de ejecutar un prompt, comprueba que CareerKit está abierta en tu ordenador y que private-data está conectada en esa web. Si la web no está abierta, inicia CareerKit con pnpm local. El asistente necesita además su propio acceso local a los archivos; conectar la carpeta en el navegador no se lo concede.',
   pendingTitle: 'Tienes tareas pendientes en el Buzón',
   pendingCvBody:
     'Hay cambios profesionales en {sources}. El aviso se retira cuando ambas bases del CV tienen cambios de contenido o una nueva fecha de revisión.',
@@ -280,7 +280,7 @@ export const PROMPT_INBOX_ES = {
         'La adaptación siempre corresponde a esa vacante. Antes de redactar el CV, valora cuál de las dos bases conviene y qué cambios concretos necesita cada idioma. En esta primera fase actualiza solo el cvAdvice de esa misma oferta (recommendedVersion, reason, assessedAt si conoces la fecha, spanishAdjustments y englishAdjustments), valida y guarda vacancies.json; así la recomendación queda visible en los detalles de la oferta. Si no tienes acceso local, presenta el consejo propuesto y di que no se guardó.',
         'Sigue literalmente el proceso de dos fases de ruthless-cv-optimizer. En la primera respuesta, presenta requisitos principales, evidencia que los respalda, carencias demostrables y hasta cinco preguntas importantes. Detente ahí y espera mi respuesta; no redactes aún el CV final.',
         'Cuando responda, prepara únicamente la versión solicitada. Abre con un subtítulo de rol en lenguaje natural y un resumen de 3–6 líneas cuya primera frase conecte las tareas de la oferta con el diferenciador o hito confirmado más relevante. Si falta evidencia para una apertura distintiva, pregunta o marca la brecha; no escribas una frase genérica. Menciona trabajo en equipo, aprendizaje y comunicación solo si se demuestran. Prioriza pocas tareas y hard skills pertinentes, conserva los hechos esenciales y reserva para la entrevista el relato amplio. No inventes hechos, métricas, fechas ni motivaciones. Elige idioma y formato según mi petición, la vacante y el canal; no prometas resultados ATS. Conserva intactas las dos bases generales en cv.json.',
-        'Después de que responda tus preguntas, prepara únicamente la versión que elija, siguiendo el diagnóstico y las skills de CV. La primera frase debe enganchar con un diferenciador confirmado; prioriza pocas tareas y habilidades pertinentes y separa proyectos del empleo. Guarda el CV completo en Markdown limpio dentro de items[].adaptedCv de esa misma oferta, sin el diagnóstico ni las notas de revisión. Usa language: "es" o "en". Usa layout: "single-column" para texto lineal, incluido el CV para ATS; para el formato español de dos columnas, usa "two-columns" y divide el Markdown con los encabezados "## Columna lateral" y "## Columna principal", en ese orden. Confirma conmigo antes de reemplazar un CV adaptado existente. Si aún falta una respuesta imprescindible, conserva el documento anterior y el cvAdvice guardado.',
+        'Tras recibir mis respuestas, sigue el diagnóstico y las skills de CV. Guarda el CV completo en Markdown limpio dentro de items[].adaptedCv de esa misma oferta, sin el diagnóstico ni las notas de revisión. Usa language: "es" o "en". Usa layout: "single-column" para texto lineal, incluido el CV para ATS; para el formato español de dos columnas, usa "two-columns" y divide el Markdown con los encabezados "## Columna lateral" y "## Columna principal", en ese orden. Confirma conmigo antes de reemplazar un CV adaptado existente. Si aún falta una respuesta imprescindible, conserva el documento anterior y el cvAdvice guardado.',
         'Antes de escribir, vuelve a leer vacancies.json, comprueba el id exacto y valida el archivo con schemas/vacancies.schema.json. Conserva las demás vacantes, cvAdvice y propiedades desconocidas. Valida el resultado antes de escribir y vuelve a leerlo después. Si el archivo está mal formado o no valida, déjalo intacto y entrega el borrador en el chat. Si el guardado se confirma, indícame que puedo volver a los detalles de la vacante y recargar el archivo para ver el CV adaptado.',
         'No envíes solicitudes ni contactes a la empresa. Si no tienes acceso local, entrega el borrador en el chat con el material que te comparta e indica que no se guardó en la vacante.',
       ].join('\n\n'),
@@ -459,7 +459,7 @@ export const PROMPT_INBOX_ES = {
       id: 'draft-linkedin-post',
       category: 'linkedin',
       title: 'Redactar una publicación de LinkedIn',
-      use: 'Úsalo cuando tengas una idea o experiencia real y quieras recibir un borrador en inglés, guardado para revisarlo en Contenido de LinkedIn.',
+      use: 'Úsalo cuando tengas una idea o experiencia real y quieras recibir un borrador en inglés, guardado para revisarlo en Tus publicaciones.',
       skillPaths: [
         'AGENTS.md',
         'schemas/agent-format.md',
@@ -474,7 +474,7 @@ export const PROMPT_INBOX_ES = {
         'Crea una publicación completa, pulida y lista para que yo la revise. Escribe únicamente en inglés, aunque el prompt, la idea o el material de origen estén en español. No incluyas una traducción española; esta petición explícita de una sola lengua sigue la excepción de li-bilingual. El tipo y el contexto que compartiré indican si se trata de un logro o título, un nuevo puesto, un ascenso, un proyecto, una experiencia o aprendizaje, una opinión sobre un artículo o la reutilización de otro material. Adapta el enfoque al tipo: para un logro explica qué representa y qué evidencia lo respalda; para un nuevo puesto anuncia el cambio con naturalidad y usa solo empresa, cargo, fecha y motivos confirmados; para un ascenso explica el cambio de responsabilidades con hechos aportados; para un proyecto explica problema, aportación y resultado confirmado; para una experiencia o aprendizaje desarrolla una idea concreta; para un artículo presenta mi postura y atribuye la fuente; para material reutilizado aporta un ángulo nuevo sin apropiarte de ideas ajenas. Evita aperturas vacías, exageraciones, frases de gurú y llamadas a comentar forzadas. Usa solo hechos, opiniones y experiencias confirmados; no inventes logros, métricas, clientes ni opiniones en primera persona.',
         'Si el material es un artículo, comprueba que figura como accepted en private-data/linkedin-content.json, atribuye las ideas y conserva el enlace de fuente cuando corresponda. Usa intereses y contentDirection de profile.json solo como guía privada; no los presentes como hechos ni los copies literalmente. Antes de incluir un detalle personal interno, preséntame la propuesta y espera confirmación. Si se indican IDs de evidencias, comprueba que existan y estén confirmados en profile.json.',
         'Lee li-post y hooks.json: presenta tres aperturas solo si son adecuadas, recomienda una brevemente y entrega una única versión final completa en inglés. Revisa claridad y naturalidad con li-human. No me preguntes antes de ofrecer un borrador. Omite datos que no puedas afirmar y señala después, fuera del texto, cualquier dato opcional que ayudaría a concretarlo.',
-        'Esta solicitud autoriza a añadir únicamente la nueva propuesta a drafts[] de private-data/linkedin-content.json cuando tengas acceso local a este proyecto. Lee el archivo y valídalo con schemas/linkedin-content.schema.json antes de editarlo. Si falta, inicialízalo desde templates/linkedin-content.json y valida la plantilla; no reemplaces un archivo mal formado o inválido. Conserva artículos, publicaciones, exclusiones, borradores, IDs y propiedades desconocidas. Añade el texto final recomendado con un ID único, el type correspondiente, language: "en", status: "needs-review" y sourceArticleId solo si se basa en un artículo aceptado. No sobrescribas otros borradores. Valida el archivo después de escribirlo y vuelve a leerlo. Si la web está abierta, avísame de que debo recargar el archivo para ver el nuevo borrador. Si no tienes acceso al JSON, entrégame el texto en el chat y di claramente que no quedó guardado.',
+        'Esta solicitud autoriza a añadir únicamente la nueva propuesta a drafts[] de private-data/linkedin-content.json cuando tengas acceso local a este proyecto. Lee el archivo y valídalo con schemas/linkedin-content.schema.json antes de editarlo. Si falta, inicialízalo desde templates/linkedin-content.json y valida la plantilla; no reemplaces un archivo mal formado o inválido. Conserva artículos, publicaciones, exclusiones, borradores, IDs y propiedades desconocidas. Añade el texto final recomendado con un ID único, el type correspondiente, language: "en", status: "needs-review" y sourceArticleId solo si se basa en un artículo aceptado. No sobrescribas otros borradores. Valida el archivo después de escribirlo y vuelve a leerlo. Cuando confirmes el guardado, indícame que vaya a CareerKit → Tus publicaciones → Borradores para revisar el texto; si la web avisa de un cambio externo, debo recargar linkedin-content.json. Si no tienes acceso al JSON, entrégame el texto en el chat y di claramente que no quedó guardado.',
         'El borrador no es una publicación compartida: no lo añadas a publications[], no marques el artículo como published y no publiques ni programes nada. La web mostrará el texto para que yo lo revise, edite y confirme. Solo cuando yo diga que ya lo publiqué, registra el texto final real con el prompt «Registrar publicaciones ya publicadas».',
       ].join('\n\n'),
     },
@@ -752,6 +752,7 @@ export const PROMPT_REQUIREMENTS = {
   'review-priorities': {
     files: [
       'private-data/profile.json',
+      'private-data/linkedin.json',
       'private-data/vacancies.json',
       'private-data/priorities.json',
     ],
@@ -804,7 +805,7 @@ export const PROMPT_REQUIREMENTS = {
       'templates/linkedin-content.json (si falta el archivo local)',
     ],
     access:
-      'Acceso local para guardar el borrador en inglés y verlo en Contenido de LinkedIn. Sin acceso local, devuelve el texto en el chat y no afirmes que se guardó.',
+      'Acceso local para guardar el borrador en inglés en linkedin-content.json y verlo en Tus publicaciones. Sin acceso local, devuelve el texto en el chat y no afirmes que se guardó.',
   },
   'record-linkedin-publication': {
     files: [
@@ -816,8 +817,12 @@ export const PROMPT_REQUIREMENTS = {
       'Acceso local para validar y guardar el texto publicado. Sin acceso local, presenta el registro propuesto y no afirmes que se guardó.',
   },
   'draft-linkedin-carousel': {
-    files: ['idea o material que compartas'],
-    access: 'Material en el chat; no necesita acceso a archivos locales.',
+    files: [
+      'idea o material que compartas',
+      'private-data/profile.json (opcional)',
+    ],
+    access:
+      'El material del chat basta; el acceso local a Perfil es opcional para orientar tema y tono.',
   },
   'draft-linkedin-comment': {
     files: ['texto de la publicación y tu opinión'],
@@ -879,6 +884,13 @@ export function buildPromptText(
     PROMPT_INBOX_ES.skillInstruction,
     ...prompt.skillPaths.map((path) => `- ${path}`),
     '',
+    [
+      'Comprobación del entorno de CareerKit antes de empezar:',
+      '- Comprueba si la web local responde en http://127.0.0.1:5173/. Si no responde y tienes acceso a la terminal de este proyecto, abre una terminal en la raíz de CareerKit, ejecuta `pnpm local`, espera a que indique que está lista y deja el proceso en marcha; usa la dirección real que muestre la terminal. Si no puedes iniciarla, dilo sin afirmar que está abierta y continúa con las partes que puedas resolver desde la conversación o los archivos locales.',
+      '- Para tareas que leen o guardan JSON, comprueba por separado que tienes acceso local real a `private-data/` y que el navegador de CareerKit tiene conectada esa carpeta. El permiso del navegador no concede acceso local al agente y el acceso local del agente no conecta la carpeta en la web. Si la carpeta no existe y este prompt sirve para prepararla, sigue sus instrucciones para crearla y luego pide al usuario que la conecte. Si tienes herramientas para manejar el navegador, abre CareerKit y conecta `private-data/` si aún no lo está; la selección requiere que el usuario la autorice en el diálogo del sistema. Si no puedes comprobar o conectar la carpeta, no inventes el permiso: guarda directamente en el JSON si tienes acceso local, y explica que el usuario debe conectar la carpeta en CareerKit y recargar ese módulo para ver el cambio. Si no tienes acceso local al JSON, no afirmes que lo guardaste.',
+      '- Para tareas que solo requieren texto o materiales compartidos en la conversación, no bloquees el trabajo porque falte localhost o `private-data/`; entrega el resultado en el chat y no afirmes que guardaste archivos.',
+      '',
+    ].join('\n'),
     resolvedBody,
   ].join('\n')
 }

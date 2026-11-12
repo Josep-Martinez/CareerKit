@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  deleteLinkedInDraft,
+  deleteLinkedInPublication,
   hasLinkedInContent,
   patchLinkedInArticle,
   registerLinkedInPublication,
+  sortLinkedInPublications,
+  updateLinkedInDraft,
+  updateLinkedInPublication,
   validLinkedInContentData,
 } from '../src/data/linkedin-content-data.js'
 
@@ -180,4 +185,88 @@ test('does not register a publication for a non-accepted article or replace an I
   })
   assert.equal(conflict.ok, false)
   assert.equal(conflict.reason, 'id-conflict')
+})
+
+test('sorts dated publications newest first and undated ones alphabetically', () => {
+  const items = [
+    { id: 'z', type: 'project', text: 'Zebra post' },
+    {
+      id: 'old',
+      type: 'project',
+      text: 'Old post',
+      publishedAt: 'Jan 3, 2026',
+    },
+    { id: 'a', type: 'project', text: 'Alpha post' },
+    {
+      id: 'new',
+      type: 'project',
+      text: 'New post',
+      publishedAt: 'Nov 10, 2026',
+    },
+    { id: 'invalid', type: 'project', text: 'Beta post', publishedAt: 'unknown' },
+  ]
+
+  assert.deepEqual(
+    sortLinkedInPublications(items).map((item) => item.id),
+    ['new', 'old', 'a', 'invalid', 'z'],
+  )
+})
+
+test('updates and deletes draft records without moving them into publications', () => {
+  const postDraft = {
+    id: 'draft-1',
+    type: 'project',
+    language: 'en',
+    text: 'First version',
+    status: 'needs-review',
+    sourceArticleId: 'article-1',
+    externalTag: 'preserve',
+  }
+  const data = { ...emptyContent, drafts: [postDraft] }
+  const updated = updateLinkedInDraft(data, {
+    ...postDraft,
+    text: 'Edited version',
+    status: 'ready-to-post',
+  })
+
+  assert.equal(updated.ok, true)
+  assert.equal(updated.data.drafts[0].text, 'Edited version')
+  assert.equal(updated.data.drafts[0].status, 'ready-to-post')
+  assert.equal(updated.data.drafts[0].externalTag, 'preserve')
+  assert.equal(updated.data.publications, undefined)
+
+  const deleted = deleteLinkedInDraft(updated.data, 'draft-1')
+  assert.deepEqual(deleted.drafts, [])
+})
+
+test('edits and removes a published record while preserving unknown data', () => {
+  const data = {
+    ...emptyContent,
+    articles: [
+      {
+        id: 'article-1',
+        title: 'A public article',
+        source: 'A public source',
+        url: 'https://example.org/article',
+        status: 'published',
+        publicationId: 'publication-1',
+        customArticleField: true,
+      },
+    ],
+    publications: [{ ...publication, customField: 'keep' }],
+  }
+  const edited = updateLinkedInPublication(data, {
+    ...data.publications[0],
+    text: 'Corrected archive copy',
+  })
+
+  assert.equal(edited.ok, true)
+  assert.equal(edited.data.publications[0].text, 'Corrected archive copy')
+  assert.equal(edited.data.publications[0].customField, 'keep')
+
+  const deleted = deleteLinkedInPublication(edited.data, publication.id)
+  assert.deepEqual(deleted.publications, [])
+  assert.equal(deleted.articles[0].status, 'accepted')
+  assert.equal('publicationId' in deleted.articles[0], false)
+  assert.equal(deleted.articles[0].customArticleField, true)
 })

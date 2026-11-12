@@ -907,19 +907,27 @@ export const STRINGS = {
     openArticle: 'Leer fuente ↗',
     postTitle: 'Crear una publicación',
     postDescription:
-      'El agente redactará una propuesta completa siempre en inglés y la guardará como borrador. Después podrás verla y editarla aquí antes de decidir si la compartes.',
+      'El agente redactará una propuesta completa siempre en inglés y la guardará como borrador. Después podrás revisarla y editarla en Tus publicaciones antes de decidir si la compartes.',
     postDraftsEyebrow: 'PROPUESTAS DEL AGENTE',
     postDraftsTitle: 'Borradores para revisar',
     postDraftsDescription:
-      'Al ejecutar el prompt, el agente guarda su propuesta en linkedin-content.json. Si la web avisa de un cambio externo, recarga el archivo para verla.',
+      'Los borradores guardados aparecen en Tus publicaciones, separados de los textos ya publicados.',
     noPostDrafts:
-      'Todavía no hay borradores. Copia el prompt y pídele a tu agente que prepare uno; aparecerá aquí si tiene acceso a la carpeta local.',
+      'Aún no hay borradores guardados. Cuando el agente ejecute el prompt y lo guarde, aparecerá en Tus publicaciones.',
+    postDraftsPending:
+      '{count} borrador(es) pendiente(s) de revisión. Abre Tus publicaciones para editarlos, confirmarlos o eliminarlos.',
+    postDraftsSaved:
+      '{count} borrador(es) guardado(s). Abre Tus publicaciones para revisarlos o editarlos.',
+    openPublicationDrafts: 'Abrir Tus publicaciones',
+    postPromptNextStepEyebrow: 'DESPUÉS DE EJECUTAR EL PROMPT',
+    postPromptNextStep:
+      'Cuando el agente confirme que guardó el texto, ve a Tus publicaciones → Borradores. Si CareerKit indica un cambio externo, recarga linkedin-content.json para ver la propuesta.',
     postDraftNeedsReviewLabel: 'Pendiente de revisión',
     postDraftReadyLabel: 'Listo para publicar',
     postDraftSource: 'Basado en',
     postDraftTextLabel: 'Texto de la publicación (en inglés)',
     postDraftTextHint:
-      'Puedes editarlo. Guardar o confirmar solo actualiza el borrador: no lo publica ni lo añade a Tus publicaciones.',
+      'Puedes editarlo aquí. Guardar conserva los cambios en el borrador; confirmar lo deja listo para publicar. Ninguna acción lo comparte en LinkedIn.',
     postDraftSave: 'Guardar edición',
     postDraftConfirm: 'Confirmar texto',
     postDraftSaving: 'Guardando el borrador…',
@@ -998,8 +1006,6 @@ export const STRINGS = {
       commentMaterial: 'Material y aportación para esta solicitud',
       postText: 'Texto de la publicación',
       commentOpinion: 'Mi opinión o aportación',
-      profileTone:
-        'Usa el tono de contentDirection de Perfil solo si tienes acceso local; no infieras que comparto ideas que no he indicado.',
     },
     save: 'Guardar cambios en la cola',
     saved: 'Cambios guardados en linkedin-content.json.',
@@ -1011,7 +1017,7 @@ export const STRINGS = {
     eyebrow: 'ARCHIVO DE LO QUE YA COMPARTISTE',
     title: 'Tus publicaciones',
     subtitle:
-      'Conserva aquí el texto exacto que ya publicaste en LinkedIn. Los borradores siguen en la conversación con tu asistente.',
+      'Revisa primero los borradores en rojo y conserva debajo el texto exacto de lo que ya compartiste en LinkedIn.',
     introTitle: 'Registra una publicación ya publicada',
     intro:
       'Pega la versión final después de compartirla en LinkedIn. CareerKit no publica ni guarda borradores como si ya fueran públicos.',
@@ -1021,6 +1027,8 @@ export const STRINGS = {
     confirmPublished: 'Confirmo que este texto ya está publicado en LinkedIn.',
     confirmBeforeSave:
       'Confirma que ya publicaste este texto antes de registrarlo.',
+    confirmBeforePrompt:
+      'Confirma que el texto ya está publicado antes de copiar el prompt de registro.',
     typeLabel: 'Tipo de publicación',
     languageLabel: 'Idioma (opcional)',
     languageNone: 'No indicado',
@@ -1043,9 +1051,47 @@ export const STRINGS = {
     duplicate: 'Esta publicación ya estaba guardada.',
     archiveTitle: 'Publicaciones registradas',
     archiveDescription:
-      'Aquí aparecen los textos exactos que ya compartiste y guardaste en CareerKit.',
+      'Los borradores aparecen primero. Debajo, los textos ya compartidos se ordenan por fecha; los que no tienen fecha van al final en orden alfabético.',
     empty: 'Todavía no has registrado publicaciones.',
     publishedBadge: 'PUBLICADA',
+    draftsEyebrow: 'PROPUESTAS SIN PUBLICAR',
+    draftsTitle: 'Borradores para revisar',
+    draftsDescription:
+      'Revisa y edita cada propuesta. «Listo para publicar» solo confirma el texto; el registro como publicada requiere que ya la hayas compartido.',
+    draftReviewBadge: 'BORRADOR · REVISAR',
+    draftReadyBadge: 'BORRADOR · LISTO',
+    englishDraft: 'English',
+    draftTextLabel: 'Texto del borrador en inglés',
+    draftEditHint:
+      'Los cambios se guardan al pulsar Guardar edición. Si cambias el texto, vuelve a quedar pendiente de revisión.',
+    saveDraftEdit: 'Guardar edición',
+    confirmDraftText: 'Confirmar texto',
+    markDraftPublished: 'Ya la publiqué · registrar',
+    deleteDraft: 'Eliminar borrador',
+    deleteDraftConfirm:
+      '¿Eliminar este borrador de CareerKit? No afecta a ninguna publicación de LinkedIn.',
+    markDraftPublishedConfirm:
+      '¿Confirmas que este texto ya está compartido en LinkedIn? Se moverá de Borradores a Publicaciones registradas. No se publicará nada desde CareerKit.',
+    draftSaved: 'Edición del borrador guardada en linkedin-content.json.',
+    draftConfirmed:
+      'Texto confirmado y listo para publicar. Sigue siendo un borrador.',
+    draftDeleted: 'Borrador eliminado de CareerKit.',
+    draftPublished: 'Texto registrado como publicado y retirado de Borradores.',
+    draftInvalid:
+      'No se pudo guardar el borrador; revisa el archivo y su formato.',
+    pendingDraftCount: '{count} borrador(es) por revisar',
+    editPublication: 'Editar registro',
+    deletePublication: 'Eliminar registro',
+    deletePublicationConfirm:
+      '¿Eliminar esta copia del archivo local? Esto no borra la publicación de LinkedIn. Si estaba vinculada a un artículo, este volverá a Aceptados.',
+    publicationEdited: 'Cambios guardados en la copia local de la publicación.',
+    publicationDeleted: 'Registro eliminado de CareerKit.',
+    savePublicationEdit: 'Guardar cambios',
+    cancelEdit: 'Cancelar edición',
+    publishedTextLabel: 'Texto registrado',
+    languageEditHint: 'Código de idioma opcional: es o en.',
+    editLocalOnly:
+      'Esto actualiza la copia de CareerKit, no el texto que ya aparece en LinkedIn.',
     sourcePrefix: 'Basada en',
     openLink: 'Ver en LinkedIn ↗',
     copyPrompt: 'Copiar prompt para registrar publicaciones',

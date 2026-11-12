@@ -141,6 +141,95 @@ export function registerLinkedInPublication(data, publication) {
   }
 }
 
+const publicationTitle = (publication) =>
+  publication.text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find(Boolean) ||
+  publication.type ||
+  publication.id
+
+export function sortLinkedInPublications(publications = []) {
+  const dated = []
+  const undated = []
+
+  for (const publication of publications) {
+    const timestamp = publication.publishedAt
+      ? Date.parse(publication.publishedAt)
+      : Number.NaN
+    if (Number.isFinite(timestamp)) dated.push({ publication, timestamp })
+    else undated.push(publication)
+  }
+
+  dated.sort(
+    (left, right) =>
+      right.timestamp - left.timestamp ||
+      left.publication.id.localeCompare(right.publication.id),
+  )
+  undated.sort(
+    (left, right) =>
+      publicationTitle(left).localeCompare(publicationTitle(right), 'en', {
+        sensitivity: 'base',
+      }) || left.id.localeCompare(right.id),
+  )
+
+  return [...dated.map(({ publication }) => publication), ...undated]
+}
+
+export function updateLinkedInDraft(data, draft) {
+  if (!validLinkedInDraft(draft))
+    return { ok: false, reason: 'invalid-draft', data }
+  const drafts = data.drafts || []
+  const index = drafts.findIndex((item) => item.id === draft.id)
+  if (index < 0) return { ok: false, reason: 'draft-not-found', data }
+  const nextDrafts = drafts.slice()
+  nextDrafts[index] = { ...nextDrafts[index], ...draft }
+  return { ok: true, data: { ...data, drafts: nextDrafts } }
+}
+
+export function deleteLinkedInDraft(data, draftId) {
+  return {
+    ...data,
+    drafts: (data.drafts || []).filter((item) => item.id !== draftId),
+  }
+}
+
+export function updateLinkedInPublication(data, publication) {
+  if (!validLinkedInPublication(publication))
+    return { ok: false, reason: 'invalid-publication', data }
+  const publications = data.publications || []
+  const index = publications.findIndex((item) => item.id === publication.id)
+  if (index < 0) return { ok: false, reason: 'publication-not-found', data }
+  const nextPublications = publications.slice()
+  nextPublications[index] = { ...nextPublications[index], ...publication }
+  return {
+    ok: true,
+    data: { ...data, publications: nextPublications },
+  }
+}
+
+export function deleteLinkedInPublication(data, publicationId) {
+  const publication = (data.publications || []).find(
+    (item) => item.id === publicationId,
+  )
+  if (!publication) return data
+
+  const articles = (data.articles || []).map((article) => {
+    if (article.publicationId !== publicationId) return article
+    const updatedArticle = { ...article, status: 'accepted' }
+    delete updatedArticle.publicationId
+    return updatedArticle
+  })
+
+  return {
+    ...data,
+    articles,
+    publications: (data.publications || []).filter(
+      (item) => item.id !== publicationId,
+    ),
+  }
+}
+
 export const hasLinkedInContent = (value) =>
   (value.articles || []).some((article) =>
     [

@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText, PROMPT_INBOX_ES } from '../../i18n/prompt-inbox.es.js'
-import { registerLinkedInPublication } from '../../data/linkedin-content-data.js'
+import {
+  deleteLinkedInDraft,
+  deleteLinkedInPublication,
+  registerLinkedInPublication,
+  sortLinkedInPublications,
+  updateLinkedInDraft,
+  updateLinkedInPublication,
+} from '../../data/linkedin-content-data.js'
 import { id } from '../utils.js'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import { TextField, useDraft } from '../components/FormPrimitives.jsx'
@@ -72,8 +79,11 @@ export function LinkedInPublicationsPage({
   const [notice, setNotice] = useState('')
   const [promptPreview, setPromptPreview] = useState('')
   const [savingPublication, setSavingPublication] = useState(false)
+  const [editingPublicationId, setEditingPublicationId] = useState('')
+  const [publicationEdit, setPublicationEdit] = useState(null)
   const articles = draft.articles || []
   const publications = draft.publications || []
+  const postDrafts = (draft.drafts || []).slice().reverse()
   const acceptedArticles = articles.filter(
     (article) => article.status === 'accepted',
   )
@@ -88,8 +98,8 @@ export function LinkedInPublicationsPage({
       )
     : null
   const canCopyRegistrationPrompt =
-    !savingPublication && !saving && Boolean(form.text.trim())
-  const formDirty = formTouched
+    !savingPublication && !saving && form.confirmed && Boolean(form.text.trim())
+  const formDirty = formTouched || Boolean(publicationEdit)
   const dirty = JSON.stringify(draft) !== JSON.stringify(value)
 
   useEffect(() => {
@@ -192,6 +202,10 @@ export function LinkedInPublicationsPage({
 
   async function copyHeaderRegistrationPrompt() {
     if (form.text.trim()) {
+      if (!form.confirmed) {
+        setNotice(copy.confirmBeforePrompt)
+        return
+      }
       await copyRegistrationPrompt()
       return
     }
@@ -202,7 +216,145 @@ export function LinkedInPublicationsPage({
     await copyPrompt(publicationPrompt(form, selectedArticle))
   }
 
-  const postsByDate = [...publications].reverse()
+  async function persistChange(next, successMessage) {
+    setSavingPublication(true)
+    setDraft(next)
+    const saved = await onSave(next)
+    setSavingPublication(false)
+    setNotice(saved ? successMessage : copy.saveFailed)
+    return saved
+  }
+
+  async function saveDraft(postDraft, status = postDraft.status) {
+    if (savingPublication || saving) return
+    const result = updateLinkedInDraft(draft, { ...postDraft, status })
+    if (!result.ok) {
+      setNotice(copy.draftInvalid)
+      return
+    }
+    await persistChange(
+      result.data,
+      status === 'ready-to-post' ? copy.draftConfirmed : copy.draftSaved,
+    )
+  }
+
+  function editDraftText(draftId, text) {
+    setDraft((current) => ({
+      ...current,
+      drafts: (current.drafts || []).map((postDraft) =>
+        postDraft.id === draftId
+          ? {
+              ...postDraft,
+              text,
+              status:
+                text !== postDraft.text ? 'needs-review' : postDraft.status,
+            }
+          : postDraft,
+      ),
+    }))
+  }
+
+  async function removeDraft(postDraft) {
+    if (!window.confirm(copy.deleteDraftConfirm)) return
+    await persistChange(
+      deleteLinkedInDraft(draft, postDraft.id),
+      copy.draftDeleted,
+    )
+  }
+
+  async function markDraftAsPublished(postDraft) {
+    if (!window.confirm(copy.markDraftPublishedConfirm)) return
+    const publication = {
+      id: postDraft.id,
+      type: postDraft.type,
+      language: 'en',
+      text: postDraft.text,
+      ...(postDraft.sourceArticleId
+        ? { sourceArticleId: postDraft.sourceArticleId }
+        : {}),
+    }
+    const result = registerLinkedInPublication(draft, publication)
+    if (!result.ok) {
+      setNotice(
+        result.reason === 'article-not-accepted'
+          ? copy.articleNotAccepted
+          : result.reason === 'id-conflict'
+            ? copy.idConflict
+            : copy.draftInvalid,
+      )
+      return
+    }
+    const next = {
+      ...result.data,
+      drafts: (result.data.drafts || []).filter(
+        (item) => item.id !== postDraft.id,
+      ),
+    }
+    await persistChange(next, copy.draftPublished)
+  }
+
+  function beginPublicationEdit(publication) {
+    setEditingPublicationId(publication.id)
+    setPublicationEdit({
+      type: publication.type,
+      text: publication.text,
+      language: publication.language || '',
+      publishedAt: publication.publishedAt || '',
+      url: publication.url || '',
+    })
+    setNotice('')
+  }
+
+  function changePublicationEdit(field, value) {
+    setPublicationEdit((current) => ({ ...current, [field]: value }))
+  }
+
+  async function savePublicationEdit(publication) {
+    if (!publicationEdit || savingPublication || saving) return
+    const url = safeUrl(publicationEdit.url.trim())
+    if (!publicationEdit.text.trim() || (publicationEdit.url.trim() && !url)) {
+      setNotice(copy.invalid)
+      return
+    }
+    const updatedPublication = {
+      ...publication,
+      type: publicationEdit.type,
+      text: publicationEdit.text,
+      ...(publicationEdit.language
+        ? { language: publicationEdit.language }
+        : {}),
+      ...(publicationEdit.publishedAt.trim()
+        ? { publishedAt: publicationEdit.publishedAt.trim() }
+        : {}),
+      ...(url ? { url } : {}),
+    }
+    if (!publicationEdit.language) delete updatedPublication.language
+    if (!publicationEdit.publishedAt.trim())
+      delete updatedPublication.publishedAt
+    if (!url) delete updatedPublication.url
+    const result = updateLinkedInPublication(draft, updatedPublication)
+    if (!result.ok) {
+      setNotice(copy.invalid)
+      return
+    }
+    const saved = await persistChange(result.data, copy.publicationEdited)
+    if (saved) {
+      setEditingPublicationId('')
+      setPublicationEdit(null)
+    }
+  }
+
+  async function removePublication(publication) {
+    if (!window.confirm(copy.deletePublicationConfirm)) return
+    await persistChange(
+      deleteLinkedInPublication(draft, publication.id),
+      copy.publicationDeleted,
+    )
+    setEditingPublicationId('')
+    setPublicationEdit(null)
+  }
+
+  const postsByDate = sortLinkedInPublications(publications)
 
   return (
     <>
@@ -261,6 +413,22 @@ export function LinkedInPublicationsPage({
                 {existingPublication.language === 'en' ? 'English' : 'Español'}
               </span>
             )}
+          </div>
+          <div className="content-linkedin-draft-actions">
+            <button
+              className="button secondary small"
+              type="button"
+              onClick={() => beginPublicationEdit(existingPublication)}
+            >
+              {copy.editPublication}
+            </button>
+            <button
+              className="button quiet small"
+              type="button"
+              onClick={() => removePublication(existingPublication)}
+            >
+              {copy.deletePublication}
+            </button>
           </div>
           {existingPublication.url && safeUrl(existingPublication.url) && (
             <a
@@ -404,16 +572,110 @@ export function LinkedInPublicationsPage({
             <p className="muted">{copy.archiveDescription}</p>
           </div>
         </div>
-        {postsByDate.length ? (
+        {postDrafts.length > 0 && (
+          <section
+            className="publication-drafts"
+            aria-labelledby="publication-drafts-title"
+          >
+            <div className="section-title-row">
+              <div>
+                <span className="eyebrow">{copy.draftsEyebrow}</span>
+                <h2 id="publication-drafts-title">{copy.draftsTitle}</h2>
+                <p className="muted">{copy.draftsDescription}</p>
+              </div>
+            </div>
+            <div className="publication-archive-list">
+              {postDrafts.map((postDraft) => {
+                const source = articles.find(
+                  (article) => article.id === postDraft.sourceArticleId,
+                )
+                return (
+                  <article
+                    className="publication-archive-card is-draft"
+                    key={postDraft.id}
+                  >
+                    <div className="publication-archive-topline">
+                      <span
+                        className={`content-linkedin-draft-status is-${postDraft.status}`}
+                      >
+                        {postDraft.status === 'ready-to-post'
+                          ? copy.draftReadyBadge
+                          : copy.draftReviewBadge}
+                      </span>
+                      <span>{copy.englishDraft}</span>
+                    </div>
+                    <h3>{s.linkedinContentPage.postTypes[postDraft.type]}</h3>
+                    {source && (
+                      <p className="publication-source-title">
+                        {copy.sourcePrefix}: {source.title}
+                      </p>
+                    )}
+                    <TextField
+                      label={copy.draftTextLabel}
+                      rows={10}
+                      lang="en"
+                      value={postDraft.text}
+                      onChange={(text) => editDraftText(postDraft.id, text)}
+                      hint={copy.draftEditHint}
+                    />
+                    <div className="content-linkedin-draft-actions">
+                      <button
+                        type="button"
+                        className="button secondary small"
+                        disabled={savingPublication || saving}
+                        onClick={() => saveDraft(postDraft)}
+                      >
+                        {copy.saveDraftEdit}
+                      </button>
+                      <button
+                        type="button"
+                        className="button primary small"
+                        disabled={
+                          savingPublication ||
+                          saving ||
+                          postDraft.status === 'ready-to-post'
+                        }
+                        onClick={() => saveDraft(postDraft, 'ready-to-post')}
+                      >
+                        {postDraft.status === 'ready-to-post'
+                          ? copy.draftReadyBadge
+                          : copy.confirmDraftText}
+                      </button>
+                      <button
+                        type="button"
+                        className="button secondary small"
+                        disabled={savingPublication || saving}
+                        onClick={() => markDraftAsPublished(postDraft)}
+                      >
+                        {copy.markDraftPublished}
+                      </button>
+                      <button
+                        type="button"
+                        className="button quiet small"
+                        disabled={savingPublication || saving}
+                        onClick={() => removeDraft(postDraft)}
+                      >
+                        {copy.deleteDraft}
+                      </button>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          </section>
+        )}
+        {postsByDate.length > 0 && (
           <div className="publication-archive-list">
             {postsByDate.map((publication) => {
               const source = articles.find(
                 (article) => article.id === publication.sourceArticleId,
               )
+              const isEditing = editingPublicationId === publication.id
               return (
                 <article
                   className="publication-archive-card"
                   key={publication.id}
+                  id={`publication-card-${publication.id}`}
                 >
                   <div className="publication-archive-topline">
                     <span className="content-linkedin-status is-published">
@@ -434,24 +696,124 @@ export function LinkedInPublicationsPage({
                       {copy.sourcePrefix}: {source.title}
                     </p>
                   )}
-                  <div className="publication-post-preview">
-                    {publication.text}
-                  </div>
-                  {publication.url && safeUrl(publication.url) && (
-                    <a
-                      className="button secondary small"
-                      href={safeUrl(publication.url)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {copy.openLink}
-                    </a>
+                  {isEditing && publicationEdit ? (
+                    <div className="publication-edit-fields">
+                      <label className="field">
+                        <span>{copy.typeLabel}</span>
+                        <select
+                          value={publicationEdit.type}
+                          onChange={(event) =>
+                            changePublicationEdit('type', event.target.value)
+                          }
+                        >
+                          {Object.entries(s.linkedinContentPage.postTypes).map(
+                            ([key, label]) => (
+                              <option key={key} value={key}>
+                                {label}
+                              </option>
+                            ),
+                          )}
+                        </select>
+                      </label>
+                      <TextField
+                        label={copy.languageLabel}
+                        value={publicationEdit.language}
+                        onChange={(language) =>
+                          changePublicationEdit('language', language)
+                        }
+                        hint={copy.languageEditHint}
+                      />
+                      <TextField
+                        label={copy.dateLabel}
+                        value={publicationEdit.publishedAt}
+                        onChange={(publishedAt) =>
+                          changePublicationEdit('publishedAt', publishedAt)
+                        }
+                        placeholder="AAAA-MM-DD"
+                      />
+                      <TextField
+                        label={copy.urlLabel}
+                        value={publicationEdit.url}
+                        onChange={(url) => changePublicationEdit('url', url)}
+                      />
+                      <TextField
+                        label={copy.publishedTextLabel}
+                        rows={10}
+                        value={publicationEdit.text}
+                        onChange={(text) => changePublicationEdit('text', text)}
+                      />
+                      <p className="publication-edit-note">
+                        {copy.editLocalOnly}
+                      </p>
+                      <div className="content-linkedin-draft-actions">
+                        <button
+                          type="button"
+                          className="button primary small"
+                          disabled={savingPublication || saving}
+                          onClick={() => savePublicationEdit(publication)}
+                        >
+                          {copy.savePublicationEdit}
+                        </button>
+                        <button
+                          type="button"
+                          className="button secondary small"
+                          onClick={() => {
+                            setEditingPublicationId('')
+                            setPublicationEdit(null)
+                          }}
+                        >
+                          {copy.cancelEdit}
+                        </button>
+                        <button
+                          type="button"
+                          className="button quiet small"
+                          disabled={savingPublication || saving}
+                          onClick={() => removePublication(publication)}
+                        >
+                          {copy.deletePublication}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="publication-post-preview">
+                        {publication.text}
+                      </div>
+                      <div className="content-linkedin-draft-actions">
+                        {publication.url && safeUrl(publication.url) && (
+                          <a
+                            className="button secondary small"
+                            href={safeUrl(publication.url)}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {copy.openLink}
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          className="button secondary small"
+                          onClick={() => beginPublicationEdit(publication)}
+                        >
+                          {copy.editPublication}
+                        </button>
+                        <button
+                          type="button"
+                          className="button quiet small"
+                          disabled={savingPublication || saving}
+                          onClick={() => removePublication(publication)}
+                        >
+                          {copy.deletePublication}
+                        </button>
+                      </div>
+                    </>
                   )}
                 </article>
               )
             })}
           </div>
-        ) : (
+        )}
+        {postDrafts.length === 0 && postsByDate.length === 0 && (
           <div className="content-linkedin-queue-empty">
             <span aria-hidden="true">✳</span>
             <p>{copy.empty}</p>

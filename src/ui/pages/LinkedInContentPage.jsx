@@ -55,6 +55,7 @@ export function LinkedInContentPage({
   onReload,
   onPromptCopied,
   onRegisterPublication,
+  onNavigateToPublications,
 }) {
   const copy = s.linkedinContentPage
   const [draft, setDraft] = useDraft(value, {
@@ -74,11 +75,15 @@ export function LinkedInContentPage({
   const [commentSource, setCommentSource] = useState('')
   const [commentOpinion, setCommentOpinion] = useState('')
   const [notice, setNotice] = useState('')
+  const [postPromptCopied, setPostPromptCopied] = useState(false)
   const [savingArticleId, setSavingArticleId] = useState('')
   const postIdea = postIdeas[postType] || ''
 
   const articles = draft.articles || []
-  const postDrafts = (draft.drafts || []).slice().reverse()
+  const postDraftCount = (draft.drafts || []).length
+  const pendingDraftCount = (draft.drafts || []).filter(
+    (item) => item.status === 'needs-review',
+  ).length
   const currentArticles = articles.filter(
     (article) => article.status === queueView,
   )
@@ -219,7 +224,6 @@ export function LinkedInContentPage({
         `---\n${copy.promptContext.commentMaterial}`,
         `${copy.promptContext.postText}:\n${commentSource.trim()}`,
         `${copy.promptContext.commentOpinion}:\n${commentOpinion.trim()}`,
-        copy.promptContext.profileTone,
       ].join('\n\n'),
     })
   }
@@ -229,41 +233,10 @@ export function LinkedInContentPage({
       await navigator.clipboard.writeText(text)
       onPromptCopied?.(promptId)
       setNotice(successMessage || copy.promptCopied)
+      setPostPromptCopied(promptId === 'draft-linkedin-post')
     } catch {
       setNotice(copy.copyFailed)
-    }
-  }
-
-  async function saveGeneratedDraft(item, status) {
-    if (saving) return
-    const next = {
-      ...draft,
-      drafts: (draft.drafts || []).map((current) =>
-        current.id === item.id ? { ...current, ...item, status } : current,
-      ),
-    }
-    setDraft(next)
-    setNotice(copy.postDraftSaving)
-    try {
-      const saved = await onSave(next)
-      setNotice(
-        saved
-          ? status === 'ready-to-post'
-            ? copy.postDraftConfirmed
-            : copy.postDraftSaved
-          : copy.postDraftSaveFailed,
-      )
-    } catch {
-      setNotice(copy.postDraftSaveFailed)
-    }
-  }
-
-  async function copyGeneratedDraft(text) {
-    try {
-      await navigator.clipboard.writeText(text)
-      setNotice(copy.postDraftCopied)
-    } catch {
-      setNotice(copy.copyFailed)
+      setPostPromptCopied(false)
     }
   }
 
@@ -347,6 +320,7 @@ export function LinkedInContentPage({
             onClick={() => {
               setFlow(key)
               setNotice('')
+              setPostPromptCopied(false)
             }}
           >
             <span>0{index + 1}</span>
@@ -673,98 +647,26 @@ export function LinkedInContentPage({
                 <p>{copy.postDraftsDescription}</p>
               </div>
             </div>
-            {postDrafts.length ? (
-              <div className="content-linkedin-draft-list">
-                {postDrafts.map((postDraft) => {
-                  const sourceArticle = articles.find(
-                    (article) => article.id === postDraft.sourceArticleId,
+            <p className="content-linkedin-drafts-empty">
+              {pendingDraftCount
+                ? copy.postDraftsPending.replace(
+                    '{count}',
+                    String(pendingDraftCount),
                   )
-                  return (
-                    <article
-                      className="content-linkedin-generated-draft"
-                      key={postDraft.id}
-                    >
-                      <div className="content-linkedin-draft-topline">
-                        <span
-                          className={`content-linkedin-draft-status is-${postDraft.status}`}
-                        >
-                          {postDraft.status === 'ready-to-post'
-                            ? copy.postDraftReadyLabel
-                            : copy.postDraftNeedsReviewLabel}
-                        </span>
-                        <span>{copy.postTypes[postDraft.type]}</span>
-                      </div>
-                      {sourceArticle && (
-                        <p className="content-linkedin-draft-source">
-                          {copy.postDraftSource}: {sourceArticle.title}
-                        </p>
-                      )}
-                      <TextField
-                        label={copy.postDraftTextLabel}
-                        rows={10}
-                        lang="en"
-                        value={postDraft.text}
-                        onChange={(text) =>
-                          setDraft((current) => ({
-                            ...current,
-                            drafts: (current.drafts || []).map((item) =>
-                              item.id === postDraft.id
-                                ? {
-                                    ...item,
-                                    text,
-                                    status:
-                                      text !== postDraft.text
-                                        ? 'needs-review'
-                                        : item.status,
-                                  }
-                                : item,
-                            ),
-                          }))
-                        }
-                        hint={copy.postDraftTextHint}
-                      />
-                      <div className="content-linkedin-draft-actions">
-                        <button
-                          type="button"
-                          className="button secondary small"
-                          disabled={saving}
-                          onClick={() =>
-                            saveGeneratedDraft(postDraft, postDraft.status)
-                          }
-                        >
-                          {copy.postDraftSave}
-                        </button>
-                        <button
-                          type="button"
-                          className="button primary small"
-                          disabled={
-                            saving || postDraft.status === 'ready-to-post'
-                          }
-                          onClick={() =>
-                            saveGeneratedDraft(postDraft, 'ready-to-post')
-                          }
-                        >
-                          {postDraft.status === 'ready-to-post'
-                            ? copy.postDraftReadyLabel
-                            : copy.postDraftConfirm}
-                        </button>
-                        <button
-                          type="button"
-                          className="button quiet small"
-                          onClick={() => copyGeneratedDraft(postDraft.text)}
-                        >
-                          {copy.postDraftCopy}
-                        </button>
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="content-linkedin-drafts-empty">
-                {copy.noPostDrafts}
-              </p>
-            )}
+                : postDraftCount
+                  ? copy.postDraftsSaved.replace(
+                      '{count}',
+                      String(postDraftCount),
+                    )
+                  : copy.noPostDrafts}
+            </p>
+            <button
+              type="button"
+              className="button secondary small"
+              onClick={() => onNavigateToPublications?.()}
+            >
+              {copy.openPublicationDrafts}
+            </button>
           </section>
           <div className="content-linkedin-form-grid">
             <label className="field">
@@ -863,6 +765,19 @@ export function LinkedInContentPage({
           >
             {copy.copyPostPrompt}
           </button>
+          {postPromptCopied && (
+            <div className="publication-next-step" role="status">
+              <span className="eyebrow">{copy.postPromptNextStepEyebrow}</span>
+              <p>{copy.postPromptNextStep}</p>
+              <button
+                type="button"
+                className="button secondary small"
+                onClick={() => onNavigateToPublications?.()}
+              >
+                {copy.openPublicationDrafts}
+              </button>
+            </div>
+          )}
           <details className="content-linkedin-prompt-preview">
             <summary>{copy.promptPreview}</summary>
             <textarea
