@@ -1026,7 +1026,7 @@ export const STRINGS = {
     publishedBadge: 'PUBLICADA',
     sourcePrefix: 'Basada en',
     openLink: 'Ver en LinkedIn ↗',
-    copyPrompt: 'Copiar prompt para registrar esta publicación',
+    copyPrompt: 'Copiar prompt para registrar publicaciones',
     promptPreview: 'Ver prompt que copiarás',
     promptCopied: 'Prompt copiado. Pégalo junto al texto exacto ya publicado.',
     copyFailed: 'No se pudo copiar. Selecciona y copia el prompt.',
