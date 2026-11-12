@@ -1,8 +1,19 @@
-# CareerKit
+# <img src="public/favicon.svg" width="40" height="40" alt="" /> CareerKit
 
 CareerKit reúne tu perfil profesional, aprendizajes, copia de LinkedIn, currículum y vacantes en una web que puedes usar en tu ordenador. Puedes rellenar los formularios a mano. Para tareas como buscar ofertas, revisar LinkedIn o preparar el CV, CareerKit te da instrucciones que puedes copiar a un asistente.
 
-[Primera vez](#primera-vez) · [Volver a abrir CareerKit](#volver-a-abrir-careerkit) · [Qué hay en cada pantalla](#qué-hay-en-cada-pantalla) · [Si algo falla](#si-algo-falla) · [Datos y privacidad](#datos-y-privacidad) · [Publicación opcional](#publicación-opcional)
+[Primera vez](#primera-vez) · [Abrirlo cada día](#volver-a-abrir-careerkit) · [Guía de pantallas](#qué-hay-en-cada-pantalla) · [Buzón](#buzón-cómo-usar-los-prompts) · [Si algo falla](#si-algo-falla) · [Datos y privacidad](#datos-y-privacidad) · [Publicación opcional](#publicación-opcional)
+
+Un recorrido para empezar. Puedes usar cada sección cuando la necesites.
+
+```mermaid
+flowchart TD
+    A["Conecta tu carpeta"] --> B["Completa Perfil"]
+    B --> C["Guarda tu copia de LinkedIn"]
+    C --> D["Prepara tus dos CV"]
+    D --> E["Busca y compara vacantes"]
+    B --> F["Descubre lecturas y prepara publicaciones"]
+```
 
 ## Primera vez
 
@@ -12,7 +23,7 @@ CareerKit reúne tu perfil profesional, aprendizajes, copia de LinkedIn, curríc
 
    > Prepara CareerKit en este ordenador. Lee AGENTS.md. Si falta Node.js o pnpm, guíame para instalarlos con pasos sencillos. Instala las dependencias con pnpm install --frozen-lockfile, prepara solo los archivos vacíos que falten con pnpm data:init y abre la web con pnpm local. Dame la dirección cuando esté lista. Si aparece la pantalla para conectar la carpeta, indícame cómo seleccionar private-data y conceder el permiso. Conserva los datos que ya existan y no publiques el proyecto.
 
-4. Abre [CareerKit en tu ordenador](http://127.0.0.1:5173/). Si ya ves Inicio, puedes empezar. Si aparece **Conectar carpeta de datos**, pulsa el botón, selecciona la carpeta **private-data** que está dentro del proyecto y acepta el permiso del navegador. Si te ofrece preparar archivos que faltan, confirma la creación de las plantillas vacías.
+4. Abre [CareerKit en tu ordenador](http://127.0.0.1:5173/). Si ya ves Inicio, puedes empezar. Si aparece **Conectar la carpeta de este proyecto**, puedes usarla para autorizar la carpeta que CareerKit ha encontrado. Para elegirla tú, pulsa **Conectar carpeta de datos**, selecciona **private-data** dentro del proyecto y acepta el permiso del navegador. Si te ofrece preparar archivos que faltan, confirma la creación de las plantillas vacías.
 
 La primera apertura está vacía. Empieza por **Perfil y aprendizajes** y pulsa **Guardar** cuando hayas añadido información. Puedes dejar Vacantes vacía hasta que quieras buscar.
 
@@ -51,27 +62,50 @@ A partir de ahí usa el acceso directo. Si mueves la carpeta del proyecto, actua
 
 ## Qué hay en cada pantalla
 
-| Pantalla | Para qué sirve |
+| Pantalla | Acción que puedes hacer |
 | --- | --- |
-| **Inicio** | Muestra el progreso de preparación, las prioridades, las vacantes destacadas y las fechas registradas de CV y LinkedIn. «Sin registrar» indica que falta la fecha. |
-| **Perfil y aprendizajes** | Despliega cada bloque para guardar objetivos, intereses, preferencias laborales y evidencias de tu trayectoria. Marca qué está confirmado, qué sirve para el CV, qué aparece en LinkedIn y qué es interno. |
-| **LinkedIn** | Guarda una copia de tu perfil publicado. Alterna **Editar** y **Vista previa** y elige el idioma que quieres consultar. Usa las anotaciones de auditoría para ver propuestas junto a la sección correspondiente. Guarda después de aplicar o descartar propuestas. Los cambios se guardan en CareerKit. |
-| **CV** | Consulta la base española en dos columnas o la inglesa en una columna. Puedes imprimir la vista o guardarla como PDF desde el cuadro de impresión del navegador. Los cambios en las bases se hacen mediante prompts. |
-| **Vacantes** | Añade o abre una oferta, consulta su enlace y fecha de verificación, vincula evidencias de Perfil y compara hasta tres ofertas. En los detalles puedes consultar las recomendaciones de adaptación y el CV específico cuando esté guardado. |
-| **Contenido de LinkedIn** | Descubre lecturas según tus intereses, revisa propuestas y prepara borradores de publicaciones en inglés y comentarios. |
-| **Buzón** | Busca y copia prompts para el asistente. Las tareas destacadas indican qué conviene revisar según tus cambios recientes. |
+| [Inicio](#inicio) | Consulta qué falta y abre las vacantes destacadas. |
+| [Perfil y aprendizajes](#perfil-y-aprendizajes) | Guarda tu trayectoria, intereses y preferencias. |
+| [LinkedIn](#linkedin) | Conserva la copia publicada y revisa sugerencias. |
+| [CV](#cv) | Consulta, imprime o guarda como PDF tus dos bases. |
+| [Vacantes](#vacantes) | Busca, revisa, compara y prepara un CV por oferta. |
+| [Contenido de LinkedIn](#contenido-de-linkedin) | Descubre lecturas y prepara publicaciones o comentarios. |
+| [Tus publicaciones](#tus-publicaciones) | Revisa borradores y registra el texto que compartiste. |
+| [Buzón](#buzón-cómo-usar-los-prompts) | Encuentra y copia instrucciones para tu asistente. |
 
-La sección **Tus publicaciones** muestra primero los borradores rojos para revisar; después aparecen los textos que ya compartiste. Puedes editarlos o borrar su registro local. El archivo publicado se ordena por fecha descendente y las publicaciones sin fecha se muestran al final en orden alfabético.
+### Inicio
 
-### Qué prompt usar
+Mira la guía de progreso para saber qué puedes preparar a continuación. Si faltan datos, sigue el enlace a Perfil, LinkedIn o CV. Las fechas de revisión y actualización aparecen como **Sin registrar** hasta que se guardan. Abre una vacante destacada para ver sus detalles. Si quieres que el asistente deje próximos pasos concretos en Inicio, copia **Añadir prioridades concretas a Inicio** desde el Buzón.
 
-Un **prompt** es un texto de instrucciones. Abre el Buzón, elige la tarea, pulsa **Copiar prompt** y pégalo en el chat del asistente. Cada prompt pide comprobar que CareerKit está abierto y, cuando corresponda, que la carpeta está conectada. Si no encuentra la web y tiene acceso a una terminal local, el asistente puede iniciarla con `pnpm local`. La conexión de `private-data/` en el navegador no concede al asistente acceso local a tus archivos: este acceso se comprueba por separado. Las tareas que solo necesitan texto compartido pueden continuar sin la carpeta; no se deben afirmar guardados inexistentes. Revisa la respuesta y, si CareerKit detecta un cambio externo, pulsa **Recargar** en la pantalla correspondiente para verlo.
+### Perfil y aprendizajes
 
-- **Completar Perfil.** Elige la entrevista guiada, comparte material para que el asistente lo organice o usa el prompt que parte del CV. Añade tú los intereses, metas y preferencias que quieras tener en cuenta en futuras búsquedas.
-- **Registrar o revisar LinkedIn.** Para guardar una copia fiel, aporta un PDF, documento, captura o texto legible. El prompt del complemento puede servir si tu asistente tiene uno que muestra el perfil. Para obtener sugerencias sobre qué corregir o añadir según tu trayectoria, elige la auditoría. Para alinear español e inglés, usa el prompt de las dos versiones.
-- **Preparar el CV general.** Usa el prompt de actualización tras completar Perfil y LinkedIn. También puedes aportar un CV anterior como punto de partida. Cuando se destaque una revisión del CV o de los idiomas de LinkedIn, copiar el prompt inicia el trabajo con el asistente. El cierre depende del resultado guardado en el archivo local.
-- **Buscar y valorar vacantes.** Guarda primero tus roles, tareas, lugares y condiciones en Perfil. El prompt de búsqueda pide fuentes públicas y verifica la vigencia de cada oferta. Para adaptar el CV, abre una oferta concreta y usa su prompt. El asistente puede pedirte datos antes de redactar. La adaptación queda asociada a esa vacante.
-- **Preparar otros materiales.** El Buzón también ofrece tareas para cartas, historias STAR, publicaciones, comentarios y otros borradores de LinkedIn. Revísalos en el chat antes de utilizarlos.
+1. Abre **Quién eres y cómo trabajas** para añadir motivaciones, valores, fortalezas y aspectos que quieras desarrollar. Este contexto es interno.
+2. En el bloque de trabajo, indica puestos o tareas que te interesan, sectores, ubicación, modalidad, condiciones y qué prefieres evitar. Es lo que orienta la búsqueda de vacantes. Conserva también tus objetivos a corto, medio y largo plazo.
+3. En **Intereses y voz para publicaciones**, añade temas, perspectivas, tono y preferencias de fuentes. Puedes anotar personas, medios o empresas que te gustaría seguir.
+4. Añade formación, experiencia, habilidades, idiomas, certificaciones, proyectos y aprendizajes. En cada evidencia puedes indicar si está confirmada, sirve para el CV, aparece en LinkedIn o es interna. Añade acciones y resultados que puedas demostrar.
+5. Pulsa **Guardar perfil**. Si prefieres ayuda, el Buzón ofrece tres entradas: una entrevista guiada, organizar el material que compartas y actualizar la trayectoria a partir de tu CV y LinkedIn. Comparte tus preferencias y objetivos directamente si quieres que el asistente los guarde.
+
+### LinkedIn
+
+1. Abre **Editar** para escribir lo que ya aparece en tu perfil. También puedes copiar **Rellenar LinkedIn desde un archivo** y adjuntar una copia legible o pegar el contenido en el chat. Expande las descripciones que estén cortadas. Si tienes el complemento de LinkedIn, el Buzón ofrece otro prompt para comprobar qué partes del perfil puede ver.
+2. Guarda los cambios y abre **Vista previa** para comprobar el resultado. Elige **English** o **Español** para consultar cada versión. Usa **Actualizar las dos versiones de LinkedIn** en el Buzón cuando quieras que tu asistente revise las traducciones. El aviso se resuelve al detectar el estado guardado por el asistente.
+3. Para pedir mejoras, copia **Auditar LinkedIn con Perfil y aprendizajes**. Recarga el archivo si aparece el aviso de cambio externo. En **Vista previa**, abre los marcadores que aparecen junto a las secciones auditadas, revisa la evidencia y decide si aplicas o descartas la propuesta. Pulsa **Guardar cambios de LinkedIn** para escribir el resultado en CareerKit.
+
+La copia y sus auditorías viven en tu carpeta. Si decides trasladar cambios a tu perfil público, hazlo desde LinkedIn.
+
+### CV
+
+1. Guarda primero la información confirmada en **Perfil** y tu copia de **LinkedIn**. En **CV** o en el **Buzón**, copia **Actualizar la base general del CV**. Si ya tienes un CV que quieres usar como punto de partida, elige **Preparar las bases del CV desde un archivo** y adjúntalo.
+2. Cuando el asistente confirme que guardó las versiones, abre **CV** y recarga el archivo si CareerKit lo pide. Selecciona **Español** para la base de dos columnas o **Inglés** para la base de una columna.
+3. Pulsa **Imprimir o guardar PDF**. Elige una impresora o la opción de guardar como PDF de tu navegador. Cuando cambie tu trayectoria, vuelve a usar el prompt de actualización.
+4. Para un CV dirigido a una empresa, entra en los detalles de la oferta y usa **Preparar CV para esta oferta**. El resultado se consulta allí.
+
+### Vacantes
+
+1. Completa tus preferencias en Perfil. En **Vacantes**, copia el prompt para buscar ofertas nuevas y pégalo en tu asistente. La búsqueda usa fuentes públicas, páginas de empleo y portales adecuados. Pide diez ofertas nuevas verificadas cuando sea posible y las ordena según tus preferencias. También puedes añadir una oferta manualmente, incluyendo el enlace y la fuente.
+2. Abre **Ver detalles** para consultar el anuncio, salario, valoración y evidencias de encaje. Cuando se han podido verificar, aparecen el perfil oficial de la empresa, el contacto de selección y otros perfiles públicos de interés. Que una persona trabaje en selección no confirma que vaya a leer tu candidatura.
+3. Selecciona hasta tres ofertas para compararlas. Puedes buscar y guardar más ofertas en tu lista. Si quieres comprobar si siguen abiertas, copia el prompt de **revisión de vigencia**. Las cerradas se conservan con su estado y enlace hasta que decidas eliminarlas.
+4. Desde el detalle, abre **Preparar CV para esta oferta** y copia el prompt con esa vacante seleccionada. El asistente guarda las recomendaciones en sus detalles, indica qué base conviene y puede pedir aclaraciones. Cuando prepare y guarde el CV adaptado, lo verás en la misma oferta. En el Buzón también puedes pedir una valoración o una carta para una oferta concreta.
 
 ### Contenido de LinkedIn
 
@@ -82,8 +116,37 @@ Abre **Contenido de LinkedIn** para trabajar con lecturas, publicaciones y comen
 3. Si el asistente guardó las lecturas, recarga `linkedin-content.json` cuando la web te avise. **Me interesa** y **Descartar** guardan la decisión al instante. Al volver a buscar, el asistente consulta las lecturas pendientes, aceptadas, publicadas y descartadas para no repetirlas; después limpia las fichas descartadas y conserva sus enlaces en una lista de exclusión.
 4. En una lectura aceptada, escribe tu opinión. **Preparar publicación** la lleva al campo de opinión del flujo de publicaciones y la incluye en el prompt.
 5. En **Contenido de LinkedIn → Publicaciones**, puedes preparar textos sobre logros o títulos, nuevos trabajos, ascensos, proyectos, experiencias o aprendizajes, opiniones y material que aportes. El prompt pide al asistente una versión completa **siempre en inglés** y, si tiene acceso local autorizado, la guarda en `drafts[]` de `linkedin-content.json`. Después ve a **Tus publicaciones → Borradores**. Si CareerKit avisa de un cambio externo, recarga el archivo para verla. Allí puedes editar el texto, guardar los cambios, dejarlo listo para publicar, registrarlo como publicado después de compartirlo realmente, o eliminarlo.
-6. Los textos ya compartidos aparecen debajo de los borradores en **Tus publicaciones**. Puedes editar la copia guardada en CareerKit o eliminar ese registro; esos cambios no modifican ni borran el texto real de LinkedIn. Las publicaciones con fecha se ordenan de más reciente a más antigua; las que no tienen fecha van al final, en orden alfabético. También puedes pegar el texto final y pulsar **Guardar publicación publicada**, o copiar el prompt de registro. Al registrar una publicación derivada de un artículo aceptado, ese artículo pasa a **Publicado** y queda enlazado al texto guardado.
-7. En **Comentarios**, pega el texto de la publicación y añade qué te gustaría aportar. Copia el prompt con ambos textos. CareerKit no envía comentarios.
+6. En **Comentarios**, pega la publicación y añade qué te gustaría aportar. Copia el prompt y revisa las propuestas en el chat. Puedes llevar a LinkedIn la que decidas usar.
+
+### Tus publicaciones
+
+- **Revisar un borrador.** Abre los borradores pendientes al principio de la pantalla. Puedes editar el texto en inglés, pulsar **Guardar edición**, confirmarlo como listo, copiarlo o eliminarlo. Si editas un texto confirmado, vuelve a quedar pendiente de revisión.
+- **Registrar lo que compartiste.** Después de publicar en LinkedIn, registra el borrador como publicado o pega el texto final y pulsa **Guardar publicación publicada**. También puedes copiar el prompt **Registrar publicaciones ya publicadas** y enviar uno o varios textos finales al asistente. Si el registro está enlazado a una lectura aceptada, la lectura pasa a **Publicado**.
+- **Consultar el archivo.** Las publicaciones registradas aparecen debajo, de más reciente a más antigua, seguidas de las que no tienen fecha en orden alfabético. Puedes editar o eliminar la copia local. Para modificar lo que ya compartiste en la red, abre LinkedIn.
+
+## Buzón: cómo usar los prompts
+
+Un **prompt** es un texto de instrucciones. Elige la tarea y, si te lo pide, selecciona una vacante. Pulsa **Copiar prompt** y pégalo en tu asistente. Añade el documento, texto o detalles que requiere la tarea. Si el asistente guardó cambios en tu carpeta, vuelve a la pantalla indicada y pulsa **Recargar** cuando CareerKit avise de que el archivo cambió. Copiar un prompt solo copia texto. Las tareas pendientes se resuelven al guardar el resultado correspondiente.
+
+| Si quieres… | Busca en el Buzón… |
+| --- | --- |
+| Preparar o recuperar la carpeta | **Preparar o revisar los archivos de datos**. |
+| Actualizar tu dossier o tu copia de LinkedIn | Las tres opciones de Perfil, la copia desde archivo o complemento, la auditoría y la revisión de los dos idiomas. |
+| Preparar el CV o una candidatura | La base general o desde archivo, la búsqueda y revisión de vacantes, la valoración, la adaptación del CV y la carta. |
+| Prepararte para una entrevista | **Convertir una experiencia en historia STAR** o **Elegir historias STAR para una vacante**. STAR organiza la situación, la tarea, la acción y el resultado. Puedes guardar una historia revisada como evidencia en Perfil. |
+| Organizar próximos pasos | **Añadir prioridades concretas a Inicio**. |
+| Crear contenido para LinkedIn | Descubrir artículos, redactar una publicación o comentario, registrar lo publicado, preparar un carrusel, reutilizar un texto, vídeo o podcast, pulir un borrador o preparar versiones en dos idiomas. |
+| Revisar actividad en LinkedIn | Analizar métricas que compartas, preparar un plan de publicaciones, redactar notas de conexión y mensajes, clasificar mensajes que pegues o preparar respuestas a comentarios. |
+
+### Cómo saber si se guardó
+
+| Modo | Qué ocurre al guardar |
+| --- | --- |
+| **Carpeta de este proyecto** | CareerKit escribe en `private-data/` de la carpeta desde la que ejecutaste `pnpm local`. |
+| **Carpeta seleccionada en el navegador** | CareerKit escribe directamente en esa carpeta con el permiso concedido. |
+| **Archivos JSON individuales** | Pulsa **Guardar JSON individual** cuando la pantalla lo indique y sustituye el archivo de tu carpeta con el descargado. Al recargar la web, vuelve a abrir los JSON que necesites. |
+
+En los dos modos de carpeta, espera a que la pantalla confirme el guardado y fíjate en el nombre del archivo. Si vas a editar también con el asistente, guarda primero el formulario y vuelve a cargarlo cuando aparezca un aviso de cambio externo.
 
 ## Si algo falla
 
@@ -97,7 +160,7 @@ Abre **Contenido de LinkedIn** para trabajar con lecturas, publicaciones y comen
 | El asistente guardó cambios y todavía ves datos anteriores | Espera al aviso de cambio externo y pulsa **Recargar**. Si abriste archivos individuales, vuelve a seleccionar la versión actual del archivo. |
 | La web avisa de que el archivo cambió mientras editabas | Conserva tu borrador antes de recargar, usando la opción de copiarlo si aparece. Revisa la versión actual y vuelve a aplicar los cambios que quieras guardar. |
 
-Cuando usas archivos individuales, **Guardar** prepara una descarga. Sustituye manualmente el archivo correspondiente en `private-data/` y vuelve a abrirlo. En este modo la web no vigila el archivo del disco mientras editas.
+En el modo de archivos individuales, la web no detecta los cambios hechos en el disco mientras editas.
 
 ## Datos y privacidad
 

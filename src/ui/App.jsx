@@ -13,6 +13,7 @@ import {
 } from '../data/storage.js'
 import { isKnownEmpty, isKnownPopulated } from './utils.js'
 import { checkEvidenceRemoval } from './profile-evidence-guard.js'
+import { BrandIcon } from './components/BrandIcon.jsx'
 import { SectionIcon } from './components/SectionIcon.jsx'
 import { WorkspaceGate } from './components/WorkspaceGate.jsx'
 import {
@@ -759,7 +760,7 @@ export default function App() {
     <div className="app-shell">
       <aside className={`sidebar ${mobileNavOpen ? 'is-open' : ''}`}>
         <div className="brand">
-          <div className="brand-mark">C</div>
+          <BrandIcon />
           <div>
             <strong>CareerKit</strong>
             <span>Tu espacio profesional</span>
@@ -876,7 +877,7 @@ export default function App() {
                   ? s.fallbackFiles.manualStatus
                   : s.workspaceGate.previewOnly}
             </span>
-            <button className="avatar">C</button>
+            <BrandIcon size={30} />
           </div>
         </header>
         <section

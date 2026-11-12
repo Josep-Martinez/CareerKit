@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { BrandIcon } from './BrandIcon.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
 
@@ -57,9 +58,7 @@ export function WorkspaceGate({
   return (
     <main className="workspace-gate">
       <div className="workspace-gate-brand">
-        <span className="brand-mark" aria-hidden="true">
-          C
-        </span>
+        <BrandIcon size={38} />
         <span>{s.brand}</span>
       </div>
       <section className="workspace-gate-card" aria-labelledby="gate-title">

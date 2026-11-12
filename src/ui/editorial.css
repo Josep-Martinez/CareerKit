@@ -32,10 +32,6 @@ select {
 .brand {
   padding-bottom: 42px;
 }
-.brand-mark {
-  background: #315c47;
-  border-radius: 10px 10px 10px 3px;
-}
 .brand strong {
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 18px;
@@ -114,10 +110,6 @@ select {
 }
 .breadcrumbs {
   color: #515e54;
-}
-.avatar {
-  background: #e8eee7;
-  color: #315c47;
 }
 .page-content {
   max-width: 1320px;
@@ -2281,15 +2273,6 @@ select {
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 18px;
   font-weight: 600;
-}
-.workspace-gate-brand .brand-mark {
-  display: grid;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  border-radius: 10px 10px 10px 3px;
-  background: #315c47;
-  color: #fffefa;
 }
 .workspace-gate-card {
   position: relative;
