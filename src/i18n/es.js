@@ -907,10 +907,12 @@ export const STRINGS = {
     openArticle: 'Leer fuente ↗',
     postTitle: 'Crear una publicación',
     postDescription:
-      'Parte de una experiencia, un proyecto, un aprendizaje, un logro o una opinión. Solo se preparará el prompt; el borrador queda en la conversación con tu asistente.',
+      'Elige si quieres contar un logro, un nuevo trabajo, un ascenso, un proyecto, una experiencia o una opinión. Solo se prepara el prompt; tu asistente redactará un borrador para que lo revises.',
     postType: 'Tipo de publicación',
     postTypes: {
       achievement: 'Logro o título',
+      'new-role': 'Nuevo trabajo o puesto',
+      promotion: 'Ascenso o promoción',
       project: 'Proyecto',
       learning: 'Experiencia o aprendizaje',
       article: 'Opinión sobre un artículo',
@@ -918,6 +920,8 @@ export const STRINGS = {
     },
     postIdeaLabels: {
       achievement: 'Qué logro o título quieres compartir',
+      'new-role': 'Qué nuevo puesto quieres anunciar',
+      promotion: 'Qué ascenso o promoción quieres compartir',
       project: 'Qué quieres contar de tu proyecto',
       learning: 'Qué experiencia o aprendizaje quieres compartir',
       article: '¿Qué opinas tú sobre este artículo?',
@@ -926,6 +930,10 @@ export const STRINGS = {
     postIdeaHints: {
       achievement:
         'Añade por qué es importante para ti y qué hecho concreto puede respaldarlo. El asistente preparará una publicación completa.',
+      'new-role':
+        'Indica el puesto, la empresa y qué puedes confirmar sobre el cambio. Añade qué te ilusiona si quieres; el asistente no inventará fechas ni motivos.',
+      promotion:
+        'Cuenta cuál es el nuevo puesto o responsabilidad y qué puedes compartir del recorrido. El asistente evitará exagerar o atribuirte méritos no confirmados.',
       project:
         'Describe el problema, tu aportación y el resultado que puedas confirmar. El asistente preparará una publicación completa.',
       learning:

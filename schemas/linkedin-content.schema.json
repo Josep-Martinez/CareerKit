@@ -58,7 +58,15 @@
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "type": {
-          "enum": ["achievement", "project", "learning", "article", "source"]
+          "enum": [
+            "achievement",
+            "new-role",
+            "promotion",
+            "project",
+            "learning",
+            "article",
+            "source"
+          ]
         },
         "language": { "enum": ["es", "en"] },
         "text": { "type": "string", "minLength": 1 },

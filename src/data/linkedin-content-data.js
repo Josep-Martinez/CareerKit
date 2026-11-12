@@ -3,6 +3,8 @@ const isRecord = (value) =>
 
 const supportedTypes = [
   'achievement',
+  'new-role',
+  'promotion',
   'project',
   'learning',
   'article',
