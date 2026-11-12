@@ -62,6 +62,7 @@ test('published post prompt records exact text and links its accepted article', 
   assert.match(prompt.text, /texto exacto/i)
   assert.match(prompt.text, /ni reescribas|no reescribas/i)
   assert.match(prompt.text, /publicationId/)
+  assert.match(prompt.text, /usa ese id tal como lo proporcioné/i)
   assert.match(prompt.text, /no publiques/i)
 })
 
@@ -72,6 +73,7 @@ test('post creation prompt prepares a strong draft for user review', () => {
 
   assert.match(prompt.text, /publicación completa/i)
   assert.match(prompt.text, /lista para publicar/i)
+  assert.match(prompt.text, /tres aperturas/i)
   assert.match(prompt.text, /no pares para preguntarme/i)
   assert.match(prompt.text, /revise|revisar/i)
   assert.match(prompt.text, /logro|proyecto|experiencia|artículo/i)

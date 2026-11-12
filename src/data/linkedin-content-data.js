@@ -74,6 +74,58 @@ export const validLinkedInContentData = (value) =>
     (Array.isArray(value.excludedArticleUrls) &&
       value.excludedArticleUrls.every(isHttpUrl)))
 
+export function patchLinkedInArticle(data, articleId, patch) {
+  let matched = false
+  const articles = (data.articles || []).map((article) => {
+    if (article.id !== articleId) return article
+    matched = true
+    return { ...article, ...patch }
+  })
+  return matched ? { ...data, articles } : data
+}
+
+export function registerLinkedInPublication(data, publication) {
+  if (!validLinkedInPublication(publication))
+    return { ok: false, reason: 'invalid-publication' }
+
+  const publications = data.publications || []
+  const existing = publications.find((item) => item.id === publication.id)
+  if (existing) {
+    const identical = JSON.stringify(existing) === JSON.stringify(publication)
+    return identical
+      ? { ok: true, duplicate: true, data }
+      : { ok: false, reason: 'id-conflict' }
+  }
+
+  let articles = data.articles || []
+  if (publication.sourceArticleId) {
+    const sourceArticle = articles.find(
+      (article) => article.id === publication.sourceArticleId,
+    )
+    if (!sourceArticle || sourceArticle.status !== 'accepted')
+      return { ok: false, reason: 'article-not-accepted' }
+    articles = articles.map((article) =>
+      article.id === publication.sourceArticleId
+        ? {
+            ...article,
+            status: 'published',
+            publicationId: publication.id,
+          }
+        : article,
+    )
+  }
+
+  return {
+    ok: true,
+    duplicate: false,
+    data: {
+      ...data,
+      articles,
+      publications: [...publications, publication],
+    },
+  }
+}
+
 export const hasLinkedInContent = (value) =>
   (value.articles || []).some((article) =>
     [

@@ -42,6 +42,13 @@ export function SectionIcon({ name }) {
         <path d="m18.5 3 .45 1.35L20.3 4.8l-1.35.45-.45 1.35-.45-1.35L16.7 4.8l1.35-.45L18.5 3Z" />
       </svg>
     )
+  if (name === 'linkedin-publications')
+    return (
+      <svg {...common}>
+        <path d="M5 4.5h11l3 3V20H5z" />
+        <path d="M16 4.5V8h3M8 11h8M8 14h8M8 17h5" />
+      </svg>
+    )
   if (name === 'cv')
     return (
       <svg {...common}>
