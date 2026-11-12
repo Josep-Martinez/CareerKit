@@ -70,6 +70,7 @@ export function LinkedInPublicationsPage({
   const [form, setForm] = useState(emptyForm)
   const [formTouched, setFormTouched] = useState(false)
   const [notice, setNotice] = useState('')
+  const [promptPreview, setPromptPreview] = useState('')
   const [savingPublication, setSavingPublication] = useState(false)
   const articles = draft.articles || []
   const publications = draft.publications || []
@@ -108,6 +109,7 @@ export function LinkedInPublicationsPage({
   function updateForm(key, nextValue) {
     setFormTouched(true)
     setNotice('')
+    setPromptPreview('')
     setForm((current) => ({ ...current, [key]: nextValue }))
   }
 
@@ -170,16 +172,26 @@ export function LinkedInPublicationsPage({
     }
   }
 
-  async function copyRegistrationPrompt() {
+  async function copyPrompt(text) {
+    setPromptPreview(text)
     try {
-      await navigator.clipboard.writeText(
-        publicationPrompt(form, selectedArticle),
-      )
+      await navigator.clipboard.writeText(text)
       onPromptCopied?.('record-linkedin-publication')
       setNotice(copy.promptCopied)
     } catch {
       setNotice(copy.copyFailed)
     }
+  }
+
+  async function copyGeneralRegistrationPrompt() {
+    const prompt = PROMPT_INBOX_ES.prompts.find(
+      (item) => item.id === 'record-linkedin-publication',
+    )
+    await copyPrompt(buildPromptText(prompt))
+  }
+
+  async function copyRegistrationPrompt() {
+    await copyPrompt(publicationPrompt(form, selectedArticle))
   }
 
   const postsByDate = [...publications].reverse()
@@ -197,8 +209,7 @@ export function LinkedInPublicationsPage({
               <button
                 type="button"
                 className="button secondary"
-                disabled={!canCopyRegistrationPrompt}
-                onClick={copyRegistrationPrompt}
+                onClick={copyGeneralRegistrationPrompt}
               >
                 {copy.copyPrompt}
               </button>
@@ -368,7 +379,7 @@ export function LinkedInPublicationsPage({
               aria-label={copy.promptPreview}
               readOnly
               rows={11}
-              value={publicationPrompt(form, selectedArticle)}
+              value={promptPreview || publicationPrompt(form, selectedArticle)}
             />
           </details>
         </section>

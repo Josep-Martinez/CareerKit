@@ -1028,8 +1028,10 @@ export const STRINGS = {
     openLink: 'Ver en LinkedIn ↗',
     copyPrompt: 'Copiar prompt para registrar publicaciones',
     promptPreview: 'Ver prompt que copiarás',
-    promptCopied: 'Prompt copiado. Pégalo junto al texto exacto ya publicado.',
-    copyFailed: 'No se pudo copiar. Selecciona y copia el prompt.',
+    promptCopied:
+      'Prompt copiado. Pégalo junto al texto exacto de una o varias publicaciones ya compartidas.',
+    copyFailed:
+      'No se pudo copiar. Abre «Ver prompt que copiarás» y selecciona el texto para copiarlo.',
     savedPublicationTitle: 'Publicación ya registrada',
     backToContent: 'Volver a Contenido de LinkedIn',
   },
