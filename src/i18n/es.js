@@ -1029,7 +1029,7 @@ export const STRINGS = {
     copyPrompt: 'Copiar prompt para registrar publicaciones',
     promptPreview: 'Ver prompt que copiarás',
     promptCopied:
-      'Prompt copiado. Pégalo junto al texto exacto de una o varias publicaciones ya compartidas.',
+      'Prompt copiado. Si el texto de alguna publicación no está incluido, pégalo también en el chat.',
     copyFailed:
       'No se pudo copiar. Abre «Ver prompt que copiarás» y selecciona el texto para copiarlo.',
     savedPublicationTitle: 'Publicación ya registrada',

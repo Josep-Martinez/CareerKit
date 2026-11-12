@@ -35,7 +35,9 @@ function publicationPrompt(form, sourceArticle) {
     '---',
     'Datos para registrar',
     `id: ${form.id}`,
-    'Confirmación: ya está publicada en LinkedIn.',
+    form.confirmed
+      ? 'Confirmación: confirmo que ya está publicada en LinkedIn.'
+      : 'Confirmación: todavía no confirmo que ya esté publicada; no la registres hasta preguntarme.',
     `Tipo: ${form.type}`,
     form.language ? `Idioma: ${form.language}` : '',
     form.publishedAt ? `Fecha publicada: ${form.publishedAt}` : '',
@@ -190,6 +192,14 @@ export function LinkedInPublicationsPage({
     await copyPrompt(buildPromptText(prompt))
   }
 
+  async function copyHeaderRegistrationPrompt() {
+    if (form.text.trim()) {
+      await copyRegistrationPrompt()
+      return
+    }
+    await copyGeneralRegistrationPrompt()
+  }
+
   async function copyRegistrationPrompt() {
     await copyPrompt(publicationPrompt(form, selectedArticle))
   }
@@ -209,7 +219,7 @@ export function LinkedInPublicationsPage({
               <button
                 type="button"
                 className="button secondary"
-                onClick={copyGeneralRegistrationPrompt}
+                onClick={copyHeaderRegistrationPrompt}
               >
                 {copy.copyPrompt}
               </button>
