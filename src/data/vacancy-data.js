@@ -15,12 +15,28 @@ export const validVacancyAvailability = (value) =>
 export const validVacancyHiringContact = (value) =>
   value === undefined ||
   (isRecord(value) &&
+    (value.contactType === undefined ||
+      ['recruiter', 'talent-acquisition', 'human-resources'].includes(
+        value.contactType,
+      )) &&
     optionalStrings(value, [
       'name',
       'role',
       'linkedinUrl',
       'contactUrl',
       'publicEmail',
+      'sourceUrl',
+      'verifiedAt',
+    ]))
+
+export const validVacancyCompanyProfile = (value) =>
+  value === undefined ||
+  (isRecord(value) &&
+    optionalStrings(value, [
+      'name',
+      'linkedinUrl',
+      'websiteUrl',
+      'summary',
       'sourceUrl',
       'verifiedAt',
     ]))

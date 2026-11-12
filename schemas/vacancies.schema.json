@@ -36,6 +36,7 @@
           "preference": { "type": "integer" },
           "featured": { "type": "boolean" },
           "availability": { "$ref": "#/$defs/availability" },
+          "companyProfile": { "$ref": "#/$defs/companyProfile" },
           "hiringContact": { "$ref": "#/$defs/hiringContact" },
           "peopleToFollow": {
             "type": "array",
@@ -64,11 +65,26 @@
     "hiringContact": {
       "type": "object",
       "properties": {
+        "contactType": {
+          "enum": ["recruiter", "talent-acquisition", "human-resources"]
+        },
         "name": { "type": "string" },
         "role": { "type": "string" },
         "linkedinUrl": { "type": "string" },
         "contactUrl": { "type": "string" },
         "publicEmail": { "type": "string" },
+        "sourceUrl": { "type": "string" },
+        "verifiedAt": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "companyProfile": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "linkedinUrl": { "type": "string" },
+        "websiteUrl": { "type": "string" },
+        "summary": { "type": "string" },
         "sourceUrl": { "type": "string" },
         "verifiedAt": { "type": "string" }
       },

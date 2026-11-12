@@ -59,6 +59,55 @@ function PublicContactLink({ href, label }) {
   ) : null
 }
 
+function CompanyProfileEditor({ value, onChange }) {
+  const copy = vacancyCopy
+  const profile = value || {}
+  const update = (field, text) => onChange({ ...profile, [field]: text })
+  return (
+    <section className="panel vacancy-company-profile-editor">
+      <CardTitle
+        title={copy.companyProfile}
+        description={copy.companyProfileDescription}
+      />
+      <TextField
+        label={copy.companyProfileName}
+        value={profile.name}
+        onChange={(text) => update('name', text)}
+      />
+      <div className="form-two">
+        <TextField
+          label={copy.companyLinkedInUrl}
+          value={profile.linkedinUrl}
+          onChange={(text) => update('linkedinUrl', text)}
+        />
+        <TextField
+          label={copy.companyWebsiteUrl}
+          value={profile.websiteUrl}
+          onChange={(text) => update('websiteUrl', text)}
+        />
+      </div>
+      <TextField
+        label={copy.companySummary}
+        rows={3}
+        value={profile.summary}
+        onChange={(text) => update('summary', text)}
+      />
+      <div className="form-two">
+        <TextField
+          label={copy.companySourceUrl}
+          value={profile.sourceUrl}
+          onChange={(text) => update('sourceUrl', text)}
+        />
+        <TextField
+          label={copy.companyVerifiedAt}
+          value={profile.verifiedAt}
+          onChange={(text) => update('verifiedAt', text)}
+        />
+      </div>
+    </section>
+  )
+}
+
 function HiringContactEditor({ value, onChange }) {
   const copy = vacancyCopy
   const contact = value || {}
@@ -69,6 +118,27 @@ function HiringContactEditor({ value, onChange }) {
         title={copy.hiringContact}
         description={copy.hiringContactDescription}
       />
+      <label className="field">
+        <span>{copy.contactType}</span>
+        <select
+          value={contact.contactType || ''}
+          onChange={(event) =>
+            onChange({
+              ...contact,
+              contactType: event.target.value || undefined,
+            })
+          }
+        >
+          <option value="">{copy.contactTypePlaceholder}</option>
+          <option value="recruiter">{copy.contactTypeLabels.recruiter}</option>
+          <option value="talent-acquisition">
+            {copy.contactTypeLabels['talent-acquisition']}
+          </option>
+          <option value="human-resources">
+            {copy.contactTypeLabels['human-resources']}
+          </option>
+        </select>
+      </label>
       <div className="form-two">
         <TextField
           label={copy.contactName}
@@ -744,6 +814,10 @@ export function VacanciesPage({
           value={detail.availability}
           onChange={(availability) => patch(detail.id, { availability })}
         />
+        <CompanyProfileEditor
+          value={detail.companyProfile}
+          onChange={(companyProfile) => patch(detail.id, { companyProfile })}
+        />
         <HiringContactEditor
           value={detail.hiringContact}
           onChange={(hiringContact) => patch(detail.id, { hiringContact })}
@@ -1081,6 +1155,7 @@ function VacancyDetail({ value, profile, onOpenAdaptation }) {
   const recommendedLabel = copy[advice.recommendedVersion] || copy.pending
   const adaptedCv = value.adaptedCv
   const availability = value.availability || {}
+  const companyProfile = value.companyProfile || {}
   const hiringContact = value.hiringContact || {}
   const peopleToFollow = Array.isArray(value.peopleToFollow)
     ? value.peopleToFollow
@@ -1221,10 +1296,49 @@ function VacancyDetail({ value, profile, onOpenAdaptation }) {
               label={vacancyCopy.openContactSource}
             />
           </section>
+          <section className="vacancy-company-profile">
+            <h3>{vacancyCopy.companyProfile}</h3>
+            {companyProfile.name ||
+            companyProfile.summary ||
+            companyProfile.linkedinUrl ||
+            companyProfile.websiteUrl ? (
+              <>
+                {companyProfile.name && <strong>{companyProfile.name}</strong>}
+                {companyProfile.summary && (
+                  <p className="preline">{companyProfile.summary}</p>
+                )}
+                <div className="vacancy-public-links">
+                  <PublicContactLink
+                    href={companyProfile.linkedinUrl}
+                    label={vacancyCopy.companyLinkedInUrl}
+                  />
+                  <PublicContactLink
+                    href={companyProfile.websiteUrl}
+                    label={vacancyCopy.companyWebsiteUrl}
+                  />
+                  <PublicContactLink
+                    href={companyProfile.sourceUrl}
+                    label={vacancyCopy.openContactSource}
+                  />
+                </div>
+                {companyProfile.verifiedAt && (
+                  <small>
+                    {vacancyCopy.contactVerifiedAt}: {companyProfile.verifiedAt}
+                  </small>
+                )}
+              </>
+            ) : (
+              <p>{vacancyCopy.noCompanyProfile}</p>
+            )}
+          </section>
           <section className="vacancy-hiring-contact">
             <h3>{vacancyCopy.hiringContact}</h3>
             {hiringContact.name || hiringContact.role ? (
               <>
+                <small>
+                  {vacancyCopy.contactTypeLabels[hiringContact.contactType] ||
+                    vacancyCopy.contactTypeLabels.unknown}
+                </small>
                 {hiringContact.name && <p>{hiringContact.name}</p>}
                 {hiringContact.role && <p>{hiringContact.role}</p>}
                 <div className="vacancy-public-links">

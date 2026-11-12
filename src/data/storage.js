@@ -11,6 +11,7 @@ import {
 } from './profile-fields.js'
 import {
   validVacancyAvailability,
+  validVacancyCompanyProfile,
   validVacancyHiringContact,
   validVacancyPeopleToFollow,
 } from './vacancy-data.js'
@@ -262,6 +263,7 @@ const validVacancyItem = (item) =>
   (item.featured === undefined || typeof item.featured === 'boolean') &&
   (item.preference === undefined || Number.isInteger(item.preference)) &&
   validVacancyAvailability(item.availability) &&
+  validVacancyCompanyProfile(item.companyProfile) &&
   validVacancyHiringContact(item.hiringContact) &&
   validVacancyPeopleToFollow(item.peopleToFollow) &&
   (item.cvAdvice === undefined || validCvAdvice(item.cvAdvice)) &&
@@ -1231,13 +1233,23 @@ function findUnknown(name, data) {
         'preference',
         'featured',
         'availability',
+        'companyProfile',
         'hiringContact',
         'peopleToFollow',
         'cvAdvice',
         'adaptedCv',
       ],
       availability: ['status', 'checkedAt', 'sourceUrl', 'notes'],
+      companyProfile: [
+        'name',
+        'linkedinUrl',
+        'websiteUrl',
+        'summary',
+        'sourceUrl',
+        'verifiedAt',
+      ],
       hiringContact: [
+        'contactType',
         'name',
         'role',
         'linkedinUrl',
@@ -1348,6 +1360,11 @@ function findUnknown(name, data) {
         item.availability,
         rules.availability,
         `items[${index}].availability`,
+      )
+      inspect(
+        item.companyProfile,
+        rules.companyProfile,
+        `items[${index}].companyProfile`,
       )
       inspect(
         item.hiringContact,
