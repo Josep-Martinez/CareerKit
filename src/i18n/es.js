@@ -5,6 +5,7 @@ export const NAV = [
   ['profile', 'Perfil y aprendizajes', '◈'],
   ['linkedin', 'LinkedIn', '↗'],
   ['linkedin-content', 'Contenido de LinkedIn', '✳'],
+  ['linkedin-publications', 'Tus publicaciones', '▤'],
   ['cv', 'CV', '▤'],
   ['vacancies', 'Vacantes', '◎'],
   ['prompts', 'Buzón', '▣'],
@@ -860,11 +861,14 @@ export const STRINGS = {
       pending: 'Por revisar',
       accepted: 'Aceptados',
       rejected: 'Descartados',
+      published: 'Publicados',
     },
     noArticles: {
       pending: 'Aquí aparecerán los artículos que el agente encuentre para ti.',
       accepted: 'Aún no has aceptado ningún artículo.',
       rejected: 'Aquí se conservarán los artículos que descartes.',
+      published:
+        'Aquí verás los artículos que ya dieron lugar a una publicación registrada.',
     },
     addManually: 'Añadir artículo manualmente',
     addArticle: 'Añadir a pendientes',
@@ -879,16 +883,27 @@ export const STRINGS = {
     articleInvalid: 'Añade título, fuente y un enlace http o https válido.',
     acceptArticle: 'Me interesa',
     rejectArticle: 'Descartar',
-    backToPending: 'Devolver a pendientes',
     restoreArticle: 'Volver a revisar',
     pendingLabel: 'Por revisar',
     acceptedLabel: 'Aceptado',
     rejectedLabel: 'Descartado',
+    publishedLabel: 'Publicado',
+    articleDecisionSaving: 'Guardando tu decisión en linkedin-content.json…',
+    articleDecisionSaved: 'Decisión guardada en linkedin-content.json.',
+    articleDecisionFailed:
+      'No se pudo guardar la decisión. Se conserva en el formulario para que puedas intentarlo de nuevo.',
+    savingOpinion: 'Guardando tu opinión antes de preparar el prompt…',
+    opinionSaveFailed:
+      'No se pudo guardar la opinión. Conserva el borrador y revisa el archivo antes de continuar.',
+    publishedArticleMessage:
+      'La publicación ya está registrada en Tus publicaciones.',
+    viewPublishedPost: 'Ver publicación registrada',
     opinionLabel: '¿Qué opinas tú?',
     opinionHint:
       'Escribe tu postura antes de pedir una publicación. El agente no inventará tu opinión.',
     opinionRequired: 'Añade tu opinión para preparar el prompt.',
     preparePost: 'Preparar publicación sobre este artículo',
+    registerPublication: 'Registrar publicación',
     openArticle: 'Leer fuente ↗',
     postTitle: 'Crear una publicación',
     postDescription:
@@ -901,9 +916,25 @@ export const STRINGS = {
       article: 'Opinión sobre un artículo',
       source: 'Reutilizar un material',
     },
-    postIdea: 'Idea, experiencia o enfoque que quieres contar',
-    postIdeaHint:
-      'Cuéntalo con tus palabras. El agente preguntará si falta un dato importante.',
+    postIdeaLabels: {
+      achievement: 'Qué logro o título quieres compartir',
+      project: 'Qué quieres contar de tu proyecto',
+      learning: 'Qué experiencia o aprendizaje quieres compartir',
+      article: '¿Qué opinas tú sobre este artículo?',
+      source: 'Qué material quieres reutilizar y qué enfoque aportarás',
+    },
+    postIdeaHints: {
+      achievement:
+        'Añade por qué es importante para ti y qué hecho concreto puede respaldarlo. El asistente preparará una publicación completa.',
+      project:
+        'Describe el problema, tu aportación y el resultado que puedas confirmar. El asistente preparará una publicación completa.',
+      learning:
+        'Cuenta la experiencia y el aprendizaje que te gustaría compartir. El asistente preparará una publicación completa.',
+      article:
+        'Aquí aparece la opinión que escribiste en la lectura aceptada. Puedes editarla antes de preparar el prompt.',
+      source:
+        'Pega o describe el material y añade tu propia perspectiva. El asistente preparará una publicación completa.',
+    },
     relatedArticle: 'Artículo aceptado',
     noAcceptedArticles: 'Todavía no hay artículos aceptados.',
     selectedEvidence:
@@ -925,7 +956,6 @@ export const STRINGS = {
       extraSearchFocus: 'Enfoque adicional para esta búsqueda',
       title: 'Información concreta para esta solicitud',
       type: 'Tipo',
-      idea: 'Idea y enfoque',
       acceptedArticle: 'Artículo aceptado',
       articleId: 'ID',
       articleTitle: 'Título',
@@ -947,6 +977,54 @@ export const STRINGS = {
     saving: 'Guardando…',
     saveFailed: 'No se pudo guardar. Conserva tu borrador y revisa el archivo.',
   },
+  linkedinPublicationsPage: {
+    eyebrow: 'ARCHIVO DE LO QUE YA COMPARTISTE',
+    title: 'Tus publicaciones',
+    subtitle:
+      'Conserva aquí el texto exacto que ya publicaste en LinkedIn. Los borradores siguen en la conversación con tu asistente.',
+    introTitle: 'Registra una publicación ya publicada',
+    intro:
+      'Pega la versión final después de compartirla en LinkedIn. CareerKit no publica ni guarda borradores como si ya fueran públicos.',
+    contentLabel: 'Texto exacto publicado en LinkedIn',
+    contentHint:
+      'Pega el texto tal como aparece publicado, con sus saltos de línea. No se reescribe.',
+    confirmPublished: 'Confirmo que este texto ya está publicado en LinkedIn.',
+    confirmBeforeSave:
+      'Confirma que ya publicaste este texto antes de registrarlo.',
+    typeLabel: 'Tipo de publicación',
+    languageLabel: 'Idioma (opcional)',
+    languageNone: 'No indicado',
+    dateLabel: 'Fecha de publicación (opcional)',
+    urlLabel: 'Enlace a la publicación (opcional)',
+    sourceLabel: 'Artículo relacionado (opcional)',
+    noSource: 'Sin artículo relacionado',
+    sourceContext: 'Tu opinión guardada sobre el artículo',
+    sourceContextHint:
+      'Se conservará como referencia; aquí pegas el texto que realmente publicaste.',
+    save: 'Guardar publicación publicada',
+    saved: 'Publicación guardada en linkedin-content.json.',
+    saveFailed:
+      'No se pudo guardar. El texto permanece en el formulario para que puedas reintentarlo.',
+    invalid: 'Añade el texto publicado y corrige cualquier enlace no válido.',
+    articleNotAccepted:
+      'El artículo relacionado ya no está aceptado. Actualiza la cola antes de enlazarlo.',
+    idConflict:
+      'No se guardó porque ya existe una publicación distinta con ese identificador.',
+    duplicate: 'Esta publicación ya estaba guardada.',
+    archiveTitle: 'Publicaciones registradas',
+    archiveDescription:
+      'Solo aparecen aquí textos que confirmaste como ya publicados.',
+    empty: 'Todavía no has registrado publicaciones.',
+    publishedBadge: 'PUBLICADA',
+    sourcePrefix: 'Basada en',
+    openLink: 'Ver en LinkedIn ↗',
+    copyPrompt: 'Copiar prompt para registrar esta publicación',
+    promptPreview: 'Ver prompt que copiarás',
+    promptCopied: 'Prompt copiado. Pégalo junto al texto exacto ya publicado.',
+    copyFailed: 'No se pudo copiar. Selecciona y copia el prompt.',
+    savedPublicationTitle: 'Publicación ya registrada',
+    backToContent: 'Volver a Contenido de LinkedIn',
+  },
   promptInbox: PROMPT_INBOX_ES,
   linkedinDates: 'LinkedIn',
   conflict:
@@ -959,6 +1037,7 @@ export const TITLES = {
   profile: 'Perfil y aprendizajes',
   linkedin: 'LinkedIn',
   'linkedin-content': 'Contenido de LinkedIn',
+  'linkedin-publications': 'Tus publicaciones',
   cv: 'CV base',
   vacancies: 'Vacantes',
   prompts: 'Buzón',

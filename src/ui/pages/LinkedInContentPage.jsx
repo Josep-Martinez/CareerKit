@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText, PROMPT_INBOX_ES } from '../../i18n/prompt-inbox.es.js'
 import { collectProfileEvidence } from '../profile-evidence.js'
+import { patchLinkedInArticle } from '../../data/linkedin-content-data.js'
 import { id } from '../utils.js'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import { TextField, useDraft } from '../components/FormPrimitives.jsx'
@@ -36,6 +37,7 @@ function statusLabel(status, copy) {
     pending: copy.pendingLabel,
     accepted: copy.acceptedLabel,
     rejected: copy.rejectedLabel,
+    published: copy.publishedLabel,
   }[status]
 }
 
@@ -52,6 +54,7 @@ export function LinkedInContentPage({
   onSave,
   onReload,
   onPromptCopied,
+  onRegisterPublication,
 }) {
   const copy = s.linkedinContentPage
   const [draft, setDraft] = useDraft(value, {
@@ -65,12 +68,14 @@ export function LinkedInContentPage({
   const [articleForm, setArticleForm] = useState(emptyArticleForm)
   const [articleError, setArticleError] = useState('')
   const [postType, setPostType] = useState('project')
-  const [postIdea, setPostIdea] = useState('')
+  const [postIdeas, setPostIdeas] = useState({})
   const [selectedArticleId, setSelectedArticleId] = useState('')
   const [selectedEvidenceIds, setSelectedEvidenceIds] = useState([])
   const [commentSource, setCommentSource] = useState('')
   const [commentOpinion, setCommentOpinion] = useState('')
   const [notice, setNotice] = useState('')
+  const [savingArticleId, setSavingArticleId] = useState('')
+  const postIdea = postIdeas[postType] || ''
 
   const articles = draft.articles || []
   const currentArticles = articles.filter(
@@ -94,12 +99,23 @@ export function LinkedInContentPage({
   const dirty = JSON.stringify(draft) !== JSON.stringify(value)
 
   const patchArticle = (articleId, patch) =>
-    setDraft((current) => ({
-      ...current,
-      articles: current.articles.map((article) =>
-        article.id === articleId ? { ...article, ...patch } : article,
-      ),
-    }))
+    setDraft((current) => patchLinkedInArticle(current, articleId, patch))
+
+  async function saveArticleStatus(article, status) {
+    if (savingArticleId) return
+    const next = patchLinkedInArticle(draft, article.id, { status })
+    setSavingArticleId(article.id)
+    setNotice(copy.articleDecisionSaving)
+    setDraft(next)
+    try {
+      const saved = await onSave(next)
+      setNotice(saved ? copy.articleDecisionSaved : copy.articleDecisionFailed)
+    } catch {
+      setNotice(copy.articleDecisionFailed)
+    } finally {
+      setSavingArticleId('')
+    }
+  }
 
   function addArticle() {
     const url = safeArticleUrl(articleForm.url.trim())
@@ -166,7 +182,7 @@ export function LinkedInContentPage({
           articleForPrompt.relevance
             ? `${copy.promptContext.articleRelevance}: ${articleForPrompt.relevance}`
             : '',
-          `${copy.promptContext.userOpinion}: ${(articleForPrompt.opinion || '').trim()}`,
+          `${copy.promptContext.userOpinion}: ${postIdea.trim()}`,
         ]
           .filter(Boolean)
           .join('\n')
@@ -178,8 +194,8 @@ export function LinkedInContentPage({
           prompt.text,
           `---\n${copy.promptContext.title}`,
           `${copy.promptContext.type}: ${copy.postTypes[postType]}`,
-          postIdea.trim()
-            ? `${copy.promptContext.idea}:\n${postIdea.trim()}`
+          postType !== 'article' && postIdea.trim()
+            ? `${copy.postIdeaLabels[postType]}:\n${postIdea.trim()}`
             : '',
           articleBlock
             ? `${copy.promptContext.acceptedArticle}:\n${articleBlock}`
@@ -220,20 +236,27 @@ export function LinkedInContentPage({
   async function saveQueue() {
     setNotice('')
     const result = await onSave(draft)
-    if (result?.saved) setNotice(copy.saved)
-    else if (result?.fallback) setNotice(copy.prepared)
+    if (result === true) setNotice(copy.saved)
     else setNotice(copy.saveFailed)
   }
 
-  function startArticlePost(article) {
+  async function startArticlePost(article) {
     if (!(article.opinion || '').trim()) {
       setQueueView('accepted')
       setNotice(copy.opinionRequired)
       return
     }
+    if (dirty) {
+      setNotice(copy.savingOpinion)
+      const saved = await onSave(draft)
+      if (!saved) {
+        setNotice(copy.opinionSaveFailed)
+        return
+      }
+    }
     setSelectedArticleId(article.id)
     setPostType('article')
-    setPostIdea('')
+    setPostIdeas((current) => ({ ...current, article: article.opinion || '' }))
     setFlow('posts')
     setNotice('')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -241,7 +264,7 @@ export function LinkedInContentPage({
 
   const postCanCopy =
     postType === 'article'
-      ? Boolean((selectedArticle?.opinion || '').trim())
+      ? Boolean(selectedArticle && postIdea.trim())
       : Boolean(postIdea.trim())
 
   return (
@@ -271,6 +294,11 @@ export function LinkedInContentPage({
         savedAt={savedAt}
         onReload={onReload}
       />
+      {notice && (
+        <p className="content-linkedin-notice" role="status" aria-live="polite">
+          {notice}
+        </p>
+      )}
       <div
         className="content-linkedin-flow-tabs"
         role="group"
@@ -487,8 +515,9 @@ export function LinkedInContentPage({
                           <button
                             type="button"
                             className="button primary small"
+                            disabled={Boolean(savingArticleId)}
                             onClick={() =>
-                              patchArticle(article.id, { status: 'accepted' })
+                              saveArticleStatus(article, 'accepted')
                             }
                           >
                             {copy.acceptArticle}
@@ -496,8 +525,9 @@ export function LinkedInContentPage({
                           <button
                             type="button"
                             className="button quiet small"
+                            disabled={Boolean(savingArticleId)}
                             onClick={() =>
-                              patchArticle(article.id, { status: 'rejected' })
+                              saveArticleStatus(article, 'rejected')
                             }
                           >
                             {copy.rejectArticle}
@@ -508,9 +538,8 @@ export function LinkedInContentPage({
                         <button
                           type="button"
                           className="button secondary small"
-                          onClick={() =>
-                            patchArticle(article.id, { status: 'pending' })
-                          }
+                          disabled={Boolean(savingArticleId)}
+                          onClick={() => saveArticleStatus(article, 'pending')}
                         >
                           {copy.restoreArticle}
                         </button>
@@ -530,18 +559,37 @@ export function LinkedInContentPage({
                         <button
                           type="button"
                           className="button secondary small"
+                          disabled={Boolean(savingArticleId)}
                           onClick={() => startArticlePost(article)}
                         >
                           {copy.preparePost}
                         </button>
                         <button
                           type="button"
-                          className="button quiet small"
-                          onClick={() =>
-                            patchArticle(article.id, { status: 'pending' })
-                          }
+                          className="button primary small"
+                          onClick={() => onRegisterPublication?.(article.id)}
                         >
-                          {copy.backToPending}
+                          {copy.registerPublication}
+                        </button>
+                        <button
+                          type="button"
+                          className="button quiet small"
+                          disabled={Boolean(savingArticleId)}
+                          onClick={() => saveArticleStatus(article, 'rejected')}
+                        >
+                          {copy.rejectArticle}
+                        </button>
+                      </div>
+                    )}
+                    {article.status === 'published' && (
+                      <div className="content-linkedin-opinion">
+                        <p>{copy.publishedArticleMessage}</p>
+                        <button
+                          type="button"
+                          className="button secondary small"
+                          onClick={() => onRegisterPublication?.(article.id)}
+                        >
+                          {copy.viewPublishedPost}
                         </button>
                       </div>
                     )}
@@ -583,7 +631,15 @@ export function LinkedInContentPage({
               <span>{copy.postType}</span>
               <select
                 value={postType}
-                onChange={(event) => setPostType(event.target.value)}
+                onChange={(event) => {
+                  const nextType = event.target.value
+                  setPostType(nextType)
+                  if (nextType === 'article' && selectedArticle)
+                    setPostIdeas((current) => ({
+                      ...current,
+                      article: selectedArticle.opinion || '',
+                    }))
+                }}
               >
                 {Object.entries(copy.postTypes).map(([key, label]) => (
                   <option key={key} value={key}>
@@ -597,7 +653,17 @@ export function LinkedInContentPage({
                 <span>{copy.relatedArticle}</span>
                 <select
                   value={selectedArticleId}
-                  onChange={(event) => setSelectedArticleId(event.target.value)}
+                  onChange={(event) => {
+                    const nextId = event.target.value
+                    setSelectedArticleId(nextId)
+                    const article = acceptedArticles.find(
+                      (item) => item.id === nextId,
+                    )
+                    setPostIdeas((current) => ({
+                      ...current,
+                      article: article?.opinion || '',
+                    }))
+                  }}
                 >
                   <option value="">{copy.noAcceptedArticles}</option>
                   {acceptedArticles.map((article) => (
@@ -610,11 +676,13 @@ export function LinkedInContentPage({
             )}
           </div>
           <TextField
-            label={copy.postIdea}
+            label={copy.postIdeaLabels[postType]}
             rows={5}
             value={postIdea}
-            onChange={setPostIdea}
-            hint={copy.postIdeaHint}
+            onChange={(next) =>
+              setPostIdeas((current) => ({ ...current, [postType]: next }))
+            }
+            hint={copy.postIdeaHints[postType]}
           />
           {evidence.length > 0 ? (
             <fieldset className="content-linkedin-evidence-picker">
@@ -642,13 +710,11 @@ export function LinkedInContentPage({
           ) : (
             <p className="quiet-empty">{copy.noEvidence}</p>
           )}
-          {postType === 'article' &&
-            selectedArticle &&
-            !(selectedArticle.opinion || '').trim() && (
-              <p className="content-linkedin-error" role="status">
-                {copy.opinionRequired}
-              </p>
-            )}
+          {postType === 'article' && selectedArticle && !postIdea.trim() && (
+            <p className="content-linkedin-error" role="status">
+              {copy.opinionRequired}
+            </p>
+          )}
           <button
             type="button"
             className="button primary"

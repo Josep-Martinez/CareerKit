@@ -15,6 +15,10 @@ import {
   validVacancyPeopleToFollow,
 } from './vacancy-data.js'
 import {
+  hasLinkedInContent,
+  validLinkedInContentData,
+} from './linkedin-content-data.js'
+import {
   forgetDirectoryHandle,
   loadDirectoryHandle,
   rememberDirectoryHandle,
@@ -231,33 +235,6 @@ const validAdaptedCv = (value) =>
   ['es', 'en'].includes(value.language) &&
   (value.layout === undefined ||
     ['single-column', 'two-columns'].includes(value.layout))
-const validLinkedInContentArticle = (item) => {
-  if (!isRecord(item)) return false
-  let url
-  try {
-    url = new URL(item.url)
-  } catch {
-    return false
-  }
-  return (
-    typeof item.id === 'string' &&
-    item.id.length > 0 &&
-    typeof item.title === 'string' &&
-    Boolean(item.title.trim()) &&
-    typeof item.source === 'string' &&
-    Boolean(item.source.trim()) &&
-    ['http:', 'https:'].includes(url.protocol) &&
-    optionalStrings(item, [
-      'publishedAt',
-      'verifiedAt',
-      'relevance',
-      'opinion',
-    ]) &&
-    (item.verified === undefined || typeof item.verified === 'boolean') &&
-    (item.topics === undefined || isStringList(item.topics)) &&
-    ['pending', 'accepted', 'rejected'].includes(item.status)
-  )
-}
 const validVacancyItem = (item) =>
   isRecord(item) &&
   typeof item.id === 'string' &&
@@ -409,8 +386,7 @@ const validators = {
         ['profile', 'linkedin', 'cv', 'vacancies'].includes(item.section) &&
         (item.order === undefined || Number.isInteger(item.order)),
     ),
-  'linkedin-content': (d) =>
-    Array.isArray(d.articles) && d.articles.every(validLinkedInContentArticle),
+  'linkedin-content': validLinkedInContentData,
 }
 export const validateModule = (name, value) => {
   try {
@@ -524,20 +500,7 @@ export function hasModuleContent(name, value) {
     hasContent = value.items.some((item) =>
       ['title', 'reason', 'date'].some((key) => hasMeaningfulValue(item[key])),
     )
-  else if (name === 'linkedin-content')
-    hasContent = value.articles.some((article) =>
-      [
-        'title',
-        'source',
-        'url',
-        'publishedAt',
-        'verified',
-        'verifiedAt',
-        'relevance',
-        'topics',
-        'opinion',
-      ].some((key) => hasMeaningfulValue(article[key])),
-    )
+  else if (name === 'linkedin-content') hasContent = hasLinkedInContent(value)
   return Boolean(hasContent || findUnknown(name, value).length)
 }
 
@@ -1180,7 +1143,12 @@ function findUnknown(name, data) {
     cv: ['schemaVersion', 'versions', 'previousVersion'],
     vacancies: ['schemaVersion', 'items'],
     priorities: ['schemaVersion', 'items'],
-    'linkedin-content': ['schemaVersion', 'articles'],
+    'linkedin-content': [
+      'schemaVersion',
+      'articles',
+      'publications',
+      'excludedArticleUrls',
+    ],
   }[name]
   const unknown = Object.keys(data).filter((key) => !known.includes(key))
   const rules = {
@@ -1312,6 +1280,16 @@ function findUnknown(name, data) {
         'topics',
         'status',
         'opinion',
+        'publicationId',
+      ],
+      publication: [
+        'id',
+        'type',
+        'language',
+        'text',
+        'publishedAt',
+        'url',
+        'sourceArticleId',
       ],
     },
     cv: { version: ['masterText', 'lastUpdated', 'lastReviewed'] },
@@ -1391,6 +1369,10 @@ function findUnknown(name, data) {
   if (name === 'linkedin-content')
     (data.articles || []).forEach((article, index) =>
       inspect(article, rules.article, `articles[${index}]`),
+    )
+  if (name === 'linkedin-content')
+    (data.publications || []).forEach((publication, index) =>
+      inspect(publication, rules.publication, `publications[${index}]`),
     )
   return unknown
 }
