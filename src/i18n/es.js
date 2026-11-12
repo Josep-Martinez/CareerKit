@@ -1021,7 +1021,7 @@ export const STRINGS = {
     duplicate: 'Esta publicación ya estaba guardada.',
     archiveTitle: 'Publicaciones registradas',
     archiveDescription:
-      'Solo aparecen aquí textos que confirmaste como ya publicados.',
+      'Aquí aparecen los textos exactos que ya compartiste y guardaste en CareerKit.',
     empty: 'Todavía no has registrado publicaciones.',
     publishedBadge: 'PUBLICADA',
     sourcePrefix: 'Basada en',

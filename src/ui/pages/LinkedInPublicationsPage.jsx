@@ -35,9 +35,7 @@ function publicationPrompt(form, sourceArticle) {
     '---',
     'Datos para registrar',
     `id: ${form.id}`,
-    form.confirmed
-      ? 'Confirmación: confirmo que ya está publicada en LinkedIn.'
-      : 'Confirmación: todavía no confirmo que ya esté publicada; no la registres hasta preguntarme.',
+    'Contexto: comparto este texto para registrar una publicación ya publicada en LinkedIn.',
     `Tipo: ${form.type}`,
     form.language ? `Idioma: ${form.language}` : '',
     form.publishedAt ? `Fecha publicada: ${form.publishedAt}` : '',
@@ -90,7 +88,7 @@ export function LinkedInPublicationsPage({
       )
     : null
   const canCopyRegistrationPrompt =
-    !savingPublication && !saving && form.confirmed && Boolean(form.text.trim())
+    !savingPublication && !saving && Boolean(form.text.trim())
   const formDirty = formTouched
   const dirty = JSON.stringify(draft) !== JSON.stringify(value)
 
