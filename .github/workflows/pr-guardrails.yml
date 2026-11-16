@@ -21,6 +21,10 @@ jobs:
             const ownerLogin = 'Josep-Martinez'
             const pullRequest = context.payload.pull_request
             const isOwner = pullRequest.user.login === ownerLogin
+            const isDependabotUpdate =
+              pullRequest.user.login === 'dependabot[bot]' &&
+              pullRequest.user.type === 'Bot' &&
+              pullRequest.head.repo?.full_name === pullRequest.base.repo.full_name
             const errors = []
 
             if (!isOwner) {
@@ -36,6 +40,19 @@ jobs:
 
               if (protectedFiles.length > 0) {
                 errors.push(`Solo Josep puede cambiar .github/: ${protectedFiles.join(', ')}`)
+              }
+
+              const dependencyFiles = new Set(['package.json', 'pnpm-lock.yaml'])
+              if (
+                isDependabotUpdate &&
+                files.length > 0 &&
+                files.every(
+                  ({ filename, status }) =>
+                    dependencyFiles.has(filename) && status === 'modified',
+                )
+              ) {
+                core.info('Dependabot solo modifica archivos de dependencias. Se acepta su descripción automática.')
+                return
               }
             }
 
