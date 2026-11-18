@@ -430,8 +430,14 @@
   color: var(--muted);
 }
 
-.vacancy-cv-preview .cv-document {
+.vacancy-adapted-cv .cv-document {
   margin: 0.75rem auto 0;
+}
+
+.vacancy-adapted-cv-language {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-weight: 600;
 }
 
 @media (max-width: 48rem) {
