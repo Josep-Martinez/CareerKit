@@ -13,6 +13,7 @@ import {
 import { id } from '../utils.js'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import { TextField, useDraft } from '../components/FormPrimitives.jsx'
+import { Modal } from '../components/Modal.jsx'
 
 const emptyForm = () => ({
   id: id(),
@@ -83,6 +84,7 @@ export function LinkedInPublicationsPage({
   const [savingPublication, setSavingPublication] = useState(false)
   const [editingPublicationId, setEditingPublicationId] = useState('')
   const [publicationEdit, setPublicationEdit] = useState(null)
+  const [expandedDraftId, setExpandedDraftId] = useState('')
   const articles = draft.articles || []
   const publications = draft.publications || []
   const postDrafts = (draft.drafts || []).slice().reverse()
@@ -236,13 +238,13 @@ export function LinkedInPublicationsPage({
   }
 
   async function saveDraft(postDraft, status = postDraft.status) {
-    if (savingPublication || saving) return
+    if (savingPublication || saving) return false
     const result = updateLinkedInDraft(draft, { ...postDraft, status })
     if (!result.ok) {
       setNotice(copy.draftInvalid)
-      return
+      return false
     }
-    await persistChange(
+    return persistChange(
       result.data,
       status === 'ready-to-post' ? copy.draftConfirmed : copy.draftSaved,
     )
@@ -365,6 +367,9 @@ export function LinkedInPublicationsPage({
   }
 
   const postsByDate = sortLinkedInPublications(publications)
+  const expandedDraft = postDrafts.find(
+    (postDraft) => postDraft.id === expandedDraftId,
+  )
 
   return (
     <>
@@ -625,14 +630,30 @@ export function LinkedInPublicationsPage({
                         {copy.sourcePrefix}: {source.title}
                       </p>
                     )}
-                    <TextField
-                      label={copy.draftTextLabel}
-                      rows={10}
-                      lang="en"
-                      value={postDraft.text}
-                      onChange={(text) => editDraftText(postDraft.id, text)}
-                      hint={copy.draftEditHint}
-                    />
+                    <div className="field publication-draft-inline-field">
+                      <div className="publication-draft-field-toolbar">
+                        <label htmlFor={`publication-draft-${postDraft.id}`}>
+                          {copy.draftTextLabel}
+                        </label>
+                        <button
+                          type="button"
+                          className="button secondary small"
+                          onClick={() => setExpandedDraftId(postDraft.id)}
+                        >
+                          {copy.openDraftEditor}
+                        </button>
+                      </div>
+                      <textarea
+                        id={`publication-draft-${postDraft.id}`}
+                        lang="en"
+                        rows={10}
+                        value={postDraft.text}
+                        onChange={(event) =>
+                          editDraftText(postDraft.id, event.target.value)
+                        }
+                      />
+                      <small>{copy.draftEditHint}</small>
+                    </div>
                     <div className="content-linkedin-draft-actions">
                       <button
                         type="button"
@@ -835,6 +856,55 @@ export function LinkedInPublicationsPage({
           </div>
         )}
       </section>
+      {expandedDraft && (
+        <Modal
+          className="publication-draft-editor-modal"
+          labelledBy="publication-draft-editor-title"
+          onClose={() => setExpandedDraftId('')}
+        >
+          <button
+            className="modal-close"
+            type="button"
+            aria-label={copy.closeDraftEditor}
+            onClick={() => setExpandedDraftId('')}
+          >
+            ×
+          </button>
+          <span className="eyebrow">{copy.draftReviewBadge}</span>
+          <h2 id="publication-draft-editor-title">{copy.draftEditorTitle}</h2>
+          <p className="publication-draft-editor-description">
+            {copy.draftEditorDescription}
+          </p>
+          <TextField
+            className="publication-draft-editor-field"
+            label={copy.draftTextLabel}
+            rows={20}
+            lang="en"
+            value={expandedDraft.text}
+            onChange={(text) => editDraftText(expandedDraft.id, text)}
+            hint={copy.draftEditHint}
+          />
+          <div className="modal-actions publication-draft-editor-actions">
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => setExpandedDraftId('')}
+            >
+              {copy.closeDraftEditor}
+            </button>
+            <button
+              type="button"
+              className="button primary"
+              disabled={savingPublication || saving}
+              onClick={async () => {
+                if (await saveDraft(expandedDraft)) setExpandedDraftId('')
+              }}
+            >
+              {copy.saveDraftEdit}
+            </button>
+          </div>
+        </Modal>
+      )}
     </>
   )
 }

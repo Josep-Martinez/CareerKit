@@ -228,7 +228,7 @@ export function LinkedInContentPage({
         prompt.text,
         `---\n${copy.promptContext.commentMaterial}`,
         `${copy.promptContext.postText}:\n${commentSource.trim()}`,
-        `${copy.promptContext.commentOpinion}:\n${commentOpinion.trim() || copy.promptContext.askForCommentOpinion}`,
+        `${copy.promptContext.commentOpinion}:\n${commentOpinion.trim() || copy.promptContext.suggestCommentAngleWhenMissing}`,
       ].join('\n\n'),
     })
   }
