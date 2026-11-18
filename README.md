@@ -99,13 +99,13 @@ Mira la guía de progreso para saber qué puedes preparar a continuación. Si fa
 
 ### Rellenar CareerKit con la exportación de LinkedIn
 
-Si todavía no has añadido información a CareerKit, esta es la forma más rápida de completar **Perfil**, **LinkedIn** y el archivo de **Tus publicaciones** en una sola preparación. Si tienes el ZIP, en **Inicio** pulsa el paso destacado para abrir directamente el prompt. También puedes encontrarlo en **Buzón** con el nombre **Completar Perfil, LinkedIn y publicaciones desde el ZIP de LinkedIn**. Desde un ordenador, solicita una copia de tus datos:
+Si todavía no has añadido información a CareerKit, esta es la forma más rápida de completar **Perfil**, **LinkedIn** y el archivo de **Tus publicaciones** en una sola preparación. Si tienes el ZIP, en **Inicio** pulsa el paso destacado para abrir directamente el prompt. También puedes encontrarlo en **Buzón** con el nombre **Completar Perfil, LinkedIn y publicaciones desde el ZIP de LinkedIn**. Solicita la copia desde un ordenador personal: LinkedIn indica que esta descarga no está disponible en la versión móvil y recomienda no usar un ordenador público.
 
 1. En LinkedIn, pulsa **Yo → Ajustes y privacidad**.
 2. Abre **Privacidad de datos → Descargar tus datos**.
 3. Selecciona **Descarga un archivo de datos más grande**, la opción que incluye contactos, verificaciones, historial y otra información.
-4. Pulsa **Solicitar archivo** y completa la confirmación que LinkedIn solicite.
-5. Espera el aviso por correo. Puede tardar unas horas, hasta 24 horas según LinkedIn. Vuelve a esa misma ventana cuando esté preparado y descarga el ZIP. El enlace de descarga está disponible durante 72 horas. [Ayuda oficial de LinkedIn](https://www.linkedin.com/help/linkedin/answer/a1339364).
+4. Pulsa **Solicitar archivo** (LinkedIn puede mostrar **Seleccionar archivo**) y completa la confirmación que solicite.
+5. Espera el correo de LinkedIn: la descarga grande puede tardar hasta 24 horas. Cuando llegue, vuelve a **esa misma pantalla** de descarga para ver si ya aparece el archivo. Si no lo ves allí, abre el enlace de descarga del correo. Descárgalo dentro de las 72 horas siguientes; después el enlace caduca. [Ayuda oficial de LinkedIn](https://www.linkedin.com/help/linkedin/answer/a1339364?lang=es).
 6. En **Buzón**, copia **Completar Perfil, LinkedIn y publicaciones desde el ZIP de LinkedIn**. Pégalo en tu asistente y adjunta el ZIP. También puedes darle la ruta local del archivo descargado si el asistente puede abrirla.
 7. Revisa las aclaraciones que te pida. Al terminar, abre **Perfil**, **LinkedIn** y **Tus publicaciones** y recarga los archivos cuando CareerKit avise.
 

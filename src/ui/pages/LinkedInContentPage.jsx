@@ -29,6 +29,8 @@ const emptyArticleForm = () => ({
   topics: '',
 })
 
+const emptyMentionTarget = () => ({ id: id(), profile: '', context: '' })
+
 function fieldLines(values = []) {
   return values.filter((value) => typeof value === 'string' && value.trim())
 }
@@ -71,7 +73,9 @@ export function LinkedInContentPage({
   const [articleError, setArticleError] = useState('')
   const [postType, setPostType] = useState('project')
   const [postIdeas, setPostIdeas] = useState({})
-  const [peopleToMention, setPeopleToMention] = useState('')
+  const [mentionTargets, setMentionTargets] = useState(() => [
+    emptyMentionTarget(),
+  ])
   const [selectedArticleId, setSelectedArticleId] = useState('')
   const [selectedEvidenceIds, setSelectedEvidenceIds] = useState([])
   const [commentSource, setCommentSource] = useState('')
@@ -80,6 +84,14 @@ export function LinkedInContentPage({
   const [postPromptCopied, setPostPromptCopied] = useState(false)
   const [savingArticleId, setSavingArticleId] = useState('')
   const postIdea = postIdeas[postType] || ''
+
+  function updateMentionTarget(targetId, field, nextValue) {
+    setMentionTargets((current) =>
+      current.map((target) =>
+        target.id === targetId ? { ...target, [field]: nextValue } : target,
+      ),
+    )
+  }
 
   const articles = draft.articles || []
   const postDraftCount = (draft.drafts || []).length
@@ -195,6 +207,21 @@ export function LinkedInContentPage({
           .filter(Boolean)
           .join('\n')
       : ''
+    const mentionBlock = mentionTargets
+      .map((target, index) => {
+        const profile = target.profile.trim()
+        const context = target.context.trim()
+        if (!profile && !context) return ''
+        return [
+          `${copy.mentionPerson} ${index + 1}`,
+          profile ? `${copy.mentionProfile}: ${profile}` : '',
+          context ? `${copy.mentionContext}: ${context}` : '',
+        ]
+          .filter(Boolean)
+          .join('\n')
+      })
+      .filter(Boolean)
+      .join('\n\n')
     return buildPromptText(
       { ...prompt, skillPaths: skills },
       {
@@ -208,8 +235,8 @@ export function LinkedInContentPage({
           articleBlock
             ? `${copy.promptContext.acceptedArticle}:\n${articleBlock}`
             : '',
-          peopleToMention.trim()
-            ? `${copy.promptContext.peopleToMention}:\n${peopleToMention.trim()}`
+          mentionBlock
+            ? `${copy.promptContext.peopleToMention}:\n${mentionBlock}`
             : '',
           selectedEvidenceIds.length
             ? `${copy.promptContext.evidenceIds}: ${selectedEvidenceIds.join(', ')}`
@@ -742,13 +769,91 @@ export function LinkedInContentPage({
             }
             hint={copy.postIdeaHints[postType]}
           />
-          <TextField
-            label={copy.peopleToMention}
-            rows={3}
-            value={peopleToMention}
-            onChange={setPeopleToMention}
-            hint={copy.peopleToMentionHint}
-          />
+          <section
+            className="content-linkedin-mentions"
+            aria-labelledby="content-linkedin-mentions-title"
+          >
+            <div className="section-title-row">
+              <div>
+                <h3 id="content-linkedin-mentions-title">
+                  {copy.peopleToMention}
+                </h3>
+              </div>
+              <button
+                type="button"
+                className="button secondary small"
+                onClick={() =>
+                  setMentionTargets((current) => [
+                    ...current,
+                    emptyMentionTarget(),
+                  ])
+                }
+              >
+                + {copy.addMentionPerson}
+              </button>
+            </div>
+            <div className="content-linkedin-mention-list">
+              {mentionTargets.map((target, index) => (
+                <div className="content-linkedin-mention-row" key={target.id}>
+                  <label className="field">
+                    <span>
+                      {copy.mentionProfile} {index + 1}
+                    </span>
+                    <input
+                      type="text"
+                      value={target.profile}
+                      onChange={(event) =>
+                        updateMentionTarget(
+                          target.id,
+                          'profile',
+                          event.target.value,
+                        )
+                      }
+                      placeholder={copy.mentionProfilePlaceholder}
+                    />
+                  </label>
+                  <span
+                    className="content-linkedin-mention-arrow"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                  <label className="field">
+                    <span>{copy.mentionContext}</span>
+                    <input
+                      type="text"
+                      value={target.context}
+                      onChange={(event) =>
+                        updateMentionTarget(
+                          target.id,
+                          'context',
+                          event.target.value,
+                        )
+                      }
+                      placeholder={copy.mentionContextPlaceholder}
+                    />
+                  </label>
+                  {mentionTargets.length > 1 && (
+                    <button
+                      type="button"
+                      className="button secondary small content-linkedin-remove-mention"
+                      aria-label={`${copy.removeMentionPerson} ${index + 1}`}
+                      onClick={() =>
+                        setMentionTargets((current) =>
+                          current.filter((item) => item.id !== target.id),
+                        )
+                      }
+                    >
+                      {copy.removeMentionPerson}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="content-linkedin-mentions-note">
+              {copy.peopleToMentionHint}
+            </p>
+          </section>
           {evidence.length > 0 ? (
             <fieldset className="content-linkedin-evidence-picker">
               <legend>{copy.selectedEvidence}</legend>

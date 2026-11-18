@@ -1018,7 +1018,14 @@ export const STRINGS = {
       'Se compartirán solo los identificadores seleccionados. El agente comprobará esos hechos en el archivo local.',
     peopleToMention: '¿A quién te gustaría mencionar? (opcional)',
     peopleToMentionHint:
-      'Indica el nombre, a qué se dedica y por qué encaja mencionarle. Si son varias personas, escribe una por línea. CareerKit no añade etiquetas reales de LinkedIn; podrás etiquetarlas al publicar.',
+      'Cada fila relaciona un nombre o perfil público con quién es o qué ha hecho. Añade una fila por persona. CareerKit no añade etiquetas reales de LinkedIn; podrás etiquetarlas al publicar.',
+    mentionProfile: 'Nombre o perfil público de LinkedIn',
+    mentionProfilePlaceholder: 'Nombre o enlace de LinkedIn',
+    mentionContext: 'Quién es o qué ha hecho',
+    mentionContextPlaceholder: 'Cargo, trayectoria o aportación relevante',
+    addMentionPerson: 'Añadir persona',
+    removeMentionPerson: 'Quitar persona',
+    mentionPerson: 'Persona',
     copyPostPrompt: 'Copiar prompt para crear borrador en inglés',
     commentTitle: 'Preparar un comentario',
     commentDescription:
@@ -1045,7 +1052,8 @@ export const STRINGS = {
       articleRelevance: 'Relevancia',
       userOpinion: 'Mi opinión',
       evidenceIds: 'IDs de evidencias confirmadas seleccionadas en Perfil',
-      peopleToMention: 'Personas que me gustaría mencionar y su contexto',
+      peopleToMention:
+        'Personas que me gustaría mencionar y contexto de cada una',
       commentMaterial: 'Material y aportación para esta solicitud',
       postText: 'Texto o enlace público de la publicación',
       commentOpinion: 'Mi opinión o aportación',
