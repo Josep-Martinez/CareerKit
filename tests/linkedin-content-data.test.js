@@ -284,3 +284,12 @@ test('orders Spanish numeric dates by day and month without US interpretation', 
   )
   assert.equal(items[0].id, 'older')
 })
+
+test('orders LinkedIn relative labels newest first, including edited labels', () => {
+  const labels = ['2 años • Editado', '7 meses • Editado', '1 año', '3 meses', '2 meses', '9 meses', '8 meses', '2 sem', '11 meses', '6 días']
+  const items = labels.map((publishedAt, index) => ({ id: String(index), text: 'Post', publishedAt }))
+  assert.deepEqual(
+    sortLinkedInPublications(items).map(item => item.publishedAt),
+    ['6 días', '2 sem', '2 meses', '3 meses', '7 meses • Editado', '8 meses', '9 meses', '11 meses', '1 año', '2 años • Editado'],
+  )
+})

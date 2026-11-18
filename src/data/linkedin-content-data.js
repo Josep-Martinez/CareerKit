@@ -149,9 +149,30 @@ const publicationTitle = (publication) =>
   publication.type ||
   publication.id
 
-function publicationTimestamp(value) {
+function publicationTimestamp(value, now) {
   if (typeof value !== 'string' || !value.trim()) return Number.NaN
   const date = value.trim()
+  const relative = date
+    .toLowerCase()
+    .match(
+      /^(?:hace\s+)?(\d+)\s*(minutos?|mins?|hours?|horas?|h|days?|días?|dias?|d|weeks?|semanas?|sem|w|months?|meses?|mes|mo|years?|años?|anos?|y)(?=\s|[•·]|$)/,
+    )
+  if (relative) {
+    const amount = Number(relative[1])
+    const unit = relative[2]
+    const days = /^(year|año|ano|y)/.test(unit)
+      ? 365
+      : /^(month|mes|mo)/.test(unit)
+        ? 30
+        : /^(week|sem|w)/.test(unit)
+          ? 7
+          : /^(hour|hora|h)/.test(unit)
+            ? 1 / 24
+            : /^(min)/.test(unit)
+              ? 1 / 1440
+              : 1
+    return now - amount * days * 86400000
+  }
   const european = date.match(/^(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{4})$/)
   if (european) {
     const [, day, month, year] = european.map(Number)
@@ -167,11 +188,12 @@ function publicationTimestamp(value) {
 }
 
 export function sortLinkedInPublications(publications = []) {
+  const now = Date.now()
   const dated = []
   const undated = []
 
   for (const publication of publications) {
-    const timestamp = publicationTimestamp(publication.publishedAt)
+    const timestamp = publicationTimestamp(publication.publishedAt, now)
     if (Number.isFinite(timestamp)) dated.push({ publication, timestamp })
     else undated.push(publication)
   }
