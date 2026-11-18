@@ -1079,11 +1079,6 @@ export default function App() {
             <VacanciesPage
               {...draftProps('vacancies')}
               key={`${editorReset.vacancies || 0}:${vacancyId || ''}`}
-              onOpenResearch={(promptId = 'research-vacancies') => {
-                if (!navigateTo('prompts')) return
-                setFocusedPromptId(promptId)
-                showNotice('')
-              }}
               value={store.data.vacancies}
               profile={store.data.profile}
               onOpenAdaptation={openVacancyAdaptation}

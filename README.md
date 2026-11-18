@@ -25,9 +25,9 @@ flowchart TD
 2. Abre **esa carpeta** como proyecto en un asistente de programación con acceso local, como Codex o Claude Code. Un chat que solo recibe texto no puede preparar archivos en tu ordenador.
 3. Pega este mensaje en el chat del proyecto:
 
-   > Prepara CareerKit en este ordenador. Lee AGENTS.md. Si falta Node.js o pnpm, guíame para instalarlos con pasos sencillos. Instala las dependencias con pnpm install --frozen-lockfile, prepara solo los archivos vacíos que falten con pnpm data:init y abre la web con pnpm local. Dame la dirección cuando esté lista. Si aparece la pantalla para conectar la carpeta, indícame cómo seleccionar private-data y conceder el permiso. Conserva los datos que ya existan y no publiques el proyecto.
+   > Prepara CareerKit en este ordenador. Lee AGENTS.md. Si falta Node.js o pnpm, guíame para instalarlos con pasos sencillos. Instala las dependencias con pnpm install --frozen-lockfile y prepara solo los archivos vacíos que falten con pnpm data:init. Después inicia la web con pnpm local y ábrela directamente en el navegador habitual del ordenador, fuera del asistente: usa el navegador predeterminado del sistema y no una vista previa, panel ni navegador integrado. No te limites a mostrarme un enlace. Espera a que http://127.0.0.1:5173/ esté disponible, abre esa dirección y dime que ya puedo usar CareerKit en el navegador. Deja la terminal abierta. Si aparece la pantalla para conectar la carpeta, indícame cómo seleccionar private-data y conceder el permiso. Conserva los datos que ya existan y no publiques el proyecto.
 
-4. Abre [CareerKit en tu ordenador](http://127.0.0.1:5173/). Si ya ves Inicio, puedes empezar. Si aparece **Conectar la carpeta de este proyecto**, puedes usarla para autorizar la carpeta que CareerKit ha encontrado. Para elegirla tú, pulsa **Conectar carpeta de datos**, selecciona **private-data** dentro del proyecto y acepta el permiso del navegador. Si te ofrece preparar archivos que faltan, confirma la creación de las plantillas vacías.
+4. Abre [CareerKit en tu navegador habitual](http://127.0.0.1:5173/), fuera del asistente. Si ya ves Inicio, puedes empezar. Si aparece **Conectar la carpeta de este proyecto**, puedes usarla para autorizar la carpeta que CareerKit ha encontrado. Para elegirla tú, pulsa **Conectar carpeta de datos**, selecciona **private-data** dentro del proyecto y acepta el permiso del navegador. Si te ofrece preparar archivos que faltan, confirma la creación de las plantillas vacías.
 
 La primera apertura está vacía. Si ya tienes la exportación ZIP de LinkedIn, úsala como primer paso: cuando Perfil, LinkedIn y Tus publicaciones estén vacíos, **Inicio** destacará el prompt que los completa juntos. Si no tienes el ZIP, empieza por **Perfil y aprendizajes** y pulsa **Guardar** cuando hayas añadido información. Puedes dejar Vacantes vacía hasta que quieras buscar.
 
@@ -47,11 +47,11 @@ Cuando aparezca la dirección, abre [CareerKit](http://127.0.0.1:5173/). Los dos
 
 ## Volver a abrir CareerKit
 
-**Para usar CareerKit cada día basta con abrir la carpeta del proyecto, iniciar la web y entrar en el navegador.** Puedes hacerlo sin abrir un asistente.
+**Una vez configurado, no necesitas volver a abrir el asistente ni repetir la instalación. Cada vez que quieras usar CareerKit, abre una terminal en la carpeta del proyecto y ejecuta `pnpm local`.**
 
 1. Abre una terminal en la carpeta de CareerKit.
 2. Escribe **`pnpm local`** y pulsa Intro.
-3. Abre [http://127.0.0.1:5173/](http://127.0.0.1:5173/) en tu navegador habitual. Guarda esta dirección en favoritos para encontrarla fácilmente.
+3. Abre [http://127.0.0.1:5173/](http://127.0.0.1:5173/) en tu navegador habitual, como Safari, Chrome, Firefox o Edge; no en la vista del asistente. Guarda esta dirección en favoritos para encontrarla fácilmente.
 4. Deja abierta la terminal mientras usas la web. Puedes minimizarla. Para detener CareerKit, vuelve a esa terminal y pulsa **Ctrl+C**.
 
 Después de reiniciar el ordenador o detener CareerKit, repite estos pasos. Si la terminal sigue abierta con CareerKit en marcha, basta con abrir el favorito. La dirección funciona en el ordenador donde arrancaste la web.
