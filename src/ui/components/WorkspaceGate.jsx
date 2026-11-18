@@ -161,6 +161,14 @@ export function WorkspaceGate({
             {promptMessage && <span role="status">{promptMessage}</span>}
           </div>
         )}
+        <details className="workspace-gate-prompt">
+          <summary>{copy.helpTitle}</summary>
+          <ol>
+            {copy.helpSteps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </details>
         <p className="workspace-gate-privacy">{copy.privacy}</p>
       </section>
     </main>

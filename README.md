@@ -19,17 +19,25 @@ flowchart TD
     F --> I["Descubre lecturas y prepara publicaciones"]
 ```
 
+## Empieza aquí
+
+- **Nunca has abierto CareerKit:** sigue [Primera vez](#primera-vez).
+- **Ya lo configuraste en este ordenador:** ve a [Volver a abrir CareerKit](#volver-a-abrir-careerkit).
+- **La página abre, pero tus datos no aparecen:** ve a [Recuperar la carpeta](#la-web-abre-pero-no-conecta-la-carpeta-o-aparece-vacía).
+
+Verás dos carpetas. **CareerKit** contiene el programa y es la que abres en el asistente o la terminal. **private-data** está normalmente dentro de CareerKit, contiene tus datos y es la que eliges cuando la web te pide conectar una carpeta. Los archivos que terminan en `.json` son los documentos donde la web guarda tus datos.
+
 ## Primera vez
 
 1. En GitHub, abre el repositorio de CareerKit, pulsa **Code → Download ZIP** y descomprime el archivo. Si ya tienes la carpeta del proyecto, úsala directamente. Guárdala en un lugar donde puedas encontrarla después.
-2. Abre **esa carpeta** como proyecto en un asistente de programación con acceso local, como Codex o Claude Code. Un chat que solo recibe texto no puede preparar archivos en tu ordenador.
+2. Abre **esa carpeta** como proyecto en un asistente de programación con acceso local, como Codex, Claude Code o Antigravity. Un chat que solo recibe texto no puede preparar archivos en tu ordenador.
 3. Pega este mensaje en el chat del proyecto:
 
    > Prepara CareerKit en este ordenador. Lee AGENTS.md. Si falta Node.js o pnpm, guíame para instalarlos con pasos sencillos. Instala las dependencias con pnpm install --frozen-lockfile y prepara solo los archivos vacíos que falten con pnpm data:init. Después inicia la web con pnpm local y ábrela directamente en el navegador habitual del ordenador, fuera del asistente: usa el navegador predeterminado del sistema y no una vista previa, panel ni navegador integrado. No te limites a mostrarme un enlace. Espera a que http://127.0.0.1:5173/ esté disponible, abre esa dirección y dime que ya puedo usar CareerKit en el navegador. Deja la terminal abierta. Si aparece la pantalla para conectar la carpeta, indícame cómo seleccionar private-data y conceder el permiso. Conserva los datos que ya existan y no publiques el proyecto.
 
 4. Abre [CareerKit en tu navegador habitual](http://127.0.0.1:5173/), fuera del asistente. Si ya ves Inicio, puedes empezar. Si aparece **Conectar la carpeta de este proyecto**, puedes usarla para autorizar la carpeta que CareerKit ha encontrado. Para elegirla tú, pulsa **Conectar carpeta de datos**, selecciona **private-data** dentro del proyecto y acepta el permiso del navegador. Si te ofrece preparar archivos que faltan, confirma la creación de las plantillas vacías.
 
-La primera apertura está vacía. Si ya tienes la exportación ZIP de LinkedIn, úsala como primer paso: cuando Perfil, LinkedIn y Tus publicaciones estén vacíos, **Inicio** destacará el prompt que los completa juntos. Si no tienes el ZIP, empieza por **Perfil y aprendizajes** y pulsa **Guardar** cuando hayas añadido información. Puedes dejar Vacantes vacía hasta que quieras buscar.
+Sabrás que has terminado cuando aparezca **Inicio**. Si es tu primera vez y todavía no has añadido datos, es normal que los apartados estén vacíos. Si esperabas ver tus datos anteriores, vuelve a conectar la carpeta original antes de crear archivos nuevos. Si ya tienes la exportación ZIP de LinkedIn, úsala como primer paso: cuando Perfil, LinkedIn y Tus publicaciones estén vacíos, **Inicio** destacará el prompt que los completa juntos. Si no tienes el ZIP, empieza por **Perfil y aprendizajes** y pulsa **Guardar** cuando hayas añadido información. Puedes dejar Vacantes vacía hasta que quieras buscar.
 
 ### Prepararlo sin asistente
 
@@ -49,7 +57,7 @@ Cuando aparezca la dirección, abre [CareerKit](http://127.0.0.1:5173/). Los dos
 
 **Una vez configurado, no necesitas volver a abrir el asistente ni repetir la instalación. Cada vez que quieras usar CareerKit, abre una terminal en la carpeta del proyecto y ejecuta `pnpm local`.**
 
-1. Abre una terminal en la carpeta de CareerKit.
+1. Abre una terminal en la carpeta de CareerKit. Si no sabes cómo, sigue las instrucciones para tu sistema en [Prepararlo sin asistente](#prepararlo-sin-asistente).
 2. Escribe **`pnpm local`** y pulsa Intro.
 3. Abre [http://127.0.0.1:5173/](http://127.0.0.1:5173/) en tu navegador habitual, como Safari, Chrome, Firefox o Edge; no en la vista del asistente. Guarda esta dirección en favoritos para encontrarla fácilmente.
 4. Deja abierta la terminal mientras usas la web. Puedes minimizarla. Para detener CareerKit, vuelve a esa terminal y pulsa **Ctrl+C**.
@@ -146,7 +154,20 @@ Abre **Contenido de LinkedIn** para trabajar con lecturas, publicaciones y comen
 
 ## Buzón: cómo usar los prompts
 
-Un **prompt** es un texto de instrucciones. Elige la tarea y, si te lo pide, selecciona una vacante. Pulsa **Copiar prompt** y pégalo en tu asistente. Añade el documento, texto o detalles que requiere la tarea. Si el asistente guardó cambios en tu carpeta, vuelve a la pantalla indicada y pulsa **Recargar** cuando CareerKit avise de que el archivo cambió. Copiar un prompt solo copia texto. Las tareas pendientes se resuelven al guardar el resultado correspondiente.
+Un **prompt** es un texto de instrucciones para tu asistente.
+
+1. Abre CareerKit. Si la tarea guarda datos, comprueba que estás en la carpeta correcta y guarda cualquier edición pendiente en esa pantalla.
+2. En el Buzón, elige la tarea y lee **Archivos o material** y **Acceso que necesita**. Selecciona la vacante o el artículo si la pantalla lo pide.
+3. Pulsa **Copiar prompt**, pégalo en el chat y añade solo el material que requiere. Para guardar en CareerKit, usa un asistente que pueda acceder a la carpeta del proyecto en tu ordenador. El permiso que diste al navegador es independiente.
+4. Si el asistente te hace preguntas, respóndelas en ese chat. Si solo devuelve un texto o dice que no tiene acceso, todavía no se ha guardado en CareerKit.
+5. Si dice que guardó, comprueba el archivo que menciona y abre la pantalla correspondiente. Pulsa **Recargar** si aparece un aviso de cambios externos. Copiar el prompt por sí solo no completa ninguna tarea.
+
+### Usarlo con Claude Code, Codex, Antigravity u otro asistente
+
+- Abre **la carpeta de CareerKit** como proyecto en el asistente. Pega el prompt en ese proyecto. Las rutas de las guías están en el texto y el asistente puede abrirlas como archivos del proyecto.
+- Si tu asistente solo tiene un chat, puedes usarlo para redactar con el material que pegues. Para guardar automáticamente en CareerKit, debe poder leer y escribir en la carpeta de tu ordenador.
+- Si una tarea requiere búsqueda web o un complemento, comprueba que el asistente elegido lo ofrece. El Buzón indica qué necesita cada tarea. Si falta una herramienta, sigue la alternativa del prompt cuando exista.
+- Usa el navegador habitual para abrir CareerKit y conceder el permiso de carpeta. Puedes tener el asistente y el navegador abiertos por separado.
 
 | Si quieres… | Busca en el Buzón… |
 | --- | --- |
@@ -170,17 +191,35 @@ En los dos modos de carpeta, espera a que la pantalla confirme el guardado y fí
 
 ## Si algo falla
 
+### La web no abre o se ha quedado parada
+
+1. Si tienes cambios sin guardar en una pestaña que todavía responde, guárdalos o copia el texto antes de recargar.
+2. Localiza la terminal desde la que abriste CareerKit. Si sigue funcionando pero quieres reiniciar, pulsa **Ctrl+C** en esa terminal.
+3. Desde la carpeta de CareerKit que contiene `package.json`, ejecuta `pnpm local`. Espera a que indique que está lista y deja la terminal abierta.
+4. Escribe `http://127.0.0.1:5173/` en la barra de direcciones de tu navegador habitual. Si aparece otra web o la terminal dice que el puerto está ocupado (otra aplicación ya usa esa dirección), comprueba si tienes otra copia de CareerKit abierta. Detén únicamente la sesión que reconozcas.
+5. Si aparece «pnpm no encontrado», vuelve a [Prepararlo sin asistente](#prepararlo-sin-asistente) y reabre la terminal tras instalarlo. Si falta `package.json`, abre la terminal en la carpeta descomprimida correcta. Si falta Vite o las dependencias, ejecuta `pnpm install --frozen-lockfile` antes de volver a iniciar.
+
+### La web abre, pero no conecta la carpeta o aparece vacía
+
+1. Si estás en una vista del asistente, copia la dirección y ábrela en tu navegador habitual. Para seleccionar carpetas, prueba con Chrome o Edge en una ventana normal.
+2. Si usas los datos de esta misma copia del proyecto, pulsa **Conectar la carpeta de este proyecto** si aparece. Si guardaste los datos en otra ubicación, usa **Conectar carpeta de datos** o **Cambiar carpeta de datos** y selecciona la carpeta llamada exactamente `private-data`, no su carpeta superior. Acepta el permiso de lectura y escritura si aparece un segundo aviso.
+3. Si te vuelve a pedir permiso, usa el mismo navegador, perfil y dirección habitual. Si moviste la carpeta, vuelve a seleccionarla. Si la web abre pero la conexión local falla, reinicia la terminal con los pasos anteriores y vuelve a conectar.
+4. Si la pantalla está vacía y ya tenías datos, busca tu carpeta original antes de preparar archivos. Dos carpetas con el mismo nombre pueden guardar datos distintos. Comprueba en el explorador si están los archivos de la [tabla de datos](#datos-y-privacidad).
+5. Si estás empezando de cero o sabes que solo faltan archivos, usa la opción para preparar los que faltan o ejecuta `pnpm data:init` en la carpeta del proyecto. Si un archivo existente necesita revisión, haz una copia en una ubicación privada antes de repararlo. No lo sustituyas por una plantilla vacía.
+6. Si el navegador sigue sin permitir la selección, usa **Abrir archivos JSON**. En ese modo, para guardar tienes que descargar el JSON y sustituir el archivo correspondiente en la carpeta correcta. Conserva una copia del anterior y vuelve a abrir los archivos cuando quieras cargar cambios del disco.
+
+### El prompt no se copia, el resultado no aparece o no puedes guardar
+
 | Qué ves | Qué hacer |
 | --- | --- |
-| El navegador dice que no se puede abrir la página | Ejecuta `pnpm local` en la carpeta de CareerKit y revisa el mensaje de la terminal. Si dice que el puerto 5173 está ocupado, comprueba si CareerKit ya está abierto o cierra la aplicación que lo ocupa. |
-| La terminal dice que no encuentra `pnpm` o `package.json` | Si falta pnpm, instala el programa y vuelve a abrir la terminal. Si falta `package.json`, abre la terminal dentro de la carpeta descomprimida del proyecto. |
-| La web vuelve a pedir acceso a la carpeta | Usa el navegador y la dirección habituales. Si te ofrece recuperar el permiso, acéptalo. Si cambiaste de navegador, de perfil o moviste la carpeta, selecciónala de nuevo. |
-| La carpeta no se conecta dentro del navegador del asistente | Abre la dirección en tu navegador habitual. Prueba la selección de carpeta allí. Si el navegador ofrece **Abrir archivos JSON**, puedes seleccionar los archivos uno a uno. |
-| El archivo está vacío, falta o necesita revisión | Una plantilla válida sin datos es normal. Si falta un archivo, usa la opción de preparar archivos o el prompt del Buzón. Si hay un aviso de formato, pídele al asistente que revise el archivo señalado y conserve su contenido. |
-| El asistente guardó cambios y todavía ves datos anteriores | Espera al aviso de cambio externo y pulsa **Recargar**. Si abriste archivos individuales, vuelve a seleccionar la versión actual del archivo. |
-| La web avisa de que el archivo cambió mientras editabas | Conserva tu borrador antes de recargar, usando la opción de copiarlo si aparece. Revisa la versión actual y vuelve a aplicar los cambios que quieras guardar. |
+| El botón de copiar falla | Abre **Ver prompt que copiarás** si aparece, o busca la tarea en el Buzón. Selecciona el texto completo, pulsa **⌘C** en Mac o **Ctrl+C** en Windows y Linux, y comprueba que se pega en el chat. |
+| El asistente pide un documento o acceso a tus datos | Comparte el material indicado en el Buzón o abre la carpeta correcta como proyecto en tu asistente local. Si solo quieres un borrador de texto, puedes continuar en el chat. |
+| El asistente dice que guardó, pero ves datos anteriores | Comprueba que escribió en la misma carpeta que usa la web. Vuelve a la pantalla correspondiente y pulsa **Recargar** si aparece el aviso. Si abriste archivos individuales, vuelve a seleccionar el archivo actualizado. |
+| La web avisa de que el archivo cambió mientras editabas | Copia tu borrador antes de recargar. Abre la versión actual y vuelve a aplicar los cambios que quieras guardar. |
+| El guardado falla por acceso o permisos | Conserva primero lo que escribiste. Reconecta la misma carpeta y acepta el permiso de escritura. Si está en una ubicación de solo lectura, copia la carpeta completa a una ubicación donde puedas escribir y conecta esa copia. |
+| El aviso del Buzón sigue pendiente | Copiar el prompt no ejecuta la tarea. Comprueba que el asistente guardó el resultado solicitado en la carpeta correcta y recarga el módulo si la web lo pide. |
 
-En el modo de archivos individuales, la web no detecta los cambios hechos en el disco mientras editas.
+Si sigues bloqueado, anota el mensaje exacto, qué botón pulsaste, la dirección que abriste y cómo conectaste los datos. Así se puede diagnosticar el fallo sin compartir tu carpeta privada.
 
 ## Datos y privacidad
 
