@@ -367,6 +367,11 @@ export const STRINGS = {
     nextProfileBody:
       'Añade tus objetivos, preferencias y evidencias. Este dossier puede guardar también lo que no publicas en LinkedIn.',
     profileAction: 'Completar Perfil',
+    nextExportTitle: '¿Tienes el ZIP de LinkedIn? Empieza por aquí',
+    nextExportBody:
+      'Este prompt puede completar Perfil, la copia de LinkedIn y tus publicaciones anteriores en un solo paso. Si aún no tienes el ZIP, también te explica cómo solicitarlo.',
+    exportAction: 'Abrir el paso para usar el ZIP',
+    manualProfileAction: 'No tengo el ZIP: empezar por Perfil',
     nextLinkedinTitle: 'Añade la copia de tu LinkedIn',
     nextLinkedinBody:
       'Puedes transcribirla en el formulario o pedir al agente que la organice desde un archivo legible.',

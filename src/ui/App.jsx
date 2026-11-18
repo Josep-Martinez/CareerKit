@@ -953,6 +953,11 @@ export default function App() {
               warnings={store.warnings}
               onReviewData={store.folder ? recheckFolder : undefined}
               onNavigate={navigateTo}
+              onOpenPrompt={(promptId) => {
+                if (!navigateTo('prompts')) return
+                setFocusedPromptId(promptId)
+                showNotice('')
+              }}
               onVacancy={(v) => navigateTo('vacancies', { vacancyId: v.id })}
             />
           )}

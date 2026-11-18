@@ -57,9 +57,11 @@ function HomeProgressGuide({
   connected,
   fallbackConnected,
   onNavigate,
+  onOpenPrompt,
 }) {
   const profileStatus = moduleStatus('profile', data, states)
   const linkedinFileStatus = moduleStatus('linkedin', data, states)
+  const linkedinContentStatus = moduleStatus('linkedin-content', data, states)
   const linkedinStatus =
     linkedinFileStatus === 'ready' && linkedinLanguagesPending
       ? 'update'
@@ -100,6 +102,21 @@ function HomeProgressGuide({
       body: progressCopy.nextCheckingBody,
       action: progressCopy.checkingAction,
       target: checkingStep.key,
+    }
+  } else if (
+    profileStatus === 'empty' &&
+    linkedinFileStatus === 'empty' &&
+    linkedinContentStatus === 'empty'
+  ) {
+    nextStep = {
+      status: 'priority',
+      key: 'linkedin-export',
+      title: progressCopy.nextExportTitle,
+      body: progressCopy.nextExportBody,
+      action: progressCopy.exportAction,
+      promptId: 'linkedin-from-export',
+      secondaryAction: progressCopy.manualProfileAction,
+      secondaryTarget: 'profile',
     }
   } else if (profileStatus === 'empty') {
     nextStep = {
@@ -228,10 +245,23 @@ function HomeProgressGuide({
             <button
               className="button primary"
               type="button"
-              onClick={() => onNavigate(nextStep.target)}
+              onClick={() =>
+                nextStep.promptId
+                  ? onOpenPrompt(nextStep.promptId)
+                  : onNavigate(nextStep.target)
+              }
             >
               {nextStep.action}
             </button>
+            {nextStep.secondaryAction && (
+              <button
+                className="text-button home-next-secondary-action"
+                type="button"
+                onClick={() => onNavigate(nextStep.secondaryTarget)}
+              >
+                {nextStep.secondaryAction} →
+              </button>
+            )}
           </div>
         ) : (
           <div className="home-next-action is-ready" role="status">
@@ -245,7 +275,12 @@ function HomeProgressGuide({
       <ol className="home-progress-steps">
         {steps.map(({ key, status }, index) => (
           <li
-            aria-current={nextStep?.key === key ? 'step' : undefined}
+            aria-current={
+              nextStep?.key === key ||
+              (nextStep?.key === 'linkedin-export' && key === 'profile')
+                ? 'step'
+                : undefined
+            }
             className={`home-progress-step is-${status}`}
             key={key}
           >
@@ -299,6 +334,7 @@ export function HomePage({
   onNavigate,
   onVacancy,
   onReviewData,
+  onOpenPrompt,
 }) {
   const vacanciesStatus = moduleStatus('vacancies', data, states)
   const prioritiesStatus = moduleStatus('priorities', data, states)
@@ -328,6 +364,7 @@ export function HomePage({
         connected={connected}
         fallbackConnected={fallbackConnected}
         onNavigate={onNavigate}
+        onOpenPrompt={onOpenPrompt}
       />
 
       <div className="section-title-row">

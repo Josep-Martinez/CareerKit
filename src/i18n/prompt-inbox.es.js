@@ -151,7 +151,7 @@ export const PROMPT_INBOX_ES = {
       category: 'setup',
       title:
         'Completar Perfil, LinkedIn y publicaciones desde el ZIP de LinkedIn',
-      use: 'En LinkedIn para ordenador, abre Yo → Ajustes y privacidad → Privacidad de datos → Descargar tus datos. Elige el archivo de datos más grande y pulsa Solicitar archivo. Puede tardar unas horas, hasta 24 horas según LinkedIn. Cuando recibas el aviso, vuelve a esa ventana para descargar el ZIP. El enlace está disponible durante 72 horas. Adjunta el ZIP a tu asistente junto con este prompt. Guía oficial: https://www.linkedin.com/help/linkedin/answer/a1339364',
+      use: 'Es el camino más rápido si Perfil, LinkedIn y Tus publicaciones están vacíos. Adjunta la exportación ZIP para completar las tres bases en un mismo paso. Si aún no tienes el archivo, en LinkedIn para ordenador abre Yo → Ajustes y privacidad → Privacidad de datos → Descargar tus datos. Elige el archivo de datos más grande y pulsa Solicitar archivo. Puede tardar unas horas, hasta 24 horas; vuelve a esa ventana cuando recibas el aviso. El enlace de descarga está disponible durante 72 horas. Guía oficial: https://www.linkedin.com/help/linkedin/answer/a1339364.',
       skillPaths: [
         'AGENTS.md',
         'schemas/agent-format.md',

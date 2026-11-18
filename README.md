@@ -8,11 +8,15 @@ Un recorrido para empezar. Puedes usar cada sección cuando la necesites.
 
 ```mermaid
 flowchart TD
-    A["Conecta tu carpeta"] --> B["Completa Perfil"]
-    B --> C["Guarda tu copia de LinkedIn"]
-    C --> D["Prepara tus dos CV"]
-    D --> E["Busca y compara vacantes"]
-    B --> F["Descubre lecturas y prepara publicaciones"]
+    A["Conecta tu carpeta"] --> B{"¿Tienes la exportación ZIP de LinkedIn?"}
+    B -- "Sí" --> C["Importa Perfil, LinkedIn y publicaciones"]
+    B -- "No" --> D["Completa Perfil"]
+    D --> E["Guarda tu copia de LinkedIn"]
+    C --> F["Revisa Perfil y LinkedIn"]
+    E --> F
+    F --> G["Prepara tus dos CV"]
+    G --> H["Busca y compara vacantes"]
+    F --> I["Descubre lecturas y prepara publicaciones"]
 ```
 
 ## Primera vez
@@ -25,7 +29,7 @@ flowchart TD
 
 4. Abre [CareerKit en tu ordenador](http://127.0.0.1:5173/). Si ya ves Inicio, puedes empezar. Si aparece **Conectar la carpeta de este proyecto**, puedes usarla para autorizar la carpeta que CareerKit ha encontrado. Para elegirla tú, pulsa **Conectar carpeta de datos**, selecciona **private-data** dentro del proyecto y acepta el permiso del navegador. Si te ofrece preparar archivos que faltan, confirma la creación de las plantillas vacías.
 
-La primera apertura está vacía. Empieza por **Perfil y aprendizajes** y pulsa **Guardar** cuando hayas añadido información. Puedes dejar Vacantes vacía hasta que quieras buscar.
+La primera apertura está vacía. Si ya tienes la exportación ZIP de LinkedIn, úsala como primer paso: cuando Perfil, LinkedIn y Tus publicaciones estén vacíos, **Inicio** destacará el prompt que los completa juntos. Si no tienes el ZIP, empieza por **Perfil y aprendizajes** y pulsa **Guardar** cuando hayas añadido información. Puedes dejar Vacantes vacía hasta que quieras buscar.
 
 ### Prepararlo sin asistente
 
@@ -87,7 +91,7 @@ Mira la guía de progreso para saber qué puedes preparar a continuación. Si fa
 
 ### Rellenar CareerKit con la exportación de LinkedIn
 
-Desde un ordenador, solicita una copia de tus datos.
+Si todavía no has añadido información a CareerKit, esta es la forma más rápida de completar **Perfil**, **LinkedIn** y el archivo de **Tus publicaciones** en una sola preparación. Si tienes el ZIP, en **Inicio** pulsa el paso destacado para abrir directamente el prompt. También puedes encontrarlo en **Buzón** con el nombre **Completar Perfil, LinkedIn y publicaciones desde el ZIP de LinkedIn**. Desde un ordenador, solicita una copia de tus datos:
 
 1. En LinkedIn, pulsa **Yo → Ajustes y privacidad**.
 2. Abre **Privacidad de datos → Descargar tus datos**.
