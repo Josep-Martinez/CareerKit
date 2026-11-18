@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText, PROMPT_INBOX_ES } from '../../i18n/prompt-inbox.es.js'
+import { copyTextToClipboard } from '../clipboard.js'
 import {
   deleteLinkedInDraft,
   deleteLinkedInPublication,
@@ -78,6 +79,7 @@ export function LinkedInPublicationsPage({
   const [formTouched, setFormTouched] = useState(false)
   const [notice, setNotice] = useState('')
   const [promptPreview, setPromptPreview] = useState('')
+  const [promptPreviewOpen, setPromptPreviewOpen] = useState(false)
   const [savingPublication, setSavingPublication] = useState(false)
   const [editingPublicationId, setEditingPublicationId] = useState('')
   const [publicationEdit, setPublicationEdit] = useState(null)
@@ -184,12 +186,20 @@ export function LinkedInPublicationsPage({
 
   async function copyPrompt(text) {
     setPromptPreview(text)
-    try {
-      await navigator.clipboard.writeText(text)
+    if (await copyTextToClipboard(text)) {
       onPromptCopied?.('record-linkedin-publication')
       setNotice(copy.promptCopied)
-    } catch {
+    } else {
       setNotice(copy.copyFailed)
+      setPromptPreviewOpen(true)
+      const details = document.querySelector(
+        '[data-copy-preview="record-linkedin-publication"]',
+      )
+      if (details) details.open = true
+      const preview = details?.querySelector('textarea')
+      if (preview) preview.value = text
+      preview?.focus()
+      preview?.select()
     }
   }
 
@@ -549,7 +559,12 @@ export function LinkedInPublicationsPage({
               {copy.copyPrompt}
             </button>
           </div>
-          <details className="content-linkedin-prompt-preview">
+          <details
+            className="content-linkedin-prompt-preview"
+            data-copy-preview="record-linkedin-publication"
+            open={promptPreviewOpen}
+            onToggle={(event) => setPromptPreviewOpen(event.currentTarget.open)}
+          >
             <summary>{copy.promptPreview}</summary>
             <textarea
               aria-label={copy.promptPreview}

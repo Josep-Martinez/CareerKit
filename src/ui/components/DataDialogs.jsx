@@ -3,6 +3,7 @@ import { EMPTY } from '../../data/catalog.js'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
 import { normalizeModule, validateModule } from '../../data/storage.js'
+import { copyTextToClipboard } from '../clipboard.js'
 import { Modal } from './Modal.jsx'
 
 export function FolderDataDialog({
@@ -46,11 +47,13 @@ export function FolderDataDialog({
   })
 
   async function copyInstructions() {
-    try {
-      await navigator.clipboard.writeText(prompt)
+    if (await copyTextToClipboard(prompt)) {
       setMessage(copy.copied)
-    } catch {
+    } else {
       setMessage(copy.copyFailed)
+      const textarea = document.querySelector('.folder-data-modal textarea')
+      textarea?.focus()
+      textarea?.select()
     }
   }
 

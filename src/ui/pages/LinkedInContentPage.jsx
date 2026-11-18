@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText, PROMPT_INBOX_ES } from '../../i18n/prompt-inbox.es.js'
+import { copyTextToClipboard } from '../clipboard.js'
 import { collectProfileEvidence } from '../profile-evidence.js'
 import { patchLinkedInArticle } from '../../data/linkedin-content-data.js'
 import { id } from '../utils.js'
@@ -70,6 +71,7 @@ export function LinkedInContentPage({
   const [articleError, setArticleError] = useState('')
   const [postType, setPostType] = useState('project')
   const [postIdeas, setPostIdeas] = useState({})
+  const [peopleToMention, setPeopleToMention] = useState('')
   const [selectedArticleId, setSelectedArticleId] = useState('')
   const [selectedEvidenceIds, setSelectedEvidenceIds] = useState([])
   const [commentSource, setCommentSource] = useState('')
@@ -206,6 +208,9 @@ export function LinkedInContentPage({
           articleBlock
             ? `${copy.promptContext.acceptedArticle}:\n${articleBlock}`
             : '',
+          peopleToMention.trim()
+            ? `${copy.promptContext.peopleToMention}:\n${peopleToMention.trim()}`
+            : '',
           selectedEvidenceIds.length
             ? `${copy.promptContext.evidenceIds}: ${selectedEvidenceIds.join(', ')}`
             : '',
@@ -229,14 +234,22 @@ export function LinkedInContentPage({
   }
 
   async function copyPrompt(text, promptId, successMessage) {
-    try {
-      await navigator.clipboard.writeText(text)
+    if (await copyTextToClipboard(text)) {
       onPromptCopied?.(promptId)
       setNotice(successMessage || copy.promptCopied)
       setPostPromptCopied(promptId === 'draft-linkedin-post')
-    } catch {
+    } else {
       setNotice(copy.copyFailed)
       setPostPromptCopied(false)
+      const preview = document.querySelector(
+        `[data-copy-preview="${promptId}"]`,
+      )
+      if (preview) {
+        preview.open = true
+        const textarea = preview.querySelector('textarea')
+        textarea?.focus()
+        textarea?.select()
+      }
     }
   }
 
@@ -365,7 +378,10 @@ export function LinkedInContentPage({
               >
                 {copy.discoverCopy}
               </button>
-              <details className="content-linkedin-prompt-preview">
+              <details
+                className="content-linkedin-prompt-preview"
+                data-copy-preview="discover-linkedin-articles"
+              >
                 <summary>{copy.promptPreview}</summary>
                 <textarea
                   aria-label={copy.discoveryPrompt}
@@ -726,6 +742,13 @@ export function LinkedInContentPage({
             }
             hint={copy.postIdeaHints[postType]}
           />
+          <TextField
+            label={copy.peopleToMention}
+            rows={3}
+            value={peopleToMention}
+            onChange={setPeopleToMention}
+            hint={copy.peopleToMentionHint}
+          />
           {evidence.length > 0 ? (
             <fieldset className="content-linkedin-evidence-picker">
               <legend>{copy.selectedEvidence}</legend>
@@ -778,7 +801,10 @@ export function LinkedInContentPage({
               </button>
             </div>
           )}
-          <details className="content-linkedin-prompt-preview">
+          <details
+            className="content-linkedin-prompt-preview"
+            data-copy-preview="draft-linkedin-post"
+          >
             <summary>{copy.promptPreview}</summary>
             <textarea
               aria-label={copy.promptPreview}
@@ -818,7 +844,10 @@ export function LinkedInContentPage({
           >
             {copy.copyCommentPrompt}
           </button>
-          <details className="content-linkedin-prompt-preview">
+          <details
+            className="content-linkedin-prompt-preview"
+            data-copy-preview="draft-linkedin-comment"
+          >
             <summary>{copy.promptPreview}</summary>
             <textarea
               aria-label={copy.promptPreview}

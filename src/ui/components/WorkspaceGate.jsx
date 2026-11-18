@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { BrandIcon } from './BrandIcon.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
+import { copyTextToClipboard } from '../clipboard.js'
 
 export function WorkspaceGate({
   connecting,
@@ -47,11 +48,15 @@ export function WorkspaceGate({
         : s.connect
 
   async function copyPrompt() {
-    try {
-      await navigator.clipboard.writeText(prompt)
+    if (await copyTextToClipboard(prompt)) {
       setPromptMessage(copy.copied)
-    } catch {
+    } else {
       setPromptMessage(copy.copyFailed)
+      const textarea = document.querySelector(
+        '#workspace-setup-prompt textarea',
+      )
+      textarea?.focus()
+      textarea?.select()
     }
   }
 
