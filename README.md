@@ -85,6 +85,22 @@ Mira la guía de progreso para saber qué puedes preparar a continuación. Si fa
 4. Añade formación, experiencia, habilidades, idiomas, certificaciones, proyectos y aprendizajes. En cada evidencia puedes indicar si está confirmada, sirve para el CV, aparece en LinkedIn o es interna. Añade acciones y resultados que puedas demostrar.
 5. Pulsa **Guardar perfil**. Si prefieres ayuda, el Buzón ofrece tres entradas: una entrevista guiada, organizar el material que compartas y actualizar la trayectoria a partir de tu CV y LinkedIn. Comparte tus preferencias y objetivos directamente si quieres que el asistente los guarde.
 
+### Rellenar CareerKit con la exportación de LinkedIn
+
+Desde un ordenador, solicita una copia de tus datos.
+
+1. En LinkedIn, pulsa **Yo → Ajustes y privacidad**.
+2. Abre **Privacidad de datos → Descargar tus datos**.
+3. Selecciona **Descarga un archivo de datos más grande**, la opción que incluye contactos, verificaciones, historial y otra información.
+4. Pulsa **Solicitar archivo** y completa la confirmación que LinkedIn solicite.
+5. Espera el aviso por correo. Puede tardar unas horas, hasta 24 horas según LinkedIn. Vuelve a esa misma ventana cuando esté preparado y descarga el ZIP. El enlace de descarga está disponible durante 72 horas. [Ayuda oficial de LinkedIn](https://www.linkedin.com/help/linkedin/answer/a1339364).
+6. En **Buzón**, copia **Completar Perfil, LinkedIn y publicaciones desde el ZIP de LinkedIn**. Pégalo en tu asistente y adjunta el ZIP. También puedes darle la ruta local del archivo descargado si el asistente puede abrirla.
+7. Revisa las aclaraciones que te pida. Al terminar, abre **Perfil**, **LinkedIn** y **Tus publicaciones** y recarga los archivos cuando CareerKit avise.
+
+El prompt aprovecha el perfil profesional y el texto de tus publicaciones. Completa los hechos de Perfil junto con lo que ya has guardado y conserva tus objetivos e intereses. Las publicaciones históricas mantienen su idioma original. La creación de nuevos borradores sigue el flujo en inglés de Contenido de LinkedIn.
+
+El archivo grande contiene información privada adicional. Guárdalo en una ubicación privada. Si necesita extraerlo, el asistente usa una subcarpeta de `private-data/`. Adjuntarlo a un chat comparte ese archivo con el servicio del chat. El prompt limita la lectura a las categorías necesarias para esta tarea.
+
 ### LinkedIn
 
 1. Abre **Editar** para escribir lo que ya aparece en tu perfil. También puedes copiar **Rellenar LinkedIn desde un archivo** y adjuntar una copia legible o pegar el contenido en el chat. Expande las descripciones que estén cortadas. Si tienes el complemento de LinkedIn, el Buzón ofrece otro prompt para comprobar qué partes del perfil puede ver.
