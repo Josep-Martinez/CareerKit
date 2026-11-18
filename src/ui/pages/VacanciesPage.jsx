@@ -1201,6 +1201,45 @@ function VacancyDetail({ value, profile, onOpenAdaptation }) {
     : []
   return (
     <>
+      <section
+        className="panel vacancy-adapted-cv"
+        aria-labelledby="vacancy-adapted-cv-heading"
+      >
+        <div className="panel-heading">
+          <h2 id="vacancy-adapted-cv-heading">{vacancyCopy.adaptedCv}</h2>
+          {onOpenAdaptation && (
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => onOpenAdaptation(value.id)}
+            >
+              {adaptedCv ? vacancyCopy.reviseCv : vacancyCopy.prepareCv}
+            </button>
+          )}
+        </div>
+        {adaptedCv ? (
+          <details className="vacancy-cv-preview">
+            <summary>
+              <span>{vacancyCopy.viewAdaptedCv}</span>
+              <small>
+                {adaptedCv.language === 'es'
+                  ? vacancyCopy.spanishCv
+                  : vacancyCopy.englishCv}
+              </small>
+            </summary>
+            <CVDocument
+              text={adaptedCv.text}
+              spanish={adaptedCv.language === 'es'}
+              singleColumn={
+                adaptedCv.language !== 'es' ||
+                adaptedCv.layout !== 'two-columns'
+              }
+            />
+          </details>
+        ) : (
+          <p>{vacancyCopy.emptyAdaptedCv}</p>
+        )}
+      </section>
       <div className="detail-grid">
         <section className="panel detail-panel">
           <div className="detail-tags">
@@ -1407,42 +1446,6 @@ function VacancyDetail({ value, profile, onOpenAdaptation }) {
           </section>
         </aside>
       </div>
-      <section
-        className="panel vacancy-adapted-cv"
-        aria-labelledby="vacancy-adapted-cv-heading"
-      >
-        <div className="panel-heading">
-          <h2 id="vacancy-adapted-cv-heading">{vacancyCopy.adaptedCv}</h2>
-          {onOpenAdaptation && (
-            <button
-              type="button"
-              className="button secondary"
-              onClick={() => onOpenAdaptation(value.id)}
-            >
-              {adaptedCv ? vacancyCopy.reviseCv : vacancyCopy.prepareCv}
-            </button>
-          )}
-        </div>
-        {adaptedCv ? (
-          <>
-            <p className="vacancy-adapted-cv-language">
-              {adaptedCv.language === 'es'
-                ? vacancyCopy.spanishCv
-                : vacancyCopy.englishCv}
-            </p>
-            <CVDocument
-              text={adaptedCv.text}
-              spanish={adaptedCv.language === 'es'}
-              singleColumn={
-                adaptedCv.language !== 'es' ||
-                adaptedCv.layout !== 'two-columns'
-              }
-            />
-          </>
-        ) : (
-          <p>{vacancyCopy.emptyAdaptedCv}</p>
-        )}
-      </section>
     </>
   )
 }
