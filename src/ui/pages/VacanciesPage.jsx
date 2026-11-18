@@ -13,6 +13,7 @@ import {
 } from '../components/FormPrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText, PROMPT_INBOX_ES } from '../../i18n/prompt-inbox.es.js'
+import { copyTextToClipboard } from '../clipboard.js'
 import { id, pretty } from '../utils.js'
 import { collectProfileEvidence } from '../profile-evidence.js'
 import { CVDocument } from './CVDocument.jsx'
@@ -729,23 +730,9 @@ export function VacanciesPage({
     const prompt = PROMPT_INBOX_ES.prompts.find((item) => item.id === promptId)
     if (!prompt) return
     const text = buildPromptText(prompt)
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text)
-      } else {
-        const textarea = document.createElement('textarea')
-        textarea.value = text
-        textarea.setAttribute('readonly', '')
-        textarea.style.position = 'fixed'
-        textarea.style.opacity = '0'
-        document.body.append(textarea)
-        textarea.select()
-        const copied = document.execCommand('copy')
-        textarea.remove()
-        if (!copied) throw new Error('Clipboard unavailable')
-      }
+    if (await copyTextToClipboard(text)) {
       setPromptNotice(vacancyCopy.promptCopied)
-    } catch {
+    } else {
       setPromptNotice(vacancyCopy.promptCopyFailed)
       onOpenResearch?.(promptId)
     }

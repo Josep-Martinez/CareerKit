@@ -6,6 +6,7 @@ import {
   buildPromptText,
   PROMPT_REQUIREMENTS,
 } from '../../i18n/prompt-inbox.es.js'
+import { copyTextToClipboard } from '../clipboard.js'
 
 export function PromptInboxPage({
   pending,
@@ -79,15 +80,19 @@ export function PromptInboxPage({
     const text = buildPromptText(prompt, {
       vacancyReference: referenceFor(prompt),
     })
-    try {
-      await navigator.clipboard.writeText(text)
+    if (await copyTextToClipboard(text)) {
       onCopy(prompt.id)
       setCopyMessages((previous) => ({ ...previous, [prompt.id]: copy.copied }))
-    } catch {
+    } else {
       setCopyMessages((previous) => ({
         ...previous,
         [prompt.id]: copy.copyFailed,
       }))
+      const textarea = document
+        .getElementById(`prompt-${prompt.id}`)
+        ?.querySelector('textarea.prompt-content')
+      textarea?.focus()
+      textarea?.select()
     }
   }
 

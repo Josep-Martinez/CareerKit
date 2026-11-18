@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText } from '../../i18n/prompt-inbox.es.js'
+import { copyTextToClipboard } from '../clipboard.js'
 import { pretty } from '../utils.js'
 import { CVDocument } from './CVDocument.jsx'
 
@@ -38,12 +39,14 @@ export function CVPage({
   const refreshPromptText = buildPromptText(refreshPrompt)
 
   async function copyRefreshPrompt() {
-    try {
-      await navigator.clipboard.writeText(refreshPromptText)
+    if (await copyTextToClipboard(refreshPromptText)) {
       setPromptMessage(s.promptInbox.copied)
       onPromptCopied('refresh-cv')
-    } catch {
+    } else {
       setPromptMessage(s.promptInbox.copyFailed)
+      const textarea = document.querySelector('.cv-preparation-prompt textarea')
+      textarea?.focus()
+      textarea?.select()
     }
   }
 

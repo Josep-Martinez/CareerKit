@@ -92,6 +92,27 @@ test('post creation prompt prepares a strong draft for user review', () => {
   assert.match(prompt.text, /no me preguntes antes de ofrecer un borrador/i)
   assert.match(prompt.text, /revise|revisar/i)
   assert.match(prompt.text, /logro|proyecto|experiencia|artículo/i)
+  assert.match(prompt.text, /persona.*mencionar|mención.*persona/i)
+  assert.match(prompt.text, /no inventes.*cargo|no inventes.*relación/i)
+  assert.match(prompt.text, /etiqueta real.*LinkedIn|etiquetar.*manualmente/i)
   assert.match(prompt.text, /no publiques/i)
   assert.match(prompt.text, /Tus publicaciones/)
+})
+
+test('comment prompt accepts a public link and proposes a profile-based angle when opinion is absent', () => {
+  const prompt = PROMPT_INBOX_ES.prompts.find(
+    (item) => item.id === 'draft-linkedin-comment',
+  )
+  const requirements = PROMPT_REQUIREMENTS['draft-linkedin-comment']
+
+  assert.ok(prompt)
+  assert.match(prompt.text, /enlace público/i)
+  assert.match(prompt.text, /private-data\/profile\.json/i)
+  assert.match(prompt.text, /respuestas anteriores/i)
+  assert.match(prompt.text, /propon(?:er|ga).*ángulo/i)
+  assert.match(prompt.text, /no inventes.*experiencia/i)
+  assert.match(prompt.text, /opinión confirmada/i)
+  assert.match(requirements.files.join(' '), /opinión.*opcional/i)
+  assert.match(requirements.files.join(' '), /enlace público/i)
+  assert.match(requirements.access, /acceso local opcional/i)
 })

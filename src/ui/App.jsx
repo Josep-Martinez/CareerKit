@@ -13,6 +13,7 @@ import {
 } from '../data/storage.js'
 import { isKnownEmpty, isKnownPopulated } from './utils.js'
 import { checkEvidenceRemoval } from './profile-evidence-guard.js'
+import { copyTextToClipboard } from './clipboard.js'
 import { BrandIcon } from './components/BrandIcon.jsx'
 import { SectionIcon } from './components/SectionIcon.jsx'
 import { WorkspaceGate } from './components/WorkspaceGate.jsx'
@@ -952,6 +953,11 @@ export default function App() {
               warnings={store.warnings}
               onReviewData={store.folder ? recheckFolder : undefined}
               onNavigate={navigateTo}
+              onOpenPrompt={(promptId) => {
+                if (!navigateTo('prompts')) return
+                setFocusedPromptId(promptId)
+                showNotice('')
+              }}
               onVacancy={(v) => navigateTo('vacancies', { vacancyId: v.id })}
             />
           )}
@@ -1190,16 +1196,22 @@ export default function App() {
                 className="button secondary"
                 onClick={async () => {
                   const draft = editorSnapshots.current[conflict.module]?.draft
-                  try {
-                    await navigator.clipboard.writeText(
-                      JSON.stringify(draft, null, 2),
-                    )
+                  if (
+                    await copyTextToClipboard(JSON.stringify(draft, null, 2))
+                  ) {
                     setCopyDraftStatus('Borrador copiado.')
-                  } catch {
+                  } else {
                     setShowDraftText(true)
                     setCopyDraftStatus(
                       'Selecciona y copia el borrador de forma manual.',
                     )
+                    requestAnimationFrame(() => {
+                      const textarea = document.querySelector(
+                        '[aria-label="Copia del borrador"]',
+                      )
+                      textarea?.focus()
+                      textarea?.select()
+                    })
                   }
                 }}
               >

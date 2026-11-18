@@ -270,3 +270,26 @@ test('edits and removes a published record while preserving unknown data', () =>
   assert.equal('publicationId' in deleted.articles[0], false)
   assert.equal(deleted.articles[0].customArticleField, true)
 })
+
+test('orders Spanish numeric dates by day and month without US interpretation', () => {
+  const items = [
+    { id: 'older', text: 'Older', publishedAt: '12/01/2026' },
+    { id: 'latest', text: 'Latest', publishedAt: '18/11/2026' },
+    { id: 'iso', text: 'ISO', publishedAt: ['2026', '10', '20'].join('-') },
+    { id: 'invalid', text: 'Unknown', publishedAt: '31/02/2026' },
+  ]
+  assert.deepEqual(
+    sortLinkedInPublications(items).map((item) => item.id),
+    ['latest', 'iso', 'older', 'invalid'],
+  )
+  assert.equal(items[0].id, 'older')
+})
+
+test('orders LinkedIn relative labels newest first, including edited labels', () => {
+  const labels = ['2 años • Editado', '7 meses • Editado', '1 año', '3 meses', '2 meses', '9 meses', '8 meses', '2 sem', '11 meses', '6 días']
+  const items = labels.map((publishedAt, index) => ({ id: String(index), text: 'Post', publishedAt }))
+  assert.deepEqual(
+    sortLinkedInPublications(items).map(item => item.publishedAt),
+    ['6 días', '2 sem', '2 meses', '3 meses', '7 meses • Editado', '8 meses', '9 meses', '11 meses', '1 año', '2 años • Editado'],
+  )
+})

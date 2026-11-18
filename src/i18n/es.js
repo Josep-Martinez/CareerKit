@@ -367,6 +367,11 @@ export const STRINGS = {
     nextProfileBody:
       'Añade tus objetivos, preferencias y evidencias. Este dossier puede guardar también lo que no publicas en LinkedIn.',
     profileAction: 'Completar Perfil',
+    nextExportTitle: '¿Tienes el ZIP de LinkedIn? Empieza por aquí',
+    nextExportBody:
+      'Este prompt puede completar Perfil, la copia de LinkedIn y tus publicaciones anteriores en un solo paso. Si aún no tienes el ZIP, también te explica cómo solicitarlo.',
+    exportAction: 'Abrir el paso para usar el ZIP',
+    manualProfileAction: 'No tengo el ZIP: empezar por Perfil',
     nextLinkedinTitle: 'Añade la copia de tu LinkedIn',
     nextLinkedinBody:
       'Puedes transcribirla en el formulario o pedir al agente que la organice desde un archivo legible.',
@@ -998,14 +1003,20 @@ export const STRINGS = {
     noEvidence: 'No hay evidencias confirmadas guardadas en Perfil.',
     evidenceHint:
       'Se compartirán solo los identificadores seleccionados. El agente comprobará esos hechos en el archivo local.',
+    peopleToMention: '¿A quién te gustaría mencionar? (opcional)',
+    peopleToMentionHint:
+      'Indica el nombre, a qué se dedica y por qué encaja mencionarle. Si son varias personas, escribe una por línea. CareerKit no añade etiquetas reales de LinkedIn; podrás etiquetarlas al publicar.',
     copyPostPrompt: 'Copiar prompt para crear borrador en inglés',
     commentTitle: 'Preparar un comentario',
     commentDescription:
-      'Pega el texto de la publicación y añade qué piensas o qué quieres aportar. El agente no abrirá cuentas ni buscará la publicación.',
-    commentSource: 'Texto de la publicación que quieres comentar',
-    commentPoint: 'Tu opinión o aportación',
+      'Pega el texto o el enlace público de la publicación. Si dejas tu postura vacía, el agente propondrá un enfoque a partir de tu Perfil y de tus respuestas anteriores para que lo revises.',
+    commentSource:
+      'Texto o enlace público de la publicación que quieres comentar',
+    commentSourceHint:
+      'Puedes pegar el contenido o el enlace directo. Si la página pide iniciar sesión o no se puede leer públicamente, el agente te pedirá el texto.',
+    commentPoint: 'Tu opinión o aportación (opcional)',
     commentPointHint:
-      'Una pregunta, matiz, experiencia o idea concreta que sí compartes.',
+      'Si lo dejas vacío, el agente usará Perfil y tus respuestas anteriores para proponer un enfoque. Lo marcará como borrador, no como una opinión confirmada.',
     copyCommentPrompt: 'Copiar prompt para redactar comentarios',
     promptPreview: 'Ver prompt que copiarás',
     promptContext: {
@@ -1021,9 +1032,12 @@ export const STRINGS = {
       articleRelevance: 'Relevancia',
       userOpinion: 'Mi opinión',
       evidenceIds: 'IDs de evidencias confirmadas seleccionadas en Perfil',
+      peopleToMention: 'Personas que me gustaría mencionar y su contexto',
       commentMaterial: 'Material y aportación para esta solicitud',
-      postText: 'Texto de la publicación',
+      postText: 'Texto o enlace público de la publicación',
       commentOpinion: 'Mi opinión o aportación',
+      suggestCommentAngleWhenMissing:
+        'No he indicado una opinión propia. Usa únicamente intereses, temas y tono pertinentes de private-data/profile.json si está disponible con acceso local autorizado, junto con mis respuestas relevantes anteriores en esta conversación, para proponer un ángulo y redactar dos borradores. No presentes esa postura como opinión confirmada, no inventes hechos ni experiencias y no reveles información privada. Si no hay contexto suficiente, hazme una pregunta concreta antes de redactar.',
     },
     save: 'Guardar cambios en la cola',
     saved: 'Cambios guardados en linkedin-content.json.',
@@ -1082,6 +1096,11 @@ export const STRINGS = {
     draftTextLabel: 'Texto del borrador en inglés',
     draftEditHint:
       'Los cambios se guardan al pulsar Guardar edición. Si cambias el texto, vuelve a quedar pendiente de revisión.',
+    openDraftEditor: 'Abrir editor grande',
+    draftEditorTitle: 'Revisar borrador con más espacio',
+    draftEditorDescription:
+      'Edita aquí el texto completo. Guarda la edición para conservarla; después podrás confirmar el texto o registrarlo como publicado.',
+    closeDraftEditor: 'Volver a la tarjeta',
     saveDraftEdit: 'Guardar edición',
     confirmDraftText: 'Confirmar texto',
     markDraftPublished: 'Ya la publiqué · registrar',

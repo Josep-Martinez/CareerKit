@@ -8,11 +8,15 @@ Un recorrido para empezar. Puedes usar cada sección cuando la necesites.
 
 ```mermaid
 flowchart TD
-    A["Conecta tu carpeta"] --> B["Completa Perfil"]
-    B --> C["Guarda tu copia de LinkedIn"]
-    C --> D["Prepara tus dos CV"]
-    D --> E["Busca y compara vacantes"]
-    B --> F["Descubre lecturas y prepara publicaciones"]
+    A["Conecta tu carpeta"] --> B{"¿Tienes la exportación ZIP de LinkedIn?"}
+    B -- "Sí" --> C["Importa Perfil, LinkedIn y publicaciones"]
+    B -- "No" --> D["Completa Perfil"]
+    D --> E["Guarda tu copia de LinkedIn"]
+    C --> F["Revisa Perfil y LinkedIn"]
+    E --> F
+    F --> G["Prepara tus dos CV"]
+    G --> H["Busca y compara vacantes"]
+    F --> I["Descubre lecturas y prepara publicaciones"]
 ```
 
 ## Primera vez
@@ -25,7 +29,7 @@ flowchart TD
 
 4. Abre [CareerKit en tu ordenador](http://127.0.0.1:5173/). Si ya ves Inicio, puedes empezar. Si aparece **Conectar la carpeta de este proyecto**, puedes usarla para autorizar la carpeta que CareerKit ha encontrado. Para elegirla tú, pulsa **Conectar carpeta de datos**, selecciona **private-data** dentro del proyecto y acepta el permiso del navegador. Si te ofrece preparar archivos que faltan, confirma la creación de las plantillas vacías.
 
-La primera apertura está vacía. Empieza por **Perfil y aprendizajes** y pulsa **Guardar** cuando hayas añadido información. Puedes dejar Vacantes vacía hasta que quieras buscar.
+La primera apertura está vacía. Si ya tienes la exportación ZIP de LinkedIn, úsala como primer paso: cuando Perfil, LinkedIn y Tus publicaciones estén vacíos, **Inicio** destacará el prompt que los completa juntos. Si no tienes el ZIP, empieza por **Perfil y aprendizajes** y pulsa **Guardar** cuando hayas añadido información. Puedes dejar Vacantes vacía hasta que quieras buscar.
 
 ### Prepararlo sin asistente
 
@@ -84,6 +88,22 @@ Mira la guía de progreso para saber qué puedes preparar a continuación. Si fa
 3. En **Intereses y voz para publicaciones**, añade temas, perspectivas, tono y preferencias de fuentes. Puedes anotar personas, medios o empresas que te gustaría seguir.
 4. Añade formación, experiencia, habilidades, idiomas, certificaciones, proyectos y aprendizajes. En cada evidencia puedes indicar si está confirmada, sirve para el CV, aparece en LinkedIn o es interna. Añade acciones y resultados que puedas demostrar.
 5. Pulsa **Guardar perfil**. Si prefieres ayuda, el Buzón ofrece tres entradas: una entrevista guiada, organizar el material que compartas y actualizar la trayectoria a partir de tu CV y LinkedIn. Comparte tus preferencias y objetivos directamente si quieres que el asistente los guarde.
+
+### Rellenar CareerKit con la exportación de LinkedIn
+
+Si todavía no has añadido información a CareerKit, esta es la forma más rápida de completar **Perfil**, **LinkedIn** y el archivo de **Tus publicaciones** en una sola preparación. Si tienes el ZIP, en **Inicio** pulsa el paso destacado para abrir directamente el prompt. También puedes encontrarlo en **Buzón** con el nombre **Completar Perfil, LinkedIn y publicaciones desde el ZIP de LinkedIn**. Desde un ordenador, solicita una copia de tus datos:
+
+1. En LinkedIn, pulsa **Yo → Ajustes y privacidad**.
+2. Abre **Privacidad de datos → Descargar tus datos**.
+3. Selecciona **Descarga un archivo de datos más grande**, la opción que incluye contactos, verificaciones, historial y otra información.
+4. Pulsa **Solicitar archivo** y completa la confirmación que LinkedIn solicite.
+5. Espera el aviso por correo. Puede tardar unas horas, hasta 24 horas según LinkedIn. Vuelve a esa misma ventana cuando esté preparado y descarga el ZIP. El enlace de descarga está disponible durante 72 horas. [Ayuda oficial de LinkedIn](https://www.linkedin.com/help/linkedin/answer/a1339364).
+6. En **Buzón**, copia **Completar Perfil, LinkedIn y publicaciones desde el ZIP de LinkedIn**. Pégalo en tu asistente y adjunta el ZIP. También puedes darle la ruta local del archivo descargado si el asistente puede abrirla.
+7. Revisa las aclaraciones que te pida. Al terminar, abre **Perfil**, **LinkedIn** y **Tus publicaciones** y recarga los archivos cuando CareerKit avise.
+
+El prompt aprovecha el perfil profesional y el texto de tus publicaciones. Completa los hechos de Perfil junto con lo que ya has guardado y conserva tus objetivos e intereses. Las publicaciones históricas mantienen su idioma original. La creación de nuevos borradores sigue el flujo en inglés de Contenido de LinkedIn.
+
+El archivo grande contiene información privada adicional. Guárdalo en una ubicación privada. Si necesita extraerlo, el asistente usa una subcarpeta de `private-data/`. Adjuntarlo a un chat comparte ese archivo con el servicio del chat. El prompt limita la lectura a las categorías necesarias para esta tarea.
 
 ### LinkedIn
 
