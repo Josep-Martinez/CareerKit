@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   PageHeading,
   Status,
@@ -628,7 +628,6 @@ export function VacanciesPage({
   value,
   profile,
   onOpenAdaptation,
-  onOpenResearch,
   onDirtyChange,
   onDraftChange,
   saving,
@@ -650,10 +649,20 @@ export function VacanciesPage({
   const [comparison, setComparison] = useState([])
   const [search, setSearch] = useState('')
   const [promptNotice, setPromptNotice] = useState('')
+  const [promptCopyError, setPromptCopyError] = useState(false)
+  const [promptFallback, setPromptFallback] = useState('')
+  const [promptFallbackRevision, setPromptFallbackRevision] = useState(0)
+  const promptFallbackRef = useRef(null)
   const evidence = collectProfileEvidence(profile)
   const items = [...draft.items].sort(
     (a, b) => (a.preference || 999) - (b.preference || 999),
   )
+
+  useEffect(() => {
+    if (!promptFallback) return
+    promptFallbackRef.current?.focus()
+    promptFallbackRef.current?.select()
+  }, [promptFallback, promptFallbackRevision])
 
   const comparedItems = items.filter((item) => comparison.includes(item.id))
   const normalizeSearch = (value) =>
@@ -730,12 +739,23 @@ export function VacanciesPage({
     const prompt = PROMPT_INBOX_ES.prompts.find((item) => item.id === promptId)
     if (!prompt) return
     const text = buildPromptText(prompt)
+    setPromptFallback('')
+    setPromptNotice('')
+    setPromptCopyError(false)
     if (await copyTextToClipboard(text)) {
+      setPromptCopyError(false)
       setPromptNotice(vacancyCopy.promptCopied)
     } else {
+      setPromptCopyError(true)
       setPromptNotice(vacancyCopy.promptCopyFailed)
-      onOpenResearch?.(promptId)
+      setPromptFallback(text)
+      setPromptFallbackRevision((revision) => revision + 1)
     }
+  }
+
+  function selectPromptFallback() {
+    promptFallbackRef.current?.focus()
+    promptFallbackRef.current?.select()
   }
 
   const hasChanges = draftDirty
@@ -943,9 +963,41 @@ export function VacanciesPage({
         }
       />
       {promptNotice && (
-        <p className="vacancy-prompt-notice" role="status" aria-live="polite">
+        <p
+          className={`vacancy-prompt-notice${promptCopyError ? ' is-error' : ''}`}
+          role="status"
+          aria-live="polite"
+        >
           {promptNotice}
         </p>
+      )}
+      {promptFallback && (
+        <section
+          className="vacancy-copy-fallback"
+          aria-labelledby="vacancy-copy-fallback-title"
+        >
+          <label className="field" htmlFor="vacancy-copy-fallback-text">
+            <span id="vacancy-copy-fallback-title">
+              {vacancyCopy.copyFallbackLabel}
+            </span>
+            <textarea
+              id="vacancy-copy-fallback-text"
+              ref={promptFallbackRef}
+              readOnly
+              rows={8}
+              value={promptFallback}
+              onFocus={(event) => event.target.select()}
+            />
+          </label>
+          <p>{vacancyCopy.copyFallbackHint}</p>
+          <button
+            className="button secondary small"
+            type="button"
+            onClick={selectPromptFallback}
+          >
+            {vacancyCopy.selectFallback}
+          </button>
+        </section>
       )}
       <Status
         fileName="vacancies"

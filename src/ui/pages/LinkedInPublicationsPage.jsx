@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText, PROMPT_INBOX_ES } from '../../i18n/prompt-inbox.es.js'
 import { copyTextToClipboard } from '../clipboard.js'
@@ -85,6 +85,9 @@ export function LinkedInPublicationsPage({
   const [editingPublicationId, setEditingPublicationId] = useState('')
   const [publicationEdit, setPublicationEdit] = useState(null)
   const [expandedDraftId, setExpandedDraftId] = useState('')
+  const previousPublicationIds = useRef(
+    new Set((value.publications || []).map((publication) => publication.id)),
+  )
   const articles = draft.articles || []
   const publications = draft.publications || []
   const postDrafts = (draft.drafts || []).slice().reverse()
@@ -119,6 +122,26 @@ export function LinkedInPublicationsPage({
   useEffect(() => {
     onDirtyChange?.(dirty || formDirty)
   }, [dirty, formDirty, onDirtyChange])
+
+  useEffect(() => {
+    const nextPublications = value.publications || []
+    const newlyRegistered = sortLinkedInPublications(nextPublications).find(
+      (publication) => !previousPublicationIds.current.has(publication.id),
+    )
+    previousPublicationIds.current = new Set(
+      nextPublications.map((publication) => publication.id),
+    )
+    if (!newlyRegistered) return undefined
+    const frame = window.requestAnimationFrame(() => {
+      const card = document.getElementById(
+        `publication-card-${newlyRegistered.id}`,
+      )
+      if (!card) return
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      card.focus({ preventScroll: true })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [value.publications])
 
   function updateForm(key, nextValue) {
     setFormTouched(true)
@@ -499,6 +522,7 @@ export function LinkedInPublicationsPage({
               value={form.publishedAt}
               onChange={(date) => updateForm('publishedAt', date)}
               placeholder="AAAA-MM-DD"
+              hint={copy.dateHint}
             />
             <TextField
               label={copy.urlLabel}
@@ -712,6 +736,7 @@ export function LinkedInPublicationsPage({
                   className="publication-archive-card"
                   key={publication.id}
                   id={`publication-card-${publication.id}`}
+                  tabIndex={-1}
                 >
                   <div className="publication-archive-topline">
                     <span className="content-linkedin-status is-published">

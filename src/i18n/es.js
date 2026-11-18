@@ -122,6 +122,8 @@ export const STRINGS = {
     conflict:
       'El archivo cambió antes de guardar. No se guardó este intento y tu edición sigue visible. Si cargas la versión actual, el formulario la mostrará y podrás volver a aplicar lo que quieras conservar.',
     reloadExternal: 'Cargar versión actual',
+    linkedinContentReloaded:
+      'Se cargó el cambio de linkedin-content.json. La publicación ya aparece en el archivo.',
   },
   dataConnection: {
     bannerEyebrow: 'TUS ARCHIVOS LOCALES',
@@ -559,7 +561,11 @@ export const STRINGS = {
     promptCopied:
       'Prompt copiado. Pégalo en tu asistente para empezar esta tarea.',
     promptCopyFailed:
-      'No se pudo copiar automáticamente. Abrí el Buzón para que puedas copiarlo allí.',
+      'No se pudo copiar automáticamente. El prompt está seleccionado abajo; cópialo con ⌘C en Mac o Ctrl+C en Windows y Linux.',
+    copyFallbackLabel: 'Prompt listo para copiar manualmente',
+    copyFallbackHint:
+      'El texto ya está seleccionado. Si no se copia, pulsa el botón y usa ⌘C en Mac o Ctrl+C en Windows y Linux.',
+    selectFallback: 'Seleccionar prompt',
     emptyAdaptedCv:
       'El CV que prepare el agente aparecerá aquí. Si acabas de guardarlo, recarga el archivo de vacantes.',
     viewAdaptedCv: 'Ver CV adaptado',
@@ -1065,6 +1071,8 @@ export const STRINGS = {
     languageLabel: 'Idioma (opcional)',
     languageNone: 'No indicado',
     dateLabel: 'Fecha de publicación (opcional)',
+    dateHint:
+      'Si no la indicas, se guardará el día en que registres la publicación en CareerKit.',
     urlLabel: 'Enlace a la publicación (opcional)',
     sourceLabel: 'Artículo relacionado (opcional)',
     noSource: 'Sin artículo relacionado',

@@ -14,6 +14,7 @@ import {
 import { isKnownEmpty, isKnownPopulated } from './utils.js'
 import { checkEvidenceRemoval } from './profile-evidence-guard.js'
 import { copyTextToClipboard } from './clipboard.js'
+import { shouldAutoReloadExternalContent } from './external-change.js'
 import { BrandIcon } from './components/BrandIcon.jsx'
 import { SectionIcon } from './components/SectionIcon.jsx'
 import { WorkspaceGate } from './components/WorkspaceGate.jsx'
@@ -348,6 +349,22 @@ export default function App() {
             txt !== store.revision[key] &&
             store.revision[key] !== undefined
           ) {
+            if (
+              shouldAutoReloadExternalContent({
+                module: key,
+                hasUnsavedChanges,
+                isSaving: Boolean(pendingSave.current || savingModule),
+              })
+            ) {
+              externalRevisions.current[key] = txt
+              const result = await reload(key, { remind: false })
+              if (
+                result.ok &&
+                ['linkedin-content', 'linkedin-publications'].includes(page)
+              )
+                showNotice(s.saveStatus.linkedinContentReloaded)
+              continue
+            }
             if (externalRevisions.current[key] === txt) continue
             externalRevisions.current[key] = txt
             if (store.states[key] !== 'Cambio externo') {
@@ -443,7 +460,14 @@ export default function App() {
       window.removeEventListener('focus', refreshExternalChanges)
       document.removeEventListener('visibilitychange', refreshWhenVisible)
     }
-  }, [store.folder, store.revision, store.states])
+  }, [
+    store.folder,
+    store.revision,
+    store.states,
+    page,
+    hasUnsavedChanges,
+    savingModule,
+  ])
 
   useEffect(() => {
     if (store.restoreStatus !== 'restored' || !store.restoreResult) return
@@ -1055,11 +1079,6 @@ export default function App() {
             <VacanciesPage
               {...draftProps('vacancies')}
               key={`${editorReset.vacancies || 0}:${vacancyId || ''}`}
-              onOpenResearch={(promptId = 'research-vacancies') => {
-                if (!navigateTo('prompts')) return
-                setFocusedPromptId(promptId)
-                showNotice('')
-              }}
               value={store.data.vacancies}
               profile={store.data.profile}
               onOpenAdaptation={openVacancyAdaptation}
