@@ -1009,11 +1009,13 @@ export const STRINGS = {
     copyPostPrompt: 'Copiar prompt para crear borrador en inglés',
     commentTitle: 'Preparar un comentario',
     commentDescription:
-      'Pega el texto de la publicación y añade qué piensas o qué quieres aportar. El agente no abrirá cuentas ni buscará la publicación.',
+      'Pega el texto de la publicación. Añade tu postura si ya la tienes; si la dejas vacía, el prompt pedirá al agente que te pregunte antes de redactar. No abrirá cuentas ni buscará la publicación.',
     commentSource: 'Texto de la publicación que quieres comentar',
-    commentPoint: 'Tu opinión o aportación',
+    commentSourceHint:
+      'Necesitas pegar el texto para habilitar la copia del prompt.',
+    commentPoint: 'Tu opinión o aportación (opcional)',
     commentPointHint:
-      'Una pregunta, matiz, experiencia o idea concreta que sí compartes.',
+      'Si no la incluyes, el prompt pedirá al agente que te pregunte antes de redactar.',
     copyCommentPrompt: 'Copiar prompt para redactar comentarios',
     promptPreview: 'Ver prompt que copiarás',
     promptContext: {
@@ -1033,6 +1035,8 @@ export const STRINGS = {
       commentMaterial: 'Material y aportación para esta solicitud',
       postText: 'Texto de la publicación',
       commentOpinion: 'Mi opinión o aportación',
+      askForCommentOpinion:
+        'Todavía no he indicado qué pienso o qué quiero aportar. Pregúntame antes de redactar opciones.',
     },
     save: 'Guardar cambios en la cola',
     saved: 'Cambios guardados en linkedin-content.json.',

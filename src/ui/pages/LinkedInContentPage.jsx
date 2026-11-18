@@ -228,7 +228,7 @@ export function LinkedInContentPage({
         prompt.text,
         `---\n${copy.promptContext.commentMaterial}`,
         `${copy.promptContext.postText}:\n${commentSource.trim()}`,
-        `${copy.promptContext.commentOpinion}:\n${commentOpinion.trim()}`,
+        `${copy.promptContext.commentOpinion}:\n${commentOpinion.trim() || copy.promptContext.askForCommentOpinion}`,
       ].join('\n\n'),
     })
   }
@@ -826,6 +826,7 @@ export function LinkedInContentPage({
             rows={9}
             value={commentSource}
             onChange={setCommentSource}
+            hint={copy.commentSourceHint}
           />
           <TextField
             label={copy.commentPoint}
@@ -837,7 +838,7 @@ export function LinkedInContentPage({
           <button
             type="button"
             className="button primary"
-            disabled={!commentSource.trim() || !commentOpinion.trim()}
+            disabled={!commentSource.trim()}
             onClick={() =>
               copyPrompt(buildCommentPrompt(), 'draft-linkedin-comment')
             }

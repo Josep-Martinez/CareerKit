@@ -98,3 +98,18 @@ test('post creation prompt prepares a strong draft for user review', () => {
   assert.match(prompt.text, /no publiques/i)
   assert.match(prompt.text, /Tus publicaciones/)
 })
+
+test('comment prompt asks for the user\'s point of view before drafting when absent', () => {
+  const prompt = PROMPT_INBOX_ES.prompts.find(
+    (item) => item.id === 'draft-linkedin-comment',
+  )
+  const requirements = PROMPT_REQUIREMENTS['draft-linkedin-comment']
+
+  assert.ok(prompt)
+  assert.match(
+    prompt.text,
+    /si no he indicado.*pregúntame primero.*no redactes comentarios todavía/i,
+  )
+  assert.match(prompt.text, /no deduzcas mi postura/i)
+  assert.match(requirements.files.join(' '), /opinión.*opcional/i)
+})
