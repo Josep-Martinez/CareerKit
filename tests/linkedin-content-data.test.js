@@ -157,6 +157,28 @@ test('registers an exact publication and marks its accepted article published', 
   assert.equal(result.data.articles[0].publicationId, publication.id)
 })
 
+test('uses the registration day when a published post has no date', () => {
+  const post = {
+    id: 'publication-without-date',
+    type: 'learning',
+    language: 'en',
+    text: 'A newly registered post.',
+  }
+  const now = new Date()
+  const today = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+  ].join('-')
+
+  const result = registerLinkedInPublication(emptyContent, post)
+
+  assert.equal(result.ok, true)
+  assert.equal(result.data.publications[0].publishedAt, today)
+  assert.equal(sortLinkedInPublications(result.data.publications)[0].id, post.id)
+  assert.equal(registerLinkedInPublication(result.data, post).duplicate, true)
+})
+
 test('does not register a publication for a non-accepted article or replace an ID', () => {
   const rejectedSource = {
     ...emptyContent,

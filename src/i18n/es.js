@@ -122,6 +122,8 @@ export const STRINGS = {
     conflict:
       'El archivo cambió antes de guardar. No se guardó este intento y tu edición sigue visible. Si cargas la versión actual, el formulario la mostrará y podrás volver a aplicar lo que quieras conservar.',
     reloadExternal: 'Cargar versión actual',
+    linkedinContentReloaded:
+      'Se cargó el cambio de linkedin-content.json. La publicación ya aparece en el archivo.',
   },
   dataConnection: {
     bannerEyebrow: 'TUS ARCHIVOS LOCALES',
@@ -1065,6 +1067,8 @@ export const STRINGS = {
     languageLabel: 'Idioma (opcional)',
     languageNone: 'No indicado',
     dateLabel: 'Fecha de publicación (opcional)',
+    dateHint:
+      'Si no la indicas, se guardará el día en que registres la publicación en CareerKit.',
     urlLabel: 'Enlace a la publicación (opcional)',
     sourceLabel: 'Artículo relacionado (opcional)',
     noSource: 'Sin artículo relacionado',

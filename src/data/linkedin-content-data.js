@@ -106,7 +106,10 @@ export function registerLinkedInPublication(data, publication) {
   const publications = data.publications || []
   const existing = publications.find((item) => item.id === publication.id)
   if (existing) {
-    const identical = JSON.stringify(existing) === JSON.stringify(publication)
+    const comparableExisting = { ...existing }
+    if (!publication.publishedAt?.trim()) delete comparableExisting.publishedAt
+    const identical =
+      JSON.stringify(comparableExisting) === JSON.stringify(publication)
     return identical
       ? { ok: true, duplicate: true, data }
       : { ok: false, reason: 'id-conflict' }
@@ -130,15 +133,27 @@ export function registerLinkedInPublication(data, publication) {
     )
   }
 
+  const registeredPublication = publication.publishedAt?.trim()
+    ? publication
+    : { ...publication, publishedAt: localDate() }
+
   return {
     ok: true,
     duplicate: false,
     data: {
       ...data,
       articles,
-      publications: [...publications, publication],
+      publications: [...publications, registeredPublication],
     },
   }
+}
+
+function localDate(date = new Date()) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0'),
+  ].join('-')
 }
 
 const publicationTitle = (publication) =>
