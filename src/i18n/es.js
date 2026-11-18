@@ -20,7 +20,7 @@ export const STRINGS = {
     priority: 'ALTA PRIORIDAD · PRIMER PASO',
     eyebrow: 'TUS ARCHIVOS SE QUEDAN EN TU DISPOSITIVO',
     title: 'Crea o conecta tu carpeta privada',
-    body: 'CareerKit necesita una carpeta local para mostrar y guardar información. Crea private-data/ en la raíz de este proyecto con los JSON vacíos de templates/, o conecta la carpeta si ya la tienes. Al conectar, la web solicitará permiso para leer y guardar. También puedes pedirle a tu asistente local que prepare la carpeta; solo podrá editar esos archivos si tiene acceso local al proyecto.',
+    body: 'Si ya tienes una carpeta private-data, conéctala para recuperar tus datos. Si es tu primera vez y aún no existe, abre el prompt de preparación o sigue la guía de abajo.',
     checkingTitle: 'Buscando tu carpeta guardada',
     checkingBody:
       'Comprobando si este navegador ya recuerda la carpeta que conectaste anteriormente.',
@@ -38,6 +38,13 @@ export const STRINGS = {
       'No encontramos private-data en este proyecto. Abre el prompt de preparación, pásaselo a tu asistente local y vuelve a pulsar este botón.',
     wrongFolder:
       'Se ha seleccionado «{name}», pero CareerKit necesita la carpeta llamada private-data. Si elegiste la raíz del proyecto, vuelve a seleccionar private-data dentro de ella.',
+    helpTitle: '¿No puedes conectar la carpeta?',
+    helpSteps: [
+      'Si estás en la vista de un asistente, abre http://127.0.0.1:5173/ en tu navegador habitual.',
+      'Si CareerKit no abre o dejó de responder, guarda o copia cualquier edición pendiente. En la terminal de CareerKit, pulsa Ctrl+C, ejecuta pnpm local y vuelve a abrir la web.',
+      'Elige private-data dentro de tu copia de CareerKit y concede permiso de lectura y escritura. Si ya tenías datos y ves todo vacío, localiza la carpeta original antes de preparar archivos nuevos.',
+      'Si el selector sigue sin funcionar, usa «Abrir JSON de private-data». En ese modo descarga los cambios y sustituye el archivo correspondiente para conservarlos.',
+    ],
     pickerHelp:
       'En la ventana del sistema, selecciona la carpeta llamada private-data y confirma con «Seleccionar carpeta». Al conectarla, CareerKit seguirá adelante aunque los JSON estén vacíos.',
     connectCancelled:
