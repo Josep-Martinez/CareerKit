@@ -149,14 +149,29 @@ const publicationTitle = (publication) =>
   publication.type ||
   publication.id
 
+function publicationTimestamp(value) {
+  if (typeof value !== 'string' || !value.trim()) return Number.NaN
+  const date = value.trim()
+  const european = date.match(/^(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{4})$/)
+  if (european) {
+    const [, day, month, year] = european.map(Number)
+    const timestamp = Date.UTC(year, month - 1, day)
+    const parsed = new Date(timestamp)
+    return parsed.getUTCFullYear() === year &&
+      parsed.getUTCMonth() === month - 1 &&
+      parsed.getUTCDate() === day
+      ? timestamp
+      : Number.NaN
+  }
+  return Date.parse(date)
+}
+
 export function sortLinkedInPublications(publications = []) {
   const dated = []
   const undated = []
 
   for (const publication of publications) {
-    const timestamp = publication.publishedAt
-      ? Date.parse(publication.publishedAt)
-      : Number.NaN
+    const timestamp = publicationTimestamp(publication.publishedAt)
     if (Number.isFinite(timestamp)) dated.push({ publication, timestamp })
     else undated.push(publication)
   }
