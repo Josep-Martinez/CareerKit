@@ -560,7 +560,14 @@ export default function App() {
     try {
       const result = await store.connectFiles(files)
       if (result.error) {
-        setFallbackConnectError(s.fallbackFiles.noRecognized)
+        setFallbackConnectError(
+          result.error === 'noValidFiles'
+            ? [
+                'No se pudo abrir ningún archivo. Revisa los siguientes problemas y vuelve a seleccionar los JSON.',
+                ...result.invalid.map(({ message }) => message),
+              ].join(' ')
+            : s.fallbackFiles.noRecognized,
+        )
         return
       }
       resetEditor(page)

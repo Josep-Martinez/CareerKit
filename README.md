@@ -185,6 +185,8 @@ Al abrir CareerKit, la web compara automáticamente la estructura de los JSON co
 
 Si el navegador bloquea el selector de carpeta, pulsa **Abrir JSON de private-data**, entra en tu carpeta y selecciona los archivos JSON. En este modo, cuando edites un archivo, descarga el resultado y sustituye el original en tu carpeta para conservar el cambio.
 
+Si ningún JSON seleccionado puede abrirse, CareerKit mantiene la conexión anterior y muestra el motivo por archivo. Si seleccionaste dos copias con el mismo nombre, elige solo la de tu carpeta de datos.
+
 ### Cómo saber si se guardó
 
 | Modo | Qué ocurre al guardar |

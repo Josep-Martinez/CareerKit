@@ -928,6 +928,8 @@ export function useStorageState() {
       }
     }
 
+    if (!loaded.length) return { error: 'noValidFiles', invalid }
+
     setData(nextData)
     setStates(nextStates)
     setWarnings(nextWarnings)
