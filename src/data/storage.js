@@ -287,7 +287,16 @@ const validators = {
     optionalContext(
       d.careerPreferences,
       ['location', 'conditions'],
-      ['roleFamilies', 'tasks', 'industries', 'workModes', 'avoid'],
+      [
+        'roleFamilies',
+        'tasks',
+        'industries',
+        'workModes',
+        'mustHaves',
+        'niceToHaves',
+        'thingsToClarify',
+        'avoid',
+      ],
       ['internal'],
     ) &&
     optionalContext(
