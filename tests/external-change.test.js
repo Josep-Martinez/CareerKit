@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { shouldAutoReloadExternalContent } from '../src/ui/external-change.js'
+import {
+  shouldAutoReloadExternalContent,
+  shouldShowExternalContentReloadTask,
+} from '../src/ui/external-change.js'
 
 test('auto reloads external LinkedIn content only when its editor is safe', () => {
   assert.equal(
@@ -35,4 +38,12 @@ test('auto reloads external LinkedIn content only when its editor is safe', () =
     }),
     false,
   )
+})
+
+test('shows an inbox reload task only while LinkedIn content is externally stale', () => {
+  assert.equal(shouldShowExternalContentReloadTask('Cambio externo'), true)
+  assert.equal(shouldShowExternalContentReloadTask('Conflicto externo'), true)
+  assert.equal(shouldShowExternalContentReloadTask('Cargado'), false)
+  assert.equal(shouldShowExternalContentReloadTask('Guardado'), false)
+  assert.equal(shouldShowExternalContentReloadTask(undefined), false)
 })

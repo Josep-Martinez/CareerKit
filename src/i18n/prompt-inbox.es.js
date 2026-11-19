@@ -16,6 +16,11 @@ export const PROMPT_INBOX_ES = {
     'Has guardado cambios en LinkedIn. Copiar el prompt no lo ejecuta: úsalo con un agente que pueda guardar en tu carpeta local. El aviso se retira cuando el archivo indica que la revisión está completa. Si ya comprobaste ambas versiones, puedes confirmarlo aquí.',
   pendingLanguagesExternalChange:
     'El archivo de LinkedIn cambió fuera de la web. Vuelve a leerlo para comprobar si el agente completó la revisión.',
+  pendingLinkedInContentReloadBody:
+    'Hay cambios externos en linkedin-content.json que esta web aún no ha cargado. Recárgalo para ver los perfiles, lecturas o borradores nuevos.',
+  reloadLinkedInContent: 'Recargar linkedin-content.json',
+  linkedinContentReloadUnavailable:
+    'Conecta la carpeta de datos para cargar los cambios de linkedin-content.json.',
   confirmLinkedInSync: 'Ya he revisado las dos versiones',
   confirmLinkedInSyncQuestion:
     '¿Confirmas que las versiones en español e inglés ya están revisadas? CareerKit guardará la confirmación en linkedin.json.',

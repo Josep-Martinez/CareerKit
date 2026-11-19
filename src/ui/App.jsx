@@ -14,7 +14,10 @@ import {
 import { isKnownEmpty, isKnownPopulated } from './utils.js'
 import { checkEvidenceRemoval } from './profile-evidence-guard.js'
 import { copyTextToClipboard } from './clipboard.js'
-import { shouldAutoReloadExternalContent } from './external-change.js'
+import {
+  shouldAutoReloadExternalContent,
+  shouldShowExternalContentReloadTask,
+} from './external-change.js'
 import { BrandIcon } from './components/BrandIcon.jsx'
 import { SectionIcon } from './components/SectionIcon.jsx'
 import { WorkspaceGate } from './components/WorkspaceGate.jsx'
@@ -129,8 +132,13 @@ export default function App() {
   const linkedinLanguagesPending =
     externalLinkedinPending ??
     store.data.linkedin.languageSync?.status === 'pending'
+  const linkedinContentNeedsReload = shouldShowExternalContentReloadTask(
+    store.states['linkedin-content'],
+  )
   const pendingPromptCount =
-    Number(cvPromptPending) + Number(linkedinLanguagesPending)
+    Number(cvPromptPending) +
+    Number(linkedinLanguagesPending) +
+    Number(linkedinContentNeedsReload)
   const pendingPublicationDraftCount = (
     store.data['linkedin-content'].drafts || []
   ).filter((postDraft) => postDraft.status === 'needs-review').length
@@ -293,6 +301,14 @@ export default function App() {
     }
     if (!confirmDiscard()) return
     await reloadEditor(module)
+  }
+
+  async function reloadLinkedInContentFromInbox() {
+    if (pendingSave.current || !confirmDiscard()) return
+    const result = await reload('linkedin-content', { remind: false })
+    if (!result.ok) return
+    resetEditor('linkedin-content')
+    showNotice(s.saveStatus.linkedinContentReloaded)
   }
 
   async function reloadEditor(module) {
@@ -1108,9 +1124,12 @@ export default function App() {
                   'Conflicto externo',
                 ].includes(store.states.linkedin),
                 linkedinCanCheck: Boolean(store.folder),
+                linkedinContentNeedsReload,
+                linkedinContentCanReload: Boolean(store.folder),
               }}
               onCheckLinkedIn={checkLinkedInSync}
               onConfirmLinkedIn={confirmLinkedInSync}
+              onReloadLinkedInContent={reloadLinkedInContentFromInbox}
               onCopy={handlePromptCopied}
             />
           )}

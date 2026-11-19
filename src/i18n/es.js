@@ -130,7 +130,7 @@ export const STRINGS = {
       'El archivo cambió antes de guardar. No se guardó este intento y tu edición sigue visible. Si cargas la versión actual, el formulario la mostrará y podrás volver a aplicar lo que quieras conservar.',
     reloadExternal: 'Cargar versión actual',
     linkedinContentReloaded:
-      'Se cargó el cambio de linkedin-content.json. La publicación ya aparece en el archivo.',
+      'Se cargaron los cambios de linkedin-content.json. Ya puedes verlos en Contenido de LinkedIn.',
   },
   dataConnection: {
     bannerEyebrow: 'TUS ARCHIVOS LOCALES',

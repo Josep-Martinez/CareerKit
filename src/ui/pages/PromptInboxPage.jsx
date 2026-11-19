@@ -13,6 +13,7 @@ export function PromptInboxPage({
   onCopy,
   onCheckLinkedIn,
   onConfirmLinkedIn,
+  onReloadLinkedInContent,
   adaptationVacancyId,
   vacancies,
   onReturnToVacancy,
@@ -21,7 +22,11 @@ export function PromptInboxPage({
   const copy = s.promptInbox
   const pendingCv = Boolean(pending?.cv)
   const pendingLinkedinLanguages = Boolean(pending?.linkedinLanguages)
-  const pendingCount = Number(pendingCv) + Number(pendingLinkedinLanguages)
+  const pendingLinkedinContent = Boolean(pending?.linkedinContentNeedsReload)
+  const pendingCount =
+    Number(pendingCv) +
+    Number(pendingLinkedinLanguages) +
+    Number(pendingLinkedinContent)
   const pendingPromptIds = new Set([
     ...(pendingCv ? ['refresh-cv'] : []),
     ...(pendingLinkedinLanguages ? ['sync-linkedin-languages'] : []),
@@ -302,6 +307,22 @@ export function PromptInboxPage({
                   >
                     {copy.confirmLinkedInSync}
                   </button>
+                )}
+              </div>
+            )}
+            {pendingLinkedinContent && (
+              <div className="prompt-linkedin-check">
+                <p>{copy.pendingLinkedInContentReloadBody}</p>
+                {pending?.linkedinContentCanReload ? (
+                  <button
+                    className="button secondary small"
+                    type="button"
+                    onClick={onReloadLinkedInContent}
+                  >
+                    {copy.reloadLinkedInContent}
+                  </button>
+                ) : (
+                  <p>{copy.linkedinContentReloadUnavailable}</p>
                 )}
               </div>
             )}
