@@ -52,6 +52,42 @@ test('vacancy discovery and availability review are separate prompts', () => {
   )
 })
 
+test('vacancy search and fit prompts share the new preference rules', () => {
+  const search = PROMPT_INBOX_ES.prompts.find(
+    (prompt) => prompt.id === 'research-vacancies',
+  )
+  const assess = PROMPT_INBOX_ES.prompts.find(
+    (prompt) => prompt.id === 'assess-vacancy',
+  )
+  const combined = `${search.text}\n${assess.text}`
+
+  for (const field of ['mustHaves', 'niceToHaves', 'thingsToClarify'])
+    assert.match(combined, new RegExp(field))
+  assert.match(combined, /conditions ambiguas/i)
+  assert.match(combined, /pendiente/i)
+  assert.match(combined, /no para excluir/i)
+  assert.match(search.text, /objetivo.*ordenar|objetivos.*orden/i)
+  assert.match(search.text, /items\[\]\.adaptedCv/)
+  assert.match(search.text, /cvAdvice/)
+  assert.match(search.text, /se muestran en Ver detalles/i)
+})
+
+test('profile prompts classify explicit preferences and preserve existing context', () => {
+  const interview = PROMPT_INBOX_ES.prompts.find(
+    (prompt) => prompt.id === 'fill-profile',
+  )
+  const material = PROMPT_INBOX_ES.prompts.find(
+    (prompt) => prompt.id === 'profile-from-material',
+  )
+  const fromCv = PROMPT_INBOX_ES.prompts.find(
+    (prompt) => prompt.id === 'profile-from-cv',
+  )
+
+  assert.match(interview.text, /mustHaves.*niceToHaves.*thingsToClarify/)
+  assert.match(material.text, /solo si el material distingue explícitamente/i)
+  assert.match(fromCv.text, /conserva lo que ya exista/i)
+})
+
 test('article discovery excludes decided readings and cleans discarded records', () => {
   const prompt = PROMPT_INBOX_ES.prompts.find(
     (item) => item.id === 'discover-linkedin-articles',
