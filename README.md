@@ -33,7 +33,7 @@ Verás dos carpetas. **CareerKit** contiene el programa y es la que abres en el 
 2. Abre **esa carpeta** como proyecto en un asistente de programación con acceso local, como Codex, Claude Code o Antigravity. Un chat que solo recibe texto no puede preparar archivos en tu ordenador.
 3. Pega este mensaje en el chat del proyecto:
 
-   > Prepara CareerKit en este ordenador. Lee AGENTS.md. Si falta Node.js o pnpm, guíame para instalarlos con pasos sencillos. Instala las dependencias con pnpm install --frozen-lockfile y prepara solo los archivos vacíos que falten con pnpm data:init. Después inicia la web con pnpm local y ábrela directamente en el navegador habitual del ordenador, fuera del asistente: usa el navegador predeterminado del sistema y no una vista previa, panel ni navegador integrado. No te limites a mostrarme un enlace. Espera a que http://127.0.0.1:5173/ esté disponible, abre esa dirección y dime que ya puedo usar CareerKit en el navegador. Deja la terminal abierta. Si aparece la pantalla para conectar la carpeta, indícame cómo seleccionar private-data y conceder el permiso. Conserva los datos que ya existan y no publiques el proyecto.
+   > Prepara CareerKit en este ordenador. Lee AGENTS.md. Si falta Node.js o pnpm, guíame para instalarlos con pasos sencillos. Instala las dependencias con pnpm install --frozen-lockfile y prepara solo los archivos vacíos que falten con pnpm data:init. Si la web ya responde desde esta carpeta, reutiliza la sesión. Solo si el servidor está detenido y el puerto libre, inicia la web con pnpm local y ábrela directamente en el navegador habitual del ordenador, fuera del asistente: usa el navegador predeterminado del sistema y no una vista previa, panel ni navegador integrado. No te limites a mostrarme un enlace. Espera a que http://127.0.0.1:5173/ esté disponible, abre esa dirección y dime que ya puedo usar CareerKit en el navegador. Deja la terminal abierta. Si aparece la pantalla para conectar la carpeta, indícame cómo seleccionar private-data y conceder el permiso. Conserva los datos que ya existan y no publiques el proyecto.
 
 4. Abre [CareerKit en tu navegador habitual](http://127.0.0.1:5173/), fuera del asistente. Si ya ves Inicio, puedes empezar. Si aparece **Conectar la carpeta de este proyecto**, puedes usarla para autorizar la carpeta que CareerKit ha encontrado. Para elegirla tú, pulsa **Conectar carpeta de datos**, selecciona **private-data** dentro del proyecto y acepta el permiso del navegador. Si te ofrece preparar archivos que faltan, confirma la creación de las plantillas vacías.
 
@@ -55,7 +55,7 @@ Cuando aparezca la dirección, abre [CareerKit](http://127.0.0.1:5173/). Los dos
 
 ## Volver a abrir CareerKit
 
-**Una vez configurado, no necesitas volver a abrir el asistente ni repetir la instalación. Cada vez que quieras usar CareerKit, abre una terminal en la carpeta del proyecto y ejecuta `pnpm local`.**
+**Una vez configurado, no necesitas volver a abrir el asistente ni repetir la instalación. Primero abre tu favorito de CareerKit. Si la sesión ya está en marcha, puedes usarla directamente. Si el servidor está detenido, abre una terminal en la carpeta del proyecto y ejecuta `pnpm local`.**
 
 1. Abre una terminal en la carpeta de CareerKit. Si no sabes cómo, sigue las instrucciones para tu sistema en [Prepararlo sin asistente](#prepararlo-sin-asistente).
 2. Escribe **`pnpm local`** y pulsa Intro.

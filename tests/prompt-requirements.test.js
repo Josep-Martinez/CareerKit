@@ -19,7 +19,8 @@ test('every copied prompt checks CareerKit availability and local data access', 
   for (const prompt of PROMPT_INBOX_ES.prompts) {
     const copied = buildPromptText(prompt)
     assert.match(copied, /127\.0\.0\.1:5173/)
-    assert.match(copied, /pnpm local/)
+    assert.match(copied, /reutiliza esa sesión sin ejecutar pnpm local/)
+    assert.match(copied, /servidor está detenido y el puerto libre/)
     assert.match(copied, /private-data\//)
     assert.match(copied, /navegador de CareerKit tiene conectada esa carpeta/i)
     assert.match(copied, /no concede acceso local/i)
