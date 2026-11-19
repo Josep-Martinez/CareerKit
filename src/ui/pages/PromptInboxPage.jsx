@@ -13,6 +13,7 @@ export function PromptInboxPage({
   onCopy,
   onCheckLinkedIn,
   onConfirmLinkedIn,
+  onReloadLinkedInContent,
   adaptationVacancyId,
   vacancies,
   onReturnToVacancy,
@@ -21,10 +22,18 @@ export function PromptInboxPage({
   const copy = s.promptInbox
   const pendingCv = Boolean(pending?.cv)
   const pendingLinkedinLanguages = Boolean(pending?.linkedinLanguages)
-  const pendingCount = Number(pendingCv) + Number(pendingLinkedinLanguages)
+  const pendingLinkedinContent = Boolean(pending?.linkedinContentNeedsReload)
+  const templateUpdates = pending?.templateUpdates || []
+  const pendingTemplateFields = templateUpdates.length > 0
+  const pendingCount =
+    Number(pendingCv) +
+    Number(pendingLinkedinLanguages) +
+    Number(pendingLinkedinContent) +
+    Number(pendingTemplateFields)
   const pendingPromptIds = new Set([
     ...(pendingCv ? ['refresh-cv'] : []),
     ...(pendingLinkedinLanguages ? ['sync-linkedin-languages'] : []),
+    ...(pendingTemplateFields ? ['sync-template-fields'] : []),
   ])
   const [search, setSearch] = useState('')
   const [vacancyReference, setVacancyReference] = useState('')
@@ -104,7 +113,11 @@ export function PromptInboxPage({
     })
     return (
       <article
-        className={`prompt-card ${isPending ? 'is-pending' : ''}`}
+        className={`prompt-card ${isPending ? 'is-pending' : ''} ${
+          isPending && prompt.id === 'sync-template-fields'
+            ? 'is-template-update'
+            : ''
+        }`}
         id={`prompt-${prompt.id}`}
         key={prompt.id}
       >
@@ -277,6 +290,24 @@ export function PromptInboxPage({
                 )}
               </p>
             )}
+            {pendingTemplateFields && (
+              <div className="prompt-linkedin-check">
+                <p>{copy.pendingTemplateFieldsBody}</p>
+                <ul className="prompt-template-field-list">
+                  {templateUpdates.map(({ module, fields }) => (
+                    <li key={module}>
+                      <code>{module}.json</code>:{' '}
+                      {fields.map((field, index) => (
+                        <span key={field}>
+                          {index > 0 ? ', ' : ''}
+                          <code>{field}</code>
+                        </span>
+                      ))}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {pendingLinkedinLanguages && (
               <div className="prompt-linkedin-check">
                 <p>{copy.pendingLanguagesBody}</p>
@@ -302,6 +333,22 @@ export function PromptInboxPage({
                   >
                     {copy.confirmLinkedInSync}
                   </button>
+                )}
+              </div>
+            )}
+            {pendingLinkedinContent && (
+              <div className="prompt-linkedin-check">
+                <p>{copy.pendingLinkedInContentReloadBody}</p>
+                {pending?.linkedinContentCanReload ? (
+                  <button
+                    className="button secondary small"
+                    type="button"
+                    onClick={onReloadLinkedInContent}
+                  >
+                    {copy.reloadLinkedInContent}
+                  </button>
+                ) : (
+                  <p>{copy.linkedinContentReloadUnavailable}</p>
                 )}
               </div>
             )}

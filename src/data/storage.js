@@ -287,7 +287,16 @@ const validators = {
     optionalContext(
       d.careerPreferences,
       ['location', 'conditions'],
-      ['roleFamilies', 'tasks', 'industries', 'workModes', 'avoid'],
+      [
+        'roleFamilies',
+        'tasks',
+        'industries',
+        'workModes',
+        'mustHaves',
+        'niceToHaves',
+        'thingsToClarify',
+        'avoid',
+      ],
       ['internal'],
     ) &&
     optionalContext(
@@ -777,6 +786,8 @@ export function useStorageState() {
       return await connectHandle(handle, { requestPermission: true })
     } catch (error) {
       if (error.name === 'AbortError') return { cancelled: true }
+      if (error.name === 'NotAllowedError') return { permissionDenied: true }
+      if (error.name === 'SecurityError') return { fallback: true }
       return { error: error.message }
     } finally {
       connectingRef.current = false
@@ -832,6 +843,8 @@ export function useStorageState() {
       }
     } catch (error) {
       if (error?.name === 'AbortError') return { cancelled: true }
+      if (error?.name === 'NotAllowedError') return { permissionDenied: true }
+      if (error?.name === 'SecurityError') return { fallback: true }
       return { error: error?.message || 'No se pudo abrir la carpeta.' }
     }
   }
@@ -914,6 +927,8 @@ export function useStorageState() {
         nextWarnings[name] = message
       }
     }
+
+    if (!loaded.length) return { error: 'noValidFiles', invalid }
 
     setData(nextData)
     setStates(nextStates)
@@ -1150,6 +1165,7 @@ function findUnknown(name, data) {
       'articles',
       'publications',
       'drafts',
+      'network',
       'excludedArticleUrls',
     ],
   }[name]
@@ -1305,6 +1321,18 @@ function findUnknown(name, data) {
         'sourceArticleId',
       ],
       draft: ['id', 'type', 'language', 'text', 'status', 'sourceArticleId'],
+      network: [
+        'id',
+        'name',
+        'profileUrl',
+        'category',
+        'role',
+        'company',
+        'relevance',
+        'sourceUrl',
+        'verifiedAt',
+        'status',
+      ],
     },
     cv: { version: ['masterText', 'lastUpdated', 'lastReviewed'] },
   }[name]
@@ -1396,6 +1424,10 @@ function findUnknown(name, data) {
   if (name === 'linkedin-content')
     (data.drafts || []).forEach((draft, index) =>
       inspect(draft, rules.draft, `drafts[${index}]`),
+    )
+  if (name === 'linkedin-content')
+    (data.network || []).forEach((person, index) =>
+      inspect(person, rules.network, `network[${index}]`),
     )
   return unknown
 }

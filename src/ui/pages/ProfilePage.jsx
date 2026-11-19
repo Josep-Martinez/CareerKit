@@ -28,14 +28,47 @@ const personalFields = [
   { key: 'preferredEnvironment', rows: 3 },
   { key: 'boundaries', rows: 3 },
 ]
-const careerFields = [
+const careerActivityFields = [
+  { key: 'tasks', list: true, wide: true, hint: s.profilePage.tasksHint },
   { key: 'roleFamilies', list: true },
-  { key: 'tasks', list: true },
   { key: 'industries', list: true },
-  { key: 'workModes', list: true },
+]
+const careerConditionsFields = [
   { key: 'location', rows: 2 },
-  { key: 'conditions', rows: 3 },
-  { key: 'avoid', list: true },
+  { key: 'workModes', list: true },
+  {
+    key: 'mustHaves',
+    list: true,
+    wide: true,
+    hint: s.profilePage.mustHavesHint,
+  },
+  { key: 'avoid', list: true, wide: true },
+  {
+    key: 'conditions',
+    rows: 3,
+    wide: true,
+    label: s.profilePage.conditions,
+    hint: s.profilePage.conditionsHint,
+  },
+]
+const careerExtrasFields = [
+  {
+    key: 'niceToHaves',
+    list: true,
+    wide: true,
+    hint: s.profilePage.niceToHavesHint,
+  },
+  {
+    key: 'thingsToClarify',
+    list: true,
+    wide: true,
+    hint: s.profilePage.thingsToClarifyHint,
+  },
+]
+const careerFields = [
+  ...careerActivityFields,
+  ...careerConditionsFields,
+  ...careerExtrasFields,
 ]
 const contentFields = [
   { key: 'themes', list: true, hint: s.profilePage.themesHint },
@@ -89,6 +122,19 @@ function countFieldsWithContent(value, fields) {
 function contentCountLabel(count, singular, plural) {
   if (!count) return s.profilePage.emptyBlock
   return `${count} ${count === 1 ? singular : plural}`
+}
+
+function CareerPreferenceGroup({ id, title, description, example, children }) {
+  return (
+    <section className="career-preference-card" aria-labelledby={id}>
+      <header className="career-preference-heading">
+        <h3 id={id}>{title}</h3>
+        <p>{description}</p>
+        <p className="career-preference-example">{example}</p>
+      </header>
+      {children}
+    </section>
+  )
 }
 
 export function ProfilePage({
@@ -232,6 +278,40 @@ export function ProfilePage({
       )
     })
   }
+  const renderCareerFields = (fields) => (
+    <div className="career-preference-grid">
+      {fields.map(({ key, list, rows, hint, label, wide }) => {
+        const fieldLabel = label || s.profilePage[key]
+        return (
+          <div
+            key={`careerPreferences-${key}`}
+            className={`career-preference-field${wide ? ' is-wide' : ''}`}
+          >
+            {list ? (
+              <ArrayText
+                title={fieldLabel}
+                items={draft.careerPreferences?.[key] || []}
+                onChange={(next) =>
+                  updateNested('careerPreferences', key, next)
+                }
+                hint={hint}
+              />
+            ) : (
+              <TextField
+                label={fieldLabel}
+                rows={rows}
+                value={draft.careerPreferences?.[key]}
+                onChange={(next) =>
+                  updateNested('careerPreferences', key, next)
+                }
+                hint={hint}
+              />
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
   const personalCount = countFieldsWithContent(
     draft.personalContext,
     personalFields,
@@ -295,39 +375,58 @@ export function ProfilePage({
             title={s.profilePage.careerTitle}
             description={s.profilePage.careerDescription}
           >
-            <CardTitle
-              title={s.profilePage.objectivesTitle}
-              description={s.profilePage.objectivesDescription}
-            />
-            <div className="form-two">
-              {['shortTerm', 'mediumTerm'].map((key) => (
-                <TextField
-                  key={key}
-                  label={s.profilePage[key]}
-                  rows={3}
-                  value={draft.objectives[key]}
-                  onChange={(next) =>
-                    update('objectives', {
-                      ...draft.objectives,
-                      [key]: next,
-                    })
-                  }
-                />
-              ))}
-            </div>
-            <TextField
-              label={s.profilePage.longTerm}
-              rows={3}
-              value={draft.objectives.longTerm}
-              onChange={(next) =>
-                update('objectives', {
-                  ...draft.objectives,
-                  longTerm: next,
-                })
-              }
-            />
-            <div className="profile-fields-grid">
-              {renderContextFields('careerPreferences', careerFields)}
+            <div className="career-preference-groups">
+              <CareerPreferenceGroup
+                id="career-tasks-heading"
+                title={s.profilePage.careerTasksGroup}
+                description={s.profilePage.careerTasksGroupDescription}
+                example={s.profilePage.careerTasksExample}
+              >
+                {renderCareerFields(careerActivityFields)}
+              </CareerPreferenceGroup>
+              <CareerPreferenceGroup
+                id="career-conditions-heading"
+                title={s.profilePage.careerConditionsGroup}
+                description={s.profilePage.careerConditionsGroupDescription}
+                example={s.profilePage.careerConditionsExample}
+              >
+                {renderCareerFields(careerConditionsFields)}
+              </CareerPreferenceGroup>
+              <CareerPreferenceGroup
+                id="career-extras-heading"
+                title={s.profilePage.careerExtrasGroup}
+                description={s.profilePage.careerExtrasGroupDescription}
+                example={s.profilePage.careerExtrasExample}
+              >
+                {renderCareerFields(careerExtrasFields)}
+              </CareerPreferenceGroup>
+              <CareerPreferenceGroup
+                id="career-goals-heading"
+                title={s.profilePage.careerGoalsGroup}
+                description={s.profilePage.careerGoalsGroupDescription}
+                example={s.profilePage.careerGoalsExample}
+              >
+                <div className="career-preference-grid">
+                  {['shortTerm', 'mediumTerm', 'longTerm'].map((key) => (
+                    <div
+                      key={key}
+                      className={`career-preference-field${key === 'longTerm' ? ' is-wide' : ''}`}
+                    >
+                      <TextField
+                        label={s.profilePage[key]}
+                        rows={3}
+                        value={draft.objectives[key]}
+                        onChange={(next) =>
+                          update('objectives', {
+                            ...draft.objectives,
+                            [key]: next,
+                          })
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CareerPreferenceGroup>
             </div>
           </ProfileDisclosure>
 

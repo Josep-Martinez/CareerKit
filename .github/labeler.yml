@@ -2,89 +2,49 @@ INICIO:
   - changed-files:
       - any-glob-to-any-file:
           - 'src/ui/pages/HomePage.jsx'
-          - 'src/ui/App.jsx'
-          - 'src/main.jsx'
-          - 'index.html'
-          - 'src/ui/utils.js'
-          - 'src/data/catalog.js'
-          - 'src/data/storage.js'
+          - 'src/i18n/home-status.es.js'
           - 'schemas/priorities.schema.json'
-          - 'schemas/agent-format.md'
           - 'templates/priorities.json'
-          - 'src/i18n/es.js'
-          - 'src/ui/components/**'
-          - 'src/ui/*.css'
 
 PERFIL:
   - changed-files:
       - any-glob-to-any-file:
           - 'src/ui/pages/ProfilePage.jsx'
-          - 'src/ui/App.jsx'
-          - 'src/main.jsx'
+          - 'src/data/profile-*.js'
+          - 'src/ui/profile-evidence*.js'
           - 'schemas/profile.schema.json'
           - 'templates/profile.json'
-          - 'src/data/storage.js'
-          - 'src/data/catalog.js'
-          - 'src/ui/utils.js'
-          - 'schemas/agent-format.md'
-          - 'src/i18n/es.js'
-          - 'src/ui/components/**'
-          - 'src/ui/*.css'
 
 CV:
   - changed-files:
       - any-glob-to-any-file:
           - 'src/ui/pages/CVPage.jsx'
-          - 'src/ui/App.jsx'
-          - 'src/main.jsx'
-          - 'schemas/cv.schema.json'
+          - 'src/ui/pages/CVDocument.jsx'
+          - 'src/ui/pages/cv-document.css'
+          - 'src/data/cv-*.js'
+          - 'schemas/cv*.schema.json'
           - 'templates/cv.json'
-          - 'src/data/storage.js'
-          - 'src/data/catalog.js'
-          - 'src/ui/utils.js'
-          - 'schemas/agent-format.md'
-          - 'src/i18n/es.js'
-          - 'src/ui/components/**'
-          - 'src/ui/*.css'
 
 LINKEDIN:
   - changed-files:
       - any-glob-to-any-file:
-          - 'src/ui/pages/LinkedInPage.jsx'
-          - 'src/ui/App.jsx'
-          - 'src/main.jsx'
-          - 'schemas/linkedin.schema.json'
-          - 'templates/linkedin.json'
-          - 'src/data/storage.js'
-          - 'src/data/catalog.js'
-          - 'src/ui/utils.js'
-          - 'schemas/agent-format.md'
-          - 'src/i18n/es.js'
-          - 'src/ui/components/**'
-          - 'src/ui/*.css'
+          - 'src/ui/pages/LinkedIn*Page.jsx'
+          - 'src/data/linkedin-*.js'
+          - 'src/ui/linkedin-*.js'
+          - 'schemas/linkedin*.schema.json'
+          - 'templates/linkedin*.json'
 
 VACANTES:
   - changed-files:
       - any-glob-to-any-file:
           - 'src/ui/pages/VacanciesPage.jsx'
-          - 'src/ui/App.jsx'
-          - 'src/main.jsx'
+          - 'src/ui/pages/vacancy-comparison.css'
+          - 'src/data/vacancy-data.js'
           - 'schemas/vacancies.schema.json'
           - 'templates/vacancies.json'
-          - 'src/data/storage.js'
-          - 'src/data/catalog.js'
-          - 'src/ui/utils.js'
-          - 'schemas/agent-format.md'
-          - 'src/i18n/es.js'
-          - 'src/ui/components/**'
-          - 'src/ui/*.css'
 
 BUZÓN:
   - changed-files:
       - any-glob-to-any-file:
           - 'src/ui/pages/PromptInboxPage.jsx'
-          - 'src/ui/App.jsx'
-          - 'src/main.jsx'
-          - 'src/i18n/es.js'
-          - 'src/ui/components/**'
-          - 'src/ui/*.css'
+          - 'src/i18n/prompt-inbox.es.js'

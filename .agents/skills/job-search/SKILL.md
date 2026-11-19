@@ -10,7 +10,7 @@ Find current vacancies and verify the work and employer. A search snippet is a l
 ## Candidate context
 
 - Read `AGENTS.md` and `schemas/agent-format.md`. When the user has authorized local access, read relevant objectives and confirmed evidence from `private-data/profile.json`; use `private-data/cv.json` for current CV context when available.
-- Follow the user's stated goals and constraints. If the target role, location, seniority, language, salary, or work mode is unclear and could change results, ask a focused question or show the uncertainty.
+- Follow the user's stated goals and constraints. When reading `careerPreferences`, use `tasks` and `roleFamilies` to discover matching responsibilities and title variants; use objectives to rank results. Treat an explicitly stated `mustHaves[]` as a user-side filter: exclude only when a reliable source confirms the opening violates it, and set an unknown result aside as pending rather than counting it as eligible. Use `niceToHaves[]` to rank, not exclude, and `thingsToClarify[]` to suggest questions. Treat `conditions` as legacy, unclassified context unless the user confirms its meaning; apply `avoid[]` as an exclusion only when the preference is explicit. If target role, location, seniority, language, salary, or work mode is unclear and could change results, ask a focused question or show the uncertainty.
 - Keep role families separate. Derive role names from recurring responsibilities and compare them with evidence; do not promote an unsupported title or imply that a title guarantees an interview.
 
 ## Search tools and LinkedIn

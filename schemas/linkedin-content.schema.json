@@ -18,6 +18,10 @@
       "type": "array",
       "items": { "$ref": "#/$defs/draft" }
     },
+    "network": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/networkPerson" }
+    },
     "excludedArticleUrls": {
       "type": "array",
       "items": { "type": "string", "format": "uri" },
@@ -100,6 +104,40 @@
         "text": { "type": "string", "minLength": 1 },
         "status": { "enum": ["needs-review", "ready-to-post"] },
         "sourceArticleId": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    },
+    "networkPerson": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "profileUrl",
+        "category",
+        "relevance",
+        "sourceUrl",
+        "verifiedAt",
+        "status"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "profileUrl": { "type": "string", "format": "uri" },
+        "category": {
+          "enum": [
+            "recruiter",
+            "hiring-manager",
+            "team-leader",
+            "industry-expert",
+            "company-leader"
+          ]
+        },
+        "role": { "type": "string" },
+        "company": { "type": "string" },
+        "relevance": { "type": "string", "minLength": 1 },
+        "sourceUrl": { "type": "string", "format": "uri" },
+        "verifiedAt": { "type": "string", "format": "date" },
+        "status": { "enum": ["pending", "followed", "dismissed"] }
       },
       "additionalProperties": true
     }

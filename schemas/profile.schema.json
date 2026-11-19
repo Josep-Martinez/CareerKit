@@ -73,6 +73,9 @@
         "workModes": { "$ref": "#/$defs/stringList" },
         "location": { "type": "string" },
         "conditions": { "type": "string" },
+        "mustHaves": { "$ref": "#/$defs/stringList" },
+        "niceToHaves": { "$ref": "#/$defs/stringList" },
+        "thingsToClarify": { "$ref": "#/$defs/stringList" },
         "avoid": { "$ref": "#/$defs/stringList" },
         "internal": { "type": "boolean" }
       },

@@ -54,7 +54,7 @@ function looksPersonal(text) {
     ...text.matchAll(
       /(?:\+\d{1,3}[ -]?)?(?:\(\d{2,4}\)|\d{2,4})[ -](?:\d{2,4}[ -]){1,3}\d{2,4}/g,
     ),
-  ]
+  ].filter(([match]) => !/^\d{4}-\d{2}-\d{2}$/.test(match))
   return (
     personalPatterns.some((pattern) => pattern.test(text)) ||
     phoneMatches.length > 0

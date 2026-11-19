@@ -33,7 +33,7 @@ Verás dos carpetas. **CareerKit** contiene el programa y es la que abres en el 
 2. Abre **esa carpeta** como proyecto en un asistente de programación con acceso local, como Codex, Claude Code o Antigravity. Un chat que solo recibe texto no puede preparar archivos en tu ordenador.
 3. Pega este mensaje en el chat del proyecto:
 
-   > Prepara CareerKit en este ordenador. Lee AGENTS.md. Si falta Node.js o pnpm, guíame para instalarlos con pasos sencillos. Instala las dependencias con pnpm install --frozen-lockfile y prepara solo los archivos vacíos que falten con pnpm data:init. Después inicia la web con pnpm local y ábrela directamente en el navegador habitual del ordenador, fuera del asistente: usa el navegador predeterminado del sistema y no una vista previa, panel ni navegador integrado. No te limites a mostrarme un enlace. Espera a que http://127.0.0.1:5173/ esté disponible, abre esa dirección y dime que ya puedo usar CareerKit en el navegador. Deja la terminal abierta. Si aparece la pantalla para conectar la carpeta, indícame cómo seleccionar private-data y conceder el permiso. Conserva los datos que ya existan y no publiques el proyecto.
+   > Prepara CareerKit en este ordenador. Lee AGENTS.md. Si falta Node.js o pnpm, guíame para instalarlos con pasos sencillos. Instala las dependencias con pnpm install --frozen-lockfile y prepara solo los archivos vacíos que falten con pnpm data:init. Si la web ya responde desde esta carpeta, reutiliza la sesión. Solo si el servidor está detenido y el puerto libre, inicia la web con pnpm local y ábrela directamente en el navegador habitual del ordenador, fuera del asistente: usa el navegador predeterminado del sistema y no una vista previa, panel ni navegador integrado. No te limites a mostrarme un enlace. Espera a que http://127.0.0.1:5173/ esté disponible, abre esa dirección y dime que ya puedo usar CareerKit en el navegador. Deja la terminal abierta. Si aparece la pantalla para conectar la carpeta, indícame cómo seleccionar private-data y conceder el permiso. Conserva los datos que ya existan y no publiques el proyecto.
 
 4. Abre [CareerKit en tu navegador habitual](http://127.0.0.1:5173/), fuera del asistente. Si ya ves Inicio, puedes empezar. Si aparece **Conectar la carpeta de este proyecto**, puedes usarla para autorizar la carpeta que CareerKit ha encontrado. Para elegirla tú, pulsa **Conectar carpeta de datos**, selecciona **private-data** dentro del proyecto y acepta el permiso del navegador. Si te ofrece preparar archivos que faltan, confirma la creación de las plantillas vacías.
 
@@ -55,7 +55,7 @@ Cuando aparezca la dirección, abre [CareerKit](http://127.0.0.1:5173/). Los dos
 
 ## Volver a abrir CareerKit
 
-**Una vez configurado, no necesitas volver a abrir el asistente ni repetir la instalación. Cada vez que quieras usar CareerKit, abre una terminal en la carpeta del proyecto y ejecuta `pnpm local`.**
+**Una vez configurado, no necesitas volver a abrir el asistente ni repetir la instalación. Primero abre tu favorito de CareerKit. Si la sesión ya está en marcha, puedes usarla directamente. Si el servidor está detenido, abre una terminal en la carpeta del proyecto y ejecuta `pnpm local`.**
 
 1. Abre una terminal en la carpeta de CareerKit. Si no sabes cómo, sigue las instrucciones para tu sistema en [Prepararlo sin asistente](#prepararlo-sin-asistente).
 2. Escribe **`pnpm local`** y pulsa Intro.
@@ -92,7 +92,7 @@ Mira la guía de progreso para saber qué puedes preparar a continuación. Si fa
 ### Perfil y aprendizajes
 
 1. Abre **Quién eres y cómo trabajas** para añadir motivaciones, valores, fortalezas y aspectos que quieras desarrollar. Este contexto es interno.
-2. En el bloque de trabajo, indica puestos o tareas que te interesan, sectores, ubicación, modalidad, condiciones y qué prefieres evitar. Es lo que orienta la búsqueda de vacantes. Conserva también tus objetivos a corto, medio y largo plazo.
+2. En **Qué trabajo buscamos**, rellena las tarjetas por separado: **Qué te gustaría hacer** (tareas, familias de puestos y sectores), **Dónde y en qué condiciones** (ubicación, modalidad, requisitos imprescindibles y aspectos que quieres evitar), y **Qué sería un plus** (preferencias flexibles y preguntas que quieres resolver). El agente descarta una oferta solo si confirma que incumple un requisito imprescindible; si no puede comprobarlo, la deja pendiente. Los plus ayudan a ordenar y no excluyen. Las condiciones antiguas se conservan tal cual y no se convierten automáticamente en filtros. En **Hacia dónde quieres ir**, conserva tus objetivos a corto, medio y largo plazo.
 3. En **Intereses y voz para publicaciones**, añade temas, perspectivas, tono y preferencias de fuentes. Puedes anotar personas, medios o empresas que te gustaría seguir.
 4. Añade formación, experiencia, habilidades, idiomas, certificaciones, proyectos y aprendizajes. En cada evidencia puedes indicar si está confirmada, sirve para el CV, aparece en LinkedIn o es interna. Añade acciones y resultados que puedas demostrar.
 5. Pulsa **Guardar perfil**. Si prefieres ayuda, el Buzón ofrece tres entradas: una entrevista guiada, organizar el material que compartas y actualizar la trayectoria a partir de tu CV y LinkedIn. Comparte tus preferencias y objetivos directamente si quieres que el asistente los guarde.
@@ -137,7 +137,7 @@ La copia y sus auditorías viven en tu carpeta. Si decides trasladar cambios a t
 
 ### Contenido de LinkedIn
 
-Abre **Contenido de LinkedIn** para trabajar con lecturas, publicaciones y comentarios. El Buzón sigue disponible como catálogo de prompts.
+Abre **Contenido de LinkedIn** para trabajar con lecturas, publicaciones, comentarios y perfiles profesionales para tu red. El Buzón sigue disponible como catálogo de prompts.
 
 1. En **Perfil → Intereses y voz para publicaciones**, indica temas que quieres explorar, voces profesionales y empresas u organizaciones que quieres seguir.
 2. En **Contenido de LinkedIn → Artículos**, copia el prompt de búsqueda. El asistente consulta tus preferencias cuando tiene acceso local, busca en fuentes públicas como revistas, publicaciones especializadas, centros de investigación y LinkedIn, y comprueba las afiliaciones que cita.
@@ -145,6 +145,7 @@ Abre **Contenido de LinkedIn** para trabajar con lecturas, publicaciones y comen
 4. En una lectura aceptada, escribe tu opinión. **Preparar publicación** la lleva al campo de opinión del flujo de publicaciones y la incluye en el prompt.
 5. En **Contenido de LinkedIn → Publicaciones**, puedes preparar textos sobre logros o títulos, nuevos trabajos, ascensos, proyectos, experiencias o aprendizajes, opiniones y material que aportes. El prompt pide al asistente una versión completa **siempre en inglés** y, si tiene acceso local autorizado, la guarda en `drafts[]` de `linkedin-content.json`. Después ve a **Tus publicaciones → Borradores**. Si CareerKit avisa de un cambio externo, recarga el archivo para verla. Allí puedes editar el texto, guardar los cambios, dejarlo listo para publicar, registrarlo como publicado después de compartirlo realmente, o eliminarlo.
 6. En **Comentarios**, pega la publicación y añade qué te gustaría aportar. Copia el prompt y revisa las propuestas en el chat. Puedes llevar a LinkedIn la que decidas usar.
+7. En **Red**, copia el prompt para buscar recruiters, responsables de contratación y profesionales relacionados con tus objetivos. Si el asistente tiene acceso local, usará Perfil, la copia de LinkedIn y las bases del CV para orientar la búsqueda y guardará perfiles públicos verificados en `network[]`. Revisa sus fuentes y motivos, y marca **Ya lo sigo** o **Descartar**; esas decisiones se conservan para no repetir perfiles. Si la web no ha cargado un cambio externo en `linkedin-content.json`, el Buzón mostrará un aviso rojo con un botón para recargarlo. Sin acceso a los JSON, el asistente puede investigar, pero no afirmará que guardó resultados.
 
 ### Tus publicaciones
 
@@ -171,13 +172,20 @@ Un **prompt** es un texto de instrucciones para tu asistente.
 
 | Si quieres… | Busca en el Buzón… |
 | --- | --- |
-| Preparar o recuperar la carpeta | **Preparar o revisar los archivos de datos**. |
+| Crear los JSON que falten | **Preparar o revisar los archivos de datos**. |
+| Incorporar campos nuevos de las plantillas a tus JSON | **Actualizar los datos con campos nuevos de las plantillas**. |
 | Actualizar tu dossier o tu copia de LinkedIn | Las tres opciones de Perfil, la copia desde archivo o complemento, la auditoría y la revisión de los dos idiomas. |
 | Preparar el CV o una candidatura | La base general o desde archivo, la búsqueda y revisión de vacantes, la valoración, la adaptación del CV y la carta. |
 | Prepararte para una entrevista | **Convertir una experiencia en historia STAR** o **Elegir historias STAR para una vacante**. STAR organiza la situación, la tarea, la acción y el resultado. Puedes guardar una historia revisada como evidencia en Perfil. |
 | Organizar próximos pasos | **Añadir prioridades concretas a Inicio**. |
 | Crear contenido para LinkedIn | Descubrir artículos, redactar una publicación o comentario, registrar lo publicado, preparar un carrusel, reutilizar un texto, vídeo o podcast, pulir un borrador o preparar versiones en dos idiomas. |
 | Revisar actividad en LinkedIn | Analizar métricas que compartas, preparar un plan de publicaciones, redactar notas de conexión y mensajes, clasificar mensajes que pegues o preparar respuestas a comentarios. |
+
+Al abrir CareerKit, la web compara automáticamente la estructura de los JSON conectados con sus plantillas. Si detecta campos nuevos, destaca en rojo el prompt **Actualizar los datos con campos nuevos de las plantillas** en el Buzón y muestra qué archivo y campos faltan. El prompt añade solo esos campos con sus valores iniciales; conserva lo existente y no copia elementos de ejemplo. Por ejemplo, puede añadir `network: []` a `linkedin-content.json` para que la sección Red tenga su estructura. Si un archivo no valida, lo deja intacto y explica qué necesita revisar.
+
+Si el navegador bloquea el selector de carpeta, pulsa **Abrir JSON de private-data**, entra en tu carpeta y selecciona los archivos JSON. En este modo, cuando edites un archivo, descarga el resultado y sustituye el original en tu carpeta para conservar el cambio.
+
+Si ningún JSON seleccionado puede abrirse, CareerKit mantiene la conexión anterior y muestra el motivo por archivo. Si seleccionaste dos copias con el mismo nombre, elige solo la de tu carpeta de datos.
 
 ### Cómo saber si se guardó
 
@@ -232,7 +240,7 @@ Si sigues bloqueado, anota el mensaje exacto, qué botón pulsaste, la direcció
 | `cv.json` | Bases generales del CV y fechas. |
 | `vacancies.json` | Ofertas, valoración y adaptaciones por vacante. |
 | `priorities.json` | Prioridades que aparecen en Inicio. |
-| `linkedin-content.json` | Cola de lecturas, borradores de publicaciones en inglés, enlaces para no repetir descartes y archivo del texto exacto de publicaciones que ya compartiste. |
+| `linkedin-content.json` | Cola de lecturas, perfiles públicos recomendados para tu red, borradores de publicaciones en inglés, enlaces para no repetir descartes y archivo del texto exacto de publicaciones que ya compartiste. |
 
 En el modo local, CareerKit puede detectar la carpeta del proyecto y recuerda la conexión cuando el navegador lo permite. Tu selección manual tiene prioridad. Puedes usar **Desconectar carpeta** y, si quieres, confirmar que la web limpie los datos que tiene cargados. Los archivos del disco se conservan. Para cambiar de ordenador, copia la carpeta de datos por un medio que controles y conéctala en el nuevo equipo.
 

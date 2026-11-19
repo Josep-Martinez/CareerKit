@@ -21,6 +21,9 @@
     "workModes": [],
     "location": "",
     "conditions": "",
+    "mustHaves": [],
+    "niceToHaves": [],
+    "thingsToClarify": [],
     "avoid": [],
     "internal": true
   },

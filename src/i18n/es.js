@@ -35,7 +35,7 @@ export const STRINGS = {
     checking: 'Buscando carpeta…',
     connectLocal: 'Conectar la carpeta de este proyecto',
     localMissing:
-      'No encontramos private-data en este proyecto. Abre el prompt de preparación, pásaselo a tu asistente local y vuelve a pulsar este botón.',
+      'No se pudo acceder a private-data desde el servidor local. Comprueba que ejecutaste pnpm local dentro de tu copia de CareerKit y abre la dirección que indique la terminal. Si la carpeta falta, usa «Ver prompt de preparación». Si ya tienes los JSON en otra carpeta, pulsa «Abrir JSON de private-data».',
     wrongFolder:
       'Se ha seleccionado «{name}», pero CareerKit necesita la carpeta llamada private-data. Si elegiste la raíz del proyecto, vuelve a seleccionar private-data dentro de ella.',
     helpTitle: '¿No puedes conectar la carpeta?',
@@ -50,12 +50,12 @@ export const STRINGS = {
     connectCancelled:
       'La carpeta no se conectó. Vuelve a elegir private-data y confirma la selección en la ventana del sistema, o abre los JSON en modo manual.',
     connectUnexpected:
-      'No se pudo completar la conexión. No se han modificado tus archivos; vuelve a seleccionar la carpeta private-data.',
+      'Vuelve a elegir la carpeta private-data desde tu navegador habitual. Si vuelve a fallar, pulsa «Abrir JSON de private-data» y selecciona los archivos dentro de esa carpeta.',
     openFiles: 'Abrir JSON de private-data',
     grantPermission: 'Dar permiso a carpeta guardada',
     chooseAnother: 'Elegir otra carpeta',
     permissionNotice:
-      'El navegador todavía no ha concedido permiso. Vuelve a intentarlo o elige la carpeta de nuevo.',
+      'Vuelve a elegir private-data y pulsa «Permitir» cuando el navegador pida leer y guardar. Si el permiso sigue bloqueado, pulsa «Abrir JSON de private-data» y selecciona los archivos que quieras usar.',
     persistenceNotice:
       'La carpeta está conectada durante esta sesión, pero el navegador no pudo recordar la selección. Puede que tengas que elegirla la próxima vez.',
     disconnectPersistenceNotice:
@@ -130,7 +130,7 @@ export const STRINGS = {
       'El archivo cambió antes de guardar. No se guardó este intento y tu edición sigue visible. Si cargas la versión actual, el formulario la mostrará y podrás volver a aplicar lo que quieras conservar.',
     reloadExternal: 'Cargar versión actual',
     linkedinContentReloaded:
-      'Se cargó el cambio de linkedin-content.json. La publicación ya aparece en el archivo.',
+      'Se cargaron los cambios de linkedin-content.json. Ya puedes verlos en Contenido de LinkedIn.',
   },
   dataConnection: {
     bannerEyebrow: 'TUS ARCHIVOS LOCALES',
@@ -217,7 +217,27 @@ export const STRINGS = {
       'Ayuda al agente a entender tu forma de pensar y trabajar. Es contexto interno.',
     careerTitle: 'Qué trabajo buscamos',
     careerDescription:
-      'Ayuda a priorizar vacantes por roles, tareas y condiciones que indiques; el agente no supone lo que falte.',
+      'Define primero el trabajo que te gustaría hacer. Después separa lo que es obligatorio, lo que suma puntos y lo que quieres preguntar antes de decidir.',
+    careerTasksGroup: 'Qué te gustaría hacer',
+    careerTasksGroupDescription:
+      'Describe las tareas con tus palabras; el nombre del puesto puede variar entre empresas.',
+    careerTasksExample:
+      'Ejemplo: automatizar procesos, conectar sistemas o mejorar cómo se usan los datos.',
+    careerConditionsGroup: 'Dónde y en qué condiciones',
+    careerConditionsGroupDescription:
+      'Indica tu zona y modalidad. Separa los requisitos que realmente descartan una oferta de los aspectos que prefieres evitar.',
+    careerConditionsExample:
+      'Ejemplo: una ubicación posible, una modalidad concreta o una condición imprescindible para aceptar.',
+    careerExtrasGroup: 'Qué sería un plus',
+    careerExtrasGroupDescription:
+      'Añade preferencias flexibles y dudas que te ayudarían a comparar ofertas.',
+    careerExtrasExample:
+      'Ejemplo: formación, mentoría, conocer al equipo o saber si hay guardias.',
+    careerGoalsGroup: 'Hacia dónde quieres ir',
+    careerGoalsGroupDescription:
+      'Tus metas a corto, medio y largo plazo ayudan a ordenar oportunidades.',
+    careerGoalsExample:
+      'No hace falta tener un plan cerrado: anota qué te gustaría explorar en cada etapa.',
     contentTitle: 'Intereses y voz para publicaciones',
     contentDescription:
       'Orienta temas, voces y empresas que quieres seguir. El agente comprueba las afiliaciones; tus preferencias son privadas y no se publican sin tu aprobación.',
@@ -249,7 +269,20 @@ export const STRINGS = {
     industries: 'Sectores o temas que te atraen',
     workModes: 'Modalidades que prefieres',
     location: 'Ubicaciones o zonas posibles',
-    conditions: 'Condiciones importantes',
+    conditions: 'Otras condiciones ya indicadas',
+    conditionsHint:
+      'Este texto antiguo se conserva tal cual. Si no queda claro qué era obligatorio, el agente no lo usará para descartar ofertas.',
+    tasksHint:
+      'Describe el trabajo que quieres hacer, aunque no sepas cómo se llama el puesto. Por ejemplo: construir integraciones o mejorar flujos con datos.',
+    mustHaves: 'Imprescindible para aceptar o avanzar',
+    mustHavesHint:
+      'El agente excluirá una oferta solo si confirma que incumple algo que indiques aquí. Si no puede comprobarlo, la dejará pendiente.',
+    niceToHaves: 'Preferencias flexibles que suman puntos',
+    niceToHavesHint:
+      'Ayudan a ordenar las ofertas, pero su ausencia no las descarta.',
+    thingsToClarify: 'Lo que quieres preguntar antes de decidir',
+    thingsToClarifyHint:
+      'El agente lo convertirá en preguntas para la empresa; no tratará una respuesta desconocida como un incumplimiento.',
     avoid: 'Puestos, tareas o condiciones que prefieres evitar',
     objectivesTitle: 'Objetivos profesionales',
     objectivesDescription: 'Metas a corto, medio y largo plazo.',
@@ -863,11 +896,12 @@ export const STRINGS = {
     eyebrow: 'IDEAS PARA CONVERSACIONES PROFESIONALES',
     title: 'Contenido de LinkedIn',
     subtitle:
-      'Descubre lecturas que te interesan, prepara publicaciones con tu enfoque y escribe comentarios con algo propio que aportar.',
+      'Descubre lecturas, prepara publicaciones, escribe comentarios y encuentra profesionales para tu red.',
     flows: {
       articles: 'Artículos',
       posts: 'Publicaciones',
       comments: 'Comentarios',
+      network: 'Red',
     },
     profileTitle: 'Una búsqueda guiada por tus intereses',
     profileDescription:
@@ -888,6 +922,50 @@ export const STRINGS = {
     discoverCopy: 'Copiar prompt de búsqueda',
     discoveryPrompt: 'Prompt de búsqueda',
     discoveryPromptCopied: 'Prompt de búsqueda copiado.',
+    networkEyebrow: 'PERSONAS QUE TE INTERESA CONOCER',
+    networkTitle: 'Construye tu red profesional',
+    networkDescription:
+      'El agente buscará recruiters y profesionales relacionados con tus objetivos usando Perfil, CV y LinkedIn, si tiene acceso local. Revisarás aquí cada recomendación antes de seguirla por tu cuenta.',
+    networkSearchFocus: '¿Qué puesto, empresa o tema priorizamos? (opcional)',
+    networkSearchFocusHint:
+      'El agente combina este enfoque con tus datos profesionales confirmados y tus temas de Perfil.',
+    networkCopyPrompt: 'Copiar prompt para descubrir perfiles',
+    networkPromptPreview: 'Prompt para descubrir perfiles',
+    networkPromptCopied: 'Prompt copiado. Pégalo en el agente que usas.',
+    networkPromptNextStep:
+      'Cuando el agente termine, vuelve a Contenido de LinkedIn → Red para revisar las recomendaciones. Si CareerKit avisa de cambios externos, recarga linkedin-content.json para verlas.',
+    networkQueueEyebrow: 'RECOMENDACIONES PÚBLICAS',
+    networkQueueTitle: 'Perfiles para revisar',
+    networkQueueDescription:
+      'Comprueba por qué se recomienda cada persona y abre sus fuentes. Marcar «Ya lo sigo» solo registra tu decisión: CareerKit no sigue ni contacta a nadie.',
+    networkTabs: {
+      pending: 'Por revisar',
+      followed: 'Seguidos',
+      dismissed: 'Descartados',
+    },
+    networkEmpty: {
+      pending:
+        'Aquí aparecerán los perfiles públicos que el agente encuentre y verifique.',
+      followed: 'Aún no has marcado perfiles como seguidos.',
+      dismissed: 'Aquí se conservan los perfiles que descartaste.',
+    },
+    networkCategory: {
+      recruiter: 'Recruiter o selección',
+      'hiring-manager': 'Responsable de contratación',
+      'team-leader': 'Líder de equipo',
+      'industry-expert': 'Profesional o referente',
+      'company-leader': 'Líder de empresa',
+    },
+    networkVerifiedAt: 'Comprobado el {date}',
+    networkOpenProfile: 'Ver perfil de LinkedIn ↗',
+    networkOpenSource: 'Ver fuente de comprobación ↗',
+    networkFollowedAction: 'Ya lo sigo',
+    networkDismissAction: 'Descartar',
+    networkRestoreAction: 'Volver a pendientes',
+    networkDecisionSaving: 'Guardando tu decisión en linkedin-content.json…',
+    networkDecisionSaved: 'Decisión guardada en linkedin-content.json.',
+    networkDecisionFailed:
+      'No se pudo guardar. Tu decisión sigue visible; revisa la conexión e inténtalo de nuevo.',
     promptCopied: 'Prompt copiado. Pégalo en tu asistente.',
     copyFailed: 'No se pudo copiar. Selecciona el prompt y cópialo.',
     queueTitle: 'Tu cola de lectura',
@@ -943,7 +1021,7 @@ export const STRINGS = {
     openArticle: 'Leer fuente ↗',
     postTitle: 'Crear una publicación',
     postDescription:
-      'El agente redactará una propuesta completa siempre en inglés y la guardará como borrador. Después podrás revisarla y editarla en Tus publicaciones antes de decidir si la compartes.',
+      'Con tu idea basta para preparar un borrador completo en inglés. Perfil y las publicaciones anteriores son opcionales. Si el agente puede guardar el borrador, podrás revisarlo y editarlo en Tus publicaciones.',
     postDraftsEyebrow: 'PROPUESTAS DEL AGENTE',
     postDraftsTitle: 'Borradores para revisar',
     postDraftsDescription:

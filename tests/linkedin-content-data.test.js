@@ -5,11 +5,13 @@ import {
   deleteLinkedInPublication,
   hasLinkedInContent,
   patchLinkedInArticle,
+  patchLinkedInNetworkPerson,
   registerLinkedInPublication,
   sortLinkedInPublications,
   updateLinkedInDraft,
   updateLinkedInPublication,
   validLinkedInContentData,
+  validLinkedInNetworkPerson,
 } from '../src/data/linkedin-content-data.js'
 
 const emptyContent = {
@@ -27,6 +29,19 @@ const publication = {
   sourceArticleId: 'article-1',
 }
 
+const networkPerson = {
+  id: 'person-1',
+  name: 'Alex Rivera',
+  profileUrl: 'https://example.org/profiles/alex-rivera',
+  category: 'recruiter',
+  role: 'Technical Recruiter',
+  company: 'Example Co',
+  relevance: 'Recruits for the target engineering roles.',
+  sourceUrl: 'https://example.org/team',
+  verifiedAt: '2026-11-19',
+  status: 'pending',
+}
+
 test('keeps existing content files valid while adding empty archive fields', () => {
   assert.equal(validLinkedInContentData(emptyContent), true)
   assert.equal(
@@ -37,6 +52,52 @@ test('keeps existing content files valid while adding empty archive fields', () 
     }),
     true,
   )
+})
+
+test('validates public network profiles and optional legacy network data', () => {
+  assert.equal(validLinkedInContentData(emptyContent), true)
+  assert.equal(validLinkedInNetworkPerson(networkPerson), true)
+  assert.equal(
+    validLinkedInContentData({ ...emptyContent, network: [networkPerson] }),
+    true,
+  )
+  assert.equal(
+    validLinkedInNetworkPerson({ ...networkPerson, profileUrl: 'javascript:alert(1)' }),
+    false,
+  )
+  assert.equal(
+    validLinkedInNetworkPerson({ ...networkPerson, category: 'unknown' }),
+    false,
+  )
+  assert.equal(
+    validLinkedInNetworkPerson({ ...networkPerson, status: 'connected' }),
+    false,
+  )
+  assert.equal(
+    validLinkedInNetworkPerson({ ...networkPerson, verifiedAt: 'yesterday' }),
+    false,
+  )
+})
+
+test('changes one network status while preserving profile and module fields', () => {
+  const data = {
+    ...emptyContent,
+    network: [
+      { ...networkPerson, privateNote: 'keep this' },
+      { ...networkPerson, id: 'person-2', name: 'Sam Lee' },
+    ],
+    customRoot: 'also keep this',
+  }
+
+  const next = patchLinkedInNetworkPerson(data, 'person-1', {
+    status: 'followed',
+  })
+
+  assert.equal(next.network[0].status, 'followed')
+  assert.equal(next.network[0].privateNote, 'keep this')
+  assert.equal(next.network[1].status, 'pending')
+  assert.equal(next.customRoot, 'also keep this')
+  assert.equal(hasLinkedInContent(next), true)
 })
 
 test('accepts an exact published post and its source article reference', () => {
