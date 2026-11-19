@@ -217,7 +217,27 @@ export const STRINGS = {
       'Ayuda al agente a entender tu forma de pensar y trabajar. Es contexto interno.',
     careerTitle: 'Qué trabajo buscamos',
     careerDescription:
-      'Empieza por las tareas que quieres hacer y los puestos que te interesan. Separa lo imprescindible de lo flexible para que el agente sepa qué ofertas priorizar.',
+      'Define primero el trabajo que te gustaría hacer. Después separa lo que es obligatorio, lo que suma puntos y lo que quieres preguntar antes de decidir.',
+    careerTasksGroup: 'Qué te gustaría hacer',
+    careerTasksGroupDescription:
+      'Describe las tareas con tus palabras; el nombre del puesto puede variar entre empresas.',
+    careerTasksExample:
+      'Ejemplo: automatizar procesos, conectar sistemas o mejorar cómo se usan los datos.',
+    careerConditionsGroup: 'Dónde y en qué condiciones',
+    careerConditionsGroupDescription:
+      'Indica tu zona y modalidad. Separa los requisitos que realmente descartan una oferta de los aspectos que prefieres evitar.',
+    careerConditionsExample:
+      'Ejemplo: una ubicación posible, una modalidad concreta o una condición imprescindible para aceptar.',
+    careerExtrasGroup: 'Qué sería un plus',
+    careerExtrasGroupDescription:
+      'Añade preferencias flexibles y dudas que te ayudarían a comparar ofertas.',
+    careerExtrasExample:
+      'Ejemplo: formación, mentoría, conocer al equipo o saber si hay guardias.',
+    careerGoalsGroup: 'Hacia dónde quieres ir',
+    careerGoalsGroupDescription:
+      'Tus metas a corto, medio y largo plazo ayudan a ordenar oportunidades.',
+    careerGoalsExample:
+      'No hace falta tener un plan cerrado: anota qué te gustaría explorar en cada etapa.',
     contentTitle: 'Intereses y voz para publicaciones',
     contentDescription:
       'Orienta temas, voces y empresas que quieres seguir. El agente comprueba las afiliaciones; tus preferencias son privadas y no se publican sin tu aprobación.',
@@ -249,11 +269,20 @@ export const STRINGS = {
     industries: 'Sectores o temas que te atraen',
     workModes: 'Modalidades que prefieres',
     location: 'Ubicaciones o zonas posibles',
-    conditions: 'Qué condiciones son imprescindibles y cuáles son flexibles',
+    conditions: 'Otras condiciones ya indicadas',
     conditionsHint:
-      'Por ejemplo: imprescindible, jornada completa. Preferible, horario flexible. Añade salario o tipo de contrato si te importan.',
+      'Este texto antiguo se conserva tal cual. Si no queda claro qué era obligatorio, el agente no lo usará para descartar ofertas.',
     tasksHint:
       'Describe el trabajo que quieres hacer, aunque no sepas cómo se llama el puesto. Por ejemplo: construir integraciones o mejorar flujos con datos.',
+    mustHaves: 'Imprescindible para aceptar o avanzar',
+    mustHavesHint:
+      'El agente excluirá una oferta solo si confirma que incumple algo que indiques aquí. Si no puede comprobarlo, la dejará pendiente.',
+    niceToHaves: 'Preferencias flexibles que suman puntos',
+    niceToHavesHint:
+      'Ayudan a ordenar las ofertas, pero su ausencia no las descarta.',
+    thingsToClarify: 'Lo que quieres preguntar antes de decidir',
+    thingsToClarifyHint:
+      'El agente lo convertirá en preguntas para la empresa; no tratará una respuesta desconocida como un incumplimiento.',
     avoid: 'Puestos, tareas o condiciones que prefieres evitar',
     objectivesTitle: 'Objetivos profesionales',
     objectivesDescription: 'Metas a corto, medio y largo plazo.',
