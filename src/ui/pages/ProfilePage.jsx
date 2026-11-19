@@ -326,6 +326,10 @@ export function ProfilePage({
                 })
               }
             />
+            <CardTitle
+              title="Criterios para buscar vacantes"
+              description="Ejemplo: quiero construir integraciones. Necesito jornada completa. Prefiero teletrabajo, pero puedo valorar un puesto híbrido."
+            />
             <div className="profile-fields-grid">
               {renderContextFields('careerPreferences', careerFields)}
             </div>

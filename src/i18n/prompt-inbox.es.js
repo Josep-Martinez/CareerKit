@@ -315,7 +315,7 @@ export const PROMPT_INBOX_ES = {
       id: 'research-vacancies',
       category: 'career',
       title: 'Buscar vacantes, empresas y recruiters',
-      use: 'Busca ofertas actuales, el perfil público oficial de cada empresa y, sobre todo, recruiters o personal de selección verificable. No revisa las ofertas ya guardadas.',
+      use: 'Busca ofertas actuales, el perfil público oficial de cada empresa y, sobre todo, recruiters o personal de selección verificable. Prepara también un CV y recomendaciones para cada oferta nueva.',
       skillPaths: [
         'AGENTS.md',
         'schemas/agent-format.md',
@@ -323,6 +323,9 @@ export const PROMPT_INBOX_ES = {
         '.agents/skills/job-search/SKILL.md',
         '.agents/skills/job-search/portals.md',
         '.agents/skills/job-fit-assessor/SKILL.md',
+        'schemas/cv.schema.json',
+        '.agents/skills/cv-optimizer/SKILL.md',
+        '.agents/skills/cv-formatos/SKILL.md',
       ],
       text: [
         'Antes de buscar, identifica de forma explícita el producto anfitrión y las herramientas actuales que tienes. Usa búsqueda web pública actual como vía principal. Un MCP de LinkedIn para ofertas es opcional; si no existe o solo busca personas, continúa con la web y no pidas instalar complementos. Si no tienes ninguna herramienta de búsqueda actual, dilo y no inventes resultados.',
@@ -336,6 +339,8 @@ export const PROMPT_INBOX_ES = {
         'Valora cada oferta con job-fit-assessor separando hechos, inferencias, incógnitas y carencias confirmadas. Ordena todas las elegibles por atractivo y encaje, sin inventar puntuaciones; asigna preference consecutivo desde 1 y destaca como máximo las tres primeras.',
         'Para cada oferta nueva verificada registra availability.status: "active", checkedAt y sourceUrl. Guarda el perfil corporativo verificado en companyProfile con name, linkedinUrl, websiteUrl, summary, sourceUrl y verifiedAt. Solo guarda en hiringContact a un recruiter, talent acquisition o RR. HH. vinculado de forma verificable a selección; incluye contactType, name, role, linkedinUrl o contactUrl, publicEmail solo si está publicado, sourceUrl y verifiedAt. Si no identificas a alguien de selección, omite hiringContact; no pongas ahí a un CEO, CTO o responsable técnico. Guarda hasta tres perfiles adicionales de dirección/equipo en peopleToFollow[] con id estable, name, role, linkedinUrl o contactUrl, reason, sourceUrl y verifiedAt. Omite cualquier identidad no confirmada; no añadas teléfonos personales ni envíes mensajes.',
         'Para encontrar contactos, revisa en este orden: autor o contacto del anuncio, equipo de selección de esa unidad o ubicación y, después, perfiles de las personas que lideran o realizan el trabajo descrito. Contrasta el cargo actual con el anuncio, la web corporativa o el perfil público. Distingue al recruiter vinculado a esta vacante del contacto general de selección cuya participación concreta se desconoce. Muestra el contacto general de selección y el canal oficial de empleo como alternativas en el informe cuando estén disponibles. Reserva hiringContact para vínculos verificables con la selección de esa oferta. Para cada persona adicional, usa reason para explicar su relación con el puesto y sugerir una pregunta concreta que yo pueda hacer si decido escribirle. Incluye enlaces directos en el informe. Prioriza a quien pueda aportar contexto sobre la oferta; incluye al CEO solo si su relación con el equipo o la contratación es relevante y verificable. No envíes mensajes.',
+        'Para cada vacante nueva verificada, prepara automáticamente un borrador de CV específico en esta misma ejecución. Lee private-data/cv.json y las evidencias confirmadas de Perfil cuando estén disponibles. Aplica cv-optimizer y cv-formatos. Elige español o inglés según la oferta y el mercado. Prioriza un subtítulo claro, una primera frase que conecte el puesto con un logro confirmado y pocas tareas y habilidades relevantes. Mantén proyectos separados de experiencia laboral. Omite lo que no puedas respaldar. Guarda el CV completo en items[].adaptedCv con text en Markdown, language: "es" o "en" y layout: "single-column", apropiado para candidaturas en portales. El borrador queda listo para revisión sin esperar preguntas por cada oferta. Si no tienes ninguna base ni evidencia suficiente, guarda igualmente la vacante e indica qué material falta.',
+        'En cada nueva vacante guarda también cvAdvice con recommendedVersion, reason, assessedAt y las listas spanishAdjustments y englishAdjustments. Indica qué destacar, reordenar, reducir o confirmar y por qué, vinculando cada cambio a la descripción de la oferta. Si no puedes recomendar un idioma, usa pending. Estos consejos y el borrador se muestran en Ver detalles. No modifiques cv.json ni reemplaces adaptaciones de ofertas existentes.',
         'Valida vacancies.json antes y después de guardar. Conserva cvAdvice, adaptedCv, los contactos existentes y todos los campos desconocidos de ofertas existentes. Devuélveme todas las vacantes nuevas verificadas, al menos diez cuando el mercado lo permita, no una selección corta. Para cada una incluye enlace directo, salario o su ausencia, encaje, brecha principal, perfil oficial de la empresa, recruiter/contacto de selección verificado o la explicación de por qué no se encontró, y perfiles adicionales de interés si se encontraron. Separa los resultados no verificados y explica si no fue posible alcanzar diez. No solicites empleo ni contactes a nadie.',
       ].join('\n\n'),
     },
@@ -777,10 +782,11 @@ export const PROMPT_REQUIREMENTS = {
       'herramienta de búsqueda web pública actual',
       'búsqueda pública de perfiles profesionales (opcional)',
       'private-data/profile.json (opcional)',
+      'private-data/cv.json (base del CV, si está disponible)',
       'private-data/vacancies.json (si autorizas guardar)',
     ],
     access:
-      'Búsqueda web actual para ofertas, empresas y perfiles profesionales públicos. Acceso local para leer Perfil y guardar las ofertas. No necesita una integración de LinkedIn para buscar empleos.',
+      'Búsqueda web actual para ofertas, empresas y perfiles profesionales públicos. Acceso local para leer Perfil y CV, y guardar las ofertas y adaptaciones. No necesita una integración de LinkedIn para buscar empleos.',
   },
   'verify-vacancies': {
     files: [
