@@ -217,7 +217,7 @@ export const STRINGS = {
       'Ayuda al agente a entender tu forma de pensar y trabajar. Es contexto interno.',
     careerTitle: 'Qué trabajo buscamos',
     careerDescription:
-      'Ayuda a priorizar vacantes por roles, tareas y condiciones que indiques; el agente no supone lo que falte.',
+      'Empieza por las tareas que quieres hacer y los puestos que te interesan. Separa lo imprescindible de lo flexible para que el agente sepa qué ofertas priorizar.',
     contentTitle: 'Intereses y voz para publicaciones',
     contentDescription:
       'Orienta temas, voces y empresas que quieres seguir. El agente comprueba las afiliaciones; tus preferencias son privadas y no se publican sin tu aprobación.',
@@ -249,7 +249,11 @@ export const STRINGS = {
     industries: 'Sectores o temas que te atraen',
     workModes: 'Modalidades que prefieres',
     location: 'Ubicaciones o zonas posibles',
-    conditions: 'Condiciones importantes',
+    conditions: 'Qué condiciones son imprescindibles y cuáles son flexibles',
+    conditionsHint:
+      'Por ejemplo: imprescindible, jornada completa. Preferible, horario flexible. Añade salario o tipo de contrato si te importan.',
+    tasksHint:
+      'Describe el trabajo que quieres hacer, aunque no sepas cómo se llama el puesto. Por ejemplo: construir integraciones o mejorar flujos con datos.',
     avoid: 'Puestos, tareas o condiciones que prefieres evitar',
     objectivesTitle: 'Objetivos profesionales',
     objectivesDescription: 'Metas a corto, medio y largo plazo.',
@@ -943,7 +947,7 @@ export const STRINGS = {
     openArticle: 'Leer fuente ↗',
     postTitle: 'Crear una publicación',
     postDescription:
-      'El agente redactará una propuesta completa siempre en inglés y la guardará como borrador. Después podrás revisarla y editarla en Tus publicaciones antes de decidir si la compartes.',
+      'Con tu idea basta para preparar un borrador completo en inglés. Perfil y las publicaciones anteriores son opcionales. Si el agente puede guardar el borrador, podrás revisarlo y editarlo en Tus publicaciones.',
     postDraftsEyebrow: 'PROPUESTAS DEL AGENTE',
     postDraftsTitle: 'Borradores para revisar',
     postDraftsDescription:

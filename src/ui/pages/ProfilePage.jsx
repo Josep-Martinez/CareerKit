@@ -30,11 +30,11 @@ const personalFields = [
 ]
 const careerFields = [
   { key: 'roleFamilies', list: true },
-  { key: 'tasks', list: true },
+  { key: 'tasks', list: true, hint: s.profilePage.tasksHint },
   { key: 'industries', list: true },
   { key: 'workModes', list: true },
   { key: 'location', rows: 2 },
-  { key: 'conditions', rows: 3 },
+  { key: 'conditions', rows: 3, hint: s.profilePage.conditionsHint },
   { key: 'avoid', list: true },
 ]
 const contentFields = [
