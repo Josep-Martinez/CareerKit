@@ -35,7 +35,7 @@ export const STRINGS = {
     checking: 'Buscando carpeta…',
     connectLocal: 'Conectar la carpeta de este proyecto',
     localMissing:
-      'No encontramos private-data en este proyecto. Abre el prompt de preparación, pásaselo a tu asistente local y vuelve a pulsar este botón.',
+      'No se pudo acceder a private-data desde el servidor local. Comprueba que ejecutaste pnpm local dentro de tu copia de CareerKit y abre la dirección que indique la terminal. Si la carpeta falta, usa «Ver prompt de preparación». Si ya tienes los JSON en otra carpeta, pulsa «Abrir JSON de private-data».',
     wrongFolder:
       'Se ha seleccionado «{name}», pero CareerKit necesita la carpeta llamada private-data. Si elegiste la raíz del proyecto, vuelve a seleccionar private-data dentro de ella.',
     helpTitle: '¿No puedes conectar la carpeta?',
@@ -50,12 +50,12 @@ export const STRINGS = {
     connectCancelled:
       'La carpeta no se conectó. Vuelve a elegir private-data y confirma la selección en la ventana del sistema, o abre los JSON en modo manual.',
     connectUnexpected:
-      'No se pudo completar la conexión. No se han modificado tus archivos; vuelve a seleccionar la carpeta private-data.',
+      'Vuelve a elegir la carpeta private-data desde tu navegador habitual. Si vuelve a fallar, pulsa «Abrir JSON de private-data» y selecciona los archivos dentro de esa carpeta.',
     openFiles: 'Abrir JSON de private-data',
     grantPermission: 'Dar permiso a carpeta guardada',
     chooseAnother: 'Elegir otra carpeta',
     permissionNotice:
-      'El navegador todavía no ha concedido permiso. Vuelve a intentarlo o elige la carpeta de nuevo.',
+      'Vuelve a elegir private-data y pulsa «Permitir» cuando el navegador pida leer y guardar. Si el permiso sigue bloqueado, pulsa «Abrir JSON de private-data» y selecciona los archivos que quieras usar.',
     persistenceNotice:
       'La carpeta está conectada durante esta sesión, pero el navegador no pudo recordar la selección. Puede que tengas que elegirla la próxima vez.',
     disconnectPersistenceNotice:

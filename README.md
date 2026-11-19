@@ -183,6 +183,8 @@ Un **prompt** es un texto de instrucciones para tu asistente.
 
 Al abrir CareerKit, la web compara automáticamente la estructura de los JSON conectados con sus plantillas. Si detecta campos nuevos, destaca en rojo el prompt **Actualizar los datos con campos nuevos de las plantillas** en el Buzón y muestra qué archivo y campos faltan. El prompt añade solo esos campos con sus valores iniciales; conserva lo existente y no copia elementos de ejemplo. Por ejemplo, puede añadir `network: []` a `linkedin-content.json` para que la sección Red tenga su estructura. Si un archivo no valida, lo deja intacto y explica qué necesita revisar.
 
+Si el navegador bloquea el selector de carpeta, pulsa **Abrir JSON de private-data**, entra en tu carpeta y selecciona los archivos JSON. En este modo, cuando edites un archivo, descarga el resultado y sustituye el original en tu carpeta para conservar el cambio.
+
 ### Cómo saber si se guardó
 
 | Modo | Qué ocurre al guardar |

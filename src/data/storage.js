@@ -786,6 +786,8 @@ export function useStorageState() {
       return await connectHandle(handle, { requestPermission: true })
     } catch (error) {
       if (error.name === 'AbortError') return { cancelled: true }
+      if (error.name === 'NotAllowedError') return { permissionDenied: true }
+      if (error.name === 'SecurityError') return { fallback: true }
       return { error: error.message }
     } finally {
       connectingRef.current = false
@@ -841,6 +843,8 @@ export function useStorageState() {
       }
     } catch (error) {
       if (error?.name === 'AbortError') return { cancelled: true }
+      if (error?.name === 'NotAllowedError') return { permissionDenied: true }
+      if (error?.name === 'SecurityError') return { fallback: true }
       return { error: error?.message || 'No se pudo abrir la carpeta.' }
     }
   }
