@@ -489,6 +489,29 @@ export const PROMPT_INBOX_ES = {
       ].join('\n\n'),
     },
     {
+      id: 'recommend-linkedin-network',
+      category: 'linkedin',
+      title: 'Descubrir perfiles para tu Red de LinkedIn',
+      use: 'Encuentra recruiters, responsables de selección y profesionales relevantes para seguir; verifica cada perfil y guarda candidatos nuevos en Red.',
+      skillPaths: [
+        'AGENTS.md',
+        'schemas/agent-format.md',
+        'schemas/profile.schema.json',
+        'schemas/linkedin.schema.json',
+        'schemas/cv.schema.json',
+        'schemas/linkedin-content.schema.json',
+        '.agents/skills/job-search/SKILL.md',
+      ],
+      text: [
+        'Busca profesionales relevantes para mi red en fuentes públicas actuales. Usa búsqueda web pública actual para descubrir personas y páginas de empresa; si hay un MCP de búsqueda de personas de LinkedIn, puedes usarlo para localizar o contrastar a una persona una vez identificado su nombre. El conector actual requiere un nombre o apellido (firstName o lastName) y no sustituye una búsqueda amplia. Si no está disponible, continúa con la web; no instales nada ni te detengas por ello. No abras cuentas iniciadas, mensajes ni datos privados de LinkedIn.',
+        'Si tienes acceso local autorizado, lee y valida por separado private-data/profile.json, private-data/linkedin.json y private-data/cv.json con sus esquemas actuales. Usa careerPreferences (familias de puestos, tareas, sectores y ubicación), evidencias profesionales confirmadas, el CV y hechos de published en LinkedIn para orientar los perfiles. Usa contentDirection.themes, viewpoints, preferredVoices y preferredOrganizations solo como filtros profesionales expresamente indicados; no los presentes como hechos públicos. No infieras valores, intereses u objetivos desde el CV o LinkedIn, y no copies datos de contacto, domicilio, motivaciones, dificultades ni contexto personal a consultas públicas. Si falta acceso a los archivos, usa únicamente información profesional que haya compartido en esta conversación; si no basta para orientar la búsqueda, pregunta por un puesto, sector o tema antes de inventar criterios.',
+        'Busca candidatos en resultados públicos de LinkedIn, páginas de empresa y equipos, búsquedas web, asociaciones profesionales y otras fuentes públicas pertinentes; no limites la búsqueda a una sola plataforma. Prioriza recruiters y responsables de talento que contratan para familias de puestos pertinentes; después responsables de selección, hiring managers y líderes del equipo relacionado; también profesionales expertos y voces relevantes para mis temas. Incluye líderes de empresa solo cuando su función o contenido tenga una relación concreta con mis objetivos. No uses el número de seguidores como prueba de relevancia ni afirmes que seguir a alguien hará que vea mi CV o mejore mis opciones.',
+        'Abre las fuentes prometedoras y verifica en páginas públicas actuales la identidad, el cargo y la afiliación antes de afirmarlos. Distingue hechos confirmados de inferencias y datos no disponibles; no adivines nombres, cargos, empresas, correos, teléfonos ni relaciones con una vacante. Guarda solo información profesional pública necesaria para revisar la recomendación: id estable, name, profileUrl, category (recruiter, hiring-manager, team-leader, industry-expert o company-leader), relevance, sourceUrl, verifiedAt con la fecha real YYYY-MM-DD, status "pending" y role/company únicamente si están confirmados. Cada perfil guardado debe incluir la fuente y fecha de verificación. No guardes correos ni teléfonos.',
+        'Antes de añadir resultados, valida private-data/linkedin-content.json con schemas/linkedin-content.schema.json. Compara cada candidato con todos los registros de network[] —status pending, followed y dismissed (pendientes, seguidos y descartados)— y deduplica por URL canónica del perfil (ignora fragmentos y parámetros de seguimiento). No repitas un perfil en ningún estado ni reemplaces IDs o campos desconocidos. Añade únicamente candidatos nuevos cuyo perfil y relevancia hayas verificado; ordénalos por prioridad cualitativa sin inventar puntuaciones. Conserva articles[], drafts[], publications[], exclusiones y propiedades desconocidas. Valida antes y después de guardar y vuelve a leer el archivo. Si el JSON está ausente o no es válido, no lo sobrescribas: devuelve recomendaciones verificadas en el chat y explica qué impidió guardarlas. No sigas perfiles, no conectes, no envíes mensajes y no solicites empleo.',
+        'Al terminar, indícame que revise CareerKit → Contenido de LinkedIn → Red. Si se guardó el archivo y la web no refleja el cambio automáticamente, usa la acción explícita para recargar linkedin-content.json. No prometas ni afirmes que la persona me seguirá, verá mi CV ni que CareerKit hizo una acción en LinkedIn.',
+      ].join('\n\n'),
+    },
+    {
       id: 'draft-linkedin-post',
       category: 'linkedin',
       title: 'Redactar una publicación de LinkedIn',
@@ -842,6 +865,19 @@ export const PROMPT_REQUIREMENTS = {
     ],
     access:
       'Búsqueda pública actual; acceso local para leer Perfil y guardar la cola. Sin acceso local, devuelve los resultados sin afirmar que se guardaron.',
+  },
+  'recommend-linkedin-network': {
+    files: [
+      'herramienta de búsqueda web pública actual',
+      'búsqueda de personas de LinkedIn (opcional)',
+      'private-data/profile.json',
+      'private-data/linkedin.json',
+      'private-data/cv.json',
+      'private-data/linkedin-content.json',
+      'schemas/linkedin-content.schema.json',
+    ],
+    access:
+      'Búsqueda pública actual para descubrir y verificar profesionales; acceso local para orientar la búsqueda y guardar candidatos. El MCP de LinkedIn es opcional; sin acceso local, presenta recomendaciones sin afirmar que quedaron en Red.',
   },
   'draft-linkedin-post': {
     files: [

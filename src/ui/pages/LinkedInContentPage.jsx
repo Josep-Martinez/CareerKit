@@ -3,7 +3,10 @@ import { STRINGS as s } from '../../i18n/es.js'
 import { buildPromptText, PROMPT_INBOX_ES } from '../../i18n/prompt-inbox.es.js'
 import { copyTextToClipboard } from '../clipboard.js'
 import { collectProfileEvidence } from '../profile-evidence.js'
-import { patchLinkedInArticle } from '../../data/linkedin-content-data.js'
+import {
+  patchLinkedInArticle,
+  patchLinkedInNetworkPerson,
+} from '../../data/linkedin-content-data.js'
 import { id } from '../utils.js'
 import { PageHeading, Status } from '../components/PagePrimitives.jsx'
 import { TextField, useDraft } from '../components/FormPrimitives.jsx'
@@ -44,6 +47,10 @@ function statusLabel(status, copy) {
   }[status]
 }
 
+function networkStatusLabel(status, copy) {
+  return copy.networkTabs[status]
+}
+
 export function LinkedInContentPage({
   value,
   profile,
@@ -68,7 +75,9 @@ export function LinkedInContentPage({
   })
   const [flow, setFlow] = useState('articles')
   const [queueView, setQueueView] = useState('pending')
+  const [networkView, setNetworkView] = useState('pending')
   const [searchFocus, setSearchFocus] = useState('')
+  const [networkFocus, setNetworkFocus] = useState('')
   const [articleForm, setArticleForm] = useState(emptyArticleForm)
   const [articleError, setArticleError] = useState('')
   const [postType, setPostType] = useState('project')
@@ -82,7 +91,9 @@ export function LinkedInContentPage({
   const [commentOpinion, setCommentOpinion] = useState('')
   const [notice, setNotice] = useState('')
   const [postPromptCopied, setPostPromptCopied] = useState(false)
+  const [networkPromptCopied, setNetworkPromptCopied] = useState(false)
   const [savingArticleId, setSavingArticleId] = useState('')
+  const [savingNetworkId, setSavingNetworkId] = useState('')
   const postIdea = postIdeas[postType] || ''
 
   function updateMentionTarget(targetId, field, nextValue) {
@@ -94,6 +105,7 @@ export function LinkedInContentPage({
   }
 
   const articles = draft.articles || []
+  const network = draft.network || []
   const postDraftCount = (draft.drafts || []).length
   const pendingDraftCount = (draft.drafts || []).filter(
     (item) => item.status === 'needs-review',
@@ -101,6 +113,10 @@ export function LinkedInContentPage({
   const currentArticles = articles.filter(
     (article) => article.status === queueView,
   )
+  const currentNetwork = network
+    .filter((person) => person.status === networkView)
+    .slice()
+    .sort((left, right) => right.verifiedAt.localeCompare(left.verifiedAt))
   const acceptedArticles = articles.filter(
     (article) => article.status === 'accepted',
   )
@@ -260,14 +276,44 @@ export function LinkedInContentPage({
     })
   }
 
+  function buildNetworkPrompt() {
+    const prompt = promptById('recommend-linkedin-network')
+    return buildPromptText(prompt, {
+      body: [
+        prompt.text,
+        networkFocus.trim()
+          ? `\n\n${copy.promptContext.extraSearchFocus}: ${networkFocus.trim()}`
+          : '',
+      ].join(''),
+    })
+  }
+
+  async function saveNetworkStatus(person, status) {
+    if (savingNetworkId) return
+    const next = patchLinkedInNetworkPerson(draft, person.id, { status })
+    setSavingNetworkId(person.id)
+    setNotice(copy.networkDecisionSaving)
+    setDraft(next)
+    try {
+      const saved = await onSave(next)
+      setNotice(saved ? copy.networkDecisionSaved : copy.networkDecisionFailed)
+    } catch {
+      setNotice(copy.networkDecisionFailed)
+    } finally {
+      setSavingNetworkId('')
+    }
+  }
+
   async function copyPrompt(text, promptId, successMessage) {
     if (await copyTextToClipboard(text)) {
       onPromptCopied?.(promptId)
       setNotice(successMessage || copy.promptCopied)
       setPostPromptCopied(promptId === 'draft-linkedin-post')
+      setNetworkPromptCopied(promptId === 'recommend-linkedin-network')
     } else {
       setNotice(copy.copyFailed)
       setPostPromptCopied(false)
+      setNetworkPromptCopied(false)
       const preview = document.querySelector(
         `[data-copy-preview="${promptId}"]`,
       )
@@ -361,6 +407,7 @@ export function LinkedInContentPage({
               setFlow(key)
               setNotice('')
               setPostPromptCopied(false)
+              setNetworkPromptCopied(false)
             }}
           >
             <span>0{index + 1}</span>
@@ -965,7 +1012,209 @@ export function LinkedInContentPage({
         </section>
       )}
 
-      {notice && (
+      {flow === 'network' && (
+        <>
+          <section className="content-linkedin-search-panel content-linkedin-network-search">
+            <div className="content-linkedin-search-copy">
+              <span className="eyebrow">{copy.networkEyebrow}</span>
+              <h2>{copy.networkTitle}</h2>
+              <p>{copy.networkDescription}</p>
+            </div>
+            <div className="content-linkedin-search-action">
+              <TextField
+                label={copy.networkSearchFocus}
+                value={networkFocus}
+                onChange={setNetworkFocus}
+                hint={copy.networkSearchFocusHint}
+              />
+              <button
+                className="button primary"
+                type="button"
+                onClick={() =>
+                  copyPrompt(
+                    buildNetworkPrompt(),
+                    'recommend-linkedin-network',
+                    copy.networkPromptCopied,
+                  )
+                }
+              >
+                {copy.networkCopyPrompt}
+              </button>
+              <details
+                className="content-linkedin-prompt-preview"
+                data-copy-preview="recommend-linkedin-network"
+              >
+                <summary>{copy.promptPreview}</summary>
+                <textarea
+                  aria-label={copy.networkPromptPreview}
+                  readOnly
+                  rows={12}
+                  value={buildNetworkPrompt()}
+                />
+              </details>
+            </div>
+          </section>
+          {networkPromptCopied && (
+            <p className="content-linkedin-network-next-step" role="status">
+              {copy.networkPromptNextStep}
+            </p>
+          )}
+          <section
+            className="content-linkedin-queue"
+            aria-labelledby="content-network-title"
+          >
+            <div className="section-title-row">
+              <div>
+                <span className="eyebrow">{copy.networkQueueEyebrow}</span>
+                <h2 id="content-network-title">{copy.networkQueueTitle}</h2>
+                <p className="muted">{copy.networkQueueDescription}</p>
+              </div>
+            </div>
+            <div
+              className="content-linkedin-queue-tabs"
+              role="group"
+              aria-label={copy.networkQueueTitle}
+            >
+              {Object.entries(copy.networkTabs).map(([key, label]) => (
+                <button
+                  type="button"
+                  key={key}
+                  className={networkView === key ? 'is-active' : ''}
+                  aria-pressed={networkView === key}
+                  onClick={() => setNetworkView(key)}
+                >
+                  {label}
+                  <span>
+                    {network.filter((person) => person.status === key).length}
+                  </span>
+                </button>
+              ))}
+            </div>
+            {currentNetwork.length ? (
+              <div className="content-linkedin-article-list">
+                {currentNetwork.map((person) => {
+                  const profileUrl = safeArticleUrl(person.profileUrl)
+                  const sourceUrl = safeArticleUrl(person.sourceUrl)
+                  const category = copy.networkCategory[person.category]
+                  const roleAndCompany = [person.role, person.company]
+                    .filter(
+                      (value) => typeof value === 'string' && value.trim(),
+                    )
+                    .join(' · ')
+                  return (
+                    <article
+                      className={`content-linkedin-article content-linkedin-network-card is-${person.status}`}
+                      key={person.id}
+                    >
+                      <div className="content-linkedin-article-topline">
+                        <span
+                          className={`content-linkedin-status is-${person.status}`}
+                        >
+                          {networkStatusLabel(person.status, copy)}
+                        </span>
+                        <span>
+                          {copy.networkVerifiedAt.replace(
+                            '{date}',
+                            person.verifiedAt,
+                          )}
+                        </span>
+                      </div>
+                      <h3>{person.name}</h3>
+                      {category && (
+                        <p className="content-linkedin-source">{category}</p>
+                      )}
+                      {roleAndCompany && (
+                        <p className="content-linkedin-network-role">
+                          {roleAndCompany}
+                        </p>
+                      )}
+                      <p>{person.relevance}</p>
+                      <div className="content-linkedin-article-actions">
+                        {profileUrl && (
+                          <a
+                            href={profileUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="button secondary small"
+                          >
+                            {copy.networkOpenProfile}
+                          </a>
+                        )}
+                        {sourceUrl && sourceUrl !== profileUrl && (
+                          <a
+                            href={sourceUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="button secondary small"
+                          >
+                            {copy.networkOpenSource}
+                          </a>
+                        )}
+                        {person.status === 'pending' && (
+                          <>
+                            <button
+                              type="button"
+                              className="button primary small"
+                              disabled={Boolean(savingNetworkId)}
+                              onClick={() =>
+                                saveNetworkStatus(person, 'followed')
+                              }
+                            >
+                              {copy.networkFollowedAction}
+                            </button>
+                            <button
+                              type="button"
+                              className="button quiet small"
+                              disabled={Boolean(savingNetworkId)}
+                              onClick={() =>
+                                saveNetworkStatus(person, 'dismissed')
+                              }
+                            >
+                              {copy.networkDismissAction}
+                            </button>
+                          </>
+                        )}
+                        {person.status !== 'pending' && (
+                          <button
+                            type="button"
+                            className="button secondary small"
+                            disabled={Boolean(savingNetworkId)}
+                            onClick={() => saveNetworkStatus(person, 'pending')}
+                          >
+                            {copy.networkRestoreAction}
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="content-linkedin-queue-empty">
+                <span aria-hidden="true">✳</span>
+                <p>{copy.networkEmpty[networkView]}</p>
+                {networkView === 'pending' && (
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() =>
+                      copyPrompt(
+                        buildNetworkPrompt(),
+                        'recommend-linkedin-network',
+                        copy.networkPromptCopied,
+                      )
+                    }
+                  >
+                    {copy.networkCopyPrompt} →
+                  </button>
+                )}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+
+      {notice && flow !== 'network' && (
         <p className="content-linkedin-notice" role="status">
           {notice}
         </p>

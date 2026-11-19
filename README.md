@@ -137,7 +137,7 @@ La copia y sus auditorías viven en tu carpeta. Si decides trasladar cambios a t
 
 ### Contenido de LinkedIn
 
-Abre **Contenido de LinkedIn** para trabajar con lecturas, publicaciones y comentarios. El Buzón sigue disponible como catálogo de prompts.
+Abre **Contenido de LinkedIn** para trabajar con lecturas, publicaciones, comentarios y perfiles profesionales para tu red. El Buzón sigue disponible como catálogo de prompts.
 
 1. En **Perfil → Intereses y voz para publicaciones**, indica temas que quieres explorar, voces profesionales y empresas u organizaciones que quieres seguir.
 2. En **Contenido de LinkedIn → Artículos**, copia el prompt de búsqueda. El asistente consulta tus preferencias cuando tiene acceso local, busca en fuentes públicas como revistas, publicaciones especializadas, centros de investigación y LinkedIn, y comprueba las afiliaciones que cita.
@@ -145,6 +145,7 @@ Abre **Contenido de LinkedIn** para trabajar con lecturas, publicaciones y comen
 4. En una lectura aceptada, escribe tu opinión. **Preparar publicación** la lleva al campo de opinión del flujo de publicaciones y la incluye en el prompt.
 5. En **Contenido de LinkedIn → Publicaciones**, puedes preparar textos sobre logros o títulos, nuevos trabajos, ascensos, proyectos, experiencias o aprendizajes, opiniones y material que aportes. El prompt pide al asistente una versión completa **siempre en inglés** y, si tiene acceso local autorizado, la guarda en `drafts[]` de `linkedin-content.json`. Después ve a **Tus publicaciones → Borradores**. Si CareerKit avisa de un cambio externo, recarga el archivo para verla. Allí puedes editar el texto, guardar los cambios, dejarlo listo para publicar, registrarlo como publicado después de compartirlo realmente, o eliminarlo.
 6. En **Comentarios**, pega la publicación y añade qué te gustaría aportar. Copia el prompt y revisa las propuestas en el chat. Puedes llevar a LinkedIn la que decidas usar.
+7. En **Red**, copia el prompt para buscar recruiters, responsables de contratación y profesionales relacionados con tus objetivos. Si el asistente tiene acceso local, usará Perfil, la copia de LinkedIn y las bases del CV para orientar la búsqueda y guardará perfiles públicos verificados en `network[]`. Revisa sus fuentes y motivos, y marca **Ya lo sigo** o **Descartar**; esas decisiones se conservan para no repetir perfiles. Sin acceso a los JSON, el asistente puede investigar, pero no afirmará que guardó resultados.
 
 ### Tus publicaciones
 
@@ -232,7 +233,7 @@ Si sigues bloqueado, anota el mensaje exacto, qué botón pulsaste, la direcció
 | `cv.json` | Bases generales del CV y fechas. |
 | `vacancies.json` | Ofertas, valoración y adaptaciones por vacante. |
 | `priorities.json` | Prioridades que aparecen en Inicio. |
-| `linkedin-content.json` | Cola de lecturas, borradores de publicaciones en inglés, enlaces para no repetir descartes y archivo del texto exacto de publicaciones que ya compartiste. |
+| `linkedin-content.json` | Cola de lecturas, perfiles públicos recomendados para tu red, borradores de publicaciones en inglés, enlaces para no repetir descartes y archivo del texto exacto de publicaciones que ya compartiste. |
 
 En el modo local, CareerKit puede detectar la carpeta del proyecto y recuerda la conexión cuando el navegador lo permite. Tu selección manual tiene prioridad. Puedes usar **Desconectar carpeta** y, si quieres, confirmar que la web limpie los datos que tiene cargados. Los archivos del disco se conservan. Para cambiar de ordenador, copia la carpeta de datos por un medio que controles y conéctala en el nuevo equipo.
 

@@ -896,11 +896,12 @@ export const STRINGS = {
     eyebrow: 'IDEAS PARA CONVERSACIONES PROFESIONALES',
     title: 'Contenido de LinkedIn',
     subtitle:
-      'Descubre lecturas que te interesan, prepara publicaciones con tu enfoque y escribe comentarios con algo propio que aportar.',
+      'Descubre lecturas, prepara publicaciones, escribe comentarios y encuentra profesionales para tu red.',
     flows: {
       articles: 'Artículos',
       posts: 'Publicaciones',
       comments: 'Comentarios',
+      network: 'Red',
     },
     profileTitle: 'Una búsqueda guiada por tus intereses',
     profileDescription:
@@ -921,6 +922,50 @@ export const STRINGS = {
     discoverCopy: 'Copiar prompt de búsqueda',
     discoveryPrompt: 'Prompt de búsqueda',
     discoveryPromptCopied: 'Prompt de búsqueda copiado.',
+    networkEyebrow: 'PERSONAS QUE TE INTERESA CONOCER',
+    networkTitle: 'Construye tu red profesional',
+    networkDescription:
+      'El agente buscará recruiters y profesionales relacionados con tus objetivos usando Perfil, CV y LinkedIn, si tiene acceso local. Revisarás aquí cada recomendación antes de seguirla por tu cuenta.',
+    networkSearchFocus: '¿Qué puesto, empresa o tema priorizamos? (opcional)',
+    networkSearchFocusHint:
+      'El agente combina este enfoque con tus datos profesionales confirmados y tus temas de Perfil.',
+    networkCopyPrompt: 'Copiar prompt para descubrir perfiles',
+    networkPromptPreview: 'Prompt para descubrir perfiles',
+    networkPromptCopied: 'Prompt copiado. Pégalo en el agente que usas.',
+    networkPromptNextStep:
+      'Cuando el agente termine, vuelve a Contenido de LinkedIn → Red para revisar las recomendaciones. Si CareerKit avisa de cambios externos, recarga linkedin-content.json para verlas.',
+    networkQueueEyebrow: 'RECOMENDACIONES PÚBLICAS',
+    networkQueueTitle: 'Perfiles para revisar',
+    networkQueueDescription:
+      'Comprueba por qué se recomienda cada persona y abre sus fuentes. Marcar «Ya lo sigo» solo registra tu decisión: CareerKit no sigue ni contacta a nadie.',
+    networkTabs: {
+      pending: 'Por revisar',
+      followed: 'Seguidos',
+      dismissed: 'Descartados',
+    },
+    networkEmpty: {
+      pending:
+        'Aquí aparecerán los perfiles públicos que el agente encuentre y verifique.',
+      followed: 'Aún no has marcado perfiles como seguidos.',
+      dismissed: 'Aquí se conservan los perfiles que descartaste.',
+    },
+    networkCategory: {
+      recruiter: 'Recruiter o selección',
+      'hiring-manager': 'Responsable de contratación',
+      'team-leader': 'Líder de equipo',
+      'industry-expert': 'Profesional o referente',
+      'company-leader': 'Líder de empresa',
+    },
+    networkVerifiedAt: 'Comprobado el {date}',
+    networkOpenProfile: 'Ver perfil de LinkedIn ↗',
+    networkOpenSource: 'Ver fuente de comprobación ↗',
+    networkFollowedAction: 'Ya lo sigo',
+    networkDismissAction: 'Descartar',
+    networkRestoreAction: 'Volver a pendientes',
+    networkDecisionSaving: 'Guardando tu decisión en linkedin-content.json…',
+    networkDecisionSaved: 'Decisión guardada en linkedin-content.json.',
+    networkDecisionFailed:
+      'No se pudo guardar. Tu decisión sigue visible; revisa la conexión e inténtalo de nuevo.',
     promptCopied: 'Prompt copiado. Pégalo en tu asistente.',
     copyFailed: 'No se pudo copiar. Selecciona el prompt y cópialo.',
     queueTitle: 'Tu cola de lectura',

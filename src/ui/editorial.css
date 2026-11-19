@@ -3522,7 +3522,7 @@ select {
 /* LinkedIn content desk */
 .content-linkedin-flow-tabs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 7px;
   margin: 0 0 22px;
   padding: 7px;
@@ -3772,6 +3772,16 @@ select {
   background: #f7eee9;
   color: #8a5944;
 }
+.content-linkedin-status.is-followed {
+  border-color: #d5e2d3;
+  background: #e9f0e9;
+  color: #315c47;
+}
+.content-linkedin-status.is-dismissed {
+  border-color: #ead8ce;
+  background: #f7eee9;
+  color: #8a5944;
+}
 .content-linkedin-article-meta {
   display: flex;
   flex-wrap: wrap;
@@ -3806,6 +3816,21 @@ select {
   margin-top: 0;
   color: #315c47;
   font-weight: 650;
+}
+.content-linkedin-network-role {
+  color: #4f5d53 !important;
+  font-weight: 650;
+}
+.content-linkedin-network-next-step {
+  margin: -16px 0 26px;
+  padding: 14px 18px;
+  border: 1px solid #d7e1d4;
+  border-left: 3px solid #477556;
+  border-radius: 4px 10px 4px 10px;
+  background: #f4f6f0;
+  color: #536459;
+  font-size: 12px;
+  line-height: 1.6;
 }
 .content-linkedin-topics {
   display: flex;

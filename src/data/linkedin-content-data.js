@@ -75,6 +75,39 @@ export const validLinkedInDraft = (item) =>
   ['needs-review', 'ready-to-post'].includes(item.status) &&
   optionalStrings(item, ['sourceArticleId'])
 
+const networkCategories = [
+  'recruiter',
+  'hiring-manager',
+  'team-leader',
+  'industry-expert',
+  'company-leader',
+]
+const networkStatuses = ['pending', 'followed', 'dismissed']
+const isIsoDate = (value) => {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value))
+    return false
+  const date = new Date(`${value}T00:00:00.000Z`)
+  return (
+    !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value
+  )
+}
+
+export const validLinkedInNetworkPerson = (item) =>
+  isRecord(item) &&
+  typeof item.id === 'string' &&
+  Boolean(item.id.trim()) &&
+  typeof item.name === 'string' &&
+  Boolean(item.name.trim()) &&
+  isHttpUrl(item.profileUrl) &&
+  networkCategories.includes(item.category) &&
+  (item.role === undefined || typeof item.role === 'string') &&
+  (item.company === undefined || typeof item.company === 'string') &&
+  typeof item.relevance === 'string' &&
+  Boolean(item.relevance.trim()) &&
+  isHttpUrl(item.sourceUrl) &&
+  isIsoDate(item.verifiedAt) &&
+  networkStatuses.includes(item.status)
+
 export const validLinkedInContentData = (value) =>
   isRecord(value) &&
   value.schemaVersion === 1 &&
@@ -85,6 +118,9 @@ export const validLinkedInContentData = (value) =>
       value.publications.every(validLinkedInPublication))) &&
   (value.drafts === undefined ||
     (Array.isArray(value.drafts) && value.drafts.every(validLinkedInDraft))) &&
+  (value.network === undefined ||
+    (Array.isArray(value.network) &&
+      value.network.every(validLinkedInNetworkPerson))) &&
   (value.excludedArticleUrls === undefined ||
     (Array.isArray(value.excludedArticleUrls) &&
       value.excludedArticleUrls.every(isHttpUrl)))
@@ -304,4 +340,15 @@ export const hasLinkedInContent = (value) =>
   ) ||
   (value.publications || []).some((publication) => Boolean(publication.text)) ||
   (value.drafts || []).some((draft) => Boolean(draft.text)) ||
+  (value.network || []).length > 0 ||
   (value.excludedArticleUrls || []).length > 0
+
+export function patchLinkedInNetworkPerson(data, personId, patch) {
+  let matched = false
+  const network = (data.network || []).map((person) => {
+    if (person.id !== personId) return person
+    matched = true
+    return { ...person, ...patch }
+  })
+  return matched ? { ...data, network } : data
+}

@@ -100,6 +100,29 @@ test('article discovery excludes decided readings and cleans discarded records',
   assert.doesNotMatch(prompt.text, /No borres artículos guardados/)
 })
 
+test('network discovery verifies and saves relevant public profiles safely', () => {
+  const prompt = PROMPT_INBOX_ES.prompts.find(
+    (item) => item.id === 'recommend-linkedin-network',
+  )
+  const requirements = PROMPT_REQUIREMENTS['recommend-linkedin-network']
+
+  assert.ok(prompt)
+  assert.ok(requirements)
+  assert.match(requirements.files.join(' '), /profile\.json/)
+  assert.match(requirements.files.join(' '), /linkedin\.json/)
+  assert.match(requirements.files.join(' '), /cv\.json/)
+  assert.match(prompt.text, /network\[\]/)
+  assert.match(prompt.text, /recruiter|selección/i)
+  assert.match(prompt.text, /hiring-manager|responsable de contratación/i)
+  assert.match(prompt.text, /nombre o apellido/i)
+  assert.match(prompt.text, /búsqueda web pública/i)
+  assert.match(prompt.text, /pending.*followed.*dismissed/i)
+  assert.match(prompt.text, /URL canónica|URL normalizada/i)
+  assert.match(prompt.text, /fuente.*fecha de verificación/i)
+  assert.match(prompt.text, /no sigas.*no envíes mensajes/i)
+  assert.match(prompt.text, /no garantices|no prometas/i)
+})
+
 test('published post prompt records exact text and links its accepted article', () => {
   const prompt = PROMPT_INBOX_ES.prompts.find(
     (item) => item.id === 'record-linkedin-publication',
