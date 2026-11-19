@@ -10,6 +10,8 @@ export const PROMPT_INBOX_ES = {
   usageBody:
     'Antes de ejecutar un prompt, comprueba que CareerKit está abierta en tu ordenador y que private-data está conectada en esa web. Si la web no está abierta, inicia CareerKit con pnpm local. El asistente necesita además su propio acceso local a los archivos; conectar la carpeta en el navegador no se lo concede.',
   pendingTitle: 'Tienes tareas pendientes en el Buzón',
+  pendingTemplateFieldsBody:
+    'Al abrir CareerKit se compararon los JSON conectados con las plantillas y se detectaron campos nuevos. Copia el prompt resaltado para añadirlos sin reemplazar tus datos.',
   pendingCvBody:
     'Hay cambios profesionales en {sources}. El aviso se retira cuando ambas bases del CV tienen cambios de contenido o una nueva fecha de revisión.',
   pendingLanguagesBody:
@@ -91,6 +93,24 @@ export const PROMPT_INBOX_ES = {
         'En la raíz local de este proyecto, crea private-data/ solo si falta. Copia desde templates/ únicamente los JSON que no existan: profile.json, linkedin.json, cv.json, vacancies.json, priorities.json y linkedin-content.json.',
         'No sobrescribas archivos existentes. Si uno está vacío, mal formado o no coincide con su esquema, conserva el original, indica el nombre exacto y compara su estructura con schemas/ y templates/. Propón una reparación que mantenga datos y campos desconocidos, y espera mi confirmación antes de modificar ese archivo.',
         'No busques datos en otros proyectos ni rellenes información personal por tu cuenta. Deja toda la información personal en private-data/. Valida cada módulo por separado y dime qué preparaste y qué requiere mi atención. Si no tienes acceso local, dilo y no afirmes que guardaste cambios.',
+      ].join('\n\n'),
+    },
+    {
+      id: 'sync-template-fields',
+      category: 'setup',
+      title: 'Actualizar los datos con campos nuevos de las plantillas',
+      use: 'Úsalo cuando CareerKit marque esta tarea en rojo. Añade a tus JSON los campos nuevos de las plantillas sin reemplazar tus datos.',
+      skillPaths: [
+        'AGENTS.md',
+        'schemas/agent-format.md',
+        '.agents/skills/careerkit-data-entry/SKILL.md',
+      ],
+      text: [
+        'Trabaja solo en los JSON existentes de private-data/: profile.json, linkedin.json, cv.json, vacancies.json, priorities.json y linkedin-content.json. No crees archivos que falten; para eso usa el prompt «Preparar o revisar los archivos de datos». No edites templates/ ni otros archivos.',
+        'Esta solicitud autoriza a comparar cada JSON con su plantilla correspondiente en templates/ y su esquema en schemas/, y a añadir automáticamente solo las propiedades definidas en la plantilla que falten en el JSON. Detecta también propiedades ausentes dentro de objetos anidados. Por ejemplo, si templates/linkedin-content.json contiene network: [] y private-data/linkedin-content.json no tiene network, añade network: [].',
+        'Antes de cambiar un módulo, valida el JSON local actual con su esquema. Si es válido, añade las propiedades ausentes usando los valores iniciales de la plantilla. Si una propiedad ausente es un objeto, incorpora solo sus claves; si es un array vacío, añade ese array vacío. No reemplaces valores que ya existan, no mezcles ni sustituyas elementos de arrays y no copies elementos de ejemplo de la plantilla. Conserva IDs, datos, orden, propiedades desconocidas y cualquier contenido privado.',
+        'Si un archivo está mal formado, no pasa su esquema actual o necesita cambiar schemaVersion, déjalo intacto y explica qué impide la actualización; no hagas migraciones por inferencia. Puedes continuar con los otros módulos válidos. No guardes un módulo si el resultado no pasa su esquema.',
+        'Valida cada módulo antes y después de escribirlo, vuelve a leer los archivos guardados y resume exactamente qué módulos y campos añadiste. Si no faltaba nada, indícalo. Si no tienes acceso local autorizado a la misma carpeta, informa de ello y no afirmes que guardaste cambios. Cuando termines, vuelve a CareerKit; si aparece un aviso de cambio externo, recarga el archivo para ver los campos nuevos.',
       ].join('\n\n'),
     },
     {
@@ -730,6 +750,11 @@ export const PROMPT_REQUIREMENTS = {
     files: ['templates/*.json', 'private-data/*.json'],
     access:
       'Acceso local a la carpeta del proyecto para revisar y preparar archivos.',
+  },
+  'sync-template-fields': {
+    files: ['private-data/*.json', 'templates/*.json', 'schemas/*.schema.json'],
+    access:
+      'Acceso local de lectura y escritura a los JSON de private-data/ y lectura a las plantillas y esquemas del proyecto.',
   },
   'fill-profile': {
     files: ['private-data/profile.json'],

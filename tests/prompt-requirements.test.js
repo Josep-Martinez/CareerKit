@@ -27,6 +27,30 @@ test('every copied prompt checks CareerKit availability and local data access', 
   }
 })
 
+test('template update prompt adds only missing defaults to valid local files', () => {
+  const prompt = PROMPT_INBOX_ES.prompts.find(
+    (item) => item.id === 'sync-template-fields',
+  )
+
+  assert.ok(prompt)
+  assert.match(prompt.use, /marque esta tarea en rojo/i)
+  assert.match(prompt.text, /compara.*templates/i)
+  assert.match(prompt.text, /campos.*faltan|propiedades.*falten/i)
+  assert.match(prompt.text, /network: \[\]/)
+  assert.match(prompt.text, /no reemplaces valores que ya existan/i)
+  assert.match(prompt.text, /propiedades desconocidas/i)
+  assert.match(prompt.text, /no.*copi(?:es|ar).*elementos.*plantilla/i)
+  assert.match(prompt.text, /valida.*antes y después|valida.*antes.*después/i)
+  assert.match(
+    prompt.text,
+    /resume.*campos (añadidos|añadiste)|indica.*campos añadidos/i,
+  )
+  assert.ok(prompt.skillPaths.includes('schemas/agent-format.md'))
+  assert.ok(
+    PROMPT_REQUIREMENTS[prompt.id].files.includes('schemas/*.schema.json'),
+  )
+})
+
 test('vacancy discovery and availability review are separate prompts', () => {
   const discovery = PROMPT_INBOX_ES.prompts.find(
     (prompt) => prompt.id === 'research-vacancies',

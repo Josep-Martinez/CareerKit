@@ -11,6 +11,7 @@ import {
   useStorageState,
   validateModule,
 } from '../data/storage.js'
+import { getPendingTemplateUpdates } from '../data/template-drift.js'
 import { isKnownEmpty, isKnownPopulated } from './utils.js'
 import { checkEvidenceRemoval } from './profile-evidence-guard.js'
 import { copyTextToClipboard } from './clipboard.js'
@@ -135,10 +136,16 @@ export default function App() {
   const linkedinContentNeedsReload = shouldShowExternalContentReloadTask(
     store.states['linkedin-content'],
   )
+  const pendingTemplateUpdates = getPendingTemplateUpdates(
+    store.data,
+    EMPTY,
+    store.states,
+  )
   const pendingPromptCount =
     Number(cvPromptPending) +
     Number(linkedinLanguagesPending) +
-    Number(linkedinContentNeedsReload)
+    Number(linkedinContentNeedsReload) +
+    Number(pendingTemplateUpdates.length > 0)
   const pendingPublicationDraftCount = (
     store.data['linkedin-content'].drafts || []
   ).filter((postDraft) => postDraft.status === 'needs-review').length
@@ -1126,6 +1133,7 @@ export default function App() {
                 linkedinCanCheck: Boolean(store.folder),
                 linkedinContentNeedsReload,
                 linkedinContentCanReload: Boolean(store.folder),
+                templateUpdates: pendingTemplateUpdates,
               }}
               onCheckLinkedIn={checkLinkedInSync}
               onConfirmLinkedIn={confirmLinkedInSync}

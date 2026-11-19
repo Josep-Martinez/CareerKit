@@ -1147,6 +1147,18 @@ select {
 .prompt-linkedin-check .button {
   margin-top: 5px;
 }
+.prompt-template-field-list {
+  display: grid;
+  gap: 5px;
+  margin: 7px 0 0;
+  padding-left: 18px;
+  color: #59665c;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.prompt-template-field-list code {
+  overflow-wrap: anywhere;
+}
 .prompt-list {
   display: grid;
   gap: 22px;
@@ -1182,6 +1194,10 @@ select {
 .prompt-card.is-pending {
   border-color: #ccaa8e;
   box-shadow: 0 0 0 2px #f1e5d9;
+}
+.prompt-card.is-template-update {
+  border-color: #b14b40;
+  box-shadow: 0 0 0 2px #f7dfd9;
 }
 .prompt-card-heading {
   display: flex;
@@ -1299,6 +1315,11 @@ select {
   color: #844f38;
   font-size: 9px;
   font-weight: 700;
+}
+.prompt-card.is-template-update .prompt-pending-tag {
+  border-color: #e4b3a8;
+  background: #fff0ec;
+  color: #a13d34;
 }
 .prompt-content {
   display: block;

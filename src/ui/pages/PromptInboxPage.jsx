@@ -23,13 +23,17 @@ export function PromptInboxPage({
   const pendingCv = Boolean(pending?.cv)
   const pendingLinkedinLanguages = Boolean(pending?.linkedinLanguages)
   const pendingLinkedinContent = Boolean(pending?.linkedinContentNeedsReload)
+  const templateUpdates = pending?.templateUpdates || []
+  const pendingTemplateFields = templateUpdates.length > 0
   const pendingCount =
     Number(pendingCv) +
     Number(pendingLinkedinLanguages) +
-    Number(pendingLinkedinContent)
+    Number(pendingLinkedinContent) +
+    Number(pendingTemplateFields)
   const pendingPromptIds = new Set([
     ...(pendingCv ? ['refresh-cv'] : []),
     ...(pendingLinkedinLanguages ? ['sync-linkedin-languages'] : []),
+    ...(pendingTemplateFields ? ['sync-template-fields'] : []),
   ])
   const [search, setSearch] = useState('')
   const [vacancyReference, setVacancyReference] = useState('')
@@ -109,7 +113,11 @@ export function PromptInboxPage({
     })
     return (
       <article
-        className={`prompt-card ${isPending ? 'is-pending' : ''}`}
+        className={`prompt-card ${isPending ? 'is-pending' : ''} ${
+          isPending && prompt.id === 'sync-template-fields'
+            ? 'is-template-update'
+            : ''
+        }`}
         id={`prompt-${prompt.id}`}
         key={prompt.id}
       >
@@ -281,6 +289,24 @@ export function PromptInboxPage({
                     .join(' y '),
                 )}
               </p>
+            )}
+            {pendingTemplateFields && (
+              <div className="prompt-linkedin-check">
+                <p>{copy.pendingTemplateFieldsBody}</p>
+                <ul className="prompt-template-field-list">
+                  {templateUpdates.map(({ module, fields }) => (
+                    <li key={module}>
+                      <code>{module}.json</code>:{' '}
+                      {fields.map((field, index) => (
+                        <span key={field}>
+                          {index > 0 ? ', ' : ''}
+                          <code>{field}</code>
+                        </span>
+                      ))}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
             {pendingLinkedinLanguages && (
               <div className="prompt-linkedin-check">

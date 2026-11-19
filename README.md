@@ -172,13 +172,16 @@ Un **prompt** es un texto de instrucciones para tu asistente.
 
 | Si quieres… | Busca en el Buzón… |
 | --- | --- |
-| Preparar o recuperar la carpeta | **Preparar o revisar los archivos de datos**. |
+| Crear los JSON que falten | **Preparar o revisar los archivos de datos**. |
+| Incorporar campos nuevos de las plantillas a tus JSON | **Actualizar los datos con campos nuevos de las plantillas**. |
 | Actualizar tu dossier o tu copia de LinkedIn | Las tres opciones de Perfil, la copia desde archivo o complemento, la auditoría y la revisión de los dos idiomas. |
 | Preparar el CV o una candidatura | La base general o desde archivo, la búsqueda y revisión de vacantes, la valoración, la adaptación del CV y la carta. |
 | Prepararte para una entrevista | **Convertir una experiencia en historia STAR** o **Elegir historias STAR para una vacante**. STAR organiza la situación, la tarea, la acción y el resultado. Puedes guardar una historia revisada como evidencia en Perfil. |
 | Organizar próximos pasos | **Añadir prioridades concretas a Inicio**. |
 | Crear contenido para LinkedIn | Descubrir artículos, redactar una publicación o comentario, registrar lo publicado, preparar un carrusel, reutilizar un texto, vídeo o podcast, pulir un borrador o preparar versiones en dos idiomas. |
 | Revisar actividad en LinkedIn | Analizar métricas que compartas, preparar un plan de publicaciones, redactar notas de conexión y mensajes, clasificar mensajes que pegues o preparar respuestas a comentarios. |
+
+Al abrir CareerKit, la web compara automáticamente la estructura de los JSON conectados con sus plantillas. Si detecta campos nuevos, destaca en rojo el prompt **Actualizar los datos con campos nuevos de las plantillas** en el Buzón y muestra qué archivo y campos faltan. El prompt añade solo esos campos con sus valores iniciales; conserva lo existente y no copia elementos de ejemplo. Por ejemplo, puede añadir `network: []` a `linkedin-content.json` para que la sección Red tenga su estructura. Si un archivo no valida, lo deja intacto y explica qué necesita revisar.
 
 ### Cómo saber si se guardó
 
