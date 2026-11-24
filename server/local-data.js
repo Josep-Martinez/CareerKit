@@ -27,9 +27,11 @@ export function localDataPlugin() {
           res.end(JSON.stringify(value))
         }
         const host = req.headers.host
+        const isLoopbackHost =
+          typeof host === 'string' &&
+          /^(?:127\.0\.0\.1|localhost):\d+$/.test(host)
         if (
-          !host ||
-          !/^127\.0\.0\.1:\d+$/.test(host) ||
+          !isLoopbackHost ||
           (req.headers.origin && req.headers.origin !== `http://${host}`) ||
           req.headers['sec-fetch-site'] === 'cross-site'
         )
