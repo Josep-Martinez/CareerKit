@@ -555,6 +555,7 @@ export default function App() {
   }
   async function connectFiles(files) {
     if (pendingSave.current || !confirmDiscard()) return
+    setConnecting(false)
     setFallbackConnectBusy(true)
     setFallbackConnectError('')
     try {
@@ -583,6 +584,36 @@ export default function App() {
     } finally {
       setFallbackConnectBusy(false)
     }
+  }
+  function connectDirectory(files) {
+    const paths = files.map((file) =>
+      String(file.webkitRelativePath || '').split('/'),
+    )
+    const selectedDirectories = new Set(paths.map(([directory]) => directory))
+    if (
+      selectedDirectories.size !== 1 ||
+      !selectedDirectories.has('private-data')
+    ) {
+      setFallbackConnectError(s.fallbackFiles.wrongDirectory)
+      return
+    }
+    const directFiles = files.filter((file, index) => paths[index].length === 2)
+    if (
+      !directFiles.some((file) =>
+        [
+          'profile.json',
+          'linkedin.json',
+          'linkedin-content.json',
+          'cv.json',
+          'vacancies.json',
+          'priorities.json',
+        ].includes(file.name.toLowerCase()),
+      )
+    ) {
+      setFallbackConnectError(s.fallbackFiles.directoryNoFiles)
+      return
+    }
+    connectFiles(directFiles)
   }
   async function prepareMissing() {
     const result = await store.prepareMissing(folderDialog?.missing || [])
@@ -805,6 +836,7 @@ export default function App() {
               setFallbackConnectError('')
             }}
             onFiles={connectFiles}
+            onDirectory={connectDirectory}
           />
         )}
       </>
@@ -1180,6 +1212,7 @@ export default function App() {
             setFallbackConnectError('')
           }}
           onFiles={connectFiles}
+          onDirectory={connectDirectory}
         />
       )}
       {folderDialog && (

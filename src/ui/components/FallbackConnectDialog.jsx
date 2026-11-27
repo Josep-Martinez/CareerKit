@@ -1,8 +1,17 @@
 import { STRINGS as s } from '../../i18n/es.js'
 import { Modal } from './Modal.jsx'
 
-export function FallbackConnectDialog({ busy, error, onClose, onFiles }) {
+export function FallbackConnectDialog({
+  busy,
+  error,
+  onClose,
+  onFiles,
+  onDirectory,
+}) {
   const copy = s.fallbackFiles
+  const supportsDirectoryInput =
+    typeof document !== 'undefined' &&
+    'webkitdirectory' in document.createElement('input')
 
   return (
     <Modal
@@ -23,7 +32,27 @@ export function FallbackConnectDialog({ busy, error, onClose, onFiles }) {
       <h2 id="fallback-connect-title">{copy.title}</h2>
       <p>{copy.body}</p>
       <p className="fallback-connect-help">{copy.files}</p>
-      <label className="button primary file-button">
+      {supportsDirectoryInput && (
+        <label className="button primary file-button">
+          {busy ? copy.opening : copy.chooseDirectory}
+          <input
+            type="file"
+            webkitdirectory=""
+            directory=""
+            multiple
+            disabled={busy}
+            onChange={(event) => {
+              const files = Array.from(event.currentTarget.files || [])
+              event.currentTarget.value = ''
+              if (files.length) onDirectory(files)
+            }}
+          />
+        </label>
+      )}
+      {supportsDirectoryInput && (
+        <p className="fallback-connect-help">{copy.directoryHelp}</p>
+      )}
+      <label className="button secondary file-button">
         {busy ? copy.opening : copy.choose}
         <input
           type="file"

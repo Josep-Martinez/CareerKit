@@ -34,6 +34,7 @@ export const STRINGS = {
     previewOnly: 'Solo vista previa',
     checking: 'Buscando carpeta…',
     connectLocal: 'Conectar la carpeta de este proyecto',
+    chooseFolder: 'Elegir otra carpeta',
     localMissing:
       'No se pudo acceder a private-data desde el servidor local. Comprueba que ejecutaste pnpm local dentro de tu copia de CareerKit y abre la dirección que indique la terminal. Si la carpeta falta, usa «Ver prompt de preparación». Si ya tienes los JSON en otra carpeta, pulsa «Abrir JSON de private-data».',
     wrongFolder:
@@ -78,6 +79,13 @@ export const STRINGS = {
     body: 'Si este navegador no completa la selección de carpeta, puedes abrir aquí los archivos directamente. CareerKit valida cada módulo por separado y mantiene los datos solo en esta sesión del navegador.',
     files:
       'Selecciona uno o varios de estos archivos: profile.json, linkedin.json, linkedin-content.json, cv.json, vacancies.json y priorities.json.',
+    chooseDirectory: 'Seleccionar la carpeta private-data',
+    directoryHelp:
+      'Elige private-data directamente. Los navegadores que usan esta alternativa abren los JSON en modo manual; al guardar, tendrás que sustituir el archivo descargado.',
+    wrongDirectory:
+      'Selecciona la carpeta llamada private-data directamente, no la raíz de CareerKit ni otra carpeta.',
+    directoryNoFiles:
+      'No se encontraron JSON de CareerKit directamente dentro de private-data. Comprueba que elegiste la carpeta correcta.',
     choose: 'Seleccionar archivos JSON',
     opening: 'Abriendo archivos…',
     noRecognized:

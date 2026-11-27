@@ -1,20 +1,31 @@
+const REQUEST_TIMEOUT_MS = 3000
+
 async function request(name = '', options) {
-  const response = await fetch(`/__careerkit_data/${name}`, options)
-  if (!response.ok) {
-    const error = new Error(
-      response.status === 409
-        ? 'El archivo cambió fuera de la aplicación. Recárgalo antes de guardar.'
-        : 'No se pudo acceder al archivo local.',
-    )
-    error.name =
-      response.status === 409
-        ? 'ConflictError'
-        : response.status === 404
-          ? 'NotFoundError'
-          : 'Error'
-    throw error
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  try {
+    const response = await fetch(`/__careerkit_data/${name}`, {
+      ...options,
+      signal: options?.signal || controller.signal,
+    })
+    if (!response.ok) {
+      const error = new Error(
+        response.status === 409
+          ? 'El archivo cambió fuera de la aplicación. Recárgalo antes de guardar.'
+          : 'No se pudo acceder al archivo local.',
+      )
+      error.name =
+        response.status === 409
+          ? 'ConflictError'
+          : response.status === 404
+            ? 'NotFoundError'
+            : 'Error'
+      throw error
+    }
+    return response.json()
+  } finally {
+    clearTimeout(timeout)
   }
-  return response.json()
 }
 export async function detectLocalFolder() {
   if (!import.meta.env.DEV) return null
