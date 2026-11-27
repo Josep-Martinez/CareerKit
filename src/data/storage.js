@@ -567,7 +567,8 @@ export function useStorageState() {
   const [fallbackConnected, setFallbackConnected] = useState(false)
   const folderRef = useRef(null)
   const folderPreference = useRef(getFolderPreference())
-  const connectingRef = useRef(true)
+  const connectingRef = useRef(false)
+  const restoreGeneration = useRef(0)
   const rememberedRef = useRef(null)
   function setFolder(value) {
     folderRef.current = value
@@ -575,7 +576,7 @@ export function useStorageState() {
   }
   const [rememberedFolder, setRememberedFolder] = useState(null)
   const [rememberFailed, setRememberFailed] = useState(false)
-  const [restoreStatus, setRestoreStatus] = useState('checking')
+  const [restoreStatus, setRestoreStatus] = useState('no-saved-folder')
   const [restoreResult, setRestoreResult] = useState(null)
   const [data, setData] = useState(() =>
     Object.fromEntries(FILES.map((name) => [name, clone(EMPTY[name])])),
@@ -584,10 +585,17 @@ export function useStorageState() {
   const [warnings, setWarnings] = useState({})
   const [revision, setRevision] = useState({})
 
-  async function readModule(name, handle = folder) {
+  async function readModule(
+    name,
+    handle = folder,
+    shouldContinue = () => true,
+  ) {
     const fileHandle = await handle.getFileHandle(`${name}.json`)
+    if (!shouldContinue()) return null
     const file = await fileHandle.getFile()
+    if (!shouldContinue()) return null
     const raw = await file.text()
+    if (!shouldContinue()) return null
     if (!raw.trim()) throw new Error(templateMessage(name, 'está vacío.'))
     let source
     try {
@@ -635,15 +643,19 @@ export function useStorageState() {
     return parsed
   }
 
-  async function scanFolder(handle = folder) {
+  async function scanFolder(handle = folder, shouldContinue = () => true) {
     const missing = []
     const invalid = []
     let containsData = false
     for (const name of FILES) {
+      if (!shouldContinue()) return { cancelled: true }
       try {
-        const value = await readModule(name, handle)
+        const value = await readModule(name, handle, shouldContinue)
+        if (!shouldContinue()) return { cancelled: true }
+        if (value === null) return { cancelled: true }
         containsData ||= hasModuleContent(name, value)
       } catch (error) {
+        if (!shouldContinue()) return { cancelled: true }
         if (error?.name === 'NotFoundError') {
           missing.push(name)
           setStates((prev) => ({ ...prev, [name]: 'Falta plantilla' }))
@@ -674,6 +686,12 @@ export function useStorageState() {
   useEffect(() => {
     let active = true
     async function restoreFolder() {
+      const generation = restoreGeneration.current
+      const canRestore = () =>
+        active &&
+        generation === restoreGeneration.current &&
+        !connectingRef.current &&
+        !folderRef.current
       try {
         const preference = folderPreference.current
         if (preference === 'disconnected' || preference === 'files') {
@@ -682,9 +700,10 @@ export function useStorageState() {
         }
         const saved =
           preference === 'local' ? null : await loadDirectoryHandle()
+        if (!canRestore()) return
         const handle =
           saved || (preference === 'picked' ? null : await detectLocalFolder())
-        if (!active) return
+        if (!canRestore()) return
         if (!handle) {
           setRestoreStatus('no-saved-folder')
           return
@@ -695,7 +714,7 @@ export function useStorageState() {
           typeof handle.queryPermission === 'function'
             ? await handle.queryPermission({ mode: 'readwrite' })
             : 'granted'
-        if (!active) return
+        if (!canRestore()) return
         if (permission !== 'granted') {
           setRestoreStatus('needs-permission')
           return
@@ -707,50 +726,48 @@ export function useStorageState() {
         setStates({})
         setWarnings({})
         setRevision({})
-        const result = await scanFolder(handle)
-        if (!active) return
+        const result = await scanFolder(handle, canRestore)
+        if (!canRestore() || result.cancelled) return
         setFolder(handle)
         setRestoreResult(result)
         setRestoreStatus('restored')
       } catch {
-        if (!active) return
-        setRestoreStatus('storage-error')
-      } finally {
-        if (active) connectingRef.current = false
+        if (canRestore()) setRestoreStatus('storage-error')
       }
     }
     restoreFolder()
+    let checkingLocalFolder = false
     const timer = setInterval(async () => {
       if (
         !active ||
+        checkingLocalFolder ||
         connectingRef.current ||
         folderRef.current ||
         rememberedRef.current ||
         ['disconnected', 'picked', 'files'].includes(folderPreference.current)
       )
         return
-      const handle = await detectLocalFolder()
-      if (
-        !active ||
-        !handle ||
-        folderRef.current ||
-        connectingRef.current ||
-        rememberedRef.current ||
-        ['disconnected', 'picked', 'files'].includes(folderPreference.current)
-      )
-        return
-      connectingRef.current = true
-      setRestoreStatus('checking')
+      checkingLocalFolder = true
+      const generation = restoreGeneration.current
+      const canCheckLocal = () =>
+        active &&
+        generation === restoreGeneration.current &&
+        !folderRef.current &&
+        !connectingRef.current &&
+        !rememberedRef.current &&
+        !['disconnected', 'picked', 'files'].includes(folderPreference.current)
       try {
-        const result = await scanFolder(handle)
-        if (!active) return
+        const handle = await detectLocalFolder()
+        if (!canCheckLocal() || !handle) return
+        const result = await scanFolder(handle, canCheckLocal)
+        if (!canCheckLocal() || result.cancelled) return
         setFolder(handle)
         setRestoreResult(result)
         setRestoreStatus('restored')
       } catch {
-        if (active) setRestoreStatus('storage-error')
+        if (canCheckLocal()) setRestoreStatus('storage-error')
       } finally {
-        if (active) connectingRef.current = false
+        checkingLocalFolder = false
       }
     }, 3000)
     return () => {
@@ -761,40 +778,55 @@ export function useStorageState() {
 
   async function connect({ selectAnother = false, useLocal = false } = {}) {
     if (connectingRef.current) return { cancelled: true }
+    const generation = ++restoreGeneration.current
+    const isCurrent = () => generation === restoreGeneration.current
     connectingRef.current = true
     try {
       if (!selectAnother && !useLocal && rememberedFolder) {
-        return {
-          ...(await connectHandle(rememberedFolder, {
-            requestPermission: true,
-          })),
-          reconnected: true,
-        }
+        const result = await connectHandle(
+          rememberedFolder,
+          { requestPermission: true },
+          isCurrent,
+        )
+        return isCurrent()
+          ? { ...result, reconnected: true }
+          : { cancelled: true }
       }
       if (useLocal || !window.showDirectoryPicker) {
         const local = await detectLocalFolder()
+        if (!isCurrent()) return { cancelled: true }
         if (!local)
           return useLocal ? { localMissing: true } : { fallback: true }
-        return await connectHandle(local, { requestPermission: false })
+        return await connectHandle(
+          local,
+          { requestPermission: false },
+          isCurrent,
+        )
       }
       const handle = await window.showDirectoryPicker({
         mode: 'readwrite',
         id: 'careerkit-private-data',
       })
+      if (!isCurrent()) return { cancelled: true }
       if (handle.name !== 'private-data')
         return { wrongFolder: true, selectedName: handle.name }
-      return await connectHandle(handle, { requestPermission: true })
+      return await connectHandle(handle, { requestPermission: true }, isCurrent)
     } catch (error) {
+      if (!isCurrent()) return { cancelled: true }
       if (error.name === 'AbortError') return { cancelled: true }
       if (error.name === 'NotAllowedError') return { permissionDenied: true }
       if (error.name === 'SecurityError') return { fallback: true }
       return { error: error.message }
     } finally {
-      connectingRef.current = false
+      if (isCurrent()) connectingRef.current = false
     }
   }
 
-  async function connectHandle(handle, { requestPermission: mayRequest }) {
+  async function connectHandle(
+    handle,
+    { requestPermission: mayRequest },
+    shouldContinue = () => true,
+  ) {
     try {
       const permission =
         mayRequest && typeof handle.requestPermission === 'function'
@@ -802,6 +834,7 @@ export function useStorageState() {
           : typeof handle.queryPermission === 'function'
             ? await handle.queryPermission({ mode: 'readwrite' })
             : 'granted'
+      if (!shouldContinue()) return { cancelled: true }
       if (permission !== 'granted') {
         if (rememberedFolder === handle) setRestoreStatus('needs-permission')
         return { permissionDenied: true }
@@ -811,13 +844,11 @@ export function useStorageState() {
       try {
         if (!handle.local) await rememberDirectoryHandle(handle)
       } catch {
+        if (!shouldContinue()) return { cancelled: true }
         persistenceError = true
-        try {
-          await forgetDirectoryHandle()
-        } catch {
-          // The status message below tells the user the old selection may remain.
-        }
+        forgetDirectoryHandle().catch(() => {})
       }
+      if (!shouldContinue()) return { cancelled: true }
       const preference = handle.local ? 'local' : 'picked'
       folderPreference.current = preference
       const preferenceSaved = saveFolderPreference(preference)
@@ -831,7 +862,8 @@ export function useStorageState() {
       setStates({})
       setWarnings({})
       setRevision({})
-      const result = await scanFolder(handle)
+      const result = await scanFolder(handle, shouldContinue)
+      if (!shouldContinue() || result.cancelled) return { cancelled: true }
       setFolder(handle)
       setFallbackConnected(false)
       setRestoreResult(null)
@@ -842,6 +874,7 @@ export function useStorageState() {
         ...result,
       }
     } catch (error) {
+      if (!shouldContinue()) return { cancelled: true }
       if (error?.name === 'AbortError') return { cancelled: true }
       if (error?.name === 'NotAllowedError') return { permissionDenied: true }
       if (error?.name === 'SecurityError') return { fallback: true }
@@ -850,6 +883,8 @@ export function useStorageState() {
   }
 
   async function connectFiles(files) {
+    restoreGeneration.current += 1
+    connectingRef.current = false
     const selected = new Map()
     const duplicates = new Set()
     for (const file of Array.from(files || [])) {
@@ -1097,6 +1132,8 @@ export function useStorageState() {
   }
 
   async function disconnect(clear) {
+    restoreGeneration.current += 1
+    connectingRef.current = false
     folderPreference.current = 'disconnected'
     let persistenceCleared = saveFolderPreference('disconnected')
     try {

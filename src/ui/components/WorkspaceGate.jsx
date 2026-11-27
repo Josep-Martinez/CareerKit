@@ -22,30 +22,27 @@ export function WorkspaceGate({
     (item) => item.id === 'prepare-data',
   )
   const prompt = buildPromptText(setupPrompt)
-  const checking = restoreStatus === 'checking'
   const permissionRequired = restoreStatus === 'needs-permission'
   const storageError = restoreStatus === 'storage-error'
-  const title = checking
-    ? copy.checkingTitle
+  const title = permissionRequired
+    ? copy.rememberedTitle
+    : storageError
+      ? copy.storageErrorTitle
+      : copy.title
+  const body = permissionRequired
+    ? copy.rememberedBody
+    : storageError
+      ? copy.storageErrorBody
+      : copy.body
+  const useProjectFolder = Boolean(onConnectLocal) && !permissionRequired
+  const primaryLabel = connecting
+    ? copy.connecting
     : permissionRequired
-      ? copy.rememberedTitle
-      : storageError
-        ? copy.storageErrorTitle
-        : copy.title
-  const body = checking
-    ? copy.checkingBody
-    : permissionRequired
-      ? copy.rememberedBody
-      : storageError
-        ? copy.storageErrorBody
-        : copy.body
-  const primaryLabel = checking
-    ? copy.checking
-    : connecting
-      ? copy.connecting
-      : permissionRequired
-        ? copy.grantPermission
+      ? copy.grantPermission
+      : useProjectFolder
+        ? copy.connectLocal
         : s.connect
+  const primaryAction = useProjectFolder ? onConnectLocal : onConnect
 
   async function copyPrompt() {
     if (await copyTextToClipboard(prompt)) {
@@ -89,8 +86,8 @@ export function WorkspaceGate({
           <button
             className="button primary"
             type="button"
-            onClick={() => onConnect()}
-            disabled={connecting || checking}
+            onClick={() => primaryAction()}
+            disabled={connecting}
           >
             {primaryLabel}
           </button>
@@ -98,7 +95,6 @@ export function WorkspaceGate({
             className="button secondary"
             type="button"
             onClick={onOpenFiles}
-            disabled={connecting || checking}
           >
             {copy.openFiles}
           </button>
@@ -112,32 +108,30 @@ export function WorkspaceGate({
               {copy.chooseAnother}
             </button>
           )}
-          {!checking && onConnectLocal && (
+          {onConnectLocal && (
             <button
               className="button secondary"
               type="button"
-              onClick={onConnectLocal}
+              onClick={useProjectFolder ? onConnect : onConnectLocal}
               disabled={connecting}
             >
-              {copy.connectLocal}
+              {useProjectFolder ? copy.chooseFolder : copy.connectLocal}
             </button>
           )}
-          {!checking && (
-            <button
-              className="button secondary"
-              type="button"
-              aria-expanded={showPrompt}
-              aria-controls="workspace-setup-prompt"
-              onClick={() => {
-                setShowPrompt((visible) => !visible)
-                setPromptMessage('')
-              }}
-            >
-              {showPrompt ? copy.hidePrompt : copy.showPrompt}
-            </button>
-          )}
+          <button
+            className="button secondary"
+            type="button"
+            aria-expanded={showPrompt}
+            aria-controls="workspace-setup-prompt"
+            onClick={() => {
+              setShowPrompt((visible) => !visible)
+              setPromptMessage('')
+            }}
+          >
+            {showPrompt ? copy.hidePrompt : copy.showPrompt}
+          </button>
         </div>
-        {!checking && !permissionRequired && (
+        {!permissionRequired && (
           <p className="workspace-gate-picker-hint">{copy.pickerHelp}</p>
         )}
         {showPrompt && (
